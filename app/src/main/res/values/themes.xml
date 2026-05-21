@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.NextStep" parent="android:Theme.Material.Light.NoActionBar" />
     <!-- Alterado para herdar de Theme.AppCompat para suporte a idiomas -->
     <style name="Theme.NextStep" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Você pode adicionar cores customizadas aqui se necessário -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>

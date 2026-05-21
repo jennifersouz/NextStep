@@ -26,5 +26,58 @@
     <string name="toggle_password_visibility">Mostrar ou ocultar palavra-passe</string>
     <string name="no_account">Não tens conta?</string>
     <string name="create_account">Criar conta</string>
+    <string name="create_account_title">Criar conta</string>
+    <string name="create_account_subtitle">Escolhe o teu perfil e preenche os dados necessários.</string>
 
+    <string name="user_type_required">Tipo de utilizador *</string>
+    <string name="role_student">Aluno</string>
+    <string name="role_company">Empresa</string>
+    <string name="role_teacher">Docente</string>
+    <string name="role_supervisor">Orientador</string>
+    <string name="role_institution">Instituição</string>
+
+    <string name="account_validation_warning">Este tipo de conta requer validação pela instituição ou administrador antes de ter acesso total à plataforma.</string>
+
+    <string name="name_required">Nome *</string>
+    <string name="name_placeholder">Insira o seu nome</string>
+    <string name="last_name_required">Apelido *</string>
+    <string name="last_name_placeholder">Insira o seu último nome</string>
+    <string name="student_number_required">Número*</string>
+    <string name="student_number_placeholder">Ex: 31086</string>
+    <string name="course_required">Curso *</string>
+    <string name="course_placeholder">Ex: Engenharia Informática</string>
+    <string name="year_required">Ano *</string>
+    <string name="year_placeholder">Ex: 3.º ano</string>
+
+    <string name="company_name_required">Nome da empresa *</string>
+    <string name="company_name_placeholder">Ex: Tech Solutions</string>
+    <string name="nif_required">NIF *</string>
+    <string name="nif_placeholder">Ex: 500000000</string>
+    <string name="area_required">Área de atuação *</string>
+    <string name="area_placeholder">Ex: Desenvolvimento de Software</string>
+    <string name="location_required">Localização *</string>
+    <string name="location_placeholder">Ex: Porto</string>
+
+    <string name="teacher_number_required">Número de docente *</string>
+    <string name="teacher_number_placeholder">Ex: D1234</string>
+    <string name="department_required">Departamento *</string>
+    <string name="department_placeholder">Ex: Informática</string>
+
+    <string name="supervisor_company_required">Empresa associada *</string>
+    <string name="supervisor_company_placeholder">Ex: Tech Solutions</string>
+    <string name="job_title_required">Cargo *</string>
+    <string name="job_title_placeholder">Ex: Engenheiro de Software Sénior</string>
+
+    <string name="institution_name_required">Nome da instituição *</string>
+    <string name="institution_name_placeholder">Ex: IPVC</string>
+    <string name="institutional_domain_required">Domínio institucional *</string>
+    <string name="institutional_domain_placeholder">Ex: ipvc.pt</string>
+
+    <string name="create_account_button">Criar conta</string>
+    <string name="request_account_button">Solicitar conta</string>
+    <string name="already_have_account">Já tens conta?</string>
+    <string name="login">Entrar</string>
+
+    <string name="confirm_password_required">Confirmar palavra-passe *</string>
+    <string name="confirm_password_placeholder">Confirme a sua palavra-passe</string>
 </resources>

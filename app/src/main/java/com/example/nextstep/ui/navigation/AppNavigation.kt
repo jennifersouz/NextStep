@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.auth.LoginScreen
+import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import kotlinx.coroutines.delay
@@ -57,7 +58,23 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
-            LoginScreen()
+            LoginScreen(
+                onRegisterClick = {
+                    navController.navigate(Routes.REGISTER)
+                }
+            )
+        }
+
+        composable(Routes.REGISTER) {
+            RegisterScreen(
+                onLoginClick = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
     }
 }
