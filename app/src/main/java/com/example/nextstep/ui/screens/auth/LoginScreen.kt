@@ -33,6 +33,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 
@@ -63,11 +65,12 @@ fun LoginScreen(
     onLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val viewModel: AuthViewModel = viewModel()
+    val state by viewModel.loginState.collectAsState()
+
     var passwordVisible by remember { mutableStateOf(false) }
     var languageMenuExpanded by remember { mutableStateOf(false) }
-    
+
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
 
@@ -130,7 +133,7 @@ fun LoginScreen(
                             activity?.recreate()
                         },
                         modifier = Modifier.height(40.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
                     )
 
                     DropdownMenuItem(
@@ -186,8 +189,8 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = state.email,
+            onValueChange = viewModel::onLoginEmailChange,
             placeholder = {
                 Text(
                     text = stringResource(R.string.email_placeholder),
@@ -197,11 +200,22 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             singleLine = true,
+            isError = state.emailError != null,
+            supportingText = {
+                state.emailError?.let {
+                    Text(
+                        text = stringResource(it),
+                        color = Color(0xFFB00020)
+                    )
+                }
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFD9D9D9),
                 unfocusedBorderColor = Color(0xFFD9D9D9),
+                errorBorderColor = Color(0xFFB00020),
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+                errorContainerColor = Color.White
             )
         )
 
@@ -216,8 +230,8 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = state.password,
+            onValueChange = viewModel::onLoginPasswordChange,
             placeholder = {
                 Text(
                     text = stringResource(R.string.password_placeholder),
@@ -227,6 +241,15 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             singleLine = true,
+            isError = state.passwordError != null,
+            supportingText = {
+                state.passwordError?.let {
+                    Text(
+                        text = stringResource(it),
+                        color = Color(0xFFB00020)
+                    )
+                }
+            },
             visualTransformation = if (passwordVisible) {
                 VisualTransformation.None
             } else {
@@ -252,8 +275,10 @@ fun LoginScreen(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFD9D9D9),
                 unfocusedBorderColor = Color(0xFFD9D9D9),
+                errorBorderColor = Color(0xFFB00020),
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+                errorContainerColor = Color.White
             )
         )
 
@@ -284,9 +309,23 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(22.dp))
 
+        state.generalError?.let { errorRes ->
+            Text(
+                text = stringResource(errorRes),
+                color = Color(0xFFB00020),
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+
         Button(
             onClick = {
-                onLoginClick()
+                if (viewModel.validateLogin()) {
+                    onLoginClick()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()

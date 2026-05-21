@@ -81,4 +81,19 @@
 
     <string name="confirm_password_required">Confirm password *</string>
     <string name="confirm_password_placeholder">Confirm your password</string>
+
+    <string name="form_has_errors">Please correct the highlighted fields before continuing.</string>
+    <string name="error_required_field">Required field.</string>
+    <string name="error_invalid_email">Enter a valid email address.</string>
+    <string name="error_password_too_short">Password must be at least 6 characters long.</string>
+    <string name="error_passwords_do_not_match">Passwords do not match.</string>
+    <string name="error_student_number_digits">Student number must contain only digits.</string>
+    <string name="error_year_number">Year must be a number.</string>
+    <string name="error_year_range">Year must be between 1 and 6.</string>
+    <string name="error_nif_digits">Tax ID must contain only digits.</string>
+    <string name="error_nif_length">Tax ID must have 9 digits.</string>
+    <string name="error_name_too_short">Name must have at least 2 characters.</string>
+    <string name="error_only_letters">Use only letters and spaces.</string>
+    <string name="error_company_name_too_short">Company name must have at least 2 characters.</string>
+    <string name="error_invalid_company_name">Use only letters, spaces, - or .</string>
 </resources>

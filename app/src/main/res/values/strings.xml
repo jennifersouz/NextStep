@@ -80,4 +80,20 @@
 
     <string name="confirm_password_required">Confirmar palavra-passe *</string>
     <string name="confirm_password_placeholder">Confirme a sua palavra-passe</string>
+
+    <string name="form_has_errors">Corrija os campos assinalados antes de continuar.</string>
+    <string name="error_required_field">Campo obrigatório.</string>
+    <string name="error_invalid_email">Introduza um email válido.</string>
+    <string name="error_password_too_short">A palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="error_passwords_do_not_match">As palavras-passe não coincidem.</string>
+    <string name="error_student_number_digits">O número deve conter apenas dígitos.</string>
+    <string name="error_year_number">O ano deve ser um número.</string>
+    <string name="error_year_range">O ano deve estar entre 1 e 6.</string>
+    <string name="error_nif_digits">O NIF deve conter apenas dígitos.</string>
+    <string name="error_nif_length">O NIF deve ter 9 dígitos.</string>
+    <string name="error_name_too_short">O nome deve ter pelo menos 2 caracteres.</string>
+    <string name="error_only_letters">Use apenas letras e espaços.</string>
+    <string name="error_company_name_too_short">O nome da empresa deve ter pelo menos 2 caracteres.</string>
+    <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
+
 </resources>
