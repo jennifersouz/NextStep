@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NextStep</string>
+    <string name="continue_button">Continue</string>
+    <string name="login_register">Login/Register</string>
+    <string name="back">Back</string>
+
+    <string name="onboarding1_description">
+        We connect schools and companies in a single platform to create real opportunities and simplify talent management.
+    </string>
+
+    <string name="onboarding2_description">
+        Track your practical progress and connect with top companies in a simple and fast way.
+    </string>
+
+    <string name="onboarding3_description">
+        A simple and efficient way to manage internships, track progress and connect students, supervisors and companies in one place.
+    </string>
+
+    <string name="change_language">Change language</string>
+    <string name="login_welcome_back">Welcome back!</string>
+    <string name="login_subtitle">Sign in to your account to continue.</string>
+    <string name="email_required">E-mail *</string>
+    <string name="email_placeholder">Enter your email</string>
+    <string name="password_required">Password *</string>
+    <string name="password_placeholder">Enter your password</string>
+    <string name="toggle_password_visibility">Show or hide password</string>
+    <string name="no_account">Don’t have an account?</string>
+    <string name="create_account">Create account</string>
+
+</resources>

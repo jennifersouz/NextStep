@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">NextStep</string>
+    <string name="continue_button">Continuar</string>
+    <string name="login_register">Entrar/Registar</string>
+    <string name="back">Voltar</string>
+
+    <string name="onboarding1_description">
+        Unimos escolas e empresas numa plataforma única para criar oportunidades reais e simplificar a gestão de talentos.
+    </string>
+
+    <string name="onboarding2_description">
+        Acompanhe a sua evolução prática e conecte-se com as melhores empresas de forma simples e rápida.
+    </string>
+
+    <string name="onboarding3_description">
+        A forma simples e eficiente de gerir estágios, acompanhar o progresso e ligar alunos, orientadores e empresas num só lugar.
+    </string>
+
+    <string name="change_language">Alterar idioma</string>
+    <string name="login_welcome_back">Bem-vindo de volta!</string>
+    <string name="login_subtitle">Entra na tua conta para continuar.</string>
+    <string name="email_required">E-mail *</string>
+    <string name="email_placeholder">Insira o seu email</string>
+    <string name="password_required">Palavra-Passe *</string>
+    <string name="password_placeholder">Insira a sua palavra-passe</string>
+    <string name="toggle_password_visibility">Mostrar ou ocultar palavra-passe</string>
+    <string name="no_account">Não tens conta?</string>
+    <string name="create_account">Criar conta</string>
+
 </resources>

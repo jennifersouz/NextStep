@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 
 data class OnboardingPage(
-    val description: String,
+    val descriptionRes: Int,
     val image: Int
 )
 
@@ -49,15 +50,15 @@ fun IntroScreen(
 ) {
     val pages = listOf(
         OnboardingPage(
-            description = "Unimos escolas e empresas numa plataforma única para criar oportunidades reais e simplificar a gestão de talentos.",
+            descriptionRes = R.string.onboarding1_description,
             image = R.drawable.onboarding1
         ),
         OnboardingPage(
-            description = "Acompanhe a sua evolução prática e conecte-se com as melhores empresas de forma simples e rápida.",
+            descriptionRes = R.string.onboarding2_description,
             image = R.drawable.onboarding2
         ),
         OnboardingPage(
-            description = "A forma simples e eficiente de gerir estágios, acompanhar o progresso e ligar alunos, orientadores e empresas num só lugar.",
+            descriptionRes = R.string.onboarding3_description,
             image = R.drawable.onboarding3
         )
     )
@@ -91,7 +92,7 @@ fun IntroScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Voltar",
+                        contentDescription = stringResource(R.string.back),
                         tint = Color.Black
                     )
                 }
@@ -100,7 +101,7 @@ fun IntroScreen(
             }
 
             Text(
-                text = "NextStep",
+                text = stringResource(R.string.app_name),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -118,7 +119,7 @@ fun IntroScreen(
             )
         ) {
             Text(
-                text = page.description,
+                text = stringResource(id = page.descriptionRes),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 22.dp),
@@ -165,7 +166,11 @@ fun IntroScreen(
             )
         ) {
             Text(
-                text = if(currentPage == pages.lastIndex) "Login/Registo" else "Continuar",
+                text = if (currentPage == pages.lastIndex) {
+                    stringResource(R.string.login_register)
+                } else {
+                    stringResource(R.string.continue_button)
+                },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
