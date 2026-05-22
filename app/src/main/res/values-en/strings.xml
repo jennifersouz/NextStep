@@ -98,10 +98,10 @@
     <string name="error_invalid_company_name">Use only letters, spaces, - or .</string>
     <string name="error_login_failed">Could not sign in. Please check your email and password.</string>
     <string name="error_register_failed">Could not create the account. Please check your details or try again.</string>
-
     <string name="error_user_already_exists">This email is already registered. Try signing in.</string>
     <string name="error_invalid_credentials">Incorrect email or password.</string>
     <string name="error_password_invalid_supabase">The password does not meet the security requirements.</string>
     <string name="error_network">Could not connect to the server. Please check your internet connection.</string>
     <string name="error_unknown_auth">An error occurred. Please try again later.</string>
+    <string name="error_database_permission">Could not save profile data. Please check the database permissions.</string>
 </resources>

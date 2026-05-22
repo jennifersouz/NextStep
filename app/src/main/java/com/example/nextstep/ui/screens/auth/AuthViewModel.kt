@@ -1,13 +1,14 @@
 package com.example.nextstep.ui.screens.auth
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
 import com.example.nextstep.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
@@ -45,7 +46,20 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onRoleChange(role: UserRole) {
-        _registerState.value = RegisterUiState(selectedRole = role)
+        _registerState.value = _registerState.value.copy(
+            selectedRole = role,
+            nameError = null,
+            lastNameError = null,
+            studentNumberError = null,
+            courseError = null,
+            yearError = null,
+            companyNameError = null,
+            nifError = null,
+            areaError = null,
+            locationError = null,
+            generalError = null,
+            generalErrorText = null
+        )
     }
 
     fun onLoginEmailChange(value: String) {
@@ -219,13 +233,17 @@ class AuthViewModel : ViewModel() {
     fun validateRegister(): Boolean {
         val state = _registerState.value
 
-        val nameError = validatePersonName(state.name)
+        // Validação comum
         val emailError = validateEmail(state.email)
         val passwordError = validatePassword(state.password)
         val confirmPasswordError = validateConfirmPassword(
             password = state.password,
             confirmPassword = state.confirmPassword
         )
+
+        // Validação condicional por Role
+        val nameError =
+            if (state.selectedRole == UserRole.STUDENT) validatePersonName(state.name) else null
 
         val lastNameError =
             if (state.selectedRole == UserRole.STUDENT) validatePersonName(state.lastName) else null
@@ -250,6 +268,12 @@ class AuthViewModel : ViewModel() {
 
         val locationError =
             if (state.selectedRole == UserRole.COMPANY) validateRequiredText(state.location) else null
+
+        // Logs de Debug
+        Log.d("AuthViewModel", "selectedRole=${state.selectedRole}")
+        Log.d("AuthViewModel", "nameError=$nameError, lastNameError=$lastNameError, studentNumberError=$studentNumberError, courseError=$courseError, yearError=$yearError")
+        Log.d("AuthViewModel", "companyNameError=$companyNameError, nifError=$nifError, areaError=$areaError, locationError=$locationError")
+        Log.d("AuthViewModel", "emailError=$emailError, passwordError=$passwordError, confirmPasswordError=$confirmPasswordError")
 
         val hasErrors = listOf(
             nameError,
@@ -404,22 +428,42 @@ class AuthViewModel : ViewModel() {
         val state = _registerState.value
 
         viewModelScope.launch {
-            _registerState.value = state.copy(generalError = null, generalErrorText = null)
-
-            val result = authRepository.register(
-                email = state.email,
-                password = state.password
+            _registerState.value = state.copy(
+                generalError = null
             )
+
+            val result = when (state.selectedRole) {
+                UserRole.STUDENT -> {
+                    authRepository.registerStudent(
+                        email = state.email,
+                        password = state.password,
+                        firstName = state.name,
+                        lastName = state.lastName,
+                        studentNumber = state.studentNumber,
+                        course = state.course,
+                        academicYear = state.year.toInt()
+                    )
+                }
+
+                UserRole.COMPANY -> {
+                    authRepository.registerCompany(
+                        email = state.email,
+                        password = state.password,
+                        companyName = state.companyName,
+                        nif = state.nif,
+                        businessArea = state.area,
+                        location = state.location
+                    )
+                }
+            }
 
             if (result.isSuccess) {
                 onSuccess()
             } else {
                 _registerState.value = _registerState.value.copy(
-                    generalError = mapAuthErrorToMessage(result.exceptionOrNull()),
-                    generalErrorText = null
+                    generalError = mapAuthErrorToMessage(result.exceptionOrNull())
                 )
             }
         }
     }
-
 }

@@ -103,4 +103,5 @@
     <string name="error_password_invalid_supabase">A palavra-passe não cumpre os requisitos de segurança.</string>
     <string name="error_network">Não foi possível ligar ao servidor. Verifique a sua ligação à internet.</string>
     <string name="error_unknown_auth">Ocorreu um erro. Tente novamente mais tarde.</string>
+    <string name="error_database_permission">Não foi possível guardar os dados do perfil. Verifique as permissões da base de dados.</string>
 </resources>
