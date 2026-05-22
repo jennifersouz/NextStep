@@ -3,9 +3,12 @@ package com.example.nextstep.ui.screens.auth
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
 
@@ -14,6 +17,32 @@ class AuthViewModel : ViewModel() {
 
     private val _loginState = MutableStateFlow(LoginUiState())
     val loginState: StateFlow<LoginUiState> = _loginState.asStateFlow()
+
+    private val authRepository = AuthRepository()
+
+    private fun mapAuthErrorToMessage(exception: Throwable?): Int {
+        val message = exception?.message.orEmpty().lowercase()
+
+        return when {
+            "user_already_exists" in message || "already registered" in message ->
+                R.string.error_user_already_exists
+
+            "invalid login credentials" in message ->
+                R.string.error_invalid_credentials
+
+            "email" in message && "invalid" in message ->
+                R.string.error_invalid_email
+
+            "password" in message ->
+                R.string.error_password_invalid_supabase
+
+            "network" in message || "unable to resolve host" in message || "timeout" in message ->
+                R.string.error_network
+
+            else ->
+                R.string.error_unknown_auth
+        }
+    }
 
     fun onRoleChange(role: UserRole) {
         _registerState.value = RegisterUiState(selectedRole = role)
@@ -53,13 +82,15 @@ class AuthViewModel : ViewModel() {
 
         return !hasErrors
     }
+
     fun onNameChange(value: String) {
         val filteredValue = value.filter { it.isLetter() || it.isWhitespace() }
 
         _registerState.value = _registerState.value.copy(
             name = filteredValue,
             nameError = validatePersonName(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -69,7 +100,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             lastName = filteredValue,
             lastNameError = validatePersonName(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -77,7 +109,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             email = value.trim(),
             emailError = validateEmail(value.trim()),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -92,7 +125,8 @@ class AuthViewModel : ViewModel() {
             } else {
                 null
             },
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -100,7 +134,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             confirmPassword = value,
             confirmPasswordError = null,
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -110,7 +145,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             studentNumber = filteredValue,
             studentNumberError = validateStudentNumber(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -120,7 +156,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             year = filteredValue,
             yearError = validateYear(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -136,7 +173,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             companyName = filteredValue,
             companyNameError = validateCompanyName(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -146,7 +184,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             nif = filteredValue,
             nifError = validateNif(filteredValue),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -154,7 +193,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             course = value,
             courseError = validateRequiredText(value),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -162,7 +202,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             area = value,
             areaError = validateRequiredText(value),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -170,7 +211,8 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             location = value,
             locationError = validateRequiredText(value),
-            generalError = null
+            generalError = null,
+            generalErrorText = null
         )
     }
 
@@ -237,7 +279,8 @@ class AuthViewModel : ViewModel() {
             nifError = nifError,
             areaError = areaError,
             locationError = locationError,
-            generalError = if (hasErrors) R.string.form_has_errors else null
+            generalError = if (hasErrors) R.string.form_has_errors else null,
+            generalErrorText = null
         )
 
         return !hasErrors
@@ -249,6 +292,7 @@ class AuthViewModel : ViewModel() {
             else -> null
         }
     }
+
     private fun validateRequiredText(value: String): Int? {
         return if (value.isBlank()) R.string.error_required_field else null
     }
@@ -328,4 +372,54 @@ class AuthViewModel : ViewModel() {
             else -> null
         }
     }
+
+    fun login(onSuccess: () -> Unit) {
+        if (!validateLogin()) return
+
+        val state = _loginState.value
+
+        viewModelScope.launch {
+            _loginState.value = state.copy(isLoading = true, generalError = null)
+
+            val result = authRepository.login(
+                email = state.email,
+                password = state.password
+            )
+
+            _loginState.value = _loginState.value.copy(isLoading = false)
+
+            if (result.isSuccess) {
+                onSuccess()
+            } else {
+                _loginState.value = _loginState.value.copy(
+                    generalError = mapAuthErrorToMessage(result.exceptionOrNull())
+                )
+            }
+        }
+    }
+
+    fun register(onSuccess: () -> Unit) {
+        if (!validateRegister()) return
+
+        val state = _registerState.value
+
+        viewModelScope.launch {
+            _registerState.value = state.copy(generalError = null, generalErrorText = null)
+
+            val result = authRepository.register(
+                email = state.email,
+                password = state.password
+            )
+
+            if (result.isSuccess) {
+                onSuccess()
+            } else {
+                _registerState.value = _registerState.value.copy(
+                    generalError = mapAuthErrorToMessage(result.exceptionOrNull()),
+                    generalErrorText = null
+                )
+            }
+        }
+    }
+
 }
