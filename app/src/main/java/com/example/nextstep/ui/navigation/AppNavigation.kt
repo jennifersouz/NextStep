@@ -11,6 +11,7 @@ import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
+import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -61,6 +62,13 @@ fun AppNavigation() {
             LoginScreen(
                 onRegisterClick = {
                     navController.navigate(Routes.REGISTER)
+                },
+                onLoginClick = {
+                    navController.navigate(Routes.STUDENT_DASHBOARD) {
+                        popUpTo(Routes.LOGIN) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -75,6 +83,10 @@ fun AppNavigation() {
                     }
                 }
             )
+        }
+
+        composable(Routes.STUDENT_DASHBOARD) {
+            StudentDashboardScreen()
         }
     }
 }

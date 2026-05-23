@@ -104,4 +104,18 @@
     <string name="error_network">Could not connect to the server. Please check your internet connection.</string>
     <string name="error_unknown_auth">An error occurred. Please try again later.</string>
     <string name="error_database_permission">Could not save profile data. Please check the database permissions.</string>
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+    <string name="results_count">%1$d results</string>
+
+    <string name="home">Home</string>
+    <string name="internships">Internships</string>
+    <string name="notifications">Notifications</string>
+    <string name="messages">Messages</string>
+    <string name="profile">Profile</string>
+    <string name="no_offers_title">No offers available yet</string>
+    <string name="no_offers_subtitle">When internships are published, they will appear here.</string>
+    <string name="no_search_results_title">No results found</string>
+    <string name="no_search_results_subtitle">Try searching for another course, company or location.</string>
+    <string name="try_again">Try again</string>
 </resources>
