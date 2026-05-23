@@ -118,4 +118,34 @@
     <string name="no_search_results_title">No results found</string>
     <string name="no_search_results_subtitle">Try searching for another course, company or location.</string>
     <string name="try_again">Try again</string>
+    <string name="company_manage_internships_title">Manage internships</string>
+    <string name="company_pending">Pending</string>
+    <string name="company_completed">Completed</string>
+
+    <string name="company_internships_load_error">Could not load internships. Please try again.</string>
+
+    <string name="company_no_pending_internships_title">No pending internships</string>
+    <string name="company_no_pending_internships_subtitle">When there are active internship students, they will appear here.</string>
+
+    <string name="company_no_completed_internships_title">No completed internships</string>
+    <string name="company_no_completed_internships_subtitle">Completed internships will appear in this section.</string>
+
+    <string name="company_tab_internships">Intern.</string>
+    <string name="company_tab_applications">Apps</string>
+    <string name="company_tab_create">Create</string>
+    <string name="company_tab_team">Team</string>
+    <string name="company_tab_profile">Profile</string>
+
+    <string name="company_applications_title">Applications</string>
+    <string name="company_applications_placeholder">Here you will be able to review received applications.</string>
+
+    <string name="company_create_offer_title">Create offer</string>
+    <string name="company_create_offer_placeholder">Here you will be able to publish a new internship offer.</string>
+
+    <string name="company_team_title">Team</string>
+    <string name="company_team_placeholder">Here you will be able to manage company supervisors and users.</string>
+
+    <string name="company_profile_title">Profile</string>
+    <string name="company_profile_placeholder">Here you will be able to view and edit company information.</string>
+    <string name="error_unknown_user_role">Unknown user type. Please contact support.</string>
 </resources>

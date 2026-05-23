@@ -397,23 +397,40 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun login(onSuccess: () -> Unit) {
+    fun login(onSuccess: (UserRole) -> Unit) {
         if (!validateLogin()) return
 
         val state = _loginState.value
 
         viewModelScope.launch {
-            _loginState.value = state.copy(isLoading = true, generalError = null)
+            _loginState.value = state.copy(
+                isLoading = true,
+                generalError = null
+            )
 
             val result = authRepository.login(
                 email = state.email,
                 password = state.password
             )
 
-            _loginState.value = _loginState.value.copy(isLoading = false)
+            _loginState.value = _loginState.value.copy(
+                isLoading = false
+            )
 
             if (result.isSuccess) {
-                onSuccess()
+                val role = when (result.getOrNull()) {
+                    "student" -> UserRole.STUDENT
+                    "company" -> UserRole.COMPANY
+                    else -> null
+                }
+
+                if (role != null) {
+                    onSuccess(role)
+                } else {
+                    _loginState.value = _loginState.value.copy(
+                        generalError = R.string.error_unknown_user_role
+                    )
+                }
             } else {
                 _loginState.value = _loginState.value.copy(
                     generalError = mapAuthErrorToMessage(result.exceptionOrNull())

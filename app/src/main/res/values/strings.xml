@@ -118,4 +118,34 @@
     <string name="no_search_results_title">Nenhum resultado encontrado</string>
     <string name="no_search_results_subtitle">Tente pesquisar por outro curso, empresa ou localização.</string>
     <string name="try_again">Tentar novamente</string>
+    <string name="company_manage_internships_title">Gerir estágios</string>
+    <string name="company_pending">Por concluir</string>
+    <string name="company_completed">Concluído</string>
+
+    <string name="company_internships_load_error">Não foi possível carregar os estágios. Tente novamente.</string>
+
+    <string name="company_no_pending_internships_title">Sem estágios por concluir</string>
+    <string name="company_no_pending_internships_subtitle">Quando existirem alunos em estágio ativo, eles vão aparecer aqui.</string>
+
+    <string name="company_no_completed_internships_title">Sem estágios concluídos</string>
+    <string name="company_no_completed_internships_subtitle">Os estágios finalizados vão aparecer nesta secção.</string>
+
+    <string name="company_tab_internships">Estágios</string>
+    <string name="company_tab_applications">Candid.</string>
+    <string name="company_tab_create">Criar</string>
+    <string name="company_tab_team">Equipa</string>
+    <string name="company_tab_profile">Perfil</string>
+
+    <string name="company_applications_title">Candidaturas</string>
+    <string name="company_applications_placeholder">Aqui vais poder analisar candidaturas recebidas.</string>
+
+    <string name="company_create_offer_title">Criar oferta</string>
+    <string name="company_create_offer_placeholder">Aqui vais poder publicar uma nova oferta de estágio.</string>
+
+    <string name="company_team_title">Equipa</string>
+    <string name="company_team_placeholder">Aqui vais poder gerir orientadores e utilizadores da empresa.</string>
+
+    <string name="company_profile_title">Perfil</string>
+    <string name="company_profile_placeholder">Aqui vais poder consultar e editar os dados da empresa.</string>
+    <string name="error_unknown_user_role">Tipo de utilizador desconhecido. Contacte o suporte.</string>
 </resources>

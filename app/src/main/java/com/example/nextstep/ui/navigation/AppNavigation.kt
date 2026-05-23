@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
+import com.example.nextstep.ui.screens.auth.UserRole
+import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
@@ -63,8 +65,13 @@ fun AppNavigation() {
                 onRegisterClick = {
                     navController.navigate(Routes.REGISTER)
                 },
-                onLoginClick = {
-                    navController.navigate(Routes.STUDENT_DASHBOARD) {
+                onLoginClick = { role ->
+                    val destination = when (role) {
+                        UserRole.STUDENT -> Routes.STUDENT_DASHBOARD
+                        UserRole.COMPANY -> Routes.COMPANY_DASHBOARD
+                    }
+
+                    navController.navigate(destination) {
                         popUpTo(Routes.LOGIN) {
                             inclusive = true
                         }
@@ -87,6 +94,10 @@ fun AppNavigation() {
 
         composable(Routes.STUDENT_DASHBOARD) {
             StudentDashboardScreen()
+        }
+
+        composable(Routes.COMPANY_DASHBOARD) {
+            CompanyDashboardScreen()
         }
     }
 }

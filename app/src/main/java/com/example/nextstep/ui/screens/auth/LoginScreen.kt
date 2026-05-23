@@ -62,7 +62,7 @@ fun Context.findActivity(): Activity? = when (this) {
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (UserRole) -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
     val viewModel: AuthViewModel = viewModel()
