@@ -7,4 +7,10 @@ object Routes {
     const val REGISTER = "register"
     const val STUDENT_DASHBOARD = "student_dashboard"
     const val COMPANY_DASHBOARD = "company_dashboard"
+    const val STUDENT_OFFER_DETAIL = "student_offer_detail"
+    const val STUDENT_OFFER_DETAIL_ARG = "offerId"
+
+    fun studentOfferDetail(offerId: String): String {
+        return "$STUDENT_OFFER_DETAIL/$offerId"
+    }
 }

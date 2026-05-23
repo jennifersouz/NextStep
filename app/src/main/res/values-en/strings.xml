@@ -191,4 +191,18 @@
     <string name="create_offer_error_company_profile">Could not find company data linked to this account.</string>
     <string name="create_offer_error_missing_database_field">The offers table structure is not compatible with the submitted data.</string>
     <string name="create_offer_error_unauthenticated">Session expired. Please log in again.</string>
+    <string name="apply_button">Apply</string>
+    <string name="save_offer">Save offer</string>
+
+    <string name="offer_detail_load_error">Could not load offer details. Please try again.</string>
+    <string name="offer_detail_not_found">Offer not found.</string>
+
+    <string name="offer_location">Location</string>
+    <string name="offer_description">Description</string>
+    <string name="offer_area">Area</string>
+    <string name="offer_work_mode">Work mode</string>
+    <string name="offer_duration">Duration</string>
+    <string name="offer_vacancies">Vacancies</string>
+    <string name="offer_vacancies_value">%1$d vacancy/vacancies</string>
+    <string name="offer_requirements">Requirements</string>
 </resources>

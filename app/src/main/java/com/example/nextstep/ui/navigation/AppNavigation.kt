@@ -3,9 +3,11 @@ package com.example.nextstep.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
@@ -14,6 +16,7 @@ import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
+import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -93,11 +96,38 @@ fun AppNavigation() {
         }
 
         composable(Routes.STUDENT_DASHBOARD) {
-            StudentDashboardScreen()
+            StudentDashboardScreen(
+                onOfferClick = { offerId ->
+                    navController.navigate(Routes.studentOfferDetail(offerId))
+                }
+            )
         }
 
         composable(Routes.COMPANY_DASHBOARD) {
             CompanyDashboardScreen()
+        }
+
+        composable(
+            route = "${Routes.STUDENT_OFFER_DETAIL}/{${Routes.STUDENT_OFFER_DETAIL_ARG}}",
+            arguments = listOf(
+                navArgument(Routes.STUDENT_OFFER_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val offerId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_OFFER_DETAIL_ARG)
+                .orEmpty()
+
+            StudentOfferDetailScreen(
+                offerId = offerId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onApplyClick = {
+                    // Próxima task: criar candidatura.
+                }
+            )
         }
     }
 }

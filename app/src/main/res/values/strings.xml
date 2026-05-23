@@ -191,4 +191,18 @@
     <string name="create_offer_error_company_profile">Não foi possível encontrar os dados da empresa associados a esta conta.</string>
     <string name="create_offer_error_missing_database_field">A estrutura da tabela de ofertas não está compatível com os dados enviados.</string>
     <string name="create_offer_error_unauthenticated">Sessão expirada. Inicie sessão novamente.</string>
+    <string name="apply_button">Candidatar-me</string>
+    <string name="save_offer">Guardar oferta</string>
+
+    <string name="offer_detail_load_error">Não foi possível carregar os detalhes da oferta. Tente novamente.</string>
+    <string name="offer_detail_not_found">Oferta não encontrada.</string>
+
+    <string name="offer_location">Localização</string>
+    <string name="offer_description">Descrição</string>
+    <string name="offer_area">Área</string>
+    <string name="offer_work_mode">Regime</string>
+    <string name="offer_duration">Duração</string>
+    <string name="offer_vacancies">Vagas</string>
+    <string name="offer_vacancies_value">%1$d vaga(s)</string>
+    <string name="offer_requirements">Requisitos</string>
 </resources>
