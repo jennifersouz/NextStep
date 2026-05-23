@@ -116,9 +116,13 @@ fun CompanyDashboardScreen(
                 }
 
                 CompanyBottomRoutes.CREATE_OFFER -> {
-                    CompanyPlaceholderContent(
-                        title = stringResource(R.string.company_create_offer_title),
-                        subtitle = stringResource(R.string.company_create_offer_placeholder)
+                    CreateOfferScreen(
+                        onBackClick = {
+                            selectedBottomRoute = CompanyBottomRoutes.INTERNSHIPS
+                        },
+                        onOfferCreated = {
+                            selectedBottomRoute = CompanyBottomRoutes.INTERNSHIPS
+                        }
                     )
                 }
 

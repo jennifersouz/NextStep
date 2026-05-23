@@ -148,4 +148,47 @@
     <string name="company_profile_title">Profile</string>
     <string name="company_profile_placeholder">Here you will be able to view and edit company information.</string>
     <string name="error_unknown_user_role">Unknown user type. Please contact support.</string>
+    <string name="create_offer_title">Create internship offer</string>
+    <string name="offer_position_required">Position *</string>
+    <string name="offer_position_placeholder">Enter the position</string>
+    <string name="offer_description_required">Description *</string>
+    <string name="offer_description_placeholder">Enter a description</string>
+    <string name="offer_area_required">Area *</string>
+    <string name="select">Select</string>
+    <string name="offer_location_required">Location *</string>
+    <string name="offer_location_placeholder">Ex: Porto, Portugal</string>
+    <string name="offer_work_mode_required">Work mode *</string>
+    <string name="offer_duration_required">Duration *</string>
+    <string name="offer_duration_placeholder">Ex: 3 months</string>
+    <string name="offer_vacancies_required">Number of vacancies *</string>
+    <string name="offer_vacancies_placeholder">Ex: 2</string>
+    <string name="error_vacancies_number">The number of vacancies must be numeric.</string>
+    <string name="error_vacancies_min">There must be at least 1 vacancy.</string>
+    <string name="error_vacancies_max">The maximum number of vacancies is 99.</string>
+
+    <string name="offer_requirements_required">Requirements *</string>
+    <string name="offer_requirements_placeholder">Ex: Kotlin, Git, teamwork</string>
+
+    <string name="offer_area_mobile">Mobile Development</string>
+    <string name="offer_area_web">Web Systems</string>
+    <string name="offer_area_ai">Artificial Intelligence</string>
+    <string name="offer_area_cybersecurity">Cybersecurity</string>
+    <string name="offer_area_data">Data</string>
+    <string name="offer_area_design">Design</string>
+    <string name="offer_area_management">Management</string>
+    <string name="offer_area_other">Other</string>
+
+    <string name="work_mode_remote">Remote</string>
+    <string name="work_mode_onsite">On-site</string>
+    <string name="work_mode_hybrid">Hybrid</string>
+
+    <string name="create_offer_success">Offer created successfully.</string>
+    <string name="create_offer_error">Could not create the offer. Please try again.</string>
+    <string name="creating">Creating...</string>
+    <string name="create">Create</string>
+
+    <string name="create_offer_error_permission">You do not have permission to create offers. Check if this account is registered as a company.</string>
+    <string name="create_offer_error_company_profile">Could not find company data linked to this account.</string>
+    <string name="create_offer_error_missing_database_field">The offers table structure is not compatible with the submitted data.</string>
+    <string name="create_offer_error_unauthenticated">Session expired. Please log in again.</string>
 </resources>

@@ -148,4 +148,47 @@
     <string name="company_profile_title">Perfil</string>
     <string name="company_profile_placeholder">Aqui vais poder consultar e editar os dados da empresa.</string>
     <string name="error_unknown_user_role">Tipo de utilizador desconhecido. Contacte o suporte.</string>
+    <string name="create_offer_title">Criar oferta de estágio</string>
+    <string name="offer_position_required">Cargo *</string>
+    <string name="offer_position_placeholder">Insira o cargo</string>
+    <string name="offer_description_required">Descrição *</string>
+    <string name="offer_description_placeholder">Insira uma descrição</string>
+    <string name="offer_area_required">Área *</string>
+    <string name="select">Selecionar</string>
+    <string name="offer_location_required">Localização *</string>
+    <string name="offer_location_placeholder">Ex: Porto, Portugal</string>
+    <string name="offer_work_mode_required">Regime *</string>
+    <string name="offer_duration_required">Duração *</string>
+    <string name="offer_duration_placeholder">Ex: 3 meses</string>
+    <string name="offer_vacancies_required">Número de vagas *</string>
+    <string name="offer_vacancies_placeholder">Ex: 2</string>
+    <string name="offer_requirements_required">Requisitos *</string>
+    <string name="offer_requirements_placeholder">Ex: Kotlin, Git, trabalho em equipa</string>
+
+    <string name="offer_area_mobile">Programação Móvel</string>
+    <string name="offer_area_web">Sistemas Web</string>
+    <string name="offer_area_ai">Inteligência Artificial</string>
+    <string name="offer_area_cybersecurity">Cibersegurança</string>
+    <string name="offer_area_data">Dados</string>
+    <string name="offer_area_design">Design</string>
+    <string name="offer_area_management">Gestão</string>
+    <string name="offer_area_other">Outra</string>
+
+    <string name="work_mode_remote">Remoto</string>
+    <string name="work_mode_onsite">Presencial</string>
+    <string name="work_mode_hybrid">Híbrido</string>
+
+    <string name="error_vacancies_number">O número de vagas deve ser numérico.</string>
+    <string name="error_vacancies_min">Deve existir pelo menos 1 vaga.</string>
+    <string name="error_vacancies_max">O número máximo de vagas é 99.</string>
+
+    <string name="create_offer_success">Oferta criada com sucesso.</string>
+    <string name="create_offer_error">Não foi possível criar a oferta. Tente novamente.</string>
+    <string name="creating">A criar...</string>
+    <string name="create">Criar</string>
+
+    <string name="create_offer_error_permission">Não tens permissão para criar ofertas. Confirma se esta conta está registada como empresa.</string>
+    <string name="create_offer_error_company_profile">Não foi possível encontrar os dados da empresa associados a esta conta.</string>
+    <string name="create_offer_error_missing_database_field">A estrutura da tabela de ofertas não está compatível com os dados enviados.</string>
+    <string name="create_offer_error_unauthenticated">Sessão expirada. Inicie sessão novamente.</string>
 </resources>

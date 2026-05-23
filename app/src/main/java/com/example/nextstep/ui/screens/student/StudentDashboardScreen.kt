@@ -86,6 +86,7 @@ data class StudentBottomNavItem(
 
 @Composable
 fun StudentDashboardScreen(
+    onOfferClick: (String) -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -175,8 +176,7 @@ fun StudentDashboardScreen(
                         InternshipOfferCard(
                             offer = offer,
                             onClick = {
-                                // Depois: abrir detalhes da oferta
-                            }
+                                onOfferClick(offer.id)                            }
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
