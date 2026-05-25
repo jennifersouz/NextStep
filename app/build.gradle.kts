@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+
 }
 
 val localProperties = Properties()
@@ -87,6 +88,7 @@ dependencies {
     implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
     implementation(libs.ktor.client.android)
+    implementation(libs.supabase.storage)
 
     testImplementation(libs.junit)
 

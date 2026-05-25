@@ -205,4 +205,26 @@
     <string name="offer_vacancies">Vacancies</string>
     <string name="offer_vacancies_value">%1$d vacancy/vacancies</string>
     <string name="offer_requirements">Requirements</string>
+    <string name="applying">Applying...</string>
+    <string name="applied_button">Application sent</string>
+
+    <string name="application_success">Application sent successfully.</string>
+    <string name="application_already_exists">You have already applied to this offer.</string>
+    <string name="application_permission_error">You do not have permission to apply to this offer.</string>
+    <string name="application_company_not_found">Could not identify the company for this offer.</string>
+    <string name="application_generic_error">Could not send the application. Please try again.</string>
+    <string name="apply_screen_title">Apply</string>
+    <string name="application_documents_title">Application documents</string>
+    <string name="motivation_letter">Motivation Letter</string>
+    <string name="motivation_letter_placeholder">MotivationLetter.pdf</string>
+    <string name="cv">CV</string>
+    <string name="cv_placeholder">CV.pdf</string>
+    <string name="upload">Upload</string>
+    <string name="submit_application">Submit application</string>
+    <string name="submitting_application">Submitting...</string>
+
+    <string name="application_documents_required">Upload both the motivation letter and CV before submitting.</string>
+    <string name="application_documents_read_error">Could not read the selected documents.</string>
+    <string name="checking_application">Checking...</string>
+    <string name="already_applied_button">Already applied</string>
 </resources>

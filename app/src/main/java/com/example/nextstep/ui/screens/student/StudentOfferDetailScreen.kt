@@ -50,7 +50,7 @@ import com.example.nextstep.data.model.OfferDto
 fun StudentOfferDetailScreen(
     offerId: String,
     onBackClick: () -> Unit,
-    onApplyClick: (String) -> Unit = {},
+    onApplyClick: (String) -> Unit,
     viewModel: StudentOfferDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -77,17 +77,25 @@ fun StudentOfferDetailScreen(
                 }
 
                 state.errorMessageRes != null -> {
-                    OfferDetailErrorState(
-                        message = stringResource(state.errorMessageRes!!),
-                        onBackClick = onBackClick
-                    )
+                    val errorRes = state.errorMessageRes
+
+                    if (errorRes != null) {
+                        OfferDetailErrorState(
+                            message = stringResource(errorRes),
+                            onBackClick = onBackClick
+                        )
+                    }
                 }
 
                 state.offer != null -> {
-                    OfferDetailContent(
-                        offer = state.offer!!,
-                        onBackClick = onBackClick
-                    )
+                    val offer = state.offer
+
+                    if (offer != null) {
+                        OfferDetailContent(
+                            offer = offer,
+                            onBackClick = onBackClick
+                        )
+                    }
                 }
             }
         }
@@ -95,8 +103,11 @@ fun StudentOfferDetailScreen(
         state.offer?.let { offer ->
             Button(
                 onClick = {
-                    onApplyClick(offer.id)
+                    if (!state.hasApplied) {
+                        onApplyClick(offer.id)
+                    }
                 },
+                enabled = !state.hasApplied && !state.isCheckingApplication,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 28.dp, vertical = 14.dp)
@@ -104,11 +115,17 @@ fun StudentOfferDetailScreen(
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFDFA52),
-                    contentColor = Color.Black
+                    contentColor = Color.Black,
+                    disabledContainerColor = Color(0xFFE5E5A0),
+                    disabledContentColor = Color.Black
                 )
             ) {
                 Text(
-                    text = stringResource(R.string.apply_button),
+                    text = when {
+                        state.isCheckingApplication -> stringResource(R.string.checking_application)
+                        state.hasApplied -> stringResource(R.string.already_applied_button)
+                        else -> stringResource(R.string.apply_button)
+                    },
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -280,6 +297,20 @@ fun OfferDetailSection(
 }
 
 @Composable
+fun OfferDetailSectionTitle(
+    text: String
+) {
+    Text(
+        text = text,
+        fontSize = 17.sp,
+        color = Color(0xFF8A8A8A),
+        fontWeight = FontWeight.Medium
+    )
+
+    Spacer(modifier = Modifier.height(10.dp))
+}
+
+@Composable
 fun OfferDetailTwoColumnRow(
     leftTitle: String,
     leftValue: String,
@@ -331,20 +362,6 @@ fun OfferDetailInfoItem(
             lineHeight = 24.sp
         )
     }
-}
-
-@Composable
-fun OfferDetailSectionTitle(
-    text: String
-) {
-    Text(
-        text = text,
-        fontSize = 17.sp,
-        color = Color(0xFF8A8A8A),
-        fontWeight = FontWeight.Medium
-    )
-
-    Spacer(modifier = Modifier.height(10.dp))
 }
 
 @Composable

@@ -6,48 +6,17 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Work
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material.icons.outlined.WorkOutline
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -103,84 +72,43 @@ fun StudentDashboardScreen(
             .background(Color.White)
             .statusBarsPadding()
     ) {
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(
-                start = 22.dp,
-                end = 22.dp,
-                top = 22.dp,
-                bottom = 24.dp
-            )
+                .fillMaxWidth()
         ) {
-            item {
-                SearchBar(
-                    value = state.searchQuery,
-                    onValueChange = viewModel::onSearchChange
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    FilterButton(
-                        onClick = {
-                            // Depois: abrir filtros reais
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Text(
-                        text = stringResource(
-                            R.string.results_count,
-                            filteredOffers.size
-                        ),
-                        fontSize = 16.sp,
-                        color = Color.Black
+            when (selectedBottomRoute) {
+                StudentBottomRoutes.HOME,
+                StudentBottomRoutes.INTERNSHIPS -> {
+                    StudentOffersContent(
+                        state = state,
+                        filteredOffers = filteredOffers,
+                        errorMessage = errorMessage,
+                        onSearchChange = viewModel::onSearchChange,
+                        onRetryClick = viewModel::loadOffers,
+                        onOfferClick = onOfferClick
                     )
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
-            }
-
-            when {
-                state.isLoading -> {
-                    item {
-                        LoadingState()
-                    }
+                StudentBottomRoutes.NOTIFICATIONS -> {
+                    StudentPlaceholderContent(
+                        title = stringResource(R.string.notifications),
+                        subtitle = stringResource(R.string.student_notifications_placeholder)
+                    )
                 }
 
-                errorMessage != null -> {
-                    item {
-                        ErrorState(
-                            message = errorMessage,
-                            onRetryClick = viewModel::loadOffers
-                        )
-                    }
+                StudentBottomRoutes.MESSAGES -> {
+                    StudentPlaceholderContent(
+                        title = stringResource(R.string.messages),
+                        subtitle = stringResource(R.string.student_messages_placeholder)
+                    )
                 }
 
-                filteredOffers.isEmpty() -> {
-                    item {
-                        EmptyOffersState(
-                            hasSearchQuery = state.searchQuery.isNotBlank()
-                        )
-                    }
-                }
-
-                else -> {
-                    items(filteredOffers) { offer ->
-                        InternshipOfferCard(
-                            offer = offer,
-                            onClick = {
-                                onOfferClick(offer.id)                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
+                StudentBottomRoutes.PROFILE -> {
+                    StudentPlaceholderContent(
+                        title = stringResource(R.string.profile),
+                        subtitle = stringResource(R.string.student_profile_placeholder)
+                    )
                 }
             }
         }
@@ -189,9 +117,102 @@ fun StudentDashboardScreen(
             currentRoute = selectedBottomRoute,
             onItemClick = { route ->
                 selectedBottomRoute = route
-                // Depois ligamos cada item a uma rota/ecrã real.
             }
         )
+    }
+}
+
+@Composable
+fun StudentOffersContent(
+    state: StudentDashboardUiState,
+    filteredOffers: List<OfferDto>,
+    errorMessage: String?,
+    onSearchChange: (String) -> Unit,
+    onRetryClick: () -> Unit,
+    onOfferClick: (String) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 22.dp,
+            end = 22.dp,
+            top = 22.dp,
+            bottom = 24.dp
+        )
+    ) {
+        item {
+            SearchBar(
+                value = state.searchQuery,
+                onValueChange = onSearchChange
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilterButton(
+                    onClick = {
+                        // Filtros
+                    }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = stringResource(
+                        R.string.results_count,
+                        filteredOffers.size
+                    ),
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+
+        when {
+            state.isLoading -> {
+                item {
+                    LoadingState()
+                }
+            }
+
+            errorMessage != null -> {
+                item {
+                    ErrorState(
+                        message = errorMessage,
+                        onRetryClick = onRetryClick
+                    )
+                }
+            }
+
+            filteredOffers.isEmpty() -> {
+                item {
+                    EmptyOffersState(
+                        hasSearchQuery = state.searchQuery.isNotBlank()
+                    )
+                }
+            }
+
+            else -> {
+                items(
+                    items = filteredOffers,
+                    key = { offer -> offer.id }
+                ) { offer ->
+                    InternshipOfferCard(
+                        offer = offer,
+                        onClick = {
+                            onOfferClick(offer.id)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
     }
 }
 
@@ -300,7 +321,9 @@ fun InternshipOfferCard(
                 Text(
                     text = offer.companyName,
                     fontSize = 16.sp,
-                    color = Color(0xFF8A8A8A)
+                    color = Color(0xFF8A8A8A),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
@@ -347,7 +370,9 @@ fun CompanyLogo(
         .split(" ")
         .filter { it.isNotBlank() }
         .take(2)
-        .joinToString("") { it.first().uppercase() }
+        .joinToString("") { part ->
+            part.first().uppercase()
+        }
         .ifBlank { "?" }
 
     Box(
@@ -456,6 +481,38 @@ fun ErrorState(
 }
 
 @Composable
+fun StudentPlaceholderContent(
+    title: String,
+    subtitle: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 28.dp, vertical = 42.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(140.dp))
+
+        Text(
+            text = title,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = subtitle,
+            fontSize = 16.sp,
+            color = Color(0xFF6B7280),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 fun StudentBottomBar(
     currentRoute: String,
     onItemClick: (String) -> Unit
@@ -482,8 +539,8 @@ fun StudentBottomBar(
         StudentBottomNavItem(
             route = StudentBottomRoutes.MESSAGES,
             labelRes = R.string.messages,
-            selectedIcon = Icons.Filled.Chat,
-            unselectedIcon = Icons.Outlined.ChatBubbleOutline
+            selectedIcon = Icons.AutoMirrored.Filled.Chat,
+            unselectedIcon = Icons.AutoMirrored.Outlined.Chat
         ),
         StudentBottomNavItem(
             route = StudentBottomRoutes.PROFILE,
@@ -533,7 +590,7 @@ fun StudentBottomBarItem(
         } else {
             Color.Transparent
         },
-        label = "bottom_bar_background"
+        label = "student_bottom_background"
     )
 
     val contentColor by animateColorAsState(
@@ -542,12 +599,12 @@ fun StudentBottomBarItem(
         } else {
             Color(0xFF222222)
         },
-        label = "bottom_bar_content"
+        label = "student_bottom_content"
     )
 
     val itemWidth by animateDpAsState(
         targetValue = if (selected) 116.dp else 44.dp,
-        label = "bottom_bar_width"
+        label = "student_bottom_width"
     )
 
     Row(

@@ -6,5 +6,8 @@ import com.example.nextstep.data.model.OfferDto
 data class StudentOfferDetailUiState(
     val offer: OfferDto? = null,
     val isLoading: Boolean = true,
-    @StringRes val errorMessageRes: Int? = null
+    @StringRes val errorMessageRes: Int? = null,
+
+    val hasApplied: Boolean = false,
+    val isCheckingApplication: Boolean = false
 )

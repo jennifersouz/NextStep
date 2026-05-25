@@ -15,6 +15,7 @@ import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
+import com.example.nextstep.ui.screens.student.StudentApplicationScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import kotlinx.coroutines.delay
@@ -108,6 +109,26 @@ fun AppNavigation() {
         }
 
         composable(
+            route = "${Routes.STUDENT_APPLICATION}/{${Routes.STUDENT_APPLICATION_ARG}}",
+            arguments = listOf(
+                navArgument(Routes.STUDENT_APPLICATION_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationOfferId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_APPLICATION_ARG)
+                .orEmpty()
+
+            StudentApplicationScreen(
+                offerId = applicationOfferId,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
             route = "${Routes.STUDENT_OFFER_DETAIL}/{${Routes.STUDENT_OFFER_DETAIL_ARG}}",
             arguments = listOf(
                 navArgument(Routes.STUDENT_OFFER_DETAIL_ARG) {
@@ -124,8 +145,8 @@ fun AppNavigation() {
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onApplyClick = {
-                    // Próxima task: criar candidatura.
+                onApplyClick = { selectedOfferId ->
+                    navController.navigate(Routes.studentApplication(selectedOfferId))
                 }
             )
         }

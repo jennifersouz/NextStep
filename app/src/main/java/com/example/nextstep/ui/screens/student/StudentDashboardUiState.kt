@@ -14,8 +14,9 @@ data class StudentDashboardUiState(
 
             return offers.filter { offer ->
                 offer.title.contains(searchQuery, ignoreCase = true) ||
-                        offer.companyName.contains(searchQuery, ignoreCase = true) ||
-                        offer.location.contains(searchQuery, ignoreCase = true)
+                offer.companyName.contains(searchQuery, ignoreCase = true) ||
+                offer.location.contains(searchQuery, ignoreCase = true) ||
+                offer.area?.contains(searchQuery, ignoreCase = true) == true
             }
         }
 }

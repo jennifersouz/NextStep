@@ -10,6 +10,13 @@ object Routes {
     const val STUDENT_OFFER_DETAIL = "student_offer_detail"
     const val STUDENT_OFFER_DETAIL_ARG = "offerId"
 
+    const val STUDENT_APPLICATION = "student_application"
+    const val STUDENT_APPLICATION_ARG = "offerId"
+
+    fun studentApplication(offerId: String): String {
+        return "$STUDENT_APPLICATION/$offerId"
+    }
+
     fun studentOfferDetail(offerId: String): String {
         return "$STUDENT_OFFER_DETAIL/$offerId"
     }

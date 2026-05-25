@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.student
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
+import com.example.nextstep.data.repository.ApplicationsRepository
 import com.example.nextstep.data.repository.OffersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 class StudentOfferDetailViewModel : ViewModel() {
 
     private val offersRepository = OffersRepository()
+    private val applicationsRepository = ApplicationsRepository()
 
     private val _uiState = MutableStateFlow(StudentOfferDetailUiState())
     val uiState: StateFlow<StudentOfferDetailUiState> = _uiState.asStateFlow()
@@ -31,16 +33,24 @@ class StudentOfferDetailViewModel : ViewModel() {
                 errorMessageRes = null
             )
 
-            val result = offersRepository.getOfferById(offerId)
+            val offerResult = offersRepository.getOfferById(offerId)
 
-            _uiState.value = if (result.isSuccess) {
-                StudentOfferDetailUiState(
-                    offer = result.getOrNull(),
+            if (offerResult.isSuccess) {
+                _uiState.value = StudentOfferDetailUiState(
+                    offer = offerResult.getOrNull(),
                     isLoading = false,
-                    errorMessageRes = null
+                    errorMessageRes = null,
+                    isCheckingApplication = true
+                )
+
+                val applicationResult = applicationsRepository.hasCurrentStudentApplied(offerId)
+
+                _uiState.value = _uiState.value.copy(
+                    hasApplied = applicationResult.getOrDefault(false),
+                    isCheckingApplication = false
                 )
             } else {
-                StudentOfferDetailUiState(
+                _uiState.value = StudentOfferDetailUiState(
                     offer = null,
                     isLoading = false,
                     errorMessageRes = R.string.offer_detail_load_error

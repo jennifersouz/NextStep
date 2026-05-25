@@ -53,7 +53,7 @@
     <string name="company_name_placeholder">Ex: Tech Solutions</string>
     <string name="nif_required">NIF *</string>
     <string name="nif_placeholder">Ex: 500000000</string>
-    <string name="area_required">Área de atuação *</string>
+    <string name="area_required">Area de atuação *</string>
     <string name="area_placeholder">Ex: Desenvolvimento de Software</string>
     <string name="location_required">Localização *</string>
     <string name="location_placeholder">Ex: Porto</string>
@@ -205,4 +205,30 @@
     <string name="offer_vacancies">Vagas</string>
     <string name="offer_vacancies_value">%1$d vaga(s)</string>
     <string name="offer_requirements">Requisitos</string>
+    <string name="applying">A candidatar...</string>
+    <string name="applied_button">Candidatura enviada</string>
+
+    <string name="application_success">Candidatura enviada com sucesso.</string>
+    <string name="application_already_exists">Já te candidataste a esta oferta.</string>
+    <string name="application_permission_error">Não tens permissão para te candidatares a esta oferta.</string>
+    <string name="application_company_not_found">Não foi possível identificar a empresa desta oferta.</string>
+    <string name="application_generic_error">Não foi possível enviar a candidatura. Tente novamente.</string>
+
+    <string name="student_notifications_placeholder">Aqui vais receber atualizações sobre candidaturas e estágios.</string>
+    <string name="student_messages_placeholder">Aqui vais poder trocar mensagens com empresas e orientadores.</string>
+    <string name="student_profile_placeholder">Aqui vais poder consultar e editar o teu perfil.</string>
+    <string name="apply_screen_title">Candidatar-me</string>
+    <string name="application_documents_title">Documentos de candidatura</string>
+    <string name="motivation_letter">Carta de Motivação</string>
+    <string name="motivation_letter_placeholder">CartaMotivacao.pdf</string>
+    <string name="cv">CV</string>
+    <string name="cv_placeholder">CV.pdf</string>
+    <string name="upload">Carregar</string>
+    <string name="submit_application">Submeter candidatura</string>
+    <string name="submitting_application">A submeter...</string>
+
+    <string name="application_documents_required">Carrega a carta de motivação e o CV antes de submeter.</string>
+    <string name="application_documents_read_error">Não foi possível ler os documentos selecionados.</string>
+    <string name="checking_application">A verificar...</string>
+    <string name="already_applied_button">Já te candidataste</string>
 </resources>
