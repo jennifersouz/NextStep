@@ -23,6 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,24 @@ fun CompanyApplicationsContent(
     viewModel: CompanyApplicationsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    var selectedApplicationId by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val applicationId = selectedApplicationId
+
+    if (applicationId != null) {
+        CompanyApplicationDetailScreen(
+            applicationId = applicationId,
+            onBackClick = {
+                selectedApplicationId = null
+                viewModel.loadApplications() // Recarrega a lista ao voltar
+            }
+        )
+
+        return
+    }
 
     when {
         state.isLoading -> {
@@ -118,14 +139,13 @@ fun CompanyApplicationsContent(
                 } else {
                     items(
                         items = state.unseenApplications,
-                        key = { application ->
-                            application.id
-                        }
+                        key = { it.id }
                     ) { application ->
                         CompanyApplicationCard(
                             application = application,
                             onClick = {
-                                viewModel.markAsViewed(application.id)
+                                // APENAS abre o detalhe. O detalhe marca como visto.
+                                selectedApplicationId = application.id
                             }
                         )
 
@@ -150,14 +170,12 @@ fun CompanyApplicationsContent(
                 } else {
                     items(
                         items = state.seenApplications,
-                        key = { application ->
-                            application.id
-                        }
+                        key = { it.id }
                     ) { application ->
                         CompanyApplicationCard(
                             application = application,
                             onClick = {
-                                // Próximo passo: abrir detalhe da candidatura.
+                                selectedApplicationId = application.id
                             }
                         )
 
@@ -170,15 +188,12 @@ fun CompanyApplicationsContent(
 }
 
 @Composable
-fun CompanyApplicationsSectionTitle(
-    title: String
-) {
+fun CompanyApplicationsSectionTitle(title: String) {
     Text(
         text = title,
         fontSize = 15.sp,
         color = Color(0xFF8A8A8A)
     )
-
     Spacer(modifier = Modifier.height(10.dp))
 }
 
@@ -200,9 +215,7 @@ fun CompanyApplicationCard(
                 color = Color(0xFFE0E0E0),
                 shape = RoundedCornerShape(6.dp)
             )
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Text(
@@ -214,30 +227,13 @@ fun CompanyApplicationCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CompanyApplicationStudentAvatar(
-                studentName = studentName
-            )
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CompanyApplicationStudentAvatar(studentName = studentName)
             Spacer(modifier = Modifier.width(10.dp))
-
             Column {
-                Text(
-                    text = studentName,
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-
-                val course = application.course
-
-                if (!course.isNullOrBlank()) {
-                    Text(
-                        text = course,
-                        fontSize = 12.sp,
-                        color = Color(0xFF8A8A8A)
-                    )
+                Text(text = studentName, fontSize = 14.sp, color = Color.Black)
+                application.course?.let {
+                    Text(text = it, fontSize = 12.sp, color = Color(0xFF8A8A8A))
                 }
             }
         }
@@ -245,70 +241,28 @@ fun CompanyApplicationCard(
 }
 
 @Composable
-fun CompanyApplicationStudentAvatar(
-    studentName: String
-) {
-    val initials = studentName
-        .split(" ")
-        .filter { part ->
-            part.isNotBlank()
-        }
-        .take(2)
-        .joinToString("") { part ->
-            part.first().uppercase()
-        }
-        .ifBlank {
-            "?"
-        }
+fun CompanyApplicationStudentAvatar(studentName: String) {
+    val initials = studentName.split(" ").filter { it.isNotBlank() }.take(2)
+        .joinToString("") { it.first().uppercase() }.ifBlank { "?" }
 
     Box(
-        modifier = Modifier
-            .size(30.dp)
-            .clip(CircleShape)
-            .background(Color(0xFF2B2B2B)),
+        modifier = Modifier.size(30.dp).clip(CircleShape).background(Color(0xFF2B2B2B)),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = initials,
-            color = Color.White,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Text(text = initials, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
 fun CompanyApplicationsEmptyState() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 28.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(R.string.company_no_applications),
-            color = Color(0xFF8A8A8A),
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center
-        )
+    Box(modifier = Modifier.fillMaxSize().background(Color.White).padding(horizontal = 28.dp), contentAlignment = Alignment.Center) {
+        Text(text = stringResource(R.string.company_no_applications), color = Color(0xFF8A8A8A), fontSize = 16.sp, textAlign = TextAlign.Center)
     }
 }
 
 @Composable
-fun CompanyApplicationsSmallEmptyMessage(
-    message: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 14.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Text(
-            text = message,
-            color = Color(0xFF8A8A8A),
-            fontSize = 14.sp
-        )
+fun CompanyApplicationsSmallEmptyMessage(message: String) {
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp), contentAlignment = Alignment.CenterStart) {
+        Text(text = message, color = Color(0xFF8A8A8A), fontSize = 14.sp)
     }
 }

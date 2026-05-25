@@ -180,7 +180,18 @@
 
     <string name="work_mode_remote">Remote</string>
     <string name="work_mode_onsite">On-site</string>
-    <string name="work_mode_hybrid">Hybrid</string>
+
+    <string name="open_document">Open</string>
+    <string name="application_status_pending">Pending</string>
+    <string name="application_status_accepted">Accepted</string>
+    <string name="application_status_rejected">Rejected</string>
+
+    <string name="company_application_detail_not_found">Application not found.</string>
+    <string name="company_application_detail_load_error">Could not load the application.</string>
+    <string name="company_application_status_update_error">Could not update the application status.</string>
+    <string name="company_application_document_missing">This document is not available.</string>
+    <string name="company_application_document_open_error">Could not open the document.</string>
+    <string name="company_application_opening_document">Opening document...</string>    <string name="work_mode_hybrid">Hybrid</string>
 
     <string name="create_offer_success">Offer created successfully.</string>
     <string name="create_offer_error">Could not create the offer. Please try again.</string>
@@ -237,4 +248,5 @@
     <string name="student_notifications_placeholder">Here you will receive updates about applications and internships.</string>
     <string name="student_messages_placeholder">Here you will be able to exchange messages with companies and supervisors.</string>
     <string name="student_profile_placeholder">Here you will be able to view and edit your profile.</string>
+    <string name="company_application_mark_viewed_error">Could not mark the application as seen.</string>
 </resources>

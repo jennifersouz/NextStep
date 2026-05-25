@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -47,9 +48,13 @@ class CompanyApplicationsViewModel : ViewModel() {
 
     fun markAsViewed(applicationId: String) {
         viewModelScope.launch {
+            Log.d("MARK_VIEWED_DEBUG", "ViewModel markAsViewed chamado id=$applicationId")
+
             val result = repository.markApplicationAsViewed(applicationId)
 
             if (result.isSuccess) {
+                Log.d("MARK_VIEWED_DEBUG", "markAsViewed success id=$applicationId")
+
                 _uiState.value = _uiState.value.copy(
                     applications = _uiState.value.applications.map { application ->
                         if (application.id == applicationId) {
@@ -58,6 +63,18 @@ class CompanyApplicationsViewModel : ViewModel() {
                             application
                         }
                     }
+                )
+
+                loadApplications()
+            } else {
+                Log.e(
+                    "MARK_VIEWED_DEBUG",
+                    "markAsViewed failure",
+                    result.exceptionOrNull()
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    errorMessageRes = R.string.company_application_mark_viewed_error
                 )
             }
         }

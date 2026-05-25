@@ -239,4 +239,16 @@
     <string name="company_no_applications">Ainda não existem candidaturas recebidas.</string>
     <string name="company_no_unseen_applications">Não existem candidaturas novas.</string>
     <string name="company_no_seen_applications">Ainda não existem candidaturas vistas.</string>
+    <string name="open_document">Abrir</string>
+    <string name="application_status_pending">Pendente</string>
+    <string name="application_status_accepted">Aceite</string>
+    <string name="application_status_rejected">Rejeitada</string>
+
+    <string name="company_application_detail_not_found">Candidatura não encontrada.</string>
+    <string name="company_application_detail_load_error">Não foi possível carregar a candidatura.</string>
+    <string name="company_application_status_update_error">Não foi possível atualizar o estado da candidatura.</string>
+    <string name="company_application_document_missing">Este documento não está disponível.</string>
+    <string name="company_application_document_open_error">Não foi possível abrir o documento.</string>
+    <string name="company_application_opening_document">A abrir documento...</string>
+    <string name="company_application_mark_viewed_error">Não foi possível marcar a candidatura como vista.</string>
 </resources>

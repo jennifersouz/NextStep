@@ -1,0 +1,496 @@
+package com.example.nextstep.ui.screens.company
+
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
+import com.example.nextstep.data.model.CompanyApplicationDto
+
+@Composable
+fun CompanyApplicationDetailScreen(
+    applicationId: String,
+    onBackClick: () -> Unit,
+    viewModel: CompanyApplicationDetailViewModel = viewModel()
+) {
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(applicationId) {
+        viewModel.loadApplication(applicationId)
+    }
+
+    val documentUrl = state.documentUrlToOpen
+
+    LaunchedEffect(documentUrl) {
+        if (!documentUrl.isNullOrBlank()) {
+            try {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(documentUrl)
+                )
+
+                context.startActivity(intent)
+                viewModel.consumeDocumentUrl()
+            } catch (_: Exception) {
+                viewModel.onDocumentOpenFailed()
+            }
+        }
+    }
+
+    when {
+        state.isLoading -> {
+            CompanyApplicationDetailLoadingState()
+        }
+
+        state.errorMessageRes != null -> {
+            val errorRes = state.errorMessageRes
+
+            CompanyApplicationDetailErrorState(
+                message = if (errorRes != null) {
+                    stringResource(errorRes)
+                } else {
+                    stringResource(R.string.company_application_detail_load_error)
+                },
+                onBackClick = onBackClick
+            )
+        }
+
+        state.application != null -> {
+            val application = state.application
+
+            if (application != null) {
+                CompanyApplicationDetailContent(
+                    application = application,
+                    isUpdatingStatus = state.isUpdatingStatus,
+                    isOpeningDocument = state.isOpeningDocument,
+                    statusErrorRes = state.statusErrorRes,
+                    documentErrorRes = state.documentErrorRes,
+                    onBackClick = onBackClick,
+                    onStatusSelected = viewModel::updateStatus,
+                    onOpenMotivationLetter = viewModel::openMotivationLetter,
+                    onOpenCv = viewModel::openCv
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CompanyApplicationDetailContent(
+    application: CompanyApplicationDto,
+    isUpdatingStatus: Boolean,
+    isOpeningDocument: Boolean,
+    statusErrorRes: Int?,
+    documentErrorRes: Int?,
+    onBackClick: () -> Unit,
+    onStatusSelected: (ApplicationDecisionStatus) -> Unit,
+    onOpenMotivationLetter: () -> Unit,
+    onOpenCv: () -> Unit
+) {
+    val studentName = "${application.firstName} ${application.lastName}"
+    val currentStatus = ApplicationDecisionStatus.fromDbValue(application.status)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .padding(horizontal = 26.dp, vertical = 22.dp)
+    ) {
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier.size(46.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.back),
+                tint = Color.Black,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(52.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompanyApplicationDetailAvatar(
+                studentName = studentName
+            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Text(
+                text = studentName,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                modifier = Modifier.weight(1f)
+            )
+
+            CompanyApplicationStatusDropdown(
+                currentStatus = currentStatus,
+                enabled = !isUpdatingStatus,
+                onStatusSelected = onStatusSelected
+            )
+        }
+
+        application.course
+            ?.takeIf { it.isNotBlank() }
+            ?.let { course ->
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = course,
+                    fontSize = 14.sp,
+                    color = Color(0xFF8A8A8A),
+                    modifier = Modifier.padding(start = 76.dp)
+                )
+            }
+
+        statusErrorRes?.let { errorRes ->
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(errorRes),
+                color = Color(0xFFB00020),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(82.dp))
+
+        Text(
+            text = stringResource(R.string.application_documents_title),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(34.dp))
+
+        CompanyApplicationDocumentField(
+            label = stringResource(R.string.motivation_letter),
+            fileName = fileNameFromPath(
+                path = application.motivationLetterPath,
+                fallback = stringResource(R.string.motivation_letter_placeholder)
+            ),
+            enabled = !application.motivationLetterPath.isNullOrBlank() && !isOpeningDocument,
+            onOpenClick = onOpenMotivationLetter
+        )
+
+        Spacer(modifier = Modifier.height(26.dp))
+
+        CompanyApplicationDocumentField(
+            label = stringResource(R.string.cv),
+            fileName = fileNameFromPath(
+                path = application.cvPath,
+                fallback = stringResource(R.string.cv_placeholder)
+            ),
+            enabled = !application.cvPath.isNullOrBlank() && !isOpeningDocument,
+            onOpenClick = onOpenCv
+        )
+
+        documentErrorRes?.let { errorRes ->
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Text(
+                text = stringResource(errorRes),
+                color = Color(0xFFB00020),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (isOpeningDocument) {
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Text(
+                text = stringResource(R.string.company_application_opening_document),
+                color = Color(0xFF8A8A8A),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun CompanyApplicationStatusDropdown(
+    currentStatus: ApplicationDecisionStatus,
+    enabled: Boolean,
+    onStatusSelected: (ApplicationDecisionStatus) -> Unit
+) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    Box {
+        Button(
+            onClick = {
+                if (enabled) {
+                    expanded = true
+                }
+            },
+            enabled = enabled,
+            shape = RoundedCornerShape(6.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = statusTextColor(currentStatus),
+                disabledContainerColor = Color.White,
+                disabledContentColor = statusTextColor(currentStatus)
+            ),
+            border = androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = Color(0xFFE0E0E0)
+            )
+        ) {
+            Text(
+                text = stringResource(currentStatus.labelRes),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = statusTextColor(currentStatus),
+                modifier = Modifier.size(18.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            }
+        ) {
+            ApplicationDecisionStatus.entries.forEach { status ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(status.labelRes),
+                            color = statusTextColor(status)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onStatusSelected(status)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CompanyApplicationDocumentField(
+    label: String,
+    fileName: String,
+    enabled: Boolean,
+    onOpenClick: () -> Unit
+) {
+    Text(
+        text = label,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Medium,
+        color = Color.Black
+    )
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFD9D9D9),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = fileName,
+            color = Color(0xFF8A8A8A),
+            fontSize = 15.sp,
+            modifier = Modifier.weight(1f),
+            maxLines = 1
+        )
+
+        Button(
+            onClick = onOpenClick,
+            enabled = enabled,
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFE0E0E0),
+                contentColor = Color.Black,
+                disabledContainerColor = Color(0xFFF0F0F0),
+                disabledContentColor = Color(0xFF8A8A8A)
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.open_document),
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun CompanyApplicationDetailAvatar(
+    studentName: String
+) {
+    val initials = studentName
+        .split(" ")
+        .filter { part ->
+            part.isNotBlank()
+        }
+        .take(2)
+        .joinToString("") { part ->
+            part.first().uppercase()
+        }
+        .ifBlank {
+            "?"
+        }
+
+    Box(
+        modifier = Modifier
+            .size(58.dp)
+            .clip(CircleShape)
+            .background(Color(0xFF2B2B2B)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initials,
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun CompanyApplicationDetailLoadingState() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun CompanyApplicationDetailErrorState(
+    message: String,
+    onBackClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .padding(horizontal = 26.dp, vertical = 22.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back),
+                    tint = Color.Black
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(120.dp))
+
+        Text(
+            text = message,
+            color = Color(0xFFB00020),
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+fun fileNameFromPath(
+    path: String?,
+    fallback: String
+): String {
+    return path
+        ?.substringAfterLast("/")
+        ?.takeIf { fileName ->
+            fileName.isNotBlank()
+        }
+        ?: fallback
+}
+
+fun statusTextColor(
+    status: ApplicationDecisionStatus
+): Color {
+    return when (status) {
+        ApplicationDecisionStatus.PENDING -> Color(0xFF777777)
+        ApplicationDecisionStatus.ACCEPTED -> Color(0xFF2E7D32)
+        ApplicationDecisionStatus.REJECTED -> Color(0xFFB00020)
+    }
+}
