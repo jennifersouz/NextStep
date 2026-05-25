@@ -3,11 +3,9 @@ package com.example.nextstep.ui.screens.company
 import androidx.annotation.StringRes
 import com.example.nextstep.data.model.CompanyInternshipDto
 
-enum class InternshipStatusFilter(
-    val value: String
-) {
-    PENDING("pending"),
-    COMPLETED("completed")
+enum class InternshipStatusFilter {
+    PENDING,
+    COMPLETED
 }
 
 data class CompanyDashboardUiState(
@@ -17,7 +15,12 @@ data class CompanyDashboardUiState(
     @StringRes val errorMessageRes: Int? = null
 ) {
     val filteredInternships: List<CompanyInternshipDto>
-        get() = internships.filter { internship ->
-            internship.status == selectedStatus.value
+        get() {
+            return internships.filter { internship ->
+                when (selectedStatus) {
+                    InternshipStatusFilter.PENDING -> internship.status == "pending"
+                    InternshipStatusFilter.COMPLETED -> internship.status == "completed"
+                }
+            }
         }
 }

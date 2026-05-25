@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">NextStep</string>
     <string name="continue_button">Continuar</string>
     <string name="login_register">Entrar/Registar</string>
@@ -231,4 +231,12 @@
     <string name="application_documents_read_error">Não foi possível ler os documentos selecionados.</string>
     <string name="checking_application">A verificar...</string>
     <string name="already_applied_button">Já te candidataste</string>
+
+
+    <string name="company_applications_unseen">Por ver</string>
+    <string name="company_applications_seen">Vistas</string>
+    <string name="company_applications_load_error">Não foi possível carregar as candidaturas.</string>
+    <string name="company_no_applications">Ainda não existem candidaturas recebidas.</string>
+    <string name="company_no_unseen_applications">Não existem candidaturas novas.</string>
+    <string name="company_no_seen_applications">Ainda não existem candidaturas vistas.</string>
 </resources>

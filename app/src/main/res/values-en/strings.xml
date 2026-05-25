@@ -227,4 +227,14 @@
     <string name="application_documents_read_error">Could not read the selected documents.</string>
     <string name="checking_application">Checking...</string>
     <string name="already_applied_button">Already applied</string>
+
+    <string name="company_applications_unseen">Unseen</string>
+    <string name="company_applications_seen">Seen</string>
+    <string name="company_applications_load_error">Could not load applications.</string>
+    <string name="company_no_applications">There are no received applications yet.</string>
+    <string name="company_no_unseen_applications">There are no new applications.</string>
+    <string name="company_no_seen_applications">There are no seen applications yet.</string>
+    <string name="student_notifications_placeholder">Here you will receive updates about applications and internships.</string>
+    <string name="student_messages_placeholder">Here you will be able to exchange messages with companies and supervisors.</string>
+    <string name="student_profile_placeholder">Here you will be able to view and edit your profile.</string>
 </resources>

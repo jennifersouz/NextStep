@@ -20,6 +20,12 @@ class CompanyDashboardViewModel : ViewModel() {
         loadInternships()
     }
 
+    fun onStatusSelected(status: InternshipStatusFilter) {
+        _uiState.value = _uiState.value.copy(
+            selectedStatus = status
+        )
+    }
+
     fun loadInternships() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -43,11 +49,5 @@ class CompanyDashboardViewModel : ViewModel() {
                 )
             }
         }
-    }
-
-    fun onStatusFilterChange(status: InternshipStatusFilter) {
-        _uiState.value = _uiState.value.copy(
-            selectedStatus = status
-        )
     }
 }

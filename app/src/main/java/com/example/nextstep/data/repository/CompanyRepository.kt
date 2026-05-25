@@ -27,7 +27,7 @@ class CompanyRepository {
 
             Result.success(internships)
         } catch (exception: Exception) {
-            Log.e("CompanyRepository", "Erro ao carregar estágios da empresa", exception)
+            Log.e("CompanyRepository", "Erro ao carregar estágios", exception)
             Result.failure(exception)
         }
     }
