@@ -262,4 +262,19 @@
     <string name="settings">Definições</string>
     <string name="student_submitted_applications_load_error">Não foi possível carregar as candidaturas submetidas.</string>
     <string name="student_no_submitted_applications">Ainda não submeteste nenhuma candidatura.</string>
+    <string name="application_status_title">Estado</string>
+
+    <string name="student_application_detail_not_found">Candidatura não encontrada.</string>
+    <string name="student_application_detail_load_error">Não foi possível carregar os detalhes da candidatura.</string>
+
+    <string name="student_application_document_missing">Este documento não está disponível.</string>
+    <string name="student_application_document_open_error">Não foi possível abrir o documento.</string>
+    <string name="student_application_opening_document">A abrir documento...</string>
+
+    <string name="confirm_presence">Confirmar presença</string>
+    <string name="confirming_presence">A confirmar...</string>
+    <string name="presence_confirmed">Presença confirmada</string>
+    <string name="presence_only_after_acceptance">Disponível após aceitação</string>
+    <string name="student_presence_only_accepted">Só podes confirmar presença depois da candidatura ser aceite.</string>
+    <string name="student_presence_confirm_error">Não foi possível confirmar presença.</string>
 </resources>

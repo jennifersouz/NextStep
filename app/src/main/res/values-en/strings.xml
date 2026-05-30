@@ -260,4 +260,19 @@
     <string name="settings">Settings</string>
     <string name="student_submitted_applications_load_error">Could not load submitted applications.</string>
     <string name="student_no_submitted_applications">You have not submitted any applications yet.</string>
+    <string name="application_status_title">Status</string>
+
+    <string name="student_application_detail_not_found">Application not found.</string>
+    <string name="student_application_detail_load_error">Could not load application details.</string>
+
+    <string name="student_application_document_missing">This document is not available.</string>
+    <string name="student_application_document_open_error">Could not open the document.</string>
+    <string name="student_application_opening_document">Opening document...</string>
+
+    <string name="confirm_presence">Confirm attendance</string>
+    <string name="confirming_presence">Confirming...</string>
+    <string name="presence_confirmed">Attendance confirmed</string>
+    <string name="presence_only_after_acceptance">Available after acceptance</string>
+    <string name="student_presence_only_accepted">You can only confirm attendance after the application is accepted.</string>
+    <string name="student_presence_confirm_error">Could not confirm attendance.</string>
 </resources>

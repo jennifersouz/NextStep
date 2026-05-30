@@ -44,6 +44,7 @@ import com.example.nextstep.data.model.StudentSubmittedApplicationDto
 @Composable
 fun StudentSubmittedApplicationsScreen(
     onBackClick: () -> Unit,
+    onApplicationClick: (String) -> Unit,
     viewModel: StudentSubmittedApplicationsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -98,7 +99,10 @@ fun StudentSubmittedApplicationsScreen(
                         }
                     ) { application ->
                         StudentSubmittedApplicationCard(
-                            application = application
+                            application = application,
+                            onClick = {
+                                onApplicationClick(application.id)
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -145,7 +149,8 @@ fun StudentSubmittedApplicationsHeader(
 
 @Composable
 fun StudentSubmittedApplicationCard(
-    application: StudentSubmittedApplicationDto
+    application: StudentSubmittedApplicationDto,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -158,6 +163,9 @@ fun StudentSubmittedApplicationCard(
                 color = Color(0xFFE0E0E0),
                 shape = RoundedCornerShape(6.dp)
             )
+            .clickable {
+                onClick()
+            }
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

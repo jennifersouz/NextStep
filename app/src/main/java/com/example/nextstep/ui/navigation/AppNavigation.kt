@@ -18,6 +18,7 @@ import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
+import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
 import kotlinx.coroutines.delay
 
@@ -110,6 +111,31 @@ fun AppNavigation() {
 
         composable(Routes.STUDENT_SUBMITTED_APPLICATIONS) {
             StudentSubmittedApplicationsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onApplicationClick = { applicationId ->
+                    navController.navigate(
+                        Routes.studentSubmittedApplicationDetail(applicationId)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = "${Routes.STUDENT_SUBMITTED_APPLICATION_DETAIL}/{${Routes.STUDENT_SUBMITTED_APPLICATION_DETAIL_ARG}}",
+            arguments = listOf(
+                navArgument(Routes.STUDENT_SUBMITTED_APPLICATION_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_SUBMITTED_APPLICATION_DETAIL_ARG)
+                .orEmpty()
+
+            StudentSubmittedApplicationDetailScreen(
+                applicationId = applicationId,
                 onBackClick = {
                     navController.popBackStack()
                 }
