@@ -436,11 +436,12 @@ fun fileNameFromStudentApplicationPath(
         ?: fallback
 }
 
+@Composable
 fun studentApplicationDetailStatusLabel(status: String): String {
     return when (status) {
-        "accepted" -> "Aceite"
-        "rejected" -> "Recusada"
-        else -> "Pendente"
+        "accepted" -> stringResource(R.string.student_application_status_accepted)
+        "rejected" -> stringResource(R.string.student_application_status_rejected)
+        else -> stringResource(R.string.student_application_status_pending)
     }
 }
 

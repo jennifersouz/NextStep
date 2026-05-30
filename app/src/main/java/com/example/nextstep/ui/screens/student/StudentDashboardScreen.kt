@@ -52,6 +52,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -98,6 +99,10 @@ fun StudentDashboardScreen(
         mutableStateOf(StudentBottomRoutes.HOME)
     }
 
+    var showStudentSettings by remember {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -137,9 +142,20 @@ fun StudentDashboardScreen(
                 }
 
                 StudentBottomRoutes.PROFILE -> {
-                    StudentProfileScreen(
-                        onSubmittedApplicationsClick = onSubmittedApplicationsClick
-                    )
+                    if (showStudentSettings) {
+                        StudentSettingsScreen(
+                            onBackClick = {
+                                showStudentSettings = false
+                            }
+                        )
+                    } else {
+                        StudentProfileScreen(
+                            onSubmittedApplicationsClick = onSubmittedApplicationsClick,
+                            onSettingsClick = {
+                                showStudentSettings = true
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -148,6 +164,10 @@ fun StudentDashboardScreen(
             currentRoute = selectedBottomRoute,
             onItemClick = { route ->
                 selectedBottomRoute = route
+
+                if (route != StudentBottomRoutes.PROFILE) {
+                    showStudentSettings = false
+                }
             }
         )
     }

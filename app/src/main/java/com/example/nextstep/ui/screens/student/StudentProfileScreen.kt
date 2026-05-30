@@ -19,7 +19,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -268,7 +268,7 @@ fun StudentProfileMenuItem(
 
 @Composable
 fun StudentProfileMenuDivider() {
-    Divider(
+    HorizontalDivider(
         modifier = Modifier.padding(start = 4.dp),
         color = Color(0xFFE0E0E0),
         thickness = 1.dp

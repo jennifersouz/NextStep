@@ -275,4 +275,10 @@
     <string name="presence_only_after_acceptance">Available after acceptance</string>
     <string name="student_presence_only_accepted">You can only confirm attendance after the application is accepted.</string>
     <string name="student_presence_confirm_error">Could not confirm attendance.</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="available_languages">Available Languages</string>
+    <string name="save">Save</string>
+    <string name="student_application_status_pending">Pending</string>
+    <string name="student_application_status_accepted">Accepted</string>
+    <string name="student_application_status_rejected">Rejected</string>
 </resources>

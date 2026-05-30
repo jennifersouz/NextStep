@@ -277,4 +277,10 @@
     <string name="presence_only_after_acceptance">Disponível após aceitação</string>
     <string name="student_presence_only_accepted">Só podes confirmar presença depois da candidatura ser aceite.</string>
     <string name="student_presence_confirm_error">Não foi possível confirmar presença.</string>
+    <string name="edit_profile">Editar Perfil</string>
+    <string name="available_languages">Idiomas Disponíveis</string>
+    <string name="save">Guardar</string>
+    <string name="student_application_status_pending">Pendente</string>
+    <string name="student_application_status_accepted">Aceite</string>
+    <string name="student_application_status_rejected">Recusada</string>
 </resources>
