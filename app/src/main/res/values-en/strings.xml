@@ -281,4 +281,12 @@
     <string name="student_application_status_pending">Pending</string>
     <string name="student_application_status_accepted">Accepted</string>
     <string name="student_application_status_rejected">Rejected</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="saving">Saving...</string>
+    <string name="student_profile_update_success">Profile updated successfully.</string>
+    <string name="student_profile_update_error">Could not update the profile.</string>
+    <string name="saved_offer_update_error">Could not update saved internships.</string>
+    <string name="saved_offers_load_error">Could not load saved internships.</string>
+    <string name="no_saved_offers">You have not saved any internships yet.</string>
 </resources>

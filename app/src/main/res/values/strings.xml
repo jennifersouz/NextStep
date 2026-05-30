@@ -283,4 +283,12 @@
     <string name="student_application_status_pending">Pendente</string>
     <string name="student_application_status_accepted">Aceite</string>
     <string name="student_application_status_rejected">Recusada</string>
+    <string name="first_name">Nome</string>
+    <string name="last_name">Apelido</string>
+    <string name="saving">A guardar...</string>
+    <string name="student_profile_update_success">Perfil atualizado com sucesso.</string>
+    <string name="student_profile_update_error">Não foi possível atualizar o perfil.</string>
+    <string name="saved_offer_update_error">Não foi possível atualizar os estágios guardados.</string>
+    <string name="saved_offers_load_error">Não foi possível carregar os estágios guardados.</string>
+    <string name="no_saved_offers">Ainda não guardaste nenhum estágio.</string>
 </resources>

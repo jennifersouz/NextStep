@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import com.example.nextstep.data.model.StudentProfile
 
 @Composable
 fun StudentProfileScreen(
+    refreshKey: Int = 0,
     viewModel: StudentProfileViewModel = viewModel(),
     onSentRequestsClick: () -> Unit = {},
     onSavedInternshipsClick: () -> Unit = {},
@@ -48,6 +50,10 @@ fun StudentProfileScreen(
     onSettingsClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(refreshKey) {
+        viewModel.loadProfile()
+    }
 
     when {
         state.isLoading -> {

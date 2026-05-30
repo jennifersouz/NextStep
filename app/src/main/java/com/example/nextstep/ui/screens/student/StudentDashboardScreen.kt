@@ -52,7 +52,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -99,7 +98,19 @@ fun StudentDashboardScreen(
         mutableStateOf(StudentBottomRoutes.HOME)
     }
 
-    var showStudentSettings by remember {
+    var showStudentSettings by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showStudentEditProfile by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var profileRefreshKey by rememberSaveable {
+        mutableStateOf(0)
+    }
+
+    var showStudentSavedOffers by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -142,19 +153,53 @@ fun StudentDashboardScreen(
                 }
 
                 StudentBottomRoutes.PROFILE -> {
-                    if (showStudentSettings) {
-                        StudentSettingsScreen(
-                            onBackClick = {
-                                showStudentSettings = false
-                            }
-                        )
-                    } else {
-                        StudentProfileScreen(
-                            onSubmittedApplicationsClick = onSubmittedApplicationsClick,
-                            onSettingsClick = {
-                                showStudentSettings = true
-                            }
-                        )
+                    when {
+                        showStudentSavedOffers -> {
+                            StudentSavedOffersScreen(
+                                onBackClick = {
+                                    showStudentSavedOffers = false
+                                },
+                                onOfferClick = onOfferClick
+                            )
+                        }
+
+                        showStudentEditProfile -> {
+                            StudentEditProfileScreen(
+                                onBackClick = {
+                                    showStudentEditProfile = false
+                                },
+                                onProfileUpdated = {
+                                    profileRefreshKey++
+                                    showStudentEditProfile = false
+                                    showStudentSettings = false
+                                    showStudentSavedOffers = false
+                                }
+                            )
+                        }
+
+                        showStudentSettings -> {
+                            StudentSettingsScreen(
+                                onBackClick = {
+                                    showStudentSettings = false
+                                },
+                                onEditProfileClick = {
+                                    showStudentEditProfile = true
+                                }
+                            )
+                        }
+
+                        else -> {
+                            StudentProfileScreen(
+                                refreshKey = profileRefreshKey,
+                                onSavedInternshipsClick = {
+                                    showStudentSavedOffers = true
+                                },
+                                onSubmittedApplicationsClick = onSubmittedApplicationsClick,
+                                onSettingsClick = {
+                                    showStudentSettings = true
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -167,6 +212,8 @@ fun StudentDashboardScreen(
 
                 if (route != StudentBottomRoutes.PROFILE) {
                     showStudentSettings = false
+                    showStudentEditProfile = false
+                    showStudentSavedOffers = false
                 }
             }
         )

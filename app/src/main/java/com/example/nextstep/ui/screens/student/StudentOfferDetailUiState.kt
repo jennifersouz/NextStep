@@ -9,5 +9,10 @@ data class StudentOfferDetailUiState(
     @StringRes val errorMessageRes: Int? = null,
 
     val hasApplied: Boolean = false,
-    val isCheckingApplication: Boolean = false
+    val isCheckingApplication: Boolean = false,
+
+    val isSaved: Boolean = false,
+    val isCheckingSavedOffer: Boolean = true,
+    val isSavingOffer: Boolean = false,
+    @StringRes val saveOfferErrorRes: Int? = null
 )

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -93,11 +94,27 @@ fun StudentOfferDetailScreen(
                     if (offer != null) {
                         OfferDetailContent(
                             offer = offer,
+                            isSaved = state.isSaved,
+                            isCheckingSavedOffer = state.isCheckingSavedOffer,
+                            isSavingOffer = state.isSavingOffer,
+                            onToggleSavedOffer = viewModel::toggleSavedOffer,
                             onBackClick = onBackClick
                         )
                     }
                 }
             }
+        }
+
+        state.saveOfferErrorRes?.let { errorRes ->
+            Text(
+                text = stringResource(errorRes),
+                color = Color(0xFFB00020),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 28.dp, vertical = 4.dp)
+            )
         }
 
         state.offer?.let { offer ->
@@ -144,6 +161,10 @@ fun StudentOfferDetailScreen(
 @Composable
 fun OfferDetailContent(
     offer: OfferDto,
+    isSaved: Boolean,
+    isCheckingSavedOffer: Boolean,
+    isSavingOffer: Boolean,
+    onToggleSavedOffer: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Column(
@@ -194,12 +215,29 @@ fun OfferDetailContent(
                 )
             }
 
-            Icon(
-                imageVector = Icons.Default.Bookmark,
-                contentDescription = stringResource(R.string.save_offer),
-                tint = Color.Black,
-                modifier = Modifier.size(38.dp)
-            )
+            IconButton(
+                onClick = onToggleSavedOffer,
+                enabled = !isCheckingSavedOffer && !isSavingOffer
+            ) {
+                if (isCheckingSavedOffer || isSavingOffer) {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = if (isSaved) {
+                            Icons.Default.Bookmark
+                        } else {
+                            Icons.Outlined.BookmarkBorder
+                        },
+                        contentDescription = stringResource(R.string.save_offer),
+                        tint = Color.Black,
+                        modifier = Modifier.size(38.dp)
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(44.dp))

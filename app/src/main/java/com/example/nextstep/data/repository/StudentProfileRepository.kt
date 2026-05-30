@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.nextstep.data.model.ProfileEmailDto
 import com.example.nextstep.data.model.StudentProfile
 import com.example.nextstep.data.model.StudentProfileDto
+import com.example.nextstep.data.model.UpdateStudentProfileDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -54,6 +55,36 @@ class StudentProfileRepository {
             )
         } catch (exception: Exception) {
             Log.e("StudentProfileRepository", "Erro ao carregar perfil do aluno", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun updateCurrentStudentProfile(
+        firstName: String,
+        lastName: String,
+        educationInstitution: String
+    ): Result<Unit> {
+        return try {
+            val userId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Utilizador não autenticado.")
+
+            supabase
+                .from("students")
+                .update(
+                    UpdateStudentProfileDto(
+                        firstName = firstName.trim(),
+                        lastName = lastName.trim(),
+                        educationInstitution = educationInstitution.trim()
+                    )
+                ) {
+                    filter {
+                        eq("profile_id", userId)
+                    }
+                }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("StudentProfileRepository", "Erro ao atualizar perfil do aluno", exception)
             Result.failure(exception)
         }
     }
