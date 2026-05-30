@@ -258,4 +258,6 @@
     <string name="saved_internships">Saved internships</string>
     <string name="submitted_applications">Submitted applications</string>
     <string name="settings">Settings</string>
+    <string name="student_submitted_applications_load_error">Could not load submitted applications.</string>
+    <string name="student_no_submitted_applications">You have not submitted any applications yet.</string>
 </resources>

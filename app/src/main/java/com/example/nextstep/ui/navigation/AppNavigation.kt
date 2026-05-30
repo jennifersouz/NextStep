@@ -18,6 +18,7 @@ import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
+import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -100,6 +101,17 @@ fun AppNavigation() {
             StudentDashboardScreen(
                 onOfferClick = { offerId ->
                     navController.navigate(Routes.studentOfferDetail(offerId))
+                },
+                onSubmittedApplicationsClick = {
+                    navController.navigate(Routes.STUDENT_SUBMITTED_APPLICATIONS)
+                }
+            )
+        }
+
+        composable(Routes.STUDENT_SUBMITTED_APPLICATIONS) {
+            StudentSubmittedApplicationsScreen(
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

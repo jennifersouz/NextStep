@@ -87,6 +87,7 @@ data class StudentBottomNavItem(
 @Composable
 fun StudentDashboardScreen(
     onOfferClick: (String) -> Unit = {},
+    onSubmittedApplicationsClick: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -136,7 +137,9 @@ fun StudentDashboardScreen(
                 }
 
                 StudentBottomRoutes.PROFILE -> {
-                    StudentProfileScreen()
+                    StudentProfileScreen(
+                        onSubmittedApplicationsClick = onSubmittedApplicationsClick
+                    )
                 }
             }
         }

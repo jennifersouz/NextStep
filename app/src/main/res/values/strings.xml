@@ -260,4 +260,6 @@
     <string name="saved_internships">Estágios guardados</string>
     <string name="submitted_applications">Candidaturas submetidas</string>
     <string name="settings">Definições</string>
+    <string name="student_submitted_applications_load_error">Não foi possível carregar as candidaturas submetidas.</string>
+    <string name="student_no_submitted_applications">Ainda não submeteste nenhuma candidatura.</string>
 </resources>
