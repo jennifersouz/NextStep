@@ -1,0 +1,47 @@
+package com.example.nextstep.ui.screens.student
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
+import com.example.nextstep.data.repository.StudentProfileRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class StudentProfileViewModel : ViewModel() {
+
+    private val repository = StudentProfileRepository()
+
+    private val _uiState = MutableStateFlow(StudentProfileUiState())
+    val uiState: StateFlow<StudentProfileUiState> = _uiState.asStateFlow()
+
+    init {
+        loadProfile()
+    }
+
+    fun loadProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessageRes = null
+            )
+
+            val result = repository.getCurrentStudentProfile()
+
+            _uiState.value = if (result.isSuccess) {
+                _uiState.value.copy(
+                    profile = result.getOrNull(),
+                    isLoading = false,
+                    errorMessageRes = null
+                )
+            } else {
+                _uiState.value.copy(
+                    profile = null,
+                    isLoading = false,
+                    errorMessageRes = R.string.student_profile_load_error
+                )
+            }
+        }
+    }
+}

@@ -251,4 +251,13 @@
     <string name="company_application_document_open_error">Não foi possível abrir o documento.</string>
     <string name="company_application_opening_document">A abrir documento...</string>
     <string name="company_application_mark_viewed_error">Não foi possível marcar a candidatura como vista.</string>
+    <string name="student_profile_load_error">Não foi possível carregar o perfil.</string>
+
+    <string name="email">Email</string>
+    <string name="education_institution">Instituição de Ensino</string>
+
+    <string name="sent_requests">Pedidos enviados</string>
+    <string name="saved_internships">Estágios guardados</string>
+    <string name="submitted_applications">Candidaturas submetidas</string>
+    <string name="settings">Definições</string>
 </resources>

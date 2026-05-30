@@ -249,4 +249,13 @@
     <string name="student_messages_placeholder">Here you will be able to exchange messages with companies and supervisors.</string>
     <string name="student_profile_placeholder">Here you will be able to view and edit your profile.</string>
     <string name="company_application_mark_viewed_error">Could not mark the application as seen.</string>
+    <string name="student_profile_load_error">Could not load the profile.</string>
+
+    <string name="email">Email</string>
+    <string name="education_institution">Education Institution</string>
+
+    <string name="sent_requests">Sent requests</string>
+    <string name="saved_internships">Saved internships</string>
+    <string name="submitted_applications">Submitted applications</string>
+    <string name="settings">Settings</string>
 </resources>
