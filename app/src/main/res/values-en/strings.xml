@@ -311,4 +311,5 @@
     <string name="company_profile_update_success">Company profile updated successfully.</string>
     <string name="company_profile_update_error">Could not update the company profile.</string>
     <string name="company_profile_invalid_phone">Enter a valid phone number.</string>
+    <string name="register_success">Account created successfully. You can now sign in.</string>
 </resources>

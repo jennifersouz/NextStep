@@ -36,5 +36,6 @@ data class RegisterUiState(
     @StringRes val locationError: Int? = null,
 
     @StringRes val generalError: Int? = null,
-    val generalErrorText: String? = null
+    val generalErrorText: String? = null,
+    val isRegisterSuccess: Boolean = false
 )

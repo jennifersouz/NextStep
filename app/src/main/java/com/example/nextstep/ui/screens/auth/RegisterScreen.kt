@@ -26,8 +26,13 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,68 +55,92 @@ import com.example.nextstep.ui.components.isLandscape
 
 @Composable
 fun RegisterScreen(
-    onRegisterClick: () -> Unit = {},
+    onRegisterSuccess: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     viewModel: AuthViewModel = viewModel()
 ) {
     val state by viewModel.registerState.collectAsState()
     var roleMenuExpanded by remember { mutableStateOf(false) }
     val landscape = isLandscape()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val successMessage = stringResource(R.string.register_success)
+
+    // Observar sucesso: mostrar Snackbar e navegar para login
+    LaunchedEffect(state.isRegisterSuccess) {
+        if (state.isRegisterSuccess) {
+            snackbarHostState.showSnackbar(successMessage)
+            onRegisterSuccess()
+        }
+    }
 
     val roleLabel = when (state.selectedRole) {
         UserRole.STUDENT -> stringResource(R.string.role_student)
         UserRole.COMPANY -> stringResource(R.string.role_company)
     }
 
-    if (landscape) {
-        // Landscape: header à esquerda, formulário à direita com scroll
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .statusBarsPadding()
-        ) {
-            AuthResponsiveLayout(
-                modifier = Modifier.weight(1f),
-                headerContent = {
-                    RegisterHeader()
-                },
-                formContent = {
-                    RegisterForm(
-                        state = state,
-                        roleLabel = roleLabel,
-                        roleMenuExpanded = roleMenuExpanded,
-                        onRoleMenuExpandChange = { roleMenuExpanded = it },
-                        viewModel = viewModel,
-                        onRegisterClick = onRegisterClick,
-                        onLoginClick = onLoginClick
-                    )
-                }
-            )
+    Scaffold(
+        containerColor = Color.White,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFF1A1A1A),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(10.dp)
+                )
+            }
         }
-    } else {
-        // Portrait: layout original em coluna com scroll
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(horizontal = 28.dp, vertical = 48.dp)
-        ) {
-            RegisterHeader()
+    ) { innerPadding ->
+        if (landscape) {
+            // Landscape: header à esquerda, formulário à direita com scroll
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .statusBarsPadding()
+                    .padding(innerPadding)
+            ) {
+                AuthResponsiveLayout(
+                    modifier = Modifier.weight(1f),
+                    headerContent = {
+                        RegisterHeader()
+                    },
+                    formContent = {
+                        RegisterForm(
+                            state = state,
+                            roleLabel = roleLabel,
+                            roleMenuExpanded = roleMenuExpanded,
+                            onRoleMenuExpandChange = { roleMenuExpanded = it },
+                            viewModel = viewModel,
+                            onLoginClick = onLoginClick
+                        )
+                    }
+                )
+            }
+        } else {
+            // Portrait: layout em coluna com scroll
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(innerPadding)
+                    .padding(horizontal = 28.dp, vertical = 48.dp)
+            ) {
+                RegisterHeader()
 
-            Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(36.dp))
 
-            RegisterForm(
-                state = state,
-                roleLabel = roleLabel,
-                roleMenuExpanded = roleMenuExpanded,
-                onRoleMenuExpandChange = { roleMenuExpanded = it },
-                viewModel = viewModel,
-                onRegisterClick = onRegisterClick,
-                onLoginClick = onLoginClick
-            )
+                RegisterForm(
+                    state = state,
+                    roleLabel = roleLabel,
+                    roleMenuExpanded = roleMenuExpanded,
+                    onRoleMenuExpandChange = { roleMenuExpanded = it },
+                    viewModel = viewModel,
+                    onLoginClick = onLoginClick
+                )
+            }
         }
     }
 }
@@ -150,7 +179,6 @@ private fun RegisterForm(
     roleMenuExpanded: Boolean,
     onRoleMenuExpandChange: (Boolean) -> Unit,
     viewModel: AuthViewModel,
-    onRegisterClick: () -> Unit,
     onLoginClick: () -> Unit
 ) {
     // Seletor de tipo de utilizador
@@ -334,7 +362,7 @@ private fun RegisterForm(
 
     Button(
         onClick = {
-            viewModel.register(onSuccess = onRegisterClick)
+            viewModel.register()
         },
         modifier = Modifier
             .fillMaxWidth()

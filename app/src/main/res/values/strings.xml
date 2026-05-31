@@ -313,4 +313,5 @@
     <string name="company_profile_update_success">Perfil da empresa atualizado com sucesso.</string>
     <string name="company_profile_update_error">Não foi possível atualizar o perfil da empresa.</string>
     <string name="company_profile_invalid_phone">Insere um número de telefone válido.</string>
+    <string name="register_success">Conta criada com sucesso. Já podes iniciar sessão.</string>
 </resources>

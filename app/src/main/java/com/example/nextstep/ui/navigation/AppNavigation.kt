@@ -88,6 +88,13 @@ fun AppNavigation() {
 
         composable(Routes.REGISTER) {
             RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) {
+                            inclusive = true
+                        }
+                    }
+                },
                 onLoginClick = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.REGISTER) {

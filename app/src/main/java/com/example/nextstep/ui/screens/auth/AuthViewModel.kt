@@ -439,7 +439,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(onSuccess: () -> Unit) {
+    fun register() {
         if (!validateRegister()) return
 
         val state = _registerState.value
@@ -475,7 +475,9 @@ class AuthViewModel : ViewModel() {
             }
 
             if (result.isSuccess) {
-                onSuccess()
+                _registerState.value = _registerState.value.copy(
+                    isRegisterSuccess = true
+                )
             } else {
                 _registerState.value = _registerState.value.copy(
                     generalError = mapAuthErrorToMessage(result.exceptionOrNull())
