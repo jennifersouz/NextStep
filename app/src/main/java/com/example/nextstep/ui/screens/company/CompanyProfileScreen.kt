@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyProfileDto
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.components.isLandscape
 
 @Composable
 fun CompanyProfileScreen(
@@ -123,117 +125,183 @@ private fun CompanyProfileContent(
     onEditProfileClick: () -> Unit,
     onOfferClick: (String) -> Unit
 ) {
+    val landscape = isLandscape()
+
     val noDescriptionText = stringResource(R.string.company_profile_no_description)
     val notAvailableText = stringResource(R.string.not_available)
 
-    val descriptionText = if (company.description.isNullOrBlank()) {
-        noDescriptionText
-    } else {
-        company.description
-    }
+    val descriptionText = if (company.description.isNullOrBlank()) noDescriptionText else company.description
+    val locationText = if (company.location.isNullOrBlank()) notAvailableText else company.location
+    val phoneText = if (company.phone.isNullOrBlank()) notAvailableText else company.phone
 
-    val locationText = if (company.location.isNullOrBlank()) {
-        notAvailableText
-    } else {
-        company.location
-    }
+    if (landscape) {
+        // Landscape: logo/nome/área à esquerda, detalhes + ofertas à direita
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .statusBarsPadding()
+        ) {
+            // Lado esquerdo — identidade da empresa
+            Box(
+                modifier = Modifier
+                    .weight(0.4f)
+                    .fillMaxHeight()
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CompanyProfileLogo(
+                        companyName = company.companyName,
+                        size = 100
+                    )
 
-    val phoneText = if (company.phone.isNullOrBlank()) {
-        notAvailableText
-    } else {
-        company.phone
-    }
+                    Spacer(modifier = Modifier.height(12.dp))
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .statusBarsPadding(),
-        contentPadding = PaddingValues(
-            start = 28.dp,
-            end = 28.dp,
-            top = 30.dp,
-            bottom = 110.dp
-        )
-    ) {
-        item {
-            CompanyProfileHeader(
-                company = company,
-                onEditProfileClick = onEditProfileClick
-            )
+                    Text(
+                        text = company.companyName,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
 
-            Spacer(modifier = Modifier.height(28.dp))
+                    if (!company.businessArea.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
 
-            CompanyProfileSectionTitle(
-                title = stringResource(R.string.company_profile_about)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = descriptionText,
-                fontSize = 14.sp,
-                color = Color.Black,
-                lineHeight = 20.sp
-            )
-
-            Spacer(modifier = Modifier.height(26.dp))
-
-            CompanyProfileSectionTitle(
-                title = stringResource(R.string.location)
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = locationText,
-                fontSize = 14.sp,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(26.dp))
-
-            CompanyProfileSectionTitle(
-                title = stringResource(R.string.contacts)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CompanyContactRow(
-                phone = phoneText
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            CompanyProfileSectionTitle(
-                title = stringResource(R.string.internships)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        if (offers.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(R.string.company_profile_no_offers),
-                    color = Color(0xFF8A8A8A),
-                    fontSize = 14.sp
-                )
-            }
-        } else {
-            items(
-                items = offers,
-                key = { offer -> offer.id }
-            ) { offer ->
-                CompanyProfileOfferCard(
-                    company = company,
-                    offer = offer,
-                    onClick = {
-                        onOfferClick(offer.id)
+                        Text(
+                            text = company.businessArea,
+                            fontSize = 13.sp,
+                            color = Color(0xFF8A8A8A),
+                            textAlign = TextAlign.Center
+                        )
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    IconButton(onClick = onEditProfileClick) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = stringResource(R.string.edit_profile),
+                            tint = Color(0xFF6B7280),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+            }
+
+            // Lado direito — detalhes e ofertas
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.6f)
+                    .fillMaxHeight(),
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    end = 28.dp,
+                    top = 24.dp,
+                    bottom = 40.dp
+                )
+            ) {
+                item {
+                    CompanyProfileSectionTitle(title = stringResource(R.string.company_profile_about))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = descriptionText, fontSize = 14.sp, color = Color.Black, lineHeight = 20.sp)
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    CompanyProfileSectionTitle(title = stringResource(R.string.location))
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = locationText, fontSize = 14.sp, color = Color.Black)
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    CompanyProfileSectionTitle(title = stringResource(R.string.contacts))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CompanyContactRow(phone = phoneText)
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    CompanyProfileSectionTitle(title = stringResource(R.string.internships))
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                if (offers.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.company_profile_no_offers),
+                            color = Color(0xFF8A8A8A),
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    items(items = offers, key = { it.id }) { offer ->
+                        CompanyProfileOfferCard(
+                            company = company,
+                            offer = offer,
+                            onClick = { onOfferClick(offer.id) }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+            }
+        }
+    } else {
+        // Portrait: layout original em LazyColumn
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .statusBarsPadding(),
+            contentPadding = PaddingValues(
+                start = 28.dp,
+                end = 28.dp,
+                top = 30.dp,
+                bottom = 110.dp
+            )
+        ) {
+            item {
+                CompanyProfileHeader(
+                    company = company,
+                    onEditProfileClick = onEditProfileClick
                 )
 
+                Spacer(modifier = Modifier.height(28.dp))
+
+                CompanyProfileSectionTitle(title = stringResource(R.string.company_profile_about))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = descriptionText, fontSize = 14.sp, color = Color.Black, lineHeight = 20.sp)
+                Spacer(modifier = Modifier.height(26.dp))
+
+                CompanyProfileSectionTitle(title = stringResource(R.string.location))
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(text = locationText, fontSize = 14.sp, color = Color.Black)
+                Spacer(modifier = Modifier.height(26.dp))
+
+                CompanyProfileSectionTitle(title = stringResource(R.string.contacts))
+                Spacer(modifier = Modifier.height(8.dp))
+                CompanyContactRow(phone = phoneText)
+                Spacer(modifier = Modifier.height(32.dp))
+
+                CompanyProfileSectionTitle(title = stringResource(R.string.internships))
                 Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            if (offers.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.company_profile_no_offers),
+                        color = Color(0xFF8A8A8A),
+                        fontSize = 14.sp
+                    )
+                }
+            } else {
+                items(items = offers, key = { it.id }) { offer ->
+                    CompanyProfileOfferCard(
+                        company = company,
+                        offer = offer,
+                        onClick = { onOfferClick(offer.id) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }

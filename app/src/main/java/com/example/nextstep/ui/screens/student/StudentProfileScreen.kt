@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.StudentProfile
+import com.example.nextstep.ui.components.ProfileResponsiveLayout
+import com.example.nextstep.ui.components.isLandscape
 
 @Composable
 fun StudentProfileScreen(
@@ -97,85 +99,166 @@ fun StudentProfileContent(
     onSubmittedApplicationsClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 28.dp, vertical = 24.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.profile),
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+    val landscape = isLandscape()
+
+    if (landscape) {
+        // Landscape: avatar/nome à esquerda, info + menu à direita
+        ProfileResponsiveLayout(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            headerContent = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    StudentProfileAvatar(fullName = profile.fullName)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = profile.fullName,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            bodyContent = {
+                Text(
+                    text = stringResource(R.string.profile),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                StudentProfileInfoBlock(
+                    label = stringResource(R.string.email),
+                    value = profile.email
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                StudentProfileInfoBlock(
+                    label = stringResource(R.string.education_institution),
+                    value = profile.educationInstitution
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                StudentProfileMenuItem(
+                    icon = Icons.AutoMirrored.Outlined.Send,
+                    title = stringResource(R.string.sent_requests),
+                    onClick = onSentRequestsClick
+                )
+
+                StudentProfileMenuDivider()
+
+                StudentProfileMenuItem(
+                    icon = Icons.Outlined.BookmarkBorder,
+                    title = stringResource(R.string.saved_internships),
+                    onClick = onSavedInternshipsClick
+                )
+
+                StudentProfileMenuDivider()
+
+                StudentProfileMenuItem(
+                    icon = Icons.Outlined.Description,
+                    title = stringResource(R.string.submitted_applications),
+                    onClick = onSubmittedApplicationsClick
+                )
+
+                StudentProfileMenuDivider()
+
+                StudentProfileMenuItem(
+                    icon = Icons.Outlined.Settings,
+                    title = stringResource(R.string.settings),
+                    onClick = onSettingsClick
+                )
+            }
         )
-
-        Spacer(modifier = Modifier.height(36.dp))
-
+    } else {
+        // Portrait: layout original em coluna
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(horizontal = 28.dp, vertical = 24.dp)
         ) {
-            StudentProfileAvatar(
-                fullName = profile.fullName
+            Text(
+                text = stringResource(R.string.profile),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
-            Text(
-                text = profile.fullName,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                textAlign = TextAlign.Center
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                StudentProfileAvatar(fullName = profile.fullName)
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Text(
+                    text = profile.fullName,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(58.dp))
+
+            StudentProfileInfoBlock(
+                label = stringResource(R.string.email),
+                value = profile.email
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StudentProfileInfoBlock(
+                label = stringResource(R.string.education_institution),
+                value = profile.educationInstitution
+            )
+
+            Spacer(modifier = Modifier.height(54.dp))
+
+            StudentProfileMenuItem(
+                icon = Icons.AutoMirrored.Outlined.Send,
+                title = stringResource(R.string.sent_requests),
+                onClick = onSentRequestsClick
+            )
+
+            StudentProfileMenuDivider()
+
+            StudentProfileMenuItem(
+                icon = Icons.Outlined.BookmarkBorder,
+                title = stringResource(R.string.saved_internships),
+                onClick = onSavedInternshipsClick
+            )
+
+            StudentProfileMenuDivider()
+
+            StudentProfileMenuItem(
+                icon = Icons.Outlined.Description,
+                title = stringResource(R.string.submitted_applications),
+                onClick = onSubmittedApplicationsClick
+            )
+
+            StudentProfileMenuDivider()
+
+            StudentProfileMenuItem(
+                icon = Icons.Outlined.Settings,
+                title = stringResource(R.string.settings),
+                onClick = onSettingsClick
             )
         }
-
-        Spacer(modifier = Modifier.height(58.dp))
-
-        StudentProfileInfoBlock(
-            label = stringResource(R.string.email),
-            value = profile.email
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        StudentProfileInfoBlock(
-            label = stringResource(R.string.education_institution),
-            value = profile.educationInstitution
-        )
-
-        Spacer(modifier = Modifier.height(54.dp))
-
-        StudentProfileMenuItem(
-            icon = Icons.Outlined.Send,
-            title = stringResource(R.string.sent_requests),
-            onClick = onSentRequestsClick
-        )
-
-        StudentProfileMenuDivider()
-
-        StudentProfileMenuItem(
-            icon = Icons.Outlined.BookmarkBorder,
-            title = stringResource(R.string.saved_internships),
-            onClick = onSavedInternshipsClick
-        )
-
-        StudentProfileMenuDivider()
-
-        StudentProfileMenuItem(
-            icon = Icons.Outlined.Description,
-            title = stringResource(R.string.submitted_applications),
-            onClick = onSubmittedApplicationsClick
-        )
-
-        StudentProfileMenuDivider()
-
-        StudentProfileMenuItem(
-            icon = Icons.Outlined.Settings,
-            title = stringResource(R.string.settings),
-            onClick = onSettingsClick
-        )
     }
 }
 
@@ -247,9 +330,7 @@ fun StudentProfileMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(76.dp)
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -322,9 +403,7 @@ fun StudentProfileErrorState(
             color = Color.Black,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable {
-                onRetryClick()
-            }
+            modifier = Modifier.clickable { onRetryClick() }
         )
     }
 }
