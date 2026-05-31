@@ -305,4 +305,12 @@
     <string name="contacts">Contactos</string>
     <string name="not_available">Não disponível</string>
     <string name="company_profile_no_offers">Esta empresa ainda não publicou estágios.</string>
+    <string name="edit_company_profile">Editar perfil da empresa</string>
+    <string name="company_name">Nome da empresa</string>
+    <string name="business_area">Área de negócio</string>
+    <string name="phone">Telefone</string>
+    <string name="description">Descrição</string>
+    <string name="company_profile_update_success">Perfil da empresa atualizado com sucesso.</string>
+    <string name="company_profile_update_error">Não foi possível atualizar o perfil da empresa.</string>
+    <string name="company_profile_invalid_phone">Insere um número de telefone válido.</string>
 </resources>

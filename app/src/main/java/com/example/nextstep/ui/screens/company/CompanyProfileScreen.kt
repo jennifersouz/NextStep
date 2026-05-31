@@ -20,19 +20,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyProfileDto
@@ -47,11 +50,17 @@ import com.example.nextstep.data.model.OfferDto
 
 @Composable
 fun CompanyProfileScreen(
+    refreshKey: Int = 0,
+    onEditProfileClick: () -> Unit = {},
     onOfferClick: (String) -> Unit = {},
     viewModel: CompanyProfileViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(refreshKey) {
+        viewModel.loadCompanyProfile()
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -100,6 +109,7 @@ fun CompanyProfileScreen(
             CompanyProfileContent(
                 company = state.company!!,
                 offers = state.offers,
+                onEditProfileClick = onEditProfileClick,
                 onOfferClick = onOfferClick
             )
         }
@@ -110,8 +120,30 @@ fun CompanyProfileScreen(
 private fun CompanyProfileContent(
     company: CompanyProfileDto,
     offers: List<OfferDto>,
+    onEditProfileClick: () -> Unit,
     onOfferClick: (String) -> Unit
 ) {
+    val noDescriptionText = stringResource(R.string.company_profile_no_description)
+    val notAvailableText = stringResource(R.string.not_available)
+
+    val descriptionText = if (company.description.isNullOrBlank()) {
+        noDescriptionText
+    } else {
+        company.description
+    }
+
+    val locationText = if (company.location.isNullOrBlank()) {
+        notAvailableText
+    } else {
+        company.location
+    }
+
+    val phoneText = if (company.phone.isNullOrBlank()) {
+        notAvailableText
+    } else {
+        company.phone
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -125,7 +157,10 @@ private fun CompanyProfileContent(
         )
     ) {
         item {
-            CompanyProfileHeader(company = company)
+            CompanyProfileHeader(
+                company = company,
+                onEditProfileClick = onEditProfileClick
+            )
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -136,8 +171,7 @@ private fun CompanyProfileContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = company.description.orEmpty()
-                    .ifBlank { stringResource(R.string.company_profile_no_description) },
+                text = descriptionText,
                 fontSize = 14.sp,
                 color = Color.Black,
                 lineHeight = 20.sp
@@ -152,8 +186,7 @@ private fun CompanyProfileContent(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = company.location.orEmpty()
-                    .ifBlank { stringResource(R.string.not_available) },
+                text = locationText,
                 fontSize = 14.sp,
                 color = Color.Black
             )
@@ -167,8 +200,7 @@ private fun CompanyProfileContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             CompanyContactRow(
-                phone = company.phone.orEmpty()
-                    .ifBlank { stringResource(R.string.not_available) }
+                phone = phoneText
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -209,7 +241,8 @@ private fun CompanyProfileContent(
 
 @Composable
 private fun CompanyProfileHeader(
-    company: CompanyProfileDto
+    company: CompanyProfileDto,
+    onEditProfileClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -222,13 +255,31 @@ private fun CompanyProfileHeader(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text(
-            text = company.companyName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.Black,
-            textAlign = TextAlign.Center
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = company.companyName,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 48.dp)
+            )
+
+            IconButton(
+                onClick = onEditProfileClick,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = stringResource(R.string.edit_profile),
+                    tint = Color(0xFF6B7280),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
 
         if (!company.businessArea.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(4.dp))

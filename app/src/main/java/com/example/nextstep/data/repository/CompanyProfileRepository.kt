@@ -3,6 +3,7 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.CompanyProfileDto
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.data.model.UpdateCompanyProfileDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -56,6 +57,44 @@ class CompanyProfileRepository {
             Log.e(
                 "CompanyProfileRepository",
                 "Erro ao carregar estágios da empresa",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun updateCurrentCompanyProfile(
+        companyName: String,
+        businessArea: String,
+        location: String,
+        description: String,
+        phone: String
+    ): Result<Unit> {
+        return try {
+            val companyProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            supabase
+                .from("companies")
+                .update(
+                    UpdateCompanyProfileDto(
+                        companyName = companyName.trim(),
+                        businessArea = businessArea.trim(),
+                        location = location.trim(),
+                        description = description.trim(),
+                        phone = phone.trim()
+                    )
+                ) {
+                    filter {
+                        eq("profile_id", companyProfileId)
+                    }
+                }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e(
+                "CompanyProfileRepository",
+                "Erro ao atualizar perfil da empresa",
                 exception
             )
             Result.failure(exception)

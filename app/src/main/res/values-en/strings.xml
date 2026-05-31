@@ -303,4 +303,12 @@
     <string name="contacts">Contacts</string>
     <string name="not_available">Not available</string>
     <string name="company_profile_no_offers">This company has not published internships yet.</string>
+    <string name="edit_company_profile">Edit company profile</string>
+    <string name="company_name">Company name</string>
+    <string name="business_area">Business area</string>
+    <string name="phone">Phone</string>
+    <string name="description">Description</string>
+    <string name="company_profile_update_success">Company profile updated successfully.</string>
+    <string name="company_profile_update_error">Could not update the company profile.</string>
+    <string name="company_profile_invalid_phone">Enter a valid phone number.</string>
 </resources>

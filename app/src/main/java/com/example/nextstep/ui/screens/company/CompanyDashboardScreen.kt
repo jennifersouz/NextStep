@@ -40,6 +40,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +73,14 @@ fun CompanyDashboardScreen(
 
     var selectedBottomRoute by remember {
         mutableStateOf(CompanyBottomRoutes.INTERNSHIPS)
+    }
+
+    var showCompanyEditProfile by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var companyProfileRefreshKey by rememberSaveable {
+        mutableStateOf(0)
     }
 
     Column(
@@ -119,9 +128,25 @@ fun CompanyDashboardScreen(
                 }
 
                 CompanyBottomRoutes.PROFILE -> {
-                    CompanyProfileScreen(
-                        onOfferClick = onOfferClick
-                    )
+                    if (showCompanyEditProfile) {
+                        CompanyEditProfileScreen(
+                            onBackClick = {
+                                showCompanyEditProfile = false
+                            },
+                            onProfileUpdated = {
+                                companyProfileRefreshKey++
+                                showCompanyEditProfile = false
+                            }
+                        )
+                    } else {
+                        CompanyProfileScreen(
+                            refreshKey = companyProfileRefreshKey,
+                            onEditProfileClick = {
+                                showCompanyEditProfile = true
+                            },
+                            onOfferClick = onOfferClick
+                        )
+                    }
                 }
             }
         }
