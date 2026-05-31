@@ -148,7 +148,11 @@ fun AppNavigation() {
         }
 
         composable(Routes.COMPANY_DASHBOARD) {
-            CompanyDashboardScreen()
+            CompanyDashboardScreen(
+                onOfferClick = { offerId ->
+                    navController.navigate(Routes.studentOfferDetail(offerId))
+                }
+            )
         }
 
         composable(

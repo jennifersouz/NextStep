@@ -298,4 +298,11 @@
     <string name="notification_application_accepted">Aceitou a sua candidatura</string>
     <string name="notification_application_rejected">Rejeitou a sua candidatura</string>
     <string name="notification_application_updated">Atualizou a sua candidatura</string>
+    <string name="company_profile_load_error">Não foi possível carregar o perfil da empresa.</string>
+    <string name="company_profile_about">Sobre</string>
+    <string name="company_profile_no_description">Esta empresa ainda não adicionou uma descrição.</string>
+    <string name="location">Localização</string>
+    <string name="contacts">Contactos</string>
+    <string name="not_available">Não disponível</string>
+    <string name="company_profile_no_offers">Esta empresa ainda não publicou estágios.</string>
 </resources>

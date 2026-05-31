@@ -65,6 +65,7 @@ enum class CompanyBottomRoutes {
 
 @Composable
 fun CompanyDashboardScreen(
+    onOfferClick: (String) -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -118,9 +119,8 @@ fun CompanyDashboardScreen(
                 }
 
                 CompanyBottomRoutes.PROFILE -> {
-                    CompanyPlaceholderContent(
-                        title = stringResource(R.string.company_profile_title),
-                        message = stringResource(R.string.company_profile_placeholder)
+                    CompanyProfileScreen(
+                        onOfferClick = onOfferClick
                     )
                 }
             }
