@@ -6,7 +6,8 @@ data class StudentDashboardUiState(
     val searchQuery: String = "",
     val offers: List<OfferDto> = emptyList(),
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val unreadNotificationsCount: Int = 0
 ) {
     val filteredOffers: List<OfferDto>
         get() {

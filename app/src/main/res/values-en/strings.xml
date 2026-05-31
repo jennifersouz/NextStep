@@ -289,4 +289,11 @@
     <string name="saved_offer_update_error">Could not update saved internships.</string>
     <string name="saved_offers_load_error">Could not load saved internships.</string>
     <string name="no_saved_offers">You have not saved any internships yet.</string>
+    <string name="student_notifications_load_error">Could not load notifications.</string>
+    <string name="student_notification_mark_seen_error">Could not mark the notification as read.</string>
+    <string name="student_no_notifications">You do not have notifications yet.</string>
+
+    <string name="notification_application_accepted">Accepted your application</string>
+    <string name="notification_application_rejected">Rejected your application</string>
+    <string name="notification_application_updated">Updated your application</string>
 </resources>

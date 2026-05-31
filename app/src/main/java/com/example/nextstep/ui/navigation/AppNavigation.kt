@@ -105,6 +105,11 @@ fun AppNavigation() {
                 },
                 onSubmittedApplicationsClick = {
                     navController.navigate(Routes.STUDENT_SUBMITTED_APPLICATIONS)
+                },
+                onApplicationNotificationClick = { applicationId ->
+                    navController.navigate(
+                        Routes.studentSubmittedApplicationDetail(applicationId)
+                    )
                 }
             )
         }

@@ -291,4 +291,11 @@
     <string name="saved_offer_update_error">Não foi possível atualizar os estágios guardados.</string>
     <string name="saved_offers_load_error">Não foi possível carregar os estágios guardados.</string>
     <string name="no_saved_offers">Ainda não guardaste nenhum estágio.</string>
+    <string name="student_notifications_load_error">Não foi possível carregar as notificações.</string>
+    <string name="student_notification_mark_seen_error">Não foi possível marcar a notificação como lida.</string>
+    <string name="student_no_notifications">Ainda não tens notificações.</string>
+
+    <string name="notification_application_accepted">Aceitou a sua candidatura</string>
+    <string name="notification_application_rejected">Rejeitou a sua candidatura</string>
+    <string name="notification_application_updated">Atualizou a sua candidatura</string>
 </resources>

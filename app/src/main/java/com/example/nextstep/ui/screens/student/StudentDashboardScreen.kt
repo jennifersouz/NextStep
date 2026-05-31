@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.student
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -49,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,12 +61,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
@@ -81,18 +86,35 @@ data class StudentBottomNavItem(
     val route: String,
     @StringRes val labelRes: Int,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
+    val unselectedIcon: ImageVector,
+    val badgeCount: Int = 0
 )
 
 @Composable
 fun StudentDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
+    onApplicationNotificationClick: (String) -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val filteredOffers = state.filteredOffers
     val errorMessage = state.errorMessage
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadUnreadNotificationsCount()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     var selectedBottomRoute by rememberSaveable {
         mutableStateOf(StudentBottomRoutes.HOME)
@@ -139,9 +161,12 @@ fun StudentDashboardScreen(
                 }
 
                 StudentBottomRoutes.NOTIFICATIONS -> {
-                    StudentPlaceholderContent(
-                        title = stringResource(R.string.notifications),
-                        subtitle = stringResource(R.string.student_notifications_placeholder)
+                    StudentNotificationsScreen(
+                        onNotificationClick = onApplicationNotificationClick,
+                        onUnreadCountChanged = { count ->
+                            Log.d("NOTIF_DEBUG", "Dashboard recebeu novo contador = $count")
+                            viewModel.setUnreadNotificationsCount(count)
+                        }
                     )
                 }
 
@@ -207,6 +232,7 @@ fun StudentDashboardScreen(
 
         StudentBottomBar(
             currentRoute = selectedBottomRoute,
+            notificationBadgeCount = state.unreadNotificationsCount,
             onItemClick = { route ->
                 selectedBottomRoute = route
 
@@ -214,6 +240,10 @@ fun StudentDashboardScreen(
                     showStudentSettings = false
                     showStudentEditProfile = false
                     showStudentSavedOffers = false
+                }
+
+                if (route == StudentBottomRoutes.NOTIFICATIONS) {
+                    viewModel.loadUnreadNotificationsCount()
                 }
             }
         )
@@ -613,6 +643,7 @@ fun StudentPlaceholderContent(
 @Composable
 fun StudentBottomBar(
     currentRoute: String,
+    notificationBadgeCount: Int = 0,
     onItemClick: (String) -> Unit
 ) {
     val items = listOf(
@@ -632,7 +663,8 @@ fun StudentBottomBar(
             route = StudentBottomRoutes.NOTIFICATIONS,
             labelRes = R.string.notifications,
             selectedIcon = Icons.Filled.Notifications,
-            unselectedIcon = Icons.Outlined.NotificationsNone
+            unselectedIcon = Icons.Outlined.NotificationsNone,
+            badgeCount = notificationBadgeCount
         ),
         StudentBottomNavItem(
             route = StudentBottomRoutes.MESSAGES,
@@ -673,7 +705,6 @@ fun StudentBottomBar(
         }
     }
 }
-
 @Composable
 fun StudentBottomBarItem(
     item: StudentBottomNavItem,
@@ -718,12 +749,32 @@ fun StudentBottomBarItem(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-            contentDescription = label,
-            tint = contentColor,
-            modifier = Modifier.size(26.dp)
-        )
+        Box {
+            Icon(
+                imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                contentDescription = label,
+                tint = contentColor,
+                modifier = Modifier.size(26.dp)
+            )
+
+            if (item.badgeCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(17.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE8505B)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (item.badgeCount > 9) "9+" else item.badgeCount.toString(),
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
 
         if (selected) {
             Spacer(modifier = Modifier.width(6.dp))

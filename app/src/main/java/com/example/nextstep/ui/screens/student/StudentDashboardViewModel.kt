@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.student
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.repository.OffersRepository
+import com.example.nextstep.data.repository.StudentNotificationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,12 +12,13 @@ import kotlinx.coroutines.launch
 class StudentDashboardViewModel : ViewModel() {
 
     private val offersRepository = OffersRepository()
-
+    private val notificationsRepository = StudentNotificationsRepository()
     private val _uiState = MutableStateFlow(StudentDashboardUiState())
     val uiState: StateFlow<StudentDashboardUiState> = _uiState.asStateFlow()
 
     init {
         loadOffers()
+        loadUnreadNotificationsCount()
     }
 
     fun onSearchChange(value: String) {
@@ -48,5 +50,23 @@ class StudentDashboardViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    fun loadUnreadNotificationsCount() {
+        viewModelScope.launch {
+            val result = notificationsRepository.getUnreadNotificationsCount()
+
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    unreadNotificationsCount = result.getOrDefault(0)
+                )
+            }
+        }
+    }
+
+    fun setUnreadNotificationsCount(count: Int) {
+        _uiState.value = _uiState.value.copy(
+            unreadNotificationsCount = count
+        )
     }
 }
