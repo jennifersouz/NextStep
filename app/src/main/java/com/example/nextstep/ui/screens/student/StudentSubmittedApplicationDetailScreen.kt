@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -133,6 +135,7 @@ fun StudentApplicationDetailContent(
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 18.dp)
     ) {
         IconButton(
@@ -147,7 +150,7 @@ fun StudentApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -168,7 +171,7 @@ fun StudentApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(64.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Text(
             text = stringResource(R.string.application_status_title),
@@ -185,7 +188,7 @@ fun StudentApplicationDetailContent(
             color = studentApplicationDetailStatusColor(application.status)
         )
 
-        Spacer(modifier = Modifier.height(42.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Text(
             text = stringResource(R.string.application_documents_title),
@@ -194,7 +197,7 @@ fun StudentApplicationDetailContent(
             color = Color.Black
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         StudentApplicationDetailDocumentField(
             label = stringResource(R.string.motivation_letter),
@@ -206,7 +209,7 @@ fun StudentApplicationDetailContent(
             onOpenClick = onOpenMotivationLetter
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         StudentApplicationDetailDocumentField(
             label = stringResource(R.string.cv),
@@ -219,7 +222,7 @@ fun StudentApplicationDetailContent(
         )
 
         documentErrorRes?.let { errorRes ->
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = stringResource(errorRes),
@@ -231,7 +234,7 @@ fun StudentApplicationDetailContent(
         }
 
         if (isOpeningDocument) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = stringResource(R.string.student_application_opening_document),
@@ -242,7 +245,7 @@ fun StudentApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(64.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         confirmPresenceErrorRes?.let { errorRes ->
             Text(
@@ -281,6 +284,8 @@ fun StudentApplicationDetailContent(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

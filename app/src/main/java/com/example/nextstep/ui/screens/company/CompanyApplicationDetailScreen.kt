@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -138,6 +140,7 @@ fun CompanyApplicationDetailContent(
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 26.dp, vertical = 22.dp)
     ) {
         IconButton(
@@ -152,7 +155,7 @@ fun CompanyApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(52.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -204,7 +207,7 @@ fun CompanyApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(82.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = stringResource(R.string.application_documents_title),
@@ -213,7 +216,7 @@ fun CompanyApplicationDetailContent(
             color = Color.Black
         )
 
-        Spacer(modifier = Modifier.height(34.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         CompanyApplicationDocumentField(
             label = stringResource(R.string.motivation_letter),
@@ -225,7 +228,7 @@ fun CompanyApplicationDetailContent(
             onOpenClick = onOpenMotivationLetter
         )
 
-        Spacer(modifier = Modifier.height(26.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         CompanyApplicationDocumentField(
             label = stringResource(R.string.cv),
@@ -238,7 +241,7 @@ fun CompanyApplicationDetailContent(
         )
 
         documentErrorRes?.let { errorRes ->
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = stringResource(errorRes),
@@ -250,7 +253,7 @@ fun CompanyApplicationDetailContent(
         }
 
         if (isOpeningDocument) {
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = stringResource(R.string.company_application_opening_document),
@@ -260,6 +263,8 @@ fun CompanyApplicationDetailContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

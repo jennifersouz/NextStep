@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -104,167 +107,158 @@ fun StudentApplicationScreen(
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
+            .imePadding()
     ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            when {
-                state.isLoading -> {
-                    ApplicationLoadingState()
+        when {
+            state.isLoading -> {
+                ApplicationLoadingState()
+            }
+
+            state.errorMessageRes != null -> {
+                val errorRes = state.errorMessageRes
+
+                if (errorRes != null) {
+                    ApplicationErrorState(
+                        message = stringResource(errorRes),
+                        onBackClick = onBackClick
+                    )
                 }
+            }
 
-                state.errorMessageRes != null -> {
-                    val errorRes = state.errorMessageRes
+            state.offer != null -> {
+                val offer = state.offer
 
-                    if (errorRes != null) {
-                        ApplicationErrorState(
-                            message = stringResource(errorRes),
+                if (offer != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 28.dp, vertical = 24.dp)
+                    ) {
+                        ApplicationHeader(
+                            title = stringResource(R.string.apply_screen_title),
                             onBackClick = onBackClick
                         )
-                    }
-                }
 
-                state.offer != null -> {
-                    val offer = state.offer
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                    if (offer != null) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 28.dp, vertical = 24.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            ApplicationHeader(
-                                title = stringResource(R.string.apply_screen_title),
-                                onBackClick = onBackClick
+                            ApplicationCompanyLogo(
+                                companyName = offer.companyName
                             )
 
-                            Spacer(modifier = Modifier.height(42.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                ApplicationCompanyLogo(
-                                    companyName = offer.companyName
-                                )
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                Column {
-                                    Text(
-                                        text = offer.companyName,
-                                        fontSize = 18.sp,
-                                        color = Color(0xFF8A8A8A)
-                                    )
-
-                                    Text(
-                                        text = offer.title,
-                                        fontSize = 25.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black,
-                                        lineHeight = 30.sp
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(74.dp))
-
-                            Text(
-                                text = stringResource(R.string.application_documents_title),
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-
-                            Spacer(modifier = Modifier.height(34.dp))
-
-                            ApplicationDocumentField(
-                                label = stringResource(R.string.motivation_letter),
-                                fileName = state.motivationLetterName.ifBlank {
-                                    stringResource(R.string.motivation_letter_placeholder)
-                                },
-                                onUploadClick = {
-                                    motivationLauncher.launch(arrayOf("application/pdf"))
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.height(28.dp))
-
-                            ApplicationDocumentField(
-                                label = stringResource(R.string.cv),
-                                fileName = state.cvName.ifBlank {
-                                    stringResource(R.string.cv_placeholder)
-                                },
-                                onUploadClick = {
-                                    cvLauncher.launch(arrayOf("application/pdf"))
-                                }
-                            )
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            state.submitErrorRes?.let { errorRes ->
+                            Column {
                                 Text(
-                                    text = stringResource(errorRes),
-                                    color = Color(0xFFB00020),
-                                    fontSize = 14.sp,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 10.dp),
-                                    textAlign = TextAlign.Center
+                                    text = offer.companyName,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF8A8A8A)
                                 )
-                            }
 
-                            state.submitSuccessRes?.let { successRes ->
                                 Text(
-                                    text = stringResource(successRes),
-                                    color = Color(0xFF2E7D32),
-                                    fontSize = 14.sp,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 10.dp),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-
-                            Button(
-                                onClick = {
-                                    viewModel.submitApplication(context)
-                                },
-                                enabled = !state.isSubmitting && state.submitSuccessRes == null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFFDFA52),
-                                    contentColor = Color.Black,
-                                    disabledContainerColor = Color(0xFFE5E5A0),
-                                    disabledContentColor = Color.Black
-                                )
-                            ) {
-                                Text(
-                                    text = when {
-                                        state.isSubmitting -> stringResource(R.string.submitting_application)
-                                        state.submitSuccessRes != null -> stringResource(R.string.applied_button)
-                                        else -> stringResource(R.string.submit_application)
-                                    },
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold
+                                    text = offer.title,
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    lineHeight = 30.sp
                                 )
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Text(
+                            text = stringResource(R.string.application_documents_title),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        ApplicationDocumentField(
+                            label = stringResource(R.string.motivation_letter),
+                            fileName = state.motivationLetterName.ifBlank {
+                                stringResource(R.string.motivation_letter_placeholder)
+                            },
+                            onUploadClick = {
+                                motivationLauncher.launch(arrayOf("application/pdf"))
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        ApplicationDocumentField(
+                            label = stringResource(R.string.cv),
+                            fileName = state.cvName.ifBlank {
+                                stringResource(R.string.cv_placeholder)
+                            },
+                            onUploadClick = {
+                                cvLauncher.launch(arrayOf("application/pdf"))
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        state.submitErrorRes?.let { errorRes ->
+                            Text(
+                                text = stringResource(errorRes),
+                                color = Color(0xFFB00020),
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 10.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
+                        state.submitSuccessRes?.let { successRes ->
+                            Text(
+                                text = stringResource(successRes),
+                                color = Color(0xFF2E7D32),
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 10.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                viewModel.submitApplication(context)
+                            },
+                            enabled = !state.isSubmitting && state.submitSuccessRes == null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFDFA52),
+                                contentColor = Color.Black,
+                                disabledContainerColor = Color(0xFFE5E5A0),
+                                disabledContentColor = Color.Black
+                            )
+                        ) {
+                            Text(
+                                text = when {
+                                    state.isSubmitting -> stringResource(R.string.submitting_application)
+                                    state.submitSuccessRes != null -> stringResource(R.string.applied_button)
+                                    else -> stringResource(R.string.submit_application)
+                                },
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
             }
         }
-
-        StudentBottomBar(
-            currentRoute = StudentBottomRoutes.HOME,
-            onItemClick = {
-                // Depois ligamos à navegação real da bottom bar.
-            }
-        )
     }
 }
 

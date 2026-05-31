@@ -67,94 +67,41 @@ fun StudentOfferDetailScreen(
             .statusBarsPadding()
             .imePadding()
     ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            when {
-                state.isLoading -> {
-                    OfferDetailLoadingState()
+        when {
+            state.isLoading -> {
+                OfferDetailLoadingState()
+            }
+
+            state.errorMessageRes != null -> {
+                val errorRes = state.errorMessageRes
+
+                if (errorRes != null) {
+                    OfferDetailErrorState(
+                        message = stringResource(errorRes),
+                        onBackClick = onBackClick
+                    )
                 }
+            }
 
-                state.errorMessageRes != null -> {
-                    val errorRes = state.errorMessageRes
+            state.offer != null -> {
+                val offer = state.offer
 
-                    if (errorRes != null) {
-                        OfferDetailErrorState(
-                            message = stringResource(errorRes),
-                            onBackClick = onBackClick
-                        )
-                    }
-                }
-
-                state.offer != null -> {
-                    val offer = state.offer
-
-                    if (offer != null) {
-                        OfferDetailContent(
-                            offer = offer,
-                            isSaved = state.isSaved,
-                            isCheckingSavedOffer = state.isCheckingSavedOffer,
-                            isSavingOffer = state.isSavingOffer,
-                            onToggleSavedOffer = viewModel::toggleSavedOffer,
-                            onBackClick = onBackClick
-                        )
-                    }
+                if (offer != null) {
+                    OfferDetailContent(
+                        offer = offer,
+                        isSaved = state.isSaved,
+                        isCheckingSavedOffer = state.isCheckingSavedOffer,
+                        isSavingOffer = state.isSavingOffer,
+                        hasApplied = state.hasApplied,
+                        isCheckingApplication = state.isCheckingApplication,
+                        saveOfferErrorRes = state.saveOfferErrorRes,
+                        onToggleSavedOffer = viewModel::toggleSavedOffer,
+                        onBackClick = onBackClick,
+                        onApplyClick = { onApplyClick(offer.id) }
+                    )
                 }
             }
         }
-
-        state.saveOfferErrorRes?.let { errorRes ->
-            Text(
-                text = stringResource(errorRes),
-                color = Color(0xFFB00020),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 4.dp)
-            )
-        }
-
-        state.offer?.let { offer ->
-            Button(
-                onClick = {
-                    if (!state.hasApplied) {
-                        onApplyClick(offer.id)
-                    }
-                },
-                enabled = !state.hasApplied && !state.isCheckingApplication,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 14.dp)
-                    .height(52.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFDFA52),
-                    contentColor = Color.Black,
-                    disabledContainerColor = Color(0xFFE5E5A0),
-                    disabledContentColor = Color.Black
-                )
-            ) {
-                Text(
-                    text = when {
-                        state.isCheckingApplication -> stringResource(R.string.checking_application)
-                        state.hasApplied -> stringResource(R.string.already_applied_button)
-                        else -> stringResource(R.string.apply_button)
-                    },
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        StudentBottomBar(
-            currentRoute = StudentBottomRoutes.HOME,
-            onItemClick = {
-                // Depois ligamos a navegação real da bottom bar.
-            }
-        )
     }
 }
 
@@ -164,8 +111,12 @@ fun OfferDetailContent(
     isSaved: Boolean,
     isCheckingSavedOffer: Boolean,
     isSavingOffer: Boolean,
+    hasApplied: Boolean,
+    isCheckingApplication: Boolean,
+    saveOfferErrorRes: Int?,
     onToggleSavedOffer: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onApplyClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -313,7 +264,47 @@ fun OfferDetailContent(
                 )
             }
 
+        // Erro ao guardar oferta (se existir), logo antes do botão
+        saveOfferErrorRes?.let { errorRes ->
+            Text(
+                text = stringResource(errorRes),
+                color = Color(0xFFB00020),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onApplyClick,
+            enabled = !hasApplied && !isCheckingApplication,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFDFA52),
+                contentColor = Color.Black,
+                disabledContainerColor = Color(0xFFE5E5A0),
+                disabledContentColor = Color.Black
+            )
+        ) {
+            Text(
+                text = when {
+                    isCheckingApplication -> stringResource(R.string.checking_application)
+                    hasApplied -> stringResource(R.string.already_applied_button)
+                    else -> stringResource(R.string.apply_button)
+                },
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

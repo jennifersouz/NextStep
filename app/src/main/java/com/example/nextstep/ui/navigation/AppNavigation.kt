@@ -124,7 +124,8 @@ fun AppNavigation() {
         composable(Routes.STUDENT_SUBMITTED_APPLICATIONS) {
             StudentSubmittedApplicationsScreen(
                 onBackClick = {
-                    navController.popBackStack()
+                    // Fallback para dashboard se a stack estiver vazia
+                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
                 },
                 onApplicationClick = { applicationId ->
                     navController.navigate(
@@ -149,7 +150,10 @@ fun AppNavigation() {
             StudentSubmittedApplicationDetailScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    navController.popBackStack()
+                    // Pode ter sido aberto a partir da lista OU de uma notificação
+                    // (que navega direto para o detalhe sem passar pela lista).
+                    // safePopBack garante que nunca fecha a app.
+                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
                 }
             )
         }
@@ -177,7 +181,9 @@ fun AppNavigation() {
             StudentApplicationScreen(
                 offerId = applicationOfferId,
                 onBackClick = {
-                    navController.popBackStack()
+                    // Volta para o detalhe da oferta (que está na stack)
+                    // ou para o dashboard se a stack estiver vazia
+                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
                 }
             )
         }
@@ -197,7 +203,11 @@ fun AppNavigation() {
             StudentOfferDetailScreen(
                 offerId = offerId,
                 onBackClick = {
-                    navController.popBackStack()
+                    // Pode ter sido aberto a partir do dashboard do aluno,
+                    // dos estágios guardados, ou do dashboard da empresa.
+                    // safePopBack volta para quem chamou, ou para o dashboard
+                    // correto se a stack estiver vazia.
+                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
                 },
                 onApplyClick = { selectedOfferId ->
                     navController.navigate(Routes.studentApplication(selectedOfferId))
