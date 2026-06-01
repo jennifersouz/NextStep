@@ -101,7 +101,8 @@ fun CompanyDashboardScreen(
                         selectedStatus = state.selectedStatus,
                         isLoading = state.isLoading,
                         errorMessageRes = state.errorMessageRes,
-                        onStatusSelected = viewModel::onStatusSelected
+                        onStatusSelected = viewModel::onStatusSelected,
+                        onOfferClick = onOfferClick
                     )
                 }
 
@@ -166,7 +167,8 @@ fun CompanyInternshipsContent(
     selectedStatus: InternshipStatusFilter,
     isLoading: Boolean,
     errorMessageRes: Int?,
-    onStatusSelected: (InternshipStatusFilter) -> Unit
+    onStatusSelected: (InternshipStatusFilter) -> Unit,
+    onOfferClick: (String) -> Unit
 ) {
     when {
         isLoading -> {
@@ -242,7 +244,10 @@ fun CompanyInternshipsContent(
                         }
                     ) { internship ->
                         CompanyInternshipCard(
-                            internship = internship
+                            internship = internship,
+                            onClick = {
+                                onOfferClick(internship.id)
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -321,7 +326,8 @@ fun CompanyInternshipStatusTab(
 
 @Composable
 fun CompanyInternshipCard(
-    internship: CompanyInternshipDto
+    internship: CompanyInternshipDto,
+    onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -333,6 +339,9 @@ fun CompanyInternshipCard(
                 color = Color(0xFFE0E0E0),
                 shape = RoundedCornerShape(8.dp)
             )
+            .clickable {
+                onClick()
+            }
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Text(

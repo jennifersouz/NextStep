@@ -314,4 +314,26 @@
     <string name="company_profile_update_error">Não foi possível atualizar o perfil da empresa.</string>
     <string name="company_profile_invalid_phone">Insere um número de telefone válido.</string>
     <string name="register_success">Conta criada com sucesso. Já podes iniciar sessão.</string>
+    <string name="company_offer_load_error">Não foi possível carregar a oferta.</string>
+    <string name="company_offer_update_error">Não foi possível atualizar a oferta.</string>
+    <string name="company_offer_deactivate_error">Não foi possível desativar a oferta.</string>
+    <string name="company_offer_activate_error">Não foi possível ativar a oferta.</string>
+
+    <string name="edit_offer">Editar oferta</string>
+    <string name="deactivate_offer">Desativar oferta</string>
+    <string name="activate_offer">Ativar oferta</string>
+    <string name="deactivate">Desativar</string>
+    <string name="deactivate_offer_confirmation">Esta oferta deixará de aparecer para os alunos. As candidaturas existentes serão mantidas.</string>
+
+    <string name="offer_active">Oferta ativa</string>
+    <string name="offer_inactive">Oferta inativa</string>
+    <string name="offer_title">Título da oferta</string>
+    <string name="area">Área</string>
+    <string name="work_mode">Regime</string>
+    <string name="duration">Duração</string>
+    <string name="vacancies">Vagas</string>
+    <string name="requirements">Requisitos</string>
+    <string name="company_offer_invalid_vacancies">Insere um número de vagas válido.</string>
+    <string name="cancel">Cancelar</string>
+    <string name="company">Empresa</string>
 </resources>

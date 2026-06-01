@@ -312,4 +312,26 @@
     <string name="company_profile_update_error">Could not update the company profile.</string>
     <string name="company_profile_invalid_phone">Enter a valid phone number.</string>
     <string name="register_success">Account created successfully. You can now sign in.</string>
+    <string name="company_offer_load_error">Could not load the offer.</string>
+    <string name="company_offer_update_error">Could not update the offer.</string>
+    <string name="company_offer_deactivate_error">Could not deactivate the offer.</string>
+    <string name="company_offer_activate_error">Could not activate the offer.</string>
+
+    <string name="edit_offer">Edit offer</string>
+    <string name="deactivate_offer">Deactivate offer</string>
+    <string name="activate_offer">Activate offer</string>
+    <string name="deactivate">Deactivate</string>
+    <string name="deactivate_offer_confirmation">This offer will no longer appear to students. Existing applications will be kept.</string>
+
+    <string name="offer_active">Active offer</string>
+    <string name="offer_inactive">Inactive offer</string>
+    <string name="offer_title">Offer title</string>
+    <string name="area">Area</string>
+    <string name="work_mode">Work mode</string>
+    <string name="duration">Duration</string>
+    <string name="vacancies">Vacancies</string>
+    <string name="requirements">Requirements</string>
+    <string name="company_offer_invalid_vacancies">Enter a valid number of vacancies.</string>
+    <string name="cancel">Cancel</string>
+    <string name="company">Company</string>
 </resources>

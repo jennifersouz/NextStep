@@ -13,6 +13,8 @@ import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
+import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
+import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
@@ -161,7 +163,7 @@ fun AppNavigation() {
         composable(Routes.COMPANY_DASHBOARD) {
             CompanyDashboardScreen(
                 onOfferClick = { offerId ->
-                    navController.navigate(Routes.studentOfferDetail(offerId))
+                    navController.navigate(Routes.companyOfferDetail(offerId))
                 }
             )
         }
@@ -211,6 +213,52 @@ fun AppNavigation() {
                 },
                 onApplyClick = { selectedOfferId ->
                     navController.navigate(Routes.studentApplication(selectedOfferId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_OFFER_DETAIL,
+            arguments = listOf(
+                navArgument("offerId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val offerId = backStackEntry.arguments?.getString("offerId").orEmpty()
+
+            CompanyOfferDetailScreen(
+                offerId = offerId,
+                onBackClick = {
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Routes.COMPANY_DASHBOARD) {
+                            launchSingleTop = true
+                        }
+                    }
+                },
+                onEditClick = { selectedOfferId ->
+                    navController.navigate(Routes.companyEditOffer(selectedOfferId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_EDIT_OFFER,
+            arguments = listOf(
+                navArgument("offerId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val offerId = backStackEntry.arguments?.getString("offerId").orEmpty()
+
+            CompanyEditOfferScreen(
+                offerId = offerId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onOfferUpdated = {
+                    navController.popBackStack()
                 }
             )
         }
