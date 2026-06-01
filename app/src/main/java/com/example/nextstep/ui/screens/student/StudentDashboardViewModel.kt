@@ -63,10 +63,42 @@ class StudentDashboardViewModel : ViewModel() {
             }
         }
     }
-
     fun setUnreadNotificationsCount(count: Int) {
         _uiState.value = _uiState.value.copy(
             unreadNotificationsCount = count
+        )
+    }
+
+    fun onAreaFilterSelected(area: String?) {
+        _uiState.value = _uiState.value.copy(
+            selectedArea = area
+        )
+    }
+
+    fun onWorkModeFilterSelected(workMode: String?) {
+        _uiState.value = _uiState.value.copy(
+            selectedWorkMode = workMode
+        )
+    }
+
+    fun onLocationFilterSelected(location: String?) {
+        _uiState.value = _uiState.value.copy(
+            selectedLocation = location
+        )
+    }
+
+    fun onOnlyWithVacanciesChange(value: Boolean) {
+        _uiState.value = _uiState.value.copy(
+            onlyWithVacancies = value
+        )
+    }
+
+    fun clearFilters() {
+        _uiState.value = _uiState.value.copy(
+            selectedArea = null,
+            selectedWorkMode = null,
+            selectedLocation = null,
+            onlyWithVacancies = false
         )
     }
 }

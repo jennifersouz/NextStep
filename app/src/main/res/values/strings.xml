@@ -340,4 +340,17 @@
     <string name="logout_confirmation_message">Tens a certeza de que queres sair da tua conta?</string>
     <string name="logout_confirm">Sair</string>
     <string name="cancel">Cancelar</string>
+    <string name="filter_offers_title">Filtrar ofertas</string>
+    <string name="clear_filters">Limpar filtros</string>
+    <string name="filter_all">Todos</string>
+    <string name="only_with_vacancies">Apenas com vagas disponíveis</string>
+    <string name="only_with_vacancies_subtitle">Mostra apenas ofertas com pelo menos uma vaga.</string>
+    <string name="apply_filters">Aplicar filtros</string>
+
+    <string name="area_management">Gestão</string>
+    <string name="area_design">Design</string>
+    <string name="area_data">Dados</string>
+    <string name="area_it">Informática</string>
+    <string name="area_marketing">Marketing</string>
+    <string name="area_other">Outra</string>
 </resources>

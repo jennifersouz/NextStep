@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,8 +45,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -73,6 +79,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.screens.auth.SessionViewModel
 
 object StudentBottomRoutes {
     const val HOME = "home"
@@ -102,6 +109,8 @@ fun StudentDashboardScreen(
     val filteredOffers = state.filteredOffers
     val errorMessage = state.errorMessage
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val sessionViewModel: SessionViewModel = viewModel()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -137,6 +146,24 @@ fun StudentDashboardScreen(
         mutableStateOf(false)
     }
 
+    var showFiltersSheet by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (showFiltersSheet) {
+        StudentOffersFilterSheet(
+            state = state,
+            onDismiss = {
+                showFiltersSheet = false
+            },
+            onClearFilters = viewModel::clearFilters,
+            onAreaSelected = viewModel::onAreaFilterSelected,
+            onWorkModeSelected = viewModel::onWorkModeFilterSelected,
+            onLocationSelected = viewModel::onLocationFilterSelected,
+            onOnlyWithVacanciesChange = viewModel::onOnlyWithVacanciesChange
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -157,6 +184,9 @@ fun StudentDashboardScreen(
                         errorMessage = errorMessage,
                         onSearchChange = viewModel::onSearchChange,
                         onRetryClick = viewModel::loadOffers,
+                        onFilterClick = {
+                            showFiltersSheet = true
+                        },
                         onOfferClick = onOfferClick
                     )
                 }
@@ -165,7 +195,10 @@ fun StudentDashboardScreen(
                     StudentNotificationsScreen(
                         onNotificationClick = onApplicationNotificationClick,
                         onUnreadCountChanged = { count ->
-                            Log.d("NOTIF_DEBUG", "Dashboard recebeu novo contador = $count")
+                            Log.d(
+                                "NOTIF_DEBUG",
+                                "Dashboard recebeu novo contador = $count"
+                            )
                             viewModel.setUnreadNotificationsCount(count)
                         }
                     )
@@ -223,6 +256,11 @@ fun StudentDashboardScreen(
                                 onSubmittedApplicationsClick = onSubmittedApplicationsClick,
                                 onSettingsClick = {
                                     showStudentSettings = true
+                                },
+                                onLogoutClick = {
+                                    sessionViewModel.logout(
+                                        onSuccess = onLogoutSuccess
+                                    )
                                 }
                             )
                         }
@@ -258,6 +296,7 @@ fun StudentOffersContent(
     errorMessage: String?,
     onSearchChange: (String) -> Unit,
     onRetryClick: () -> Unit,
+    onFilterClick: () -> Unit,
     onOfferClick: (String) -> Unit
 ) {
     LazyColumn(
@@ -282,9 +321,8 @@ fun StudentOffersContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilterButton(
-                    onClick = {
-                        // Filtros
-                    }
+                    activeFiltersCount = state.activeFiltersCount,
+                    onClick = onFilterClick
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -329,7 +367,9 @@ fun StudentOffersContent(
             else -> {
                 items(
                     items = filteredOffers,
-                    key = { offer -> offer.id }
+                    key = { offer ->
+                        offer.id
+                    }
                 ) { offer ->
                     InternshipOfferCard(
                         offer = offer,
@@ -385,15 +425,22 @@ fun SearchBar(
 
 @Composable
 fun FilterButton(
+    activeFiltersCount: Int = 0,
     onClick: () -> Unit
 ) {
+    val label = if (activeFiltersCount > 0) {
+        "${stringResource(R.string.filter)} ($activeFiltersCount)"
+    } else {
+        stringResource(R.string.filter)
+    }
+
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Text(
-            text = stringResource(R.string.filter),
+            text = label,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black
@@ -419,12 +466,16 @@ fun InternshipOfferCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(130.dp)
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
     ) {
         Row(
             modifier = Modifier
@@ -502,7 +553,9 @@ fun CompanyLogo(
         .joinToString("") { part ->
             part.first().uppercase()
         }
-        .ifBlank { "?" }
+        .ifBlank {
+            "?"
+        }
 
     Box(
         modifier = Modifier
@@ -604,7 +657,9 @@ fun ErrorState(
                 contentColor = Color.Black
             )
         ) {
-            Text(text = stringResource(R.string.try_again))
+            Text(
+                text = stringResource(R.string.try_again)
+            )
         }
     }
 }
@@ -706,6 +761,7 @@ fun StudentBottomBar(
         }
     }
 }
+
 @Composable
 fun StudentBottomBarItem(
     item: StudentBottomNavItem,
@@ -733,7 +789,11 @@ fun StudentBottomBarItem(
     )
 
     val itemWidth by animateDpAsState(
-        targetValue = if (selected) 116.dp else 44.dp,
+        targetValue = if (selected) {
+            116.dp
+        } else {
+            44.dp
+        },
         label = "student_bottom_width"
     )
 
@@ -752,7 +812,11 @@ fun StudentBottomBarItem(
     ) {
         Box {
             Icon(
-                imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                imageVector = if (selected) {
+                    item.selectedIcon
+                } else {
+                    item.unselectedIcon
+                },
                 contentDescription = label,
                 tint = contentColor,
                 modifier = Modifier.size(26.dp)
@@ -768,7 +832,11 @@ fun StudentBottomBarItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (item.badgeCount > 9) "9+" else item.badgeCount.toString(),
+                        text = if (item.badgeCount > 9) {
+                            "9+"
+                        } else {
+                            item.badgeCount.toString()
+                        },
                         color = Color.White,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
@@ -789,5 +857,247 @@ fun StudentBottomBarItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StudentOffersFilterSheet(
+    state: StudentDashboardUiState,
+    onDismiss: () -> Unit,
+    onClearFilters: () -> Unit,
+    onAreaSelected: (String?) -> Unit,
+    onWorkModeSelected: (String?) -> Unit,
+    onLocationSelected: (String?) -> Unit,
+    onOnlyWithVacanciesChange: (Boolean) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.filter_offers_title),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = stringResource(R.string.clear_filters),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.clickable {
+                        onClearFilters()
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            StudentFilterSection(
+                title = stringResource(R.string.area),
+                options = state.availableAreas,
+                selectedOption = state.selectedArea,
+                onOptionSelected = onAreaSelected,
+                optionLabel = { area ->
+                    displayAreaLabel(area)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            StudentFilterSection(
+                title = stringResource(R.string.work_mode),
+                options = state.availableWorkModes,
+                selectedOption = state.selectedWorkMode,
+                onOptionSelected = onWorkModeSelected,
+                optionLabel = { workMode ->
+                    displayWorkModeLabel(workMode)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            StudentFilterSection(
+                title = stringResource(R.string.location),
+                options = state.availableLocations,
+                selectedOption = state.selectedLocation,
+                onOptionSelected = onLocationSelected
+            )
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            HorizontalDivider(
+                color = Color(0xFFEAEAEA)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onOnlyWithVacanciesChange(!state.onlyWithVacancies)
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = stringResource(R.string.only_with_vacancies),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = stringResource(R.string.only_with_vacancies_subtitle),
+                        fontSize = 13.sp,
+                        color = Color(0xFF8A8A8A)
+                    )
+                }
+
+                Switch(
+                    checked = state.onlyWithVacancies,
+                    onCheckedChange = onOnlyWithVacanciesChange
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFDFA52),
+                    contentColor = Color.Black
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.apply_filters),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StudentFilterSection(
+    title: String,
+    options: List<String>,
+    selectedOption: String?,
+    onOptionSelected: (String?) -> Unit,
+    optionLabel: @Composable (String) -> String = { option -> option }
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                StudentFilterChip(
+                    text = stringResource(R.string.filter_all),
+                    selected = selectedOption == null,
+                    onClick = {
+                        onOptionSelected(null)
+                    }
+                )
+            }
+
+            items(
+                items = options,
+                key = { option -> option }
+            ) { option ->
+                StudentFilterChip(
+                    text = optionLabel(option),
+                    selected = selectedOption == option,
+                    onClick = {
+                        onOptionSelected(option)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StudentFilterChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                fontWeight = if (selected) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                }
+            )
+        }
+    )
+}
+
+@Composable
+fun displayWorkModeLabel(
+    workMode: String
+): String {
+    return when (workMode.lowercase().trim()) {
+        "onsite", "on-site", "presencial" -> stringResource(R.string.work_mode_onsite)
+        "remote", "remoto" -> stringResource(R.string.work_mode_remote)
+        "hybrid", "hibrido", "híbrido" -> stringResource(R.string.work_mode_hybrid)
+        else -> workMode
+    }
+}
+
+@Composable
+fun displayAreaLabel(
+    area: String
+): String {
+    return when (area.lowercase().trim()) {
+        "management", "gestao", "gestão" -> stringResource(R.string.area_management)
+        "design" -> stringResource(R.string.area_design)
+        "data", "dados" -> stringResource(R.string.area_data)
+        "it", "informática", "informatica" -> stringResource(R.string.area_it)
+        "marketing" -> stringResource(R.string.area_marketing)
+        "other", "outra", "outro" -> stringResource(R.string.area_other)
+        else -> area
     }
 }

@@ -338,4 +338,17 @@
     <string name="logout_confirmation_message">Are you sure you want to log out of your account?</string>
     <string name="logout_confirm">Log out</string>
     <string name="cancel">Cancel</string>
+    <string name="filter_offers_title">Filter offers</string>
+    <string name="clear_filters">Clear filters</string>
+    <string name="filter_all">All</string>
+    <string name="only_with_vacancies">Only with available vacancies</string>
+    <string name="only_with_vacancies_subtitle">Show only offers with at least one vacancy.</string>
+    <string name="apply_filters">Apply filters</string>
+
+    <string name="area_management">Management</string>
+    <string name="area_design">Design</string>
+    <string name="area_data">Data</string>
+    <string name="area_it">IT</string>
+    <string name="area_marketing">Marketing</string>
+    <string name="area_other">Other</string>
 </resources>
