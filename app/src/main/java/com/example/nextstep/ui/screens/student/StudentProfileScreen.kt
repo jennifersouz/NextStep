@@ -17,15 +17,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,12 +56,54 @@ fun StudentProfileScreen(
     onSentRequestsClick: () -> Unit = {},
     onSavedInternshipsClick: () -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    var showLogoutDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(refreshKey) {
         viewModel.loadProfile()
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+            title = {
+                Text(text = stringResource(R.string.logout_confirmation_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.logout_confirmation_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogoutClick()
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.logout_confirm),
+                        color = Color(0xFFB00020),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     when {
@@ -84,7 +133,10 @@ fun StudentProfileScreen(
                     onSentRequestsClick = onSentRequestsClick,
                     onSavedInternshipsClick = onSavedInternshipsClick,
                     onSubmittedApplicationsClick = onSubmittedApplicationsClick,
-                    onSettingsClick = onSettingsClick
+                    onSettingsClick = onSettingsClick,
+                    onLogoutRequest = {
+                        showLogoutDialog = true
+                    }
                 )
             }
         }
@@ -97,31 +149,45 @@ fun StudentProfileContent(
     onSentRequestsClick: () -> Unit,
     onSavedInternshipsClick: () -> Unit,
     onSubmittedApplicationsClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onLogoutRequest: () -> Unit
 ) {
     val landscape = isLandscape()
 
     if (landscape) {
-        // Landscape: avatar/nome à esquerda, info + menu à direita
         ProfileResponsiveLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
             headerContent = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    StudentProfileAvatar(fullName = profile.fullName)
+                    IconButton(
+                        onClick = onLogoutRequest,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Logout,
+                            contentDescription = stringResource(R.string.logout),
+                            tint = Color(0xFF6B7280),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        StudentProfileAvatar(fullName = profile.fullName)
 
-                    Text(
-                        text = profile.fullName,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = profile.fullName,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             },
             bodyContent = {
@@ -148,51 +214,44 @@ fun StudentProfileContent(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                StudentProfileMenuItem(
-                    icon = Icons.AutoMirrored.Outlined.Send,
-                    title = stringResource(R.string.sent_requests),
-                    onClick = onSentRequestsClick
-                )
-
-                StudentProfileMenuDivider()
-
-                StudentProfileMenuItem(
-                    icon = Icons.Outlined.BookmarkBorder,
-                    title = stringResource(R.string.saved_internships),
-                    onClick = onSavedInternshipsClick
-                )
-
-                StudentProfileMenuDivider()
-
-                StudentProfileMenuItem(
-                    icon = Icons.Outlined.Description,
-                    title = stringResource(R.string.submitted_applications),
-                    onClick = onSubmittedApplicationsClick
-                )
-
-                StudentProfileMenuDivider()
-
-                StudentProfileMenuItem(
-                    icon = Icons.Outlined.Settings,
-                    title = stringResource(R.string.settings),
-                    onClick = onSettingsClick
+                StudentProfileMenuList(
+                    onSentRequestsClick = onSentRequestsClick,
+                    onSavedInternshipsClick = onSavedInternshipsClick,
+                    onSubmittedApplicationsClick = onSubmittedApplicationsClick,
+                    onSettingsClick = onSettingsClick
                 )
             }
         )
     } else {
-        // Portrait: layout original em coluna
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(horizontal = 28.dp, vertical = 24.dp)
         ) {
-            Text(
-                text = stringResource(R.string.profile),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.profile),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
+
+                IconButton(
+                    onClick = onLogoutRequest,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Logout,
+                        contentDescription = stringResource(R.string.logout),
+                        tint = Color(0xFF6B7280),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(36.dp))
 
@@ -229,37 +288,52 @@ fun StudentProfileContent(
 
             Spacer(modifier = Modifier.height(54.dp))
 
-            StudentProfileMenuItem(
-                icon = Icons.AutoMirrored.Outlined.Send,
-                title = stringResource(R.string.sent_requests),
-                onClick = onSentRequestsClick
-            )
-
-            StudentProfileMenuDivider()
-
-            StudentProfileMenuItem(
-                icon = Icons.Outlined.BookmarkBorder,
-                title = stringResource(R.string.saved_internships),
-                onClick = onSavedInternshipsClick
-            )
-
-            StudentProfileMenuDivider()
-
-            StudentProfileMenuItem(
-                icon = Icons.Outlined.Description,
-                title = stringResource(R.string.submitted_applications),
-                onClick = onSubmittedApplicationsClick
-            )
-
-            StudentProfileMenuDivider()
-
-            StudentProfileMenuItem(
-                icon = Icons.Outlined.Settings,
-                title = stringResource(R.string.settings),
-                onClick = onSettingsClick
+            StudentProfileMenuList(
+                onSentRequestsClick = onSentRequestsClick,
+                onSavedInternshipsClick = onSavedInternshipsClick,
+                onSubmittedApplicationsClick = onSubmittedApplicationsClick,
+                onSettingsClick = onSettingsClick
             )
         }
     }
+}
+
+@Composable
+fun StudentProfileMenuList(
+    onSentRequestsClick: () -> Unit,
+    onSavedInternshipsClick: () -> Unit,
+    onSubmittedApplicationsClick: () -> Unit,
+    onSettingsClick: () -> Unit
+) {
+    StudentProfileMenuItem(
+        icon = Icons.AutoMirrored.Outlined.Send,
+        title = stringResource(R.string.sent_requests),
+        onClick = onSentRequestsClick
+    )
+
+    StudentProfileMenuDivider()
+
+    StudentProfileMenuItem(
+        icon = Icons.Outlined.BookmarkBorder,
+        title = stringResource(R.string.saved_internships),
+        onClick = onSavedInternshipsClick
+    )
+
+    StudentProfileMenuDivider()
+
+    StudentProfileMenuItem(
+        icon = Icons.Outlined.Description,
+        title = stringResource(R.string.submitted_applications),
+        onClick = onSubmittedApplicationsClick
+    )
+
+    StudentProfileMenuDivider()
+
+    StudentProfileMenuItem(
+        icon = Icons.Outlined.Settings,
+        title = stringResource(R.string.settings),
+        onClick = onSettingsClick
+    )
 }
 
 @Composable
@@ -403,7 +477,9 @@ fun StudentProfileErrorState(
             color = Color.Black,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { onRetryClick() }
+            modifier = Modifier.clickable {
+                onRetryClick()
+            }
         )
     }
 }

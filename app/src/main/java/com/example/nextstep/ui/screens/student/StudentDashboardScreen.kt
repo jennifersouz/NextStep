@@ -95,6 +95,7 @@ fun StudentDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
     onApplicationNotificationClick: (String) -> Unit = {},
+    onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()

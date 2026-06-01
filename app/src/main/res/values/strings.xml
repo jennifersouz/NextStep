@@ -334,6 +334,10 @@
     <string name="vacancies">Vagas</string>
     <string name="requirements">Requisitos</string>
     <string name="company_offer_invalid_vacancies">Insere um número de vagas válido.</string>
-    <string name="cancel">Cancelar</string>
     <string name="company">Empresa</string>
+    <string name="logout">Terminar sessão</string>
+    <string name="logout_confirmation_title">Terminar sessão?</string>
+    <string name="logout_confirmation_message">Tens a certeza de que queres sair da tua conta?</string>
+    <string name="logout_confirm">Sair</string>
+    <string name="cancel">Cancelar</string>
 </resources>

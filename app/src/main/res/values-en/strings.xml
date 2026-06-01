@@ -332,6 +332,10 @@
     <string name="vacancies">Vacancies</string>
     <string name="requirements">Requirements</string>
     <string name="company_offer_invalid_vacancies">Enter a valid number of vacancies.</string>
-    <string name="cancel">Cancel</string>
     <string name="company">Company</string>
+    <string name="logout">Log out</string>
+    <string name="logout_confirmation_title">Log out?</string>
+    <string name="logout_confirmation_message">Are you sure you want to log out of your account?</string>
+    <string name="logout_confirm">Log out</string>
+    <string name="cancel">Cancel</string>
 </resources>

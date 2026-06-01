@@ -3,6 +3,7 @@ package com.example.nextstep.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,6 +51,7 @@ fun AppNavigation() {
                     popUpTo(Routes.SPLASH) {
                         inclusive = true
                     }
+                    launchSingleTop = true
                 }
             }
         }
@@ -63,6 +65,7 @@ fun AppNavigation() {
                         popUpTo(Routes.INTRO) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -83,6 +86,7 @@ fun AppNavigation() {
                         popUpTo(Routes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -95,6 +99,7 @@ fun AppNavigation() {
                         popUpTo(Routes.REGISTER) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onLoginClick = {
@@ -102,6 +107,7 @@ fun AppNavigation() {
                         popUpTo(Routes.REGISTER) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -119,6 +125,14 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.studentSubmittedApplicationDetail(applicationId)
                     )
+                },
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -126,8 +140,7 @@ fun AppNavigation() {
         composable(Routes.STUDENT_SUBMITTED_APPLICATIONS) {
             StudentSubmittedApplicationsScreen(
                 onBackClick = {
-                    // Fallback para dashboard se a stack estiver vazia
-                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
+                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
                 },
                 onApplicationClick = { applicationId ->
                     navController.navigate(
@@ -152,18 +165,7 @@ fun AppNavigation() {
             StudentSubmittedApplicationDetailScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    // Pode ter sido aberto a partir da lista OU de uma notificação
-                    // (que navega direto para o detalhe sem passar pela lista).
-                    // safePopBack garante que nunca fecha a app.
-                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
-                }
-            )
-        }
-
-        composable(Routes.COMPANY_DASHBOARD) {
-            CompanyDashboardScreen(
-                onOfferClick = { offerId ->
-                    navController.navigate(Routes.companyOfferDetail(offerId))
+                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
                 }
             )
         }
@@ -176,16 +178,14 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val applicationOfferId = backStackEntry.arguments
+            val offerId = backStackEntry.arguments
                 ?.getString(Routes.STUDENT_APPLICATION_ARG)
                 .orEmpty()
 
             StudentApplicationScreen(
-                offerId = applicationOfferId,
+                offerId = offerId,
                 onBackClick = {
-                    // Volta para o detalhe da oferta (que está na stack)
-                    // ou para o dashboard se a stack estiver vazia
-                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
+                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
                 }
             )
         }
@@ -205,14 +205,28 @@ fun AppNavigation() {
             StudentOfferDetailScreen(
                 offerId = offerId,
                 onBackClick = {
-                    // Pode ter sido aberto a partir do dashboard do aluno,
-                    // dos estágios guardados, ou do dashboard da empresa.
-                    // safePopBack volta para quem chamou, ou para o dashboard
-                    // correto se a stack estiver vazia.
-                    navController.safePopBack(Routes.STUDENT_DASHBOARD)
+                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
                 },
                 onApplyClick = { selectedOfferId ->
-                    navController.navigate(Routes.studentApplication(selectedOfferId))
+                    navController.navigate(
+                        Routes.studentApplication(selectedOfferId)
+                    )
+                }
+            )
+        }
+
+        composable(Routes.COMPANY_DASHBOARD) {
+            CompanyDashboardScreen(
+                onOfferClick = { offerId ->
+                    navController.navigate(Routes.companyOfferDetail(offerId))
+                },
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -225,19 +239,19 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val offerId = backStackEntry.arguments?.getString("offerId").orEmpty()
+            val offerId = backStackEntry.arguments
+                ?.getString("offerId")
+                .orEmpty()
 
             CompanyOfferDetailScreen(
                 offerId = offerId,
                 onBackClick = {
-                    if (!navController.popBackStack()) {
-                        navController.navigate(Routes.COMPANY_DASHBOARD) {
-                            launchSingleTop = true
-                        }
-                    }
+                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
                 },
                 onEditClick = { selectedOfferId ->
-                    navController.navigate(Routes.companyEditOffer(selectedOfferId))
+                    navController.navigate(
+                        Routes.companyEditOffer(selectedOfferId)
+                    )
                 }
             )
         }
@@ -250,17 +264,31 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val offerId = backStackEntry.arguments?.getString("offerId").orEmpty()
+            val offerId = backStackEntry.arguments
+                ?.getString("offerId")
+                .orEmpty()
 
             CompanyEditOfferScreen(
                 offerId = offerId,
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
                 },
                 onOfferUpdated = {
-                    navController.popBackStack()
+                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
                 }
             )
+        }
+    }
+}
+
+private fun NavController.navigateBackOr(
+    fallbackRoute: String
+) {
+    val didPop = popBackStack()
+
+    if (!didPop) {
+        navigate(fallbackRoute) {
+            launchSingleTop = true
         }
     }
 }

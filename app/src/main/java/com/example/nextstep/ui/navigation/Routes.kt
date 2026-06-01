@@ -17,7 +17,6 @@ object Routes {
     const val STUDENT_SUBMITTED_APPLICATION_DETAIL_ARG = "applicationId"
     const val COMPANY_OFFER_DETAIL = "company_offer_detail/{offerId}"
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
-
     fun companyOfferDetail(offerId: String): String {
         return "company_offer_detail/$offerId"
     }

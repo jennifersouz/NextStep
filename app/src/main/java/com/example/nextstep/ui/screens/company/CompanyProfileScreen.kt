@@ -22,16 +22,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,11 +60,16 @@ import com.example.nextstep.ui.components.isLandscape
 fun CompanyProfileScreen(
     refreshKey: Int = 0,
     onEditProfileClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     onOfferClick: (String) -> Unit = {},
     viewModel: CompanyProfileViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    var showLogoutDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(refreshKey) {
         viewModel.loadCompanyProfile()
@@ -78,6 +89,49 @@ fun CompanyProfileScreen(
         }
     }
 
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.logout_confirmation_title)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.logout_confirmation_message)
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogoutClick()
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.logout_confirm),
+                        color = Color(0xFFB00020),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.cancel)
+                    )
+                }
+            }
+        )
+    }
+
     when {
         state.isLoading -> {
             Box(
@@ -86,7 +140,9 @@ fun CompanyProfileScreen(
                     .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.Black)
+                CircularProgressIndicator(
+                    color = Color.Black
+                )
             }
         }
 
@@ -112,6 +168,9 @@ fun CompanyProfileScreen(
                 company = state.company!!,
                 offers = state.offers,
                 onEditProfileClick = onEditProfileClick,
+                onLogoutRequest = {
+                    showLogoutDialog = true
+                },
                 onOfferClick = onOfferClick
             )
         }
@@ -123,6 +182,7 @@ private fun CompanyProfileContent(
     company: CompanyProfileDto,
     offers: List<OfferDto>,
     onEditProfileClick: () -> Unit,
+    onLogoutRequest: () -> Unit,
     onOfferClick: (String) -> Unit
 ) {
     val landscape = isLandscape()
@@ -130,27 +190,59 @@ private fun CompanyProfileContent(
     val noDescriptionText = stringResource(R.string.company_profile_no_description)
     val notAvailableText = stringResource(R.string.not_available)
 
-    val descriptionText = if (company.description.isNullOrBlank()) noDescriptionText else company.description
-    val locationText = if (company.location.isNullOrBlank()) notAvailableText else company.location
-    val phoneText = if (company.phone.isNullOrBlank()) notAvailableText else company.phone
+    val descriptionText = company.description.orEmpty().ifBlank {
+        noDescriptionText
+    }
+
+    val locationText = company.location.orEmpty().ifBlank {
+        notAvailableText
+    }
+
+    val phoneText = company.phone.orEmpty().ifBlank {
+        notAvailableText
+    }
 
     if (landscape) {
-        // Landscape: logo/nome/área à esquerda, detalhes + ofertas à direita
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .statusBarsPadding()
         ) {
-            // Lado esquerdo — identidade da empresa
             Box(
                 modifier = Modifier
                     .weight(0.4f)
                     .fillMaxHeight()
-                    .padding(horizontal = 24.dp, vertical = 24.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 24.dp, vertical = 24.dp)
             ) {
+                IconButton(
+                    onClick = onLogoutRequest,
+                    modifier = Modifier.align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Logout,
+                        contentDescription = stringResource(R.string.logout),
+                        tint = Color(0xFF6B7280),
+                        modifier = Modifier.size(23.dp)
+                    )
+                }
+
+                IconButton(
+                    onClick = onEditProfileClick,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = stringResource(R.string.edit_profile),
+                        tint = Color(0xFF6B7280),
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
                 Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     CompanyProfileLogo(
@@ -165,7 +257,8 @@ private fun CompanyProfileContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 40.dp)
                     )
 
                     if (!company.businessArea.isNullOrBlank()) {
@@ -178,21 +271,9 @@ private fun CompanyProfileContent(
                             textAlign = TextAlign.Center
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    IconButton(onClick = onEditProfileClick) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = stringResource(R.string.edit_profile),
-                            tint = Color(0xFF6B7280),
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
                 }
             }
 
-            // Lado direito — detalhes e ofertas
             LazyColumn(
                 modifier = Modifier
                     .weight(0.6f)
@@ -205,22 +286,51 @@ private fun CompanyProfileContent(
                 )
             ) {
                 item {
-                    CompanyProfileSectionTitle(title = stringResource(R.string.company_profile_about))
+                    CompanyProfileSectionTitle(
+                        title = stringResource(R.string.company_profile_about)
+                    )
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = descriptionText, fontSize = 14.sp, color = Color.Black, lineHeight = 20.sp)
+
+                    Text(
+                        text = descriptionText,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        lineHeight = 20.sp
+                    )
+
                     Spacer(modifier = Modifier.height(26.dp))
 
-                    CompanyProfileSectionTitle(title = stringResource(R.string.location))
+                    CompanyProfileSectionTitle(
+                        title = stringResource(R.string.location)
+                    )
+
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = locationText, fontSize = 14.sp, color = Color.Black)
+
+                    Text(
+                        text = locationText,
+                        fontSize = 14.sp,
+                        color = Color.Black
+                    )
+
                     Spacer(modifier = Modifier.height(26.dp))
 
-                    CompanyProfileSectionTitle(title = stringResource(R.string.contacts))
+                    CompanyProfileSectionTitle(
+                        title = stringResource(R.string.contacts)
+                    )
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    CompanyContactRow(phone = phoneText)
+
+                    CompanyContactRow(
+                        phone = phoneText
+                    )
+
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    CompanyProfileSectionTitle(title = stringResource(R.string.internships))
+                    CompanyProfileSectionTitle(
+                        title = stringResource(R.string.internships)
+                    )
+
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
@@ -233,19 +343,26 @@ private fun CompanyProfileContent(
                         )
                     }
                 } else {
-                    items(items = offers, key = { it.id }) { offer ->
+                    items(
+                        items = offers,
+                        key = { offer ->
+                            offer.id
+                        }
+                    ) { offer ->
                         CompanyProfileOfferCard(
                             company = company,
                             offer = offer,
-                            onClick = { onOfferClick(offer.id) }
+                            onClick = {
+                                onOfferClick(offer.id)
+                            }
                         )
+
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
         }
     } else {
-        // Portrait: layout original em LazyColumn
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -261,27 +378,57 @@ private fun CompanyProfileContent(
             item {
                 CompanyProfileHeader(
                     company = company,
-                    onEditProfileClick = onEditProfileClick
+                    onEditProfileClick = onEditProfileClick,
+                    onLogoutRequest = onLogoutRequest
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                CompanyProfileSectionTitle(title = stringResource(R.string.company_profile_about))
+                CompanyProfileSectionTitle(
+                    title = stringResource(R.string.company_profile_about)
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = descriptionText, fontSize = 14.sp, color = Color.Black, lineHeight = 20.sp)
+
+                Text(
+                    text = descriptionText,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    lineHeight = 20.sp
+                )
+
                 Spacer(modifier = Modifier.height(26.dp))
 
-                CompanyProfileSectionTitle(title = stringResource(R.string.location))
+                CompanyProfileSectionTitle(
+                    title = stringResource(R.string.location)
+                )
+
                 Spacer(modifier = Modifier.height(6.dp))
-                Text(text = locationText, fontSize = 14.sp, color = Color.Black)
+
+                Text(
+                    text = locationText,
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+
                 Spacer(modifier = Modifier.height(26.dp))
 
-                CompanyProfileSectionTitle(title = stringResource(R.string.contacts))
+                CompanyProfileSectionTitle(
+                    title = stringResource(R.string.contacts)
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
-                CompanyContactRow(phone = phoneText)
+
+                CompanyContactRow(
+                    phone = phoneText
+                )
+
                 Spacer(modifier = Modifier.height(32.dp))
 
-                CompanyProfileSectionTitle(title = stringResource(R.string.internships))
+                CompanyProfileSectionTitle(
+                    title = stringResource(R.string.internships)
+                )
+
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
@@ -294,12 +441,20 @@ private fun CompanyProfileContent(
                     )
                 }
             } else {
-                items(items = offers, key = { it.id }) { offer ->
+                items(
+                    items = offers,
+                    key = { offer ->
+                        offer.id
+                    }
+                ) { offer ->
                     CompanyProfileOfferCard(
                         company = company,
                         offer = offer,
-                        onClick = { onOfferClick(offer.id) }
+                        onClick = {
+                            onOfferClick(offer.id)
+                        }
                     )
+
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -310,54 +465,66 @@ private fun CompanyProfileContent(
 @Composable
 private fun CompanyProfileHeader(
     company: CompanyProfileDto,
-    onEditProfileClick: () -> Unit
+    onEditProfileClick: () -> Unit,
+    onLogoutRequest: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        CompanyProfileLogo(
-            companyName = company.companyName,
-            size = 116
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+        IconButton(
+            onClick = onLogoutRequest,
+            modifier = Modifier.align(Alignment.TopStart)
         ) {
+            Icon(
+                imageVector = Icons.Outlined.Logout,
+                contentDescription = stringResource(R.string.logout),
+                tint = Color(0xFF6B7280),
+                modifier = Modifier.size(23.dp)
+            )
+        }
+
+        IconButton(
+            onClick = onEditProfileClick,
+            modifier = Modifier.align(Alignment.TopEnd)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = stringResource(R.string.edit_profile),
+                tint = Color(0xFF6B7280),
+                modifier = Modifier.size(22.dp)
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CompanyProfileLogo(
+                companyName = company.companyName,
+                size = 116
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = company.companyName,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 48.dp)
+                modifier = Modifier.padding(horizontal = 56.dp)
             )
 
-            IconButton(
-                onClick = onEditProfileClick,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = stringResource(R.string.edit_profile),
-                    tint = Color(0xFF6B7280),
-                    modifier = Modifier.size(22.dp)
+            if (!company.businessArea.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = company.businessArea,
+                    fontSize = 13.sp,
+                    color = Color(0xFF8A8A8A),
+                    textAlign = TextAlign.Center
                 )
             }
-        }
-
-        if (!company.businessArea.isNullOrBlank()) {
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = company.businessArea,
-                fontSize = 13.sp,
-                color = Color(0xFF8A8A8A),
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
@@ -371,8 +538,12 @@ private fun CompanyProfileLogo(
         .split(" ")
         .filter { it.isNotBlank() }
         .take(2)
-        .joinToString("") { it.first().uppercase() }
-        .ifBlank { "?" }
+        .joinToString("") { part ->
+            part.first().uppercase()
+        }
+        .ifBlank {
+            "?"
+        }
 
     Box(
         modifier = Modifier
@@ -433,6 +604,10 @@ private fun CompanyProfileOfferCard(
     offer: OfferDto,
     onClick: () -> Unit
 ) {
+    val offerLocation = offer.location.orEmpty().ifBlank {
+        stringResource(R.string.not_available)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -442,7 +617,9 @@ private fun CompanyProfileOfferCard(
                 color = Color(0xFFE1E1E1),
                 shape = RoundedCornerShape(8.dp)
             )
-            .clickable { onClick() }
+            .clickable {
+                onClick()
+            }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -482,7 +659,7 @@ private fun CompanyProfileOfferCard(
                 )
 
                 Text(
-                    text = offer.location,
+                    text = offerLocation,
                     color = Color.Black,
                     fontSize = 12.sp
                 )

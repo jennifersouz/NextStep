@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyInternshipDto
+import com.example.nextstep.ui.screens.auth.SessionViewModel
 
 enum class CompanyBottomRoutes {
     INTERNSHIPS,
@@ -67,9 +68,13 @@ enum class CompanyBottomRoutes {
 @Composable
 fun CompanyDashboardScreen(
     onOfferClick: (String) -> Unit = {},
+    onLogoutSuccess: () -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    val sessionViewModel: SessionViewModel =
+        androidx.lifecycle.viewmodel.compose.viewModel()
 
     var selectedBottomRoute by remember {
         mutableStateOf(CompanyBottomRoutes.INTERNSHIPS)
@@ -145,6 +150,11 @@ fun CompanyDashboardScreen(
                             onEditProfileClick = {
                                 showCompanyEditProfile = true
                             },
+                            onLogoutClick = {
+                                sessionViewModel.logout(
+                                    onSuccess = onLogoutSuccess
+                                )
+                            },
                             onOfferClick = onOfferClick
                         )
                     }
@@ -156,6 +166,10 @@ fun CompanyDashboardScreen(
             currentRoute = selectedBottomRoute,
             onItemClick = { route ->
                 selectedBottomRoute = route
+
+                if (route != CompanyBottomRoutes.PROFILE) {
+                    showCompanyEditProfile = false
+                }
             }
         )
     }
@@ -318,7 +332,11 @@ fun CompanyInternshipStatusTab(
         Text(
             text = text,
             fontSize = 14.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (selected) {
+                FontWeight.Bold
+            } else {
+                FontWeight.Normal
+            },
             color = Color.Black
         )
     }
@@ -581,7 +599,11 @@ fun CompanyBottomBarItem(
         horizontalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = if (selected) selectedIcon else unselectedIcon,
+            imageVector = if (selected) {
+                selectedIcon
+            } else {
+                unselectedIcon
+            },
             contentDescription = label,
             tint = Color.Black,
             modifier = Modifier.size(25.dp)
