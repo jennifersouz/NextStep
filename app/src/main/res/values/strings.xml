@@ -41,6 +41,7 @@
     <string name="name_required">Nome *</string>
     <string name="name_placeholder">Insira o seu nome</string>
     <string name="last_name_required">Apelido *</string>
+
     <string name="last_name_placeholder">Insira o seu último nome</string>
     <string name="student_number_required">Número*</string>
     <string name="student_number_placeholder">Ex: 31086</string>
@@ -353,4 +354,39 @@
     <string name="area_it">Informática</string>
     <string name="area_marketing">Marketing</string>
     <string name="area_other">Outra</string>
+    <string name="write_message">Escreve uma mensagem...</string>
+    <string name="send_message">Enviar mensagem</string>
+    <string name="chat_empty">Ainda não existem mensagens nesta candidatura.</string>
+    <string name="chat_load_error">Não foi possível carregar as mensagens.</string>
+    <string name="chat_send_error">Não foi possível enviar a mensagem.</string>
+    <string name="student_messages_empty_title">Ainda não tens conversas</string>
+    <string name="student_messages_empty_subtitle">As conversas associadas às tuas candidaturas vão aparecer aqui.</string>
+    <string name="student_messages_load_error">Não foi possível carregar as conversas.</string>
+    <string name="manage_advisors">Gerir orientadores</string>
+    <string name="add_advisor">Adicionar</string>
+    <string name="register_advisor">Enviar convite</string>    <string name="advisor_name">Nome</string>
+    <string name="advisor_email">Email</string>
+    <string name="advisor_phone">Contacto</string>
+    <string name="advisor_department">Departamento</string>
+    <string name="delete_advisor">Eliminar</string>
+    <string name="delete_advisor_confirmation">Tens a certeza de que queres eliminar este orientador?</string>
+    <string name="advisors_load_error">Não foi possível carregar os orientadores.</string>
+    <string name="advisor_create_error">Não foi possível registar o orientador.</string>
+    <string name="advisor_delete_error">Não foi possível eliminar o orientador.</string>
+    <string name="no_advisors">Ainda não tens orientadores registados.</string>
+    <string name="sort_ascending">Ordenar A-Z</string>
+    <string name="sort_descending">Ordenar Z-A</string>
+    <string name="advisor_dashboard_title">Área do orientador</string>
+    <string name="advisor_dashboard_placeholder">Aqui vais acompanhar os alunos atribuídos.</string>
+
+    <string name="advisor_invite_pending">Pendente</string>
+    <string name="advisor_invite_active">Ativo</string>
+    <string name="advisor_register_no_invite">Não existe convite de orientador para este email.</string>
+    <string name="advisor_register_success">Conta de orientador criada com sucesso.</string>
+    <string name="role_advisor">Orientador</string>
+    <string name="advisor_register_title">Registo de orientador</string>
+    <string name="advisor_register_description">Para criares uma conta como orientador, a empresa deve ter criado previamente um convite com este email.</string>
+    <string name="loading">A carregar...</string>
+    <string name="send_advisor_invite">Enviar convite</string>
+    <string name="advisor_invite_description">O orientador receberá/terá de usar este email para criar a própria conta na aplicação. A empresa não define a palavra-passe do orientador.</string>
 </resources>

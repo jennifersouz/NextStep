@@ -61,11 +61,11 @@ fun RegisterScreen(
 ) {
     val state by viewModel.registerState.collectAsState()
     var roleMenuExpanded by remember { mutableStateOf(false) }
+
     val landscape = isLandscape()
     val snackbarHostState = remember { SnackbarHostState() }
     val successMessage = stringResource(R.string.register_success)
 
-    // Observar sucesso: mostrar Snackbar e navegar para login
     LaunchedEffect(state.isRegisterSuccess) {
         if (state.isRegisterSuccess) {
             snackbarHostState.showSnackbar(successMessage)
@@ -76,6 +76,7 @@ fun RegisterScreen(
     val roleLabel = when (state.selectedRole) {
         UserRole.STUDENT -> stringResource(R.string.role_student)
         UserRole.COMPANY -> stringResource(R.string.role_company)
+        UserRole.ADVISOR -> stringResource(R.string.role_advisor)
     }
 
     Scaffold(
@@ -92,7 +93,6 @@ fun RegisterScreen(
         }
     ) { innerPadding ->
         if (landscape) {
-            // Landscape: header à esquerda, formulário à direita com scroll
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -118,7 +118,6 @@ fun RegisterScreen(
                 )
             }
         } else {
-            // Portrait: layout em coluna com scroll
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -181,7 +180,6 @@ private fun RegisterForm(
     viewModel: AuthViewModel,
     onLoginClick: () -> Unit
 ) {
-    // Seletor de tipo de utilizador
     Text(
         text = stringResource(R.string.user_type_required),
         fontSize = 18.sp,
@@ -197,14 +195,18 @@ private fun RegisterForm(
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onRoleMenuExpandChange(true) },
+                .clickable {
+                    onRoleMenuExpandChange(true)
+                },
             shape = RoundedCornerShape(10.dp),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     tint = Color.Gray,
-                    modifier = Modifier.clickable { onRoleMenuExpandChange(true) }
+                    modifier = Modifier.clickable {
+                        onRoleMenuExpandChange(true)
+                    }
                 )
             },
             colors = OutlinedTextFieldDefaults.colors(
@@ -217,7 +219,9 @@ private fun RegisterForm(
 
         DropdownMenu(
             expanded = roleMenuExpanded,
-            onDismissRequest = { onRoleMenuExpandChange(false) },
+            onDismissRequest = {
+                onRoleMenuExpandChange(false)
+            },
             modifier = Modifier.fillMaxWidth(0.85f)
         ) {
             RoleDropdownItem(
@@ -235,12 +239,19 @@ private fun RegisterForm(
                     onRoleMenuExpandChange(false)
                 }
             )
+
+            RoleDropdownItem(
+                text = stringResource(R.string.role_advisor),
+                onClick = {
+                    viewModel.onRoleChange(UserRole.ADVISOR)
+                    onRoleMenuExpandChange(false)
+                }
+            )
         }
     }
 
     Spacer(modifier = Modifier.height(28.dp))
 
-    // Campos específicos por tipo de utilizador
     when (state.selectedRole) {
         UserRole.STUDENT -> {
             RegisterTextField(
@@ -317,9 +328,12 @@ private fun RegisterForm(
                 errorMessageRes = state.locationError
             )
         }
+
+        UserRole.ADVISOR -> {
+            AdvisorRegisterInfoBox()
+        }
     }
 
-    // Campos comuns
     RegisterTextField(
         label = stringResource(R.string.email_required),
         value = state.email,
@@ -399,9 +413,42 @@ private fun RegisterForm(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
-            modifier = Modifier.clickable { onLoginClick() }
+            modifier = Modifier.clickable {
+                onLoginClick()
+            }
         )
     }
+}
+
+@Composable
+private fun AdvisorRegisterInfoBox() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFFFFDE8),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(14.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.advisor_register_title),
+            color = Color.Black,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = stringResource(R.string.advisor_register_description),
+            color = Color(0xFF6B7280),
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
+    }
+
+    Spacer(modifier = Modifier.height(18.dp))
 }
 
 @Composable

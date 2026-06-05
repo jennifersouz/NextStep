@@ -10,9 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
+import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
+import com.example.nextstep.ui.screens.chat.ChatScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
@@ -80,6 +82,7 @@ fun AppNavigation() {
                     val destination = when (role) {
                         UserRole.STUDENT -> Routes.STUDENT_DASHBOARD
                         UserRole.COMPANY -> Routes.COMPANY_DASHBOARD
+                        UserRole.ADVISOR -> Routes.ADVISOR_DASHBOARD
                     }
 
                     navController.navigate(destination) {
@@ -116,16 +119,38 @@ fun AppNavigation() {
         composable(Routes.STUDENT_DASHBOARD) {
             StudentDashboardScreen(
                 onOfferClick = { offerId ->
-                    navController.navigate(Routes.studentOfferDetail(offerId))
+                    navController.navigate(
+                        Routes.studentOfferDetail(offerId)
+                    )
                 },
                 onSubmittedApplicationsClick = {
-                    navController.navigate(Routes.STUDENT_SUBMITTED_APPLICATIONS)
+                    navController.navigate(
+                        Routes.STUDENT_SUBMITTED_APPLICATIONS
+                    )
                 },
                 onApplicationNotificationClick = { applicationId ->
                     navController.navigate(
                         Routes.studentSubmittedApplicationDetail(applicationId)
                     )
                 },
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onChatClick = { applicationId ->
+                    navController.navigate(
+                        Routes.chat(applicationId)
+                    )
+                }
+            )
+        }
+
+        composable(Routes.ADVISOR_DASHBOARD) {
+            AdvisorDashboardScreen(
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) {
@@ -166,6 +191,11 @@ fun AppNavigation() {
                 applicationId = applicationId,
                 onBackClick = {
                     navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
+                },
+                onMessagesClick = { selectedApplicationId ->
+                    navController.navigate(
+                        Routes.chat(selectedApplicationId)
+                    )
                 }
             )
         }
@@ -218,7 +248,9 @@ fun AppNavigation() {
         composable(Routes.COMPANY_DASHBOARD) {
             CompanyDashboardScreen(
                 onOfferClick = { offerId ->
-                    navController.navigate(Routes.companyOfferDetail(offerId))
+                    navController.navigate(
+                        Routes.companyOfferDetail(offerId)
+                    )
                 },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
@@ -275,6 +307,26 @@ fun AppNavigation() {
                 },
                 onOfferUpdated = {
                     navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
+                }
+            )
+        }
+
+        composable(
+            route = Routes.CHAT,
+            arguments = listOf(
+                navArgument(Routes.CHAT_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.CHAT_ARG)
+                .orEmpty()
+
+            ChatScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
                 }
             )
         }

@@ -103,7 +103,8 @@ fun StudentDashboardScreen(
     onSubmittedApplicationsClick: () -> Unit = {},
     onApplicationNotificationClick: (String) -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
-    viewModel: StudentDashboardViewModel = viewModel()
+    viewModel: StudentDashboardViewModel = viewModel(),
+    onChatClick: (String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val filteredOffers = state.filteredOffers
@@ -205,9 +206,8 @@ fun StudentDashboardScreen(
                 }
 
                 StudentBottomRoutes.MESSAGES -> {
-                    StudentPlaceholderContent(
-                        title = stringResource(R.string.messages),
-                        subtitle = stringResource(R.string.student_messages_placeholder)
+                    StudentMessagesScreen(
+                        onConversationClick = onChatClick
                     )
                 }
 

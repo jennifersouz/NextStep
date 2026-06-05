@@ -87,6 +87,13 @@ fun CompanyDashboardScreen(
     var companyProfileRefreshKey by rememberSaveable {
         mutableStateOf(0)
     }
+    var showAddAdvisor by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var selectedAdvisorId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
 
     Column(
         modifier = Modifier
@@ -127,10 +134,41 @@ fun CompanyDashboardScreen(
                 }
 
                 CompanyBottomRoutes.TEAM -> {
-                    CompanyPlaceholderContent(
-                        title = stringResource(R.string.company_team_title),
-                        message = stringResource(R.string.company_team_placeholder)
-                    )
+                    when {
+                        showAddAdvisor -> {
+                            AddCompanyAdvisorScreen(
+                                onBackClick = {
+                                    showAddAdvisor = false
+                                },
+                                onAdvisorCreated = {
+                                    showAddAdvisor = false
+                                }
+                            )
+                        }
+
+                        selectedAdvisorId != null -> {
+                            CompanyAdvisorDetailScreen(
+                                advisorId = selectedAdvisorId!!,
+                                onBackClick = {
+                                    selectedAdvisorId = null
+                                },
+                                onAdvisorDeleted = {
+                                    selectedAdvisorId = null
+                                }
+                            )
+                        }
+
+                        else -> {
+                            CompanyAdvisorsScreen(
+                                onAddClick = {
+                                    showAddAdvisor = true
+                                },
+                                onAdvisorClick = { advisorId ->
+                                    selectedAdvisorId = advisorId
+                                }
+                            )
+                        }
+                    }
                 }
 
                 CompanyBottomRoutes.PROFILE -> {
@@ -169,6 +207,11 @@ fun CompanyDashboardScreen(
 
                 if (route != CompanyBottomRoutes.PROFILE) {
                     showCompanyEditProfile = false
+                }
+
+                if (route != CompanyBottomRoutes.TEAM) {
+                    showAddAdvisor = false
+                    selectedAdvisorId = null
                 }
             }
         )

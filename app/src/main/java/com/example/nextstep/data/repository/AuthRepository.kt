@@ -3,12 +3,12 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.CompanyDto
 import com.example.nextstep.data.model.ProfileDto
-import com.example.nextstep.data.model.ProfileRoleDto
 import com.example.nextstep.data.model.StudentDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 
 class AuthRepository {
 
@@ -20,14 +20,33 @@ class AuthRepository {
         password: String
     ): Result<String> {
         return try {
-            auth.signInWith(Email) {
-                this.email = email
+            supabase.auth.signInWith(Email) {
+                this.email = email.trim().lowercase()
                 this.password = password
             }
 
-            val role = getCurrentUserRole().getOrThrow()
+            val roleResult = getCurrentUserRole()
 
-            Result.success(role)
+            if (roleResult.isSuccess) {
+                return Result.success(roleResult.getOrThrow())
+            }
+
+            // Caso seja orientador: a conta existe no Auth,
+            // mas ainda não tem linha em profiles/advisors.
+            runCatching {
+                supabase.postgrest.rpc("accept_advisor_invite")
+            }
+
+            val roleAfterInvite = getCurrentUserRole()
+
+            if (roleAfterInvite.isSuccess) {
+                Result.success(roleAfterInvite.getOrThrow())
+            } else {
+                Result.failure(
+                    roleAfterInvite.exceptionOrNull()
+                        ?: IllegalStateException("Não foi possível obter o perfil do utilizador.")
+                )
+            }
         } catch (exception: Exception) {
             Log.e("AuthRepository", "Erro ao iniciar sessão", exception)
             Result.failure(exception)
@@ -126,17 +145,24 @@ class AuthRepository {
 
     suspend fun getCurrentUserRole(): Result<String> {
         return try {
-            val userId = auth.currentUserOrNull()?.id
-                ?: throw IllegalStateException("Utilizador não autenticado.")
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(
+                    IllegalStateException("Utilizador não autenticado.")
+                )
 
-            val profile = supabase
+            val profiles = supabase
                 .from("profiles")
                 .select {
                     filter {
-                        eq("id", userId)
+                        eq("id", currentUser.id)
                     }
                 }
-                .decodeSingle<ProfileRoleDto>()
+                .decodeList<ProfileDto>()
+
+            val profile = profiles.firstOrNull()
+                ?: return Result.failure(
+                    IllegalStateException("PROFILE_NOT_FOUND")
+                )
 
             Result.success(profile.role)
         } catch (exception: Exception) {

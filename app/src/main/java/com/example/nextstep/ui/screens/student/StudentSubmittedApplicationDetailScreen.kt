@@ -49,7 +49,8 @@ import com.example.nextstep.data.model.StudentSubmittedApplicationDto
 fun StudentSubmittedApplicationDetailScreen(
     applicationId: String,
     onBackClick: () -> Unit,
-    viewModel: StudentSubmittedApplicationDetailViewModel = viewModel()
+    viewModel: StudentSubmittedApplicationDetailViewModel = viewModel(),
+    onMessagesClick: (String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current

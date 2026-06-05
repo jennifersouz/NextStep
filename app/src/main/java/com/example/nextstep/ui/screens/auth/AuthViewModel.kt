@@ -5,6 +5,7 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
+import com.example.nextstep.data.repository.AdvisorRegistrationRepository
 import com.example.nextstep.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,11 +21,18 @@ class AuthViewModel : ViewModel() {
     val loginState: StateFlow<LoginUiState> = _loginState.asStateFlow()
 
     private val authRepository = AuthRepository()
+    private val advisorRegistrationRepository = AdvisorRegistrationRepository()
 
     private fun mapAuthErrorToMessage(exception: Throwable?): Int {
         val message = exception?.message.orEmpty().lowercase()
 
         return when {
+            "no_pending_advisor_invite" in message ->
+                R.string.advisor_register_no_invite
+
+            "auth_required" in message ->
+                R.string.error_unknown_auth
+
             "user_already_exists" in message || "already registered" in message ->
                 R.string.error_user_already_exists
 
@@ -37,7 +45,10 @@ class AuthViewModel : ViewModel() {
             "password" in message ->
                 R.string.error_password_invalid_supabase
 
-            "network" in message || "unable to resolve host" in message || "timeout" in message ->
+            "network" in message ||
+                    "unable to resolve host" in message ||
+                    "no address associated with hostname" in message ||
+                    "timeout" in message ->
                 R.string.error_network
 
             else ->
@@ -57,8 +68,12 @@ class AuthViewModel : ViewModel() {
             nifError = null,
             areaError = null,
             locationError = null,
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = null,
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -104,7 +119,8 @@ class AuthViewModel : ViewModel() {
             name = filteredValue,
             nameError = validatePersonName(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -115,16 +131,20 @@ class AuthViewModel : ViewModel() {
             lastName = filteredValue,
             lastNameError = validatePersonName(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
     fun onEmailChange(value: String) {
+        val cleanedValue = value.trim()
+
         _registerState.value = _registerState.value.copy(
-            email = value.trim(),
-            emailError = validateEmail(value.trim()),
+            email = cleanedValue,
+            emailError = validateEmail(cleanedValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -140,16 +160,24 @@ class AuthViewModel : ViewModel() {
                 null
             },
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
     fun onConfirmPasswordChange(value: String) {
-        _registerState.value = _registerState.value.copy(
+        val state = _registerState.value
+
+        _registerState.value = state.copy(
             confirmPassword = value,
-            confirmPasswordError = null,
+            confirmPasswordError = if (value.isNotBlank()) {
+                validateConfirmPassword(state.password, value)
+            } else {
+                null
+            },
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -160,7 +188,8 @@ class AuthViewModel : ViewModel() {
             studentNumber = filteredValue,
             studentNumberError = validateStudentNumber(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -171,7 +200,8 @@ class AuthViewModel : ViewModel() {
             year = filteredValue,
             yearError = validateYear(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -188,7 +218,8 @@ class AuthViewModel : ViewModel() {
             companyName = filteredValue,
             companyNameError = validateCompanyName(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -199,7 +230,8 @@ class AuthViewModel : ViewModel() {
             nif = filteredValue,
             nifError = validateNif(filteredValue),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -208,7 +240,8 @@ class AuthViewModel : ViewModel() {
             course = value,
             courseError = validateRequiredText(value),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -217,7 +250,8 @@ class AuthViewModel : ViewModel() {
             area = value,
             areaError = validateRequiredText(value),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
@@ -226,14 +260,14 @@ class AuthViewModel : ViewModel() {
             location = value,
             locationError = validateRequiredText(value),
             generalError = null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
     }
 
     fun validateRegister(): Boolean {
         val state = _registerState.value
 
-        // Validação comum
         val emailError = validateEmail(state.email)
         val passwordError = validatePassword(state.password)
         val confirmPasswordError = validateConfirmPassword(
@@ -241,37 +275,72 @@ class AuthViewModel : ViewModel() {
             confirmPassword = state.confirmPassword
         )
 
-        // Validação condicional por Role
         val nameError =
-            if (state.selectedRole == UserRole.STUDENT) validatePersonName(state.name) else null
+            if (state.selectedRole == UserRole.STUDENT) {
+                validatePersonName(state.name)
+            } else {
+                null
+            }
 
         val lastNameError =
-            if (state.selectedRole == UserRole.STUDENT) validatePersonName(state.lastName) else null
+            if (state.selectedRole == UserRole.STUDENT) {
+                validatePersonName(state.lastName)
+            } else {
+                null
+            }
 
         val studentNumberError =
-            if (state.selectedRole == UserRole.STUDENT) validateStudentNumber(state.studentNumber) else null
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateStudentNumber(state.studentNumber)
+            } else {
+                null
+            }
 
         val courseError =
-            if (state.selectedRole == UserRole.STUDENT) validateRequiredText(state.course) else null
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateRequiredText(state.course)
+            } else {
+                null
+            }
 
         val yearError =
-            if (state.selectedRole == UserRole.STUDENT) validateYear(state.year) else null
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateYear(state.year)
+            } else {
+                null
+            }
 
         val companyNameError =
-            if (state.selectedRole == UserRole.COMPANY) validateCompanyName(state.companyName) else null
+            if (state.selectedRole == UserRole.COMPANY) {
+                validateCompanyName(state.companyName)
+            } else {
+                null
+            }
 
         val nifError =
-            if (state.selectedRole == UserRole.COMPANY) validateNif(state.nif) else null
+            if (state.selectedRole == UserRole.COMPANY) {
+                validateNif(state.nif)
+            } else {
+                null
+            }
 
         val areaError =
-            if (state.selectedRole == UserRole.COMPANY) validateRequiredText(state.area) else null
+            if (state.selectedRole == UserRole.COMPANY) {
+                validateRequiredText(state.area)
+            } else {
+                null
+            }
 
         val locationError =
-            if (state.selectedRole == UserRole.COMPANY) validateRequiredText(state.location) else null
+            if (state.selectedRole == UserRole.COMPANY) {
+                validateRequiredText(state.location)
+            } else {
+                null
+            }
 
-        // Logs de Debug
         Log.d("AuthViewModel", "selectedRole=${state.selectedRole}")
-        Log.d("AuthViewModel", "nameError=$nameError, lastNameError=$lastNameError, studentNumberError=$studentNumberError, courseError=$courseError, yearError=$yearError")
+        Log.d("AuthViewModel", "nameError=$nameError, lastNameError=$lastNameError")
+        Log.d("AuthViewModel", "studentNumberError=$studentNumberError, courseError=$courseError, yearError=$yearError")
         Log.d("AuthViewModel", "companyNameError=$companyNameError, nifError=$nifError, areaError=$areaError, locationError=$locationError")
         Log.d("AuthViewModel", "emailError=$emailError, passwordError=$passwordError, confirmPasswordError=$confirmPasswordError")
 
@@ -304,7 +373,8 @@ class AuthViewModel : ViewModel() {
             areaError = areaError,
             locationError = locationError,
             generalError = if (hasErrors) R.string.form_has_errors else null,
-            generalErrorText = null
+            generalErrorText = null,
+            isRegisterSuccess = false
         )
 
         return !hasErrors
@@ -318,7 +388,11 @@ class AuthViewModel : ViewModel() {
     }
 
     private fun validateRequiredText(value: String): Int? {
-        return if (value.isBlank()) R.string.error_required_field else null
+        return if (value.isBlank()) {
+            R.string.error_required_field
+        } else {
+            null
+        }
     }
 
     private fun validateEmail(value: String): Int? {
@@ -337,7 +411,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private fun validateConfirmPassword(password: String, confirmPassword: String): Int? {
+    private fun validateConfirmPassword(
+        password: String,
+        confirmPassword: String
+    ): Int? {
         return when {
             confirmPassword.isBlank() -> R.string.error_required_field
             password != confirmPassword -> R.string.error_passwords_do_not_match
@@ -393,11 +470,14 @@ class AuthViewModel : ViewModel() {
                         it == '-' ||
                         it == '.'
             } -> R.string.error_invalid_company_name
+
             else -> null
         }
     }
 
-    fun login(onSuccess: (UserRole) -> Unit) {
+    fun login(
+        onSuccess: (UserRole) -> Unit
+    ) {
         if (!validateLogin()) return
 
         val state = _loginState.value
@@ -418,9 +498,10 @@ class AuthViewModel : ViewModel() {
             )
 
             if (result.isSuccess) {
-                val role = when (result.getOrNull()) {
+                val role = when (result.getOrNull()?.lowercase()) {
                     "student" -> UserRole.STUDENT
                     "company" -> UserRole.COMPANY
+                    "advisor" -> UserRole.ADVISOR
                     else -> null
                 }
 
@@ -446,7 +527,9 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _registerState.value = state.copy(
-                generalError = null
+                generalError = null,
+                generalErrorText = null,
+                isRegisterSuccess = false
             )
 
             val result = when (state.selectedRole) {
@@ -472,15 +555,26 @@ class AuthViewModel : ViewModel() {
                         location = state.location
                     )
                 }
+
+                UserRole.ADVISOR -> {
+                    advisorRegistrationRepository.registerAdvisor(
+                        email = state.email,
+                        password = state.password
+                    )
+                }
             }
 
             if (result.isSuccess) {
                 _registerState.value = _registerState.value.copy(
-                    isRegisterSuccess = true
+                    isRegisterSuccess = true,
+                    generalError = null,
+                    generalErrorText = null
                 )
             } else {
                 _registerState.value = _registerState.value.copy(
-                    generalError = mapAuthErrorToMessage(result.exceptionOrNull())
+                    generalError = mapAuthErrorToMessage(result.exceptionOrNull()),
+                    generalErrorText = null,
+                    isRegisterSuccess = false
                 )
             }
         }
