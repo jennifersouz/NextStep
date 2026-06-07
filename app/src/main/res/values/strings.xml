@@ -389,4 +389,17 @@
     <string name="loading">A carregar...</string>
     <string name="send_advisor_invite">Enviar convite</string>
     <string name="advisor_invite_description">O orientador receberá/terá de usar este email para criar a própria conta na aplicação. A empresa não define a palavra-passe do orientador.</string>
+    <string name="view_student_profile">Ver perfil do aluno</string>
+    <string name="company_student_profile_load_error">Não foi possível carregar o perfil do aluno.</string>
+    <string name="academic_information">Informação académica</string>
+    <string name="student">Aluno</string>
+    <string name="student_number">Número de aluno</string>
+    <string name="course">Curso</string>
+    <string name="year">Ano</string>
+    <string name="city">Cidade</string>
+    <string name="country">País</string>
+    <string name="application">Candidatura</string>
+    <string name="offer">Oferta</string>
+    <string name="status">Estado</string>
+
 </resources>

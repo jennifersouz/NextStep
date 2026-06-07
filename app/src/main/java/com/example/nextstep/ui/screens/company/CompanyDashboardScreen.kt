@@ -69,6 +69,7 @@ enum class CompanyBottomRoutes {
 fun CompanyDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
+    onStudentProfileClick: (String) -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -119,7 +120,9 @@ fun CompanyDashboardScreen(
                 }
 
                 CompanyBottomRoutes.APPLICATIONS -> {
-                    CompanyApplicationsContent()
+                    CompanyApplicationsContent(
+                        onStudentProfileClick = onStudentProfileClick
+                    )
                 }
 
                 CompanyBottomRoutes.CREATE_OFFER -> {

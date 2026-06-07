@@ -41,6 +41,7 @@ import com.example.nextstep.data.model.CompanyApplicationDto
 
 @Composable
 fun CompanyApplicationsContent(
+    onStudentProfileClick: (String) -> Unit = {},
     viewModel: CompanyApplicationsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -57,7 +58,8 @@ fun CompanyApplicationsContent(
             onBackClick = {
                 selectedApplicationId = null
                 viewModel.loadApplications() // Recarrega a lista ao voltar
-            }
+            },
+            onStudentProfileClick = onStudentProfileClick
         )
 
         return

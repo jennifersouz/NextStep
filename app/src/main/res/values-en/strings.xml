@@ -387,4 +387,16 @@
     <string name="loading">Loading...</string>
     <string name="send_advisor_invite">Send invite</string>
     <string name="advisor_invite_description">The advisor must use this email to create their own account in the app. The company does not set the password for the advisor.</string>
+    <string name="view_student_profile">View student profile</string>
+    <string name="company_student_profile_load_error">Could not load the student profile.</string>
+    <string name="academic_information">Academic information</string>
+    <string name="student">Student</string>
+    <string name="student_number">Student number</string>
+    <string name="course">Course</string>
+    <string name="year">Year</string>
+    <string name="city">City</string>
+    <string name="country">Country</string>
+    <string name="application">Application</string>
+    <string name="offer">Offer</string>
+    <string name="status">Status</string>
 </resources>

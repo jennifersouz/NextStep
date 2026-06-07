@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.company
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,7 @@ import com.example.nextstep.data.model.CompanyApplicationDto
 fun CompanyApplicationDetailScreen(
     applicationId: String,
     onBackClick: () -> Unit,
+    onStudentProfileClick: (String) -> Unit = {},
     viewModel: CompanyApplicationDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -101,27 +103,26 @@ fun CompanyApplicationDetailScreen(
         }
 
         state.application != null -> {
-            val application = state.application
-
-            if (application != null) {
-                CompanyApplicationDetailContent(
-                    application = application,
-                    isUpdatingStatus = state.isUpdatingStatus,
-                    isOpeningDocument = state.isOpeningDocument,
-                    statusErrorRes = state.statusErrorRes,
-                    documentErrorRes = state.documentErrorRes,
-                    onBackClick = onBackClick,
-                    onStatusSelected = viewModel::updateStatus,
-                    onOpenMotivationLetter = viewModel::openMotivationLetter,
-                    onOpenCv = viewModel::openCv
-                )
-            }
+            CompanyApplicationDetailContent(
+                applicationId = applicationId,
+                application = state.application!!,
+                isUpdatingStatus = state.isUpdatingStatus,
+                isOpeningDocument = state.isOpeningDocument,
+                statusErrorRes = state.statusErrorRes,
+                documentErrorRes = state.documentErrorRes,
+                onBackClick = onBackClick,
+                onStatusSelected = viewModel::updateStatus,
+                onOpenMotivationLetter = viewModel::openMotivationLetter,
+                onOpenCv = viewModel::openCv,
+                onStudentProfileClick = onStudentProfileClick
+            )
         }
     }
 }
 
 @Composable
 fun CompanyApplicationDetailContent(
+    applicationId: String,
     application: CompanyApplicationDto,
     isUpdatingStatus: Boolean,
     isOpeningDocument: Boolean,
@@ -130,7 +131,8 @@ fun CompanyApplicationDetailContent(
     onBackClick: () -> Unit,
     onStatusSelected: (ApplicationDecisionStatus) -> Unit,
     onOpenMotivationLetter: () -> Unit,
-    onOpenCv: () -> Unit
+    onOpenCv: () -> Unit,
+    onStudentProfileClick: (String) -> Unit
 ) {
     val studentName = "${application.firstName} ${application.lastName}"
     val currentStatus = ApplicationDecisionStatus.fromDbValue(application.status)
@@ -208,6 +210,28 @@ fun CompanyApplicationDetailContent(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = {
+                onStudentProfileClick(applicationId)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFDFA52),
+                contentColor = Color.Black
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.view_student_profile),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
 
         Text(
             text = stringResource(R.string.application_documents_title),
@@ -293,7 +317,7 @@ fun CompanyApplicationStatusDropdown(
                 disabledContainerColor = Color.White,
                 disabledContentColor = statusTextColor(currentStatus)
             ),
-            border = androidx.compose.foundation.BorderStroke(
+            border = BorderStroke(
                 width = 1.dp,
                 color = Color(0xFFE0E0E0)
             )

@@ -20,6 +20,12 @@ object Routes {
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
+    const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
+    const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
+
+    fun companyStudentProfile(applicationId: String): String {
+        return "company_student_profile/$applicationId"
+    }
 
     fun chat(applicationId: String): String {
         return "chat/$applicationId"

@@ -18,6 +18,7 @@ import com.example.nextstep.ui.screens.chat.ChatScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
+import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
@@ -248,8 +249,11 @@ fun AppNavigation() {
         composable(Routes.COMPANY_DASHBOARD) {
             CompanyDashboardScreen(
                 onOfferClick = { offerId ->
+                    navController.navigate(Routes.companyOfferDetail(offerId))
+                },
+                onStudentProfileClick = { applicationId ->
                     navController.navigate(
-                        Routes.companyOfferDetail(offerId)
+                        Routes.companyStudentProfile(applicationId)
                     )
                 },
                 onLogoutSuccess = {
@@ -330,7 +334,49 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable(
+            route = Routes.COMPANY_STUDENT_PROFILE,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_STUDENT_PROFILE_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.COMPANY_STUDENT_PROFILE_ARG)
+                .orEmpty()
+
+            CompanyStudentProfileScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
+                }
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_STUDENT_PROFILE,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_STUDENT_PROFILE_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.COMPANY_STUDENT_PROFILE_ARG)
+                .orEmpty()
+
+            CompanyStudentProfileScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
+                }
+            )
+        }
     }
+
+
 }
 
 private fun NavController.navigateBackOr(
