@@ -54,33 +54,20 @@ class StudentSubmittedApplicationDetailViewModel : ViewModel() {
     fun confirmPresence() {
         val application = _uiState.value.application ?: return
 
-        if (application.status != "accepted") {
-            _uiState.value = _uiState.value.copy(
-                confirmPresenceErrorRes = R.string.student_presence_only_accepted
-            )
-            return
-        }
-
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isConfirmingPresence = true,
                 confirmPresenceErrorRes = null
             )
 
-            val result = repository.confirmPresence(application.id)
+            val result = repository.confirmInternshipAcceptance(application.id)
 
-            _uiState.value = if (result.isSuccess) {
-                _uiState.value.copy(
-                    application = application.copy(
-                        studentPresenceConfirmed = true
-                    ),
-                    isConfirmingPresence = false,
-                    confirmPresenceErrorRes = null
-                )
+            if (result.isSuccess) {
+                loadApplication(application.id)
             } else {
-                _uiState.value.copy(
+                _uiState.value = _uiState.value.copy(
                     isConfirmingPresence = false,
-                    confirmPresenceErrorRes = R.string.student_presence_confirm_error
+                    confirmPresenceErrorRes = R.string.accept_internship_error
                 )
             }
         }

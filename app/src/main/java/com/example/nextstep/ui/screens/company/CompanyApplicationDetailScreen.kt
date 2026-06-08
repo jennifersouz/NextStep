@@ -244,30 +244,40 @@ fun CompanyApplicationDetailContent(
         }
 
         if (currentStatus == ApplicationDecisionStatus.ACCEPTED) {
+            val canAssignAdvisor = application.studentPresenceConfirmed
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    onAssignAdvisorClick(applicationId)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                border = BorderStroke(1.dp, Color(0xFFE0E0E0))
-            ) {
-                Text(
-                    text = if (application.advisorName.isNullOrBlank()) {
-                        stringResource(R.string.assign_advisor)
-                    } else {
-                        stringResource(R.string.change_advisor)
+            if (canAssignAdvisor) {
+                Button(
+                    onClick = {
+                        onAssignAdvisorClick(applicationId)
                     },
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+                ) {
+                    Text(
+                        text = if (application.advisorName.isNullOrBlank()) {
+                            stringResource(R.string.assign_advisor)
+                        } else {
+                            stringResource(R.string.change_advisor)
+                        },
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.waiting_student_internship_acceptance),
+                    color = Color(0xFF777777),
+                    fontSize = 14.sp
                 )
             }
 

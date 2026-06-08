@@ -30,6 +30,12 @@ data class CompanyApplicationDto(
     @SerialName("cv_path")
     val cvPath: String? = null,
 
+    @SerialName("student_presence_confirmed")
+    val studentPresenceConfirmed: Boolean = false,
+
+    @SerialName("student_presence_confirmed_at")
+    val studentPresenceConfirmedAt: String? = null,
+
     @SerialName("offer_title")
     val offerTitle: String,
 

@@ -10,6 +10,6 @@ data class StudentNotificationsUiState(
 ) {
     val unreadCount: Int
         get() = notifications.count { notification ->
-            !notification.studentStatusSeen
+            notification.isUnread
         }
 }

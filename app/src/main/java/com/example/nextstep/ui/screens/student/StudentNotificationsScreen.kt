@@ -131,14 +131,14 @@ fun StudentNotificationsScreen(
                 items(
                     items = state.notifications,
                     key = { notification ->
-                        notification.id
+                        "${notification.id}_${notification.type}"
                     }
                 ) { notification ->
                     StudentNotificationItem(
                         notification = notification,
                         onClick = {
                             viewModel.markAsSeen(
-                                applicationId = notification.id,
+                                notification = notification,
                                 onLocalStateChanged = onUnreadCountChanged,
                                 onSuccess = {
                                     onNotificationClick(notification.id)
@@ -167,7 +167,7 @@ fun StudentNotificationItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!notification.studentStatusSeen) {
+        if (notification.isUnread) {
             Box(
                 modifier = Modifier
                     .size(7.dp)
@@ -181,7 +181,7 @@ fun StudentNotificationItem(
         Spacer(modifier = Modifier.width(8.dp))
 
         StudentNotificationCompanyLogo(
-            companyName = notification.companyName
+            companyName = notification.companyName.orEmpty().ifBlank { "?" }
         )
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -193,7 +193,9 @@ fun StudentNotificationItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = notification.companyName,
+                    text = notification.companyName.orEmpty().ifBlank {
+                        notification.offerTitle.orEmpty()
+                    },
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -202,7 +204,7 @@ fun StudentNotificationItem(
                 Spacer(modifier = Modifier.width(5.dp))
 
                 Text(
-                    text = relativeNotificationTime(notification.statusUpdatedAt),
+                    text = relativeNotificationTime(notification.sortDate),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A)
                 )
@@ -211,7 +213,7 @@ fun StudentNotificationItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = studentNotificationMessage(notification.status),
+                text = studentNotificationMessage(notification),
                 fontSize = 16.sp,
                 color = Color(0xFF8A8A8A)
             )
@@ -273,12 +275,15 @@ fun StudentNotificationsEmptyState() {
 
 @Composable
 fun studentNotificationMessage(
-    status: String
+    notification: StudentNotificationDto
 ): String {
-    return when (status) {
-        "accepted" -> stringResource(R.string.notification_application_accepted)
-        "rejected" -> stringResource(R.string.notification_application_rejected)
-        else -> stringResource(R.string.notification_application_updated)
+    return when (notification.type) {
+        "advisor_assigned" -> stringResource(R.string.advisor_assigned_notification_message)
+        else -> when (notification.status) {
+            "accepted" -> stringResource(R.string.notification_application_accepted)
+            "rejected" -> stringResource(R.string.notification_application_rejected)
+            else -> stringResource(R.string.notification_application_updated)
+        }
     }
 }
 

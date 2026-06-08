@@ -278,6 +278,12 @@
     <string name="presence_only_after_acceptance">Disponível após aceitação</string>
     <string name="student_presence_only_accepted">Só podes confirmar presença depois da candidatura ser aceite.</string>
     <string name="student_presence_confirm_error">Não foi possível confirmar presença.</string>
+    <string name="accept_internship">Aceitar estágio</string>
+    <string name="accepting_internship">A aceitar estágio...</string>
+    <string name="internship_accepted">Estágio aceite</string>
+    <string name="internship_acceptance_only_after_application_acceptance">Disponível após aceitação da candidatura</string>
+    <string name="accept_internship_error">Não foi possível aceitar o estágio. Tenta novamente.</string>
+    <string name="waiting_student_internship_acceptance">A aguardar aceitação do estágio pelo aluno.</string>
     <string name="edit_profile">Editar Perfil</string>
     <string name="available_languages">Idiomas Disponíveis</string>
     <string name="save">Guardar</string>
@@ -420,4 +426,7 @@
     <string name="advisor_assign_error">Não foi possível atribuir o orientador.</string>
     <string name="advisor_assign_success">Orientador atribuído com sucesso.</string>
     <string name="error_loading_advisors">Não foi possível carregar os orientadores.</string>
+    <string name="student_assigned_advisor_load_error">Não foi possível carregar o orientador atribuído.</string>
+    <string name="advisor_assigned_notification_title">Orientador atribuído</string>
+    <string name="advisor_assigned_notification_message">Foi atribuído um orientador à tua candidatura.</string>
 </resources>

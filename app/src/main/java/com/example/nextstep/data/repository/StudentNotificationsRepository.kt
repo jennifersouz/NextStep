@@ -3,6 +3,7 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.ApplicationSeenCheckDto
 import com.example.nextstep.data.model.StudentNotificationDto
+import com.example.nextstep.data.model.UpdateAdvisorAssignmentSeenDto
 import com.example.nextstep.data.model.UpdateStudentNotificationSeenDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
@@ -23,7 +24,7 @@ class StudentNotificationsRepository {
                 .select()
                 .decodeList<StudentNotificationDto>()
                 .sortedByDescending { notification ->
-                    notification.statusUpdatedAt.orEmpty()
+                    notification.sortDate
                 }
 
             Result.success(notifications)
@@ -46,22 +47,7 @@ class StudentNotificationsRepository {
 
             Log.d(
                 "NOTIF_DEBUG",
-                "A marcar como lida. applicationId=$applicationId studentProfileId=$studentProfileId"
-            )
-
-            val before = supabase
-                .from("applications")
-                .select {
-                    filter {
-                        eq("id", applicationId)
-                        eq("student_profile_id", studentProfileId)
-                    }
-                }
-                .decodeSingle<ApplicationSeenCheckDto>()
-
-            Log.d(
-                "NOTIF_DEBUG",
-                "ANTES update: studentStatusSeen=${before.studentStatusSeen}"
+                "A marcar estado como lida. applicationId=$applicationId studentProfileId=$studentProfileId"
             )
 
             supabase
@@ -77,32 +63,47 @@ class StudentNotificationsRepository {
                     }
                 }
 
-            val after = supabase
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e(
+                "NOTIF_DEBUG",
+                "Erro ao marcar notificação de estado como lida",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun markAdvisorAssignmentAsSeen(
+        applicationId: String
+    ): Result<Unit> {
+        return try {
+            val studentProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Utilizador não autenticado.")
+
+            Log.d(
+                "NOTIF_DEBUG",
+                "A marcar orientador como visto. applicationId=$applicationId"
+            )
+
+            supabase
                 .from("applications")
-                .select {
+                .update(
+                    UpdateAdvisorAssignmentSeenDto(
+                        advisorAssignmentSeen = true
+                    )
+                ) {
                     filter {
                         eq("id", applicationId)
                         eq("student_profile_id", studentProfileId)
                     }
                 }
-                .decodeSingle<ApplicationSeenCheckDto>()
-
-            Log.d(
-                "NOTIF_DEBUG",
-                "DEPOIS update: studentStatusSeen=${after.studentStatusSeen}"
-            )
-
-            if (!after.studentStatusSeen) {
-                throw IllegalStateException(
-                    "O update correu, mas student_status_seen continuou false. Possível payload vazio ou trigger a repor o valor."
-                )
-            }
 
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e(
                 "NOTIF_DEBUG",
-                "Erro ao marcar notificação como lida",
+                "Erro ao marcar notificação de orientador como lida",
                 exception
             )
             Result.failure(exception)
@@ -120,7 +121,7 @@ class StudentNotificationsRepository {
                 .decodeList<StudentNotificationDto>()
 
             val unreadCount = notifications.count { notification ->
-                !notification.studentStatusSeen
+                notification.isUnread
             }
 
             Result.success(unreadCount)

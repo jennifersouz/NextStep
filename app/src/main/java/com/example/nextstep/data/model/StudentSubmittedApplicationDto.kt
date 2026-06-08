@@ -30,6 +30,9 @@ data class StudentSubmittedApplicationDto(
     @SerialName("student_presence_confirmed")
     val studentPresenceConfirmed: Boolean = false,
 
+    @SerialName("student_presence_confirmed_at")
+    val studentPresenceConfirmedAt: String? = null,
+
     @SerialName("offer_title")
     val offerTitle: String,
 

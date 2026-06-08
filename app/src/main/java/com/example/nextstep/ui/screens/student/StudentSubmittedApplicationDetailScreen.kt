@@ -96,27 +96,26 @@ fun StudentSubmittedApplicationDetailScreen(
         }
 
         state.application != null -> {
-            val application = state.application
-
-            if (application != null) {
-                StudentApplicationDetailContent(
-                    application = application,
-                    isConfirmingPresence = state.isConfirmingPresence,
-                    confirmPresenceErrorRes = state.confirmPresenceErrorRes,
-                    isOpeningDocument = state.isOpeningDocument,
-                    documentErrorRes = state.documentErrorRes,
-                    onBackClick = onBackClick,
-                    onOpenMotivationLetter = viewModel::openMotivationLetter,
-                    onOpenCv = viewModel::openCv,
-                    onConfirmPresence = viewModel::confirmPresence
-                )
-            }
+            StudentApplicationDetailContent(
+                applicationId = applicationId,
+                application = state.application!!,
+                isConfirmingPresence = state.isConfirmingPresence,
+                confirmPresenceErrorRes = state.confirmPresenceErrorRes,
+                isOpeningDocument = state.isOpeningDocument,
+                documentErrorRes = state.documentErrorRes,
+                onBackClick = onBackClick,
+                onOpenMotivationLetter = viewModel::openMotivationLetter,
+                onOpenCv = viewModel::openCv,
+                onConfirmPresence = viewModel::confirmPresence,
+                onMessagesClick = onMessagesClick
+            )
         }
     }
 }
 
 @Composable
 fun StudentApplicationDetailContent(
+    applicationId: String,
     application: StudentSubmittedApplicationDto,
     isConfirmingPresence: Boolean,
     confirmPresenceErrorRes: Int?,
@@ -125,9 +124,10 @@ fun StudentApplicationDetailContent(
     onBackClick: () -> Unit,
     onOpenMotivationLetter: () -> Unit,
     onOpenCv: () -> Unit,
-    onConfirmPresence: () -> Unit
+    onConfirmPresence: () -> Unit,
+    onMessagesClick: (String) -> Unit
 ) {
-    val canConfirmPresence = application.status == "accepted" &&
+    val canAcceptInternship = application.status == "accepted" &&
             !application.studentPresenceConfirmed &&
             !isConfirmingPresence
 
@@ -189,55 +189,15 @@ fun StudentApplicationDetailContent(
             color = studentApplicationDetailStatusColor(application.status)
         )
 
-        // --- Advisor Section ---
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = stringResource(R.string.advisors),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+        StudentAssignedAdvisorSection(
+            applicationId = applicationId,
+            advisorName = application.advisorName,
+            advisorEmail = application.advisorEmail,
+            advisorPhone = application.advisorPhone,
+            advisorDepartment = application.advisorDepartment
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
-                .padding(16.dp)
-        ) {
-            if (application.advisorProfileId != null) {
-                Text(
-                    text = application.advisorName ?: "",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                application.advisorEmail?.let { email ->
-                    Text(
-                        text = email,
-                        fontSize = 14.sp,
-                        color = Color(0xFF8A8A8A)
-                    )
-                }
-                application.advisorDepartment?.let { dept ->
-                    Text(
-                        text = dept,
-                        fontSize = 14.sp,
-                        color = Color(0xFF8A8A8A)
-                    )
-                }
-                
-                // Future button "Send message" could be here
-            } else {
-                Text(
-                    text = stringResource(R.string.no_assigned_advisor),
-                    fontSize = 14.sp,
-                    color = Color(0xFF8A8A8A)
-                )
-            }
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -312,7 +272,7 @@ fun StudentApplicationDetailContent(
 
         Button(
             onClick = onConfirmPresence,
-            enabled = canConfirmPresence,
+            enabled = canAcceptInternship,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -326,14 +286,42 @@ fun StudentApplicationDetailContent(
         ) {
             Text(
                 text = when {
-                    isConfirmingPresence -> stringResource(R.string.confirming_presence)
-                    application.studentPresenceConfirmed -> stringResource(R.string.presence_confirmed)
-                    application.status != "accepted" -> stringResource(R.string.presence_only_after_acceptance)
-                    else -> stringResource(R.string.confirm_presence)
+                    isConfirmingPresence -> stringResource(R.string.accepting_internship)
+                    application.studentPresenceConfirmed -> stringResource(R.string.internship_accepted)
+                    application.status != "accepted" -> stringResource(R.string.internship_acceptance_only_after_application_acceptance)
+                    else -> stringResource(R.string.accept_internship)
                 },
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        if (application.status == "accepted") {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onMessagesClick(applicationId)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = Color(0xFFE0E0E0)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.messages),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
+import com.example.nextstep.data.model.StudentNotificationDto
 import com.example.nextstep.data.repository.StudentNotificationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +35,10 @@ class StudentNotificationsViewModel : ViewModel() {
 
             _uiState.value = if (result.isSuccess) {
                 val notifications = result.getOrDefault(emptyList())
-                Log.d("NOTIF_DEBUG", "loadNotifications: ${notifications.size} notificações, não lidas = ${notifications.count { !it.studentStatusSeen }}")
+                Log.d(
+                    "NOTIF_DEBUG",
+                    "loadNotifications: ${notifications.size} notificações, não lidas = ${notifications.count { it.isUnread }}"
+                )
                 _uiState.value.copy(
                     notifications = notifications,
                     isLoading = false,
@@ -51,18 +55,24 @@ class StudentNotificationsViewModel : ViewModel() {
     }
 
     fun markAsSeen(
-        applicationId: String,
+        notification: StudentNotificationDto,
         onLocalStateChanged: (Int) -> Unit = {},
         onSuccess: () -> Unit = {}
     ) {
-        Log.d("NOTIF_DEBUG", "markAsSeen clicado id=$applicationId")
+        Log.d(
+            "NOTIF_DEBUG",
+            "markAsSeen clicado id=${notification.id} type=${notification.type}"
+        )
         val previousNotifications = _uiState.value.notifications
 
-        val updatedNotifications = previousNotifications.map { notification ->
-            if (notification.id == applicationId) {
-                notification.copy(studentStatusSeen = true)
+        val updatedNotifications = previousNotifications.map { item ->
+            if (item.id == notification.id && item.type == notification.type) {
+                item.copy(
+                    isSeen = true,
+                    studentStatusSeen = true
+                )
             } else {
-                notification
+                item
             }
         }
 
@@ -70,30 +80,34 @@ class StudentNotificationsViewModel : ViewModel() {
             notifications = updatedNotifications
         )
 
-        val newUnreadCount = updatedNotifications.count { notification ->
-            !notification.studentStatusSeen
+        val newUnreadCount = updatedNotifications.count { item ->
+            item.isUnread
         }
 
         Log.d("NOTIF_DEBUG", "markAsSeen estado local atualizado — não lidas = $newUnreadCount")
         onLocalStateChanged(newUnreadCount)
 
         viewModelScope.launch {
-            val result = repository.markNotificationAsSeen(applicationId)
+            val result = when (notification.type) {
+                "advisor_assigned" -> repository.markAdvisorAssignmentAsSeen(notification.id)
+                else -> repository.markNotificationAsSeen(notification.id)
+            }
 
             if (result.isSuccess) {
-                Log.d("NOTIF_DEBUG", "markAsSeen Supabase OK id=$applicationId")
+                Log.d("NOTIF_DEBUG", "markAsSeen Supabase OK id=${notification.id}")
                 onSuccess()
-                // Não recarregar aqui: o estado local já está correto e um reload
-                // assíncrono pode sobrescrever com dados antigos (race condition).
             } else {
-                Log.d("NOTIF_DEBUG", "markAsSeen Supabase FAILED id=$applicationId — a reverter estado local")
+                Log.d(
+                    "NOTIF_DEBUG",
+                    "markAsSeen Supabase FAILED id=${notification.id} — a reverter estado local"
+                )
                 _uiState.value = _uiState.value.copy(
                     notifications = previousNotifications,
                     errorMessageRes = R.string.student_notification_mark_seen_error
                 )
 
-                val previousUnreadCount = previousNotifications.count { notification ->
-                    !notification.studentStatusSeen
+                val previousUnreadCount = previousNotifications.count { item ->
+                    item.isUnread
                 }
 
                 onLocalStateChanged(previousUnreadCount)

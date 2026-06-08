@@ -275,6 +275,12 @@
     <string name="presence_only_after_acceptance">Available after acceptance</string>
     <string name="student_presence_only_accepted">You can only confirm attendance after the application is accepted.</string>
     <string name="student_presence_confirm_error">Could not confirm attendance.</string>
+    <string name="accept_internship">Accept internship</string>
+    <string name="accepting_internship">Accepting internship...</string>
+    <string name="internship_accepted">Internship accepted</string>
+    <string name="internship_acceptance_only_after_application_acceptance">Available after the application is accepted</string>
+    <string name="accept_internship_error">Could not accept the internship. Please try again.</string>
+    <string name="waiting_student_internship_acceptance">Waiting for the student to accept the internship.</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="available_languages">Available Languages</string>
     <string name="save">Save</string>
@@ -418,4 +424,7 @@
     <string name="advisor_assign_error">Could not assign advisor.</string>
     <string name="advisor_assign_success">Advisor assigned successfully.</string>
     <string name="error_loading_advisors">Could not load advisors.</string>
+    <string name="student_assigned_advisor_load_error">Could not load assigned advisor.</string>
+    <string name="advisor_assigned_notification_title">Advisor assigned</string>
+    <string name="advisor_assigned_notification_message">An advisor has been assigned to your application.</string>
 </resources>

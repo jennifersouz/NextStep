@@ -2,11 +2,13 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.StudentSubmittedApplicationDto
-import com.example.nextstep.data.model.UpdateStudentPresenceDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlin.time.Duration.Companion.minutes
 
 class StudentApplicationsRepository {
@@ -45,7 +47,7 @@ class StudentApplicationsRepository {
             val currentStudentId = auth.currentUserOrNull()?.id
                 ?: throw IllegalStateException("Utilizador não autenticado.")
 
-            val application = supabase
+            val applications = supabase
                 .from("student_applications_view")
                 .select {
                     filter {
@@ -53,7 +55,10 @@ class StudentApplicationsRepository {
                         eq("student_profile_id", currentStudentId)
                     }
                 }
-                .decodeSingle<StudentSubmittedApplicationDto>()
+                .decodeList<StudentSubmittedApplicationDto>()
+
+            val application = applications.firstOrNull()
+                ?: return Result.failure(IllegalStateException("APPLICATION_NOT_FOUND"))
 
             Result.success(application)
         } catch (exception: Exception) {
@@ -66,31 +71,25 @@ class StudentApplicationsRepository {
         }
     }
 
-    suspend fun confirmPresence(
+    suspend fun confirmInternshipAcceptance(
         applicationId: String
     ): Result<Unit> {
         return try {
-            val currentStudentId = auth.currentUserOrNull()?.id
+            auth.currentUserOrNull()
                 ?: throw IllegalStateException("Utilizador não autenticado.")
 
-            supabase
-                .from("applications")
-                .update(
-                    UpdateStudentPresenceDto(
-                        studentPresenceConfirmed = true
-                    )
-                ) {
-                    filter {
-                        eq("id", applicationId)
-                        eq("student_profile_id", currentStudentId)
-                    }
+            supabase.postgrest.rpc(
+                function = "confirm_internship_acceptance",
+                parameters = buildJsonObject {
+                    put("application_uuid", applicationId)
                 }
+            )
 
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e(
                 "StudentApplicationsRepo",
-                "Erro ao confirmar presença",
+                "Erro ao aceitar estágio",
                 exception
             )
             Result.failure(exception)

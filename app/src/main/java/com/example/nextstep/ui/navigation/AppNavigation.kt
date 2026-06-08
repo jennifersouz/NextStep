@@ -170,7 +170,7 @@ fun AppNavigation() {
         composable(Routes.STUDENT_SUBMITTED_APPLICATIONS) {
             StudentSubmittedApplicationsScreen(
                 onBackClick = {
-                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
+                    navController.popBackStack()
                 },
                 onApplicationClick = { applicationId ->
                     navController.navigate(
@@ -195,7 +195,7 @@ fun AppNavigation() {
             StudentSubmittedApplicationDetailScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
+                    navController.popBackStack()
                 },
                 onMessagesClick = { selectedApplicationId ->
                     navController.navigate(
