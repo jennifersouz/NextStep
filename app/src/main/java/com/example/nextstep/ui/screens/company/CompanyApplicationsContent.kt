@@ -23,9 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,29 +38,10 @@ import com.example.nextstep.data.model.CompanyApplicationDto
 
 @Composable
 fun CompanyApplicationsContent(
-    onStudentProfileClick: (String) -> Unit = {},
+    onApplicationClick: (String) -> Unit,
     viewModel: CompanyApplicationsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-
-    var selectedApplicationId by remember {
-        mutableStateOf<String?>(null)
-    }
-
-    val applicationId = selectedApplicationId
-
-    if (applicationId != null) {
-        CompanyApplicationDetailScreen(
-            applicationId = applicationId,
-            onBackClick = {
-                selectedApplicationId = null
-                viewModel.loadApplications() // Recarrega a lista ao voltar
-            },
-            onStudentProfileClick = onStudentProfileClick
-        )
-
-        return
-    }
 
     when {
         state.isLoading -> {
@@ -146,8 +124,7 @@ fun CompanyApplicationsContent(
                         CompanyApplicationCard(
                             application = application,
                             onClick = {
-                                // APENAS abre o detalhe. O detalhe marca como visto.
-                                selectedApplicationId = application.id
+                                onApplicationClick(application.id)
                             }
                         )
 
@@ -177,7 +154,7 @@ fun CompanyApplicationsContent(
                         CompanyApplicationCard(
                             application = application,
                             onClick = {
-                                selectedApplicationId = application.id
+                                onApplicationClick(application.id)
                             }
                         )
 

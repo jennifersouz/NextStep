@@ -189,7 +189,57 @@ fun StudentApplicationDetailContent(
             color = studentApplicationDetailStatusColor(application.status)
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        // --- Advisor Section ---
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+            text = stringResource(R.string.advisors),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            if (application.advisorProfileId != null) {
+                Text(
+                    text = application.advisorName ?: "",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                application.advisorEmail?.let { email ->
+                    Text(
+                        text = email,
+                        fontSize = 14.sp,
+                        color = Color(0xFF8A8A8A)
+                    )
+                }
+                application.advisorDepartment?.let { dept ->
+                    Text(
+                        text = dept,
+                        fontSize = 14.sp,
+                        color = Color(0xFF8A8A8A)
+                    )
+                }
+                
+                // Future button "Send message" could be here
+            } else {
+                Text(
+                    text = stringResource(R.string.no_assigned_advisor),
+                    fontSize = 14.sp,
+                    color = Color(0xFF8A8A8A)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = stringResource(R.string.application_documents_title),

@@ -68,8 +68,8 @@ enum class CompanyBottomRoutes {
 @Composable
 fun CompanyDashboardScreen(
     onOfferClick: (String) -> Unit = {},
+    onApplicationClick: (String) -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
-    onStudentProfileClick: (String) -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -121,7 +121,7 @@ fun CompanyDashboardScreen(
 
                 CompanyBottomRoutes.APPLICATIONS -> {
                     CompanyApplicationsContent(
-                        onStudentProfileClick = onStudentProfileClick
+                        onApplicationClick = onApplicationClick
                     )
                 }
 

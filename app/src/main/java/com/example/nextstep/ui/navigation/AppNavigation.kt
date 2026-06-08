@@ -2,6 +2,8 @@ package com.example.nextstep.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -15,6 +17,8 @@ import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.chat.ChatScreen
+import com.example.nextstep.ui.screens.company.AssignAdvisorScreen
+import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
@@ -251,10 +255,8 @@ fun AppNavigation() {
                 onOfferClick = { offerId ->
                     navController.navigate(Routes.companyOfferDetail(offerId))
                 },
-                onStudentProfileClick = { applicationId ->
-                    navController.navigate(
-                        Routes.companyStudentProfile(applicationId)
-                    )
+                onApplicationClick = { applicationId ->
+                    navController.navigate(Routes.companyApplicationDetail(applicationId))
                 },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
@@ -263,6 +265,44 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                }
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_APPLICATION_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_APPLICATION_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.COMPANY_APPLICATION_DETAIL_ARG)
+                .orEmpty()
+
+            val advisorAssigned by backStackEntry.savedStateHandle
+                .getStateFlow("advisor_assigned", false)
+                .collectAsState()
+
+            CompanyApplicationDetailScreen(
+                applicationId = applicationId,
+                advisorAssigned = advisorAssigned,
+                onAdvisorAssignedConsumed = {
+                    backStackEntry.savedStateHandle["advisor_assigned"] = false
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onStudentProfileClick = { selectedApplicationId ->
+                    navController.navigate(
+                        Routes.companyStudentProfile(selectedApplicationId)
+                    )
+                },
+                onAssignAdvisorClick = { selectedApplicationId ->
+                    navController.navigate(
+                        Routes.companyAssignAdvisor(selectedApplicationId)
+                    )
                 }
             )
         }
@@ -350,33 +390,38 @@ fun AppNavigation() {
             CompanyStudentProfileScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
+                    navController.popBackStack()
                 }
             )
         }
 
         composable(
-            route = Routes.COMPANY_STUDENT_PROFILE,
+            route = Routes.COMPANY_ASSIGN_ADVISOR,
             arguments = listOf(
-                navArgument(Routes.COMPANY_STUDENT_PROFILE_ARG) {
+                navArgument(Routes.COMPANY_ASSIGN_ADVISOR_ARG) {
                     type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
             val applicationId = backStackEntry.arguments
-                ?.getString(Routes.COMPANY_STUDENT_PROFILE_ARG)
+                ?.getString(Routes.COMPANY_ASSIGN_ADVISOR_ARG)
                 .orEmpty()
 
-            CompanyStudentProfileScreen(
+            AssignAdvisorScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    navController.navigateBackOr(Routes.COMPANY_DASHBOARD)
+                    navController.popBackStack()
+                },
+                onAdvisorAssigned = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("advisor_assigned", true)
+
+                    navController.popBackStack()
                 }
             )
         }
     }
-
-
 }
 
 private fun NavController.navigateBackOr(

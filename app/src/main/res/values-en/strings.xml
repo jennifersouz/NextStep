@@ -399,4 +399,23 @@
     <string name="application">Application</string>
     <string name="offer">Offer</string>
     <string name="status">Status</string>
+    <string name="advisors">Advisors</string>
+    <string name="send_request">Send Request</string>
+    <string name="sending">Sending...</string>
+    <string name="pending">Pending</string>
+    <string name="accepted">Accepted</string>
+    <string name="rejected">Rejected</string>
+    <string name="student_advisors_load_error">Could not load advisors.</string>
+    <string name="student_advisor_request_error">Could not send the request.</string>
+    <string name="no_advisors_available">There are no advisors available yet.</string>
+
+    <!-- Advisor Assignment -->
+    <string name="assign_advisor">Assign advisor</string>
+    <string name="change_advisor">Change advisor</string>
+    <string name="assigned_advisor">Assigned advisor</string>
+    <string name="no_assigned_advisor">Advisor not assigned yet.</string>
+    <string name="active_advisors_empty">There are no active advisors yet.</string>
+    <string name="advisor_assign_error">Could not assign advisor.</string>
+    <string name="advisor_assign_success">Advisor assigned successfully.</string>
+    <string name="error_loading_advisors">Could not load advisors.</string>
 </resources>

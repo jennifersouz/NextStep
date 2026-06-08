@@ -16,7 +16,10 @@ class CompanyApplicationDetailViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CompanyApplicationDetailUiState())
     val uiState: StateFlow<CompanyApplicationDetailUiState> = _uiState.asStateFlow()
 
-    fun loadApplication(applicationId: String) {
+    fun loadApplication(
+        applicationId: String,
+        showLoading: Boolean = true
+    ) {
         if (applicationId.isBlank()) {
             _uiState.value = CompanyApplicationDetailUiState(
                 isLoading = false,
@@ -26,36 +29,45 @@ class CompanyApplicationDetailViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                errorMessageRes = null,
-                statusErrorRes = null,
-                documentErrorRes = null
-            )
+            if (showLoading) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    errorMessageRes = null,
+                    statusErrorRes = null,
+                    documentErrorRes = null
+                )
+            }
 
             val result = repository.getCompanyApplicationById(applicationId)
 
             if (result.isSuccess) {
                 val application = result.getOrNull()
 
-                _uiState.value = CompanyApplicationDetailUiState(
-                    application = application,
-                    isLoading = false,
-                    errorMessageRes = null
-                )
+                if (showLoading) {
+                    _uiState.value = CompanyApplicationDetailUiState(
+                        application = application,
+                        isLoading = false,
+                        errorMessageRes = null
+                    )
 
-                if (application != null && !application.viewedByCompany) {
-                    val markResult = repository.markApplicationAsViewed(application.id)
+                    if (application != null && !application.viewedByCompany) {
+                        val markResult = repository.markApplicationAsViewed(application.id)
 
-                    if (markResult.isSuccess) {
-                        _uiState.value = _uiState.value.copy(
-                            application = application.copy(
-                                viewedByCompany = true
+                        if (markResult.isSuccess) {
+                            _uiState.value = _uiState.value.copy(
+                                application = application.copy(
+                                    viewedByCompany = true
+                                )
                             )
-                        )
+                        }
                     }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        application = application,
+                        errorMessageRes = null
+                    )
                 }
-            } else {
+            } else if (showLoading) {
                 _uiState.value = CompanyApplicationDetailUiState(
                     application = null,
                     isLoading = false,

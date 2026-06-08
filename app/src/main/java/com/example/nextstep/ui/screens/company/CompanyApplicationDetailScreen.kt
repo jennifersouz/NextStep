@@ -55,8 +55,11 @@ import com.example.nextstep.data.model.CompanyApplicationDto
 @Composable
 fun CompanyApplicationDetailScreen(
     applicationId: String,
+    advisorAssigned: Boolean = false,
+    onAdvisorAssignedConsumed: () -> Unit = {},
     onBackClick: () -> Unit,
     onStudentProfileClick: (String) -> Unit = {},
+    onAssignAdvisorClick: (String) -> Unit = {},
     viewModel: CompanyApplicationDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -64,6 +67,13 @@ fun CompanyApplicationDetailScreen(
 
     LaunchedEffect(applicationId) {
         viewModel.loadApplication(applicationId)
+    }
+
+    LaunchedEffect(advisorAssigned) {
+        if (advisorAssigned) {
+            viewModel.loadApplication(applicationId, showLoading = false)
+            onAdvisorAssignedConsumed()
+        }
     }
 
     val documentUrl = state.documentUrlToOpen
@@ -114,7 +124,8 @@ fun CompanyApplicationDetailScreen(
                 onStatusSelected = viewModel::updateStatus,
                 onOpenMotivationLetter = viewModel::openMotivationLetter,
                 onOpenCv = viewModel::openCv,
-                onStudentProfileClick = onStudentProfileClick
+                onStudentProfileClick = onStudentProfileClick,
+                onAssignAdvisorClick = onAssignAdvisorClick
             )
         }
     }
@@ -132,7 +143,8 @@ fun CompanyApplicationDetailContent(
     onStatusSelected: (ApplicationDecisionStatus) -> Unit,
     onOpenMotivationLetter: () -> Unit,
     onOpenCv: () -> Unit,
-    onStudentProfileClick: (String) -> Unit
+    onStudentProfileClick: (String) -> Unit,
+    onAssignAdvisorClick: (String) -> Unit
 ) {
     val studentName = "${application.firstName} ${application.lastName}"
     val currentStatus = ApplicationDecisionStatus.fromDbValue(application.status)
@@ -231,7 +243,92 @@ fun CompanyApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        if (currentStatus == ApplicationDecisionStatus.ACCEPTED) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onAssignAdvisorClick(applicationId)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+            ) {
+                Text(
+                    text = if (application.advisorName.isNullOrBlank()) {
+                        stringResource(R.string.assign_advisor)
+                    } else {
+                        stringResource(R.string.change_advisor)
+                    },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = stringResource(R.string.assigned_advisor),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (!application.advisorName.isNullOrBlank()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color(0xFFF8F8F8),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = application.advisorName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    if (!application.advisorDepartment.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = application.advisorDepartment,
+                            fontSize = 14.sp,
+                            color = Color(0xFF777777)
+                        )
+                    }
+
+                    if (!application.advisorEmail.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = application.advisorEmail,
+                            fontSize = 14.sp,
+                            color = Color(0xFF777777)
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.no_assigned_advisor),
+                    color = Color(0xFF777777),
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        } else {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
 
         Text(
             text = stringResource(R.string.application_documents_title),

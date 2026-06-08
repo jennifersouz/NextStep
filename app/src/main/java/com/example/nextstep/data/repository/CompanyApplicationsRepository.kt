@@ -42,12 +42,20 @@ class CompanyApplicationsRepository {
 
     suspend fun getCompanyApplicationById(applicationId: String): Result<CompanyApplicationDto> {
         return try {
-            val application = supabase
+            val applications = supabase
                 .from("company_applications_view")
                 .select {
                     filter { eq("id", applicationId) }
                 }
-                .decodeSingle<CompanyApplicationDto>()
+                .decodeList<CompanyApplicationDto>()
+
+            val application = applications.firstOrNull()
+                ?: return Result.failure(IllegalStateException("APPLICATION_NOT_FOUND"))
+
+            Log.d(
+                "CompanyApplicationsRepo",
+                "Detalhe carregado: id=${application.id}, advisor=${application.advisorName}"
+            )
 
             Result.success(application)
         } catch (exception: Exception) {

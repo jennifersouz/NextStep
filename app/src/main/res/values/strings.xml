@@ -401,5 +401,23 @@
     <string name="application">Candidatura</string>
     <string name="offer">Oferta</string>
     <string name="status">Estado</string>
+    <string name="advisors">Orientadores</string>
+    <string name="send_request">Enviar Pedido</string>
+    <string name="sending">A enviar...</string>
+    <string name="pending">Pendente</string>
+    <string name="accepted">Aceite</string>
+    <string name="rejected">Recusado</string>
+    <string name="student_advisors_load_error">Não foi possível carregar os orientadores.</string>
+    <string name="student_advisor_request_error">Não foi possível enviar o pedido.</string>
+    <string name="no_advisors_available">Ainda não existem orientadores disponíveis.</string>
 
+    <!-- Advisor Assignment -->
+    <string name="assign_advisor">Atribuir orientador</string>
+    <string name="change_advisor">Alterar orientador</string>
+    <string name="assigned_advisor">Orientador atribuído</string>
+    <string name="no_assigned_advisor">Orientador ainda não atribuído.</string>
+    <string name="active_advisors_empty">Ainda não existem orientadores ativos.</string>
+    <string name="advisor_assign_error">Não foi possível atribuir o orientador.</string>
+    <string name="advisor_assign_success">Orientador atribuído com sucesso.</string>
+    <string name="error_loading_advisors">Não foi possível carregar os orientadores.</string>
 </resources>

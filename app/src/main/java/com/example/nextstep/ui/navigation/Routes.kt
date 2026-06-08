@@ -23,6 +23,20 @@ object Routes {
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
 
+    const val COMPANY_APPLICATION_DETAIL = "company_application_detail/{applicationId}"
+    const val COMPANY_APPLICATION_DETAIL_ARG = "applicationId"
+
+    const val COMPANY_ASSIGN_ADVISOR = "company_assign_advisor/{applicationId}"
+    const val COMPANY_ASSIGN_ADVISOR_ARG = "applicationId"
+
+    fun companyApplicationDetail(applicationId: String): String {
+        return "company_application_detail/$applicationId"
+    }
+
+    fun companyAssignAdvisor(applicationId: String): String {
+        return "company_assign_advisor/$applicationId"
+    }
+
     fun companyStudentProfile(applicationId: String): String {
         return "company_student_profile/$applicationId"
     }
