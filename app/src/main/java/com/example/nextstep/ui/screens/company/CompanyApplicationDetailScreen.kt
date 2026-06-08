@@ -243,8 +243,10 @@ fun CompanyApplicationDetailContent(
             )
         }
 
-        if (currentStatus == ApplicationDecisionStatus.ACCEPTED) {
-            val canAssignAdvisor = application.studentPresenceConfirmed
+        val isAcceptedStatus = application.status.lowercase().trim() in listOf("accepted", "aceite")
+
+        if (isAcceptedStatus) {
+            val canAssignAdvisor = isAcceptedStatus && application.studentPresenceConfirmed
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -264,7 +266,7 @@ fun CompanyApplicationDetailContent(
                     border = BorderStroke(1.dp, Color(0xFFE0E0E0))
                 ) {
                     Text(
-                        text = if (application.advisorName.isNullOrBlank()) {
+                        text = if (application.advisorProfileId.isNullOrBlank()) {
                             stringResource(R.string.assign_advisor)
                         } else {
                             stringResource(R.string.change_advisor)
