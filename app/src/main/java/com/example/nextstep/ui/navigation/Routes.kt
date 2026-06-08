@@ -19,6 +19,8 @@ object Routes {
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
+    const val APPLICATION_CHAT = "application_chat/{applicationId}"
+    const val APPLICATION_CHAT_ARG = "applicationId"
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
@@ -43,6 +45,10 @@ object Routes {
 
     fun chat(applicationId: String): String {
         return "chat/$applicationId"
+    }
+
+    fun applicationChat(applicationId: String): String {
+        return "application_chat/$applicationId"
     }
     fun companyOfferDetail(offerId: String): String {
         return "company_offer_detail/$offerId"

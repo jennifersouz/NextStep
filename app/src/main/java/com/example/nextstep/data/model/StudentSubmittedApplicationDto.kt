@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StudentSubmittedApplicationDto(
+    @SerialName("id")
     val id: String,
 
     @SerialName("offer_id")

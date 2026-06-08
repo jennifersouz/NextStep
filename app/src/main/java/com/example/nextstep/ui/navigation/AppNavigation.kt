@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -16,7 +17,7 @@ import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
-import com.example.nextstep.ui.screens.chat.ChatScreen
+import com.example.nextstep.ui.screens.chat.ApplicationChatScreen
 import com.example.nextstep.ui.screens.company.AssignAdvisorScreen
 import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
@@ -148,7 +149,7 @@ fun AppNavigation() {
                 },
                 onChatClick = { applicationId ->
                     navController.navigate(
-                        Routes.chat(applicationId)
+                        Routes.applicationChat(applicationId)
                     )
                 }
             )
@@ -163,6 +164,11 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                },
+                onChatClick = { applicationId ->
+                    navController.navigate(
+                        Routes.applicationChat(applicationId)
+                    )
                 }
             )
         }
@@ -198,8 +204,9 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onMessagesClick = { selectedApplicationId ->
+                    Log.d("ChatNavigation", "Navigate chat applicationId=$selectedApplicationId")
                     navController.navigate(
-                        Routes.chat(selectedApplicationId)
+                        Routes.applicationChat(selectedApplicationId)
                     )
                 }
             )
@@ -356,6 +363,28 @@ fun AppNavigation() {
         }
 
         composable(
+            route = Routes.APPLICATION_CHAT,
+            arguments = listOf(
+                navArgument(Routes.APPLICATION_CHAT_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.APPLICATION_CHAT_ARG)
+                .orEmpty()
+
+            Log.d("ChatDebug", "Route chat applicationId=$applicationId")
+
+            ApplicationChatScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
             route = Routes.CHAT,
             arguments = listOf(
                 navArgument(Routes.CHAT_ARG) {
@@ -367,10 +396,10 @@ fun AppNavigation() {
                 ?.getString(Routes.CHAT_ARG)
                 .orEmpty()
 
-            ChatScreen(
+            ApplicationChatScreen(
                 applicationId = applicationId,
                 onBackClick = {
-                    navController.navigateBackOr(Routes.STUDENT_DASHBOARD)
+                    navController.popBackStack()
                 }
             )
         }

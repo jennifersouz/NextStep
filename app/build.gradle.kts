@@ -87,8 +87,10 @@ dependencies {
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.auth)
     implementation(libs.supabase.postgrest)
-    implementation(libs.ktor.client.android)
+    implementation(libs.supabase.realtime)
     implementation(libs.supabase.storage)
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    implementation("io.ktor:ktor-client-okhttp:3.5.0")
 
     testImplementation(libs.junit)
 

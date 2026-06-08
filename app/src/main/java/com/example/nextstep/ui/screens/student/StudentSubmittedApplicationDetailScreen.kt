@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.student
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -296,11 +297,21 @@ fun StudentApplicationDetailContent(
             )
         }
 
-        if (application.status == "accepted") {
+        val canOpenChat =
+            application.status.lowercase().trim() in listOf("accepted", "aceite") &&
+                application.studentPresenceConfirmed &&
+                !application.advisorProfileId.isNullOrBlank()
+
+        if (canOpenChat) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
+                    Log.d("ChatDebug", "Button chat applicationId=$applicationId")
+                    Log.d("ChatDebug", "status=${application.status}")
+                    Log.d("ChatDebug", "studentPresenceConfirmed=${application.studentPresenceConfirmed}")
+                    Log.d("ChatDebug", "advisorProfileId=${application.advisorProfileId}")
+                    Log.d("ChatNavigation", "Abrir chat applicationId=$applicationId")
                     onMessagesClick(applicationId)
                 },
                 modifier = Modifier
@@ -308,22 +319,16 @@ fun StudentApplicationDetailContent(
                     .height(52.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = Color(0xFFE0E0E0)
+                    containerColor = Color.Black,
+                    contentColor = Color.White
                 )
             ) {
                 Text(
-                    text = stringResource(R.string.messages),
-                    fontSize = 15.sp,
+                    text = stringResource(R.string.message_advisor),
                     fontWeight = FontWeight.Bold
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(24.dp))
     }
 }

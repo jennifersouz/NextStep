@@ -373,7 +373,7 @@
     <string name="write_message">Write a message...</string>
     <string name="send_message">Send message</string>
     <string name="chat_empty">There are no messages in this application yet.</string>
-    <string name="chat_load_error">Could not load the messages.</string>
+    <string name="chat_load_error">Could not load the chat.</string>
     <string name="chat_send_error">Could not send the message.</string>
     <string name="student_messages_empty_title">No conversations yet</string>
     <string name="student_messages_empty_subtitle">Conversations linked to your applications will appear here.</string>
@@ -395,6 +395,14 @@
     <string name="sort_descending">Sort Z-A</string>
     <string name="advisor_dashboard_title">Advisor area</string>
     <string name="advisor_dashboard_placeholder">Here you will follow assigned students.</string>
+    <string name="advisor_area">Advisor area</string>
+    <string name="advisor_home_empty">There is no information to show here yet.</string>
+    <string name="chats">Chats</string>
+    <string name="chat">Chat</string>
+    <string name="no_chats_yet">There are no conversations yet.</string>
+    <string name="advisor_chats_load_error">Could not load chats.</string>
+    <string name="advisor_notifications_placeholder">Here you will receive updates about assigned students.</string>
+    <string name="advisor_profile_placeholder">Here you will be able to view and edit your profile.</string>
 
     <string name="advisor_invite_pending">Pending</string>
     <string name="advisor_invite_active">Active</string>
@@ -440,4 +448,14 @@
     <string name="student_assigned_advisor_load_error">Could not load assigned advisor.</string>
     <string name="advisor_assigned_notification_title">Advisor assigned</string>
     <string name="advisor_assigned_notification_message">An advisor has been assigned to your application.</string>
+
+    <string name="chat_title">Internship chat</string>
+    <string name="message_advisor">Message advisor</string>
+    <string name="type_message">Write a message...</string>
+    <string name="send">Send</string>
+    <string name="no_messages_yet">There are no messages yet.</string>
+    <string name="message_send_error">Could not send the message.</string>
+    <string name="assigned_students">Assigned students</string>
+    <string name="no_assigned_students">You do not have assigned students yet.</string>
+    <string name="advisor_assigned_students_load_error">Could not load assigned students.</string>
 </resources>

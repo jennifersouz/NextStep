@@ -376,7 +376,7 @@
     <string name="write_message">Escreve uma mensagem...</string>
     <string name="send_message">Enviar mensagem</string>
     <string name="chat_empty">Ainda não existem mensagens nesta candidatura.</string>
-    <string name="chat_load_error">Não foi possível carregar as mensagens.</string>
+    <string name="chat_load_error">Não foi possível carregar o chat.</string>
     <string name="chat_send_error">Não foi possível enviar a mensagem.</string>
     <string name="student_messages_empty_title">Ainda não tens conversas</string>
     <string name="student_messages_empty_subtitle">As conversas associadas às tuas candidaturas vão aparecer aqui.</string>
@@ -397,6 +397,14 @@
     <string name="sort_descending">Ordenar Z-A</string>
     <string name="advisor_dashboard_title">Área do orientador</string>
     <string name="advisor_dashboard_placeholder">Aqui vais acompanhar os alunos atribuídos.</string>
+    <string name="advisor_area">Área do orientador</string>
+    <string name="advisor_home_empty">Ainda não existem informações para mostrar aqui.</string>
+    <string name="chats">Chats</string>
+    <string name="chat">Chat</string>
+    <string name="no_chats_yet">Ainda não existem conversas.</string>
+    <string name="advisor_chats_load_error">Não foi possível carregar os chats.</string>
+    <string name="advisor_notifications_placeholder">Aqui vais receber atualizações sobre os alunos atribuídos.</string>
+    <string name="advisor_profile_placeholder">Aqui vais poder consultar e editar o teu perfil.</string>
 
     <string name="advisor_invite_pending">Pendente</string>
     <string name="advisor_invite_active">Ativo</string>
@@ -442,4 +450,14 @@
     <string name="student_assigned_advisor_load_error">Não foi possível carregar o orientador atribuído.</string>
     <string name="advisor_assigned_notification_title">Orientador atribuído</string>
     <string name="advisor_assigned_notification_message">Foi atribuído um orientador à tua candidatura.</string>
+
+    <string name="chat_title">Chat do estágio</string>
+    <string name="message_advisor">Enviar mensagem ao orientador</string>
+    <string name="type_message">Escreve uma mensagem...</string>
+    <string name="send">Enviar</string>
+    <string name="no_messages_yet">Ainda não existem mensagens.</string>
+    <string name="message_send_error">Não foi possível enviar a mensagem.</string>
+    <string name="assigned_students">Alunos atribuídos</string>
+    <string name="no_assigned_students">Ainda não tens alunos atribuídos.</string>
+    <string name="advisor_assigned_students_load_error">Não foi possível carregar os alunos atribuídos.</string>
 </resources>
