@@ -79,13 +79,16 @@ fun AdvisorDashboardScreen(
 
                 AdvisorTab.NOTIFICATIONS -> AdvisorNotificationsContent()
 
-                AdvisorTab.PROFILE -> AdvisorProfileContent(
-                    onLogoutClick = {
-                        sessionViewModel.logout(
-                            onSuccess = onLogoutSuccess
-                        )
-                    }
-                )
+                AdvisorTab.PROFILE -> {
+                    AdvisorProfileScreen(
+                        onLogoutClick = {
+                            sessionViewModel.logout(
+                                onSuccess = onLogoutSuccess
+                            )
+                        }
+                    )
+                }
+
             }
         }
 

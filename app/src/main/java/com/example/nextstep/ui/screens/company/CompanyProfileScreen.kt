@@ -1,33 +1,11 @@
 package com.example.nextstep.ui.screens.company
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,8 +30,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyProfileDto
-import com.example.nextstep.data.model.OfferDto
-import com.example.nextstep.ui.components.isLandscape
+import com.example.nextstep.ui.components.ProfileField
+import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
 fun CompanyProfileScreen(
@@ -166,12 +143,10 @@ fun CompanyProfileScreen(
         state.company != null -> {
             CompanyProfileContent(
                 company = state.company!!,
-                offers = state.offers,
                 onEditProfileClick = onEditProfileClick,
                 onLogoutRequest = {
                     showLogoutDialog = true
-                },
-                onOfferClick = onOfferClick
+                }
             )
         }
     }
@@ -180,490 +155,25 @@ fun CompanyProfileScreen(
 @Composable
 private fun CompanyProfileContent(
     company: CompanyProfileDto,
-    offers: List<OfferDto>,
-    onEditProfileClick: () -> Unit,
-    onLogoutRequest: () -> Unit,
-    onOfferClick: (String) -> Unit
-) {
-    val landscape = isLandscape()
-
-    val noDescriptionText = stringResource(R.string.company_profile_no_description)
-    val notAvailableText = stringResource(R.string.not_available)
-
-    val descriptionText = company.description.orEmpty().ifBlank {
-        noDescriptionText
-    }
-
-    val locationText = company.location.orEmpty().ifBlank {
-        notAvailableText
-    }
-
-    val phoneText = company.phone.orEmpty().ifBlank {
-        notAvailableText
-    }
-
-    if (landscape) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .statusBarsPadding()
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight()
-                    .padding(horizontal = 24.dp, vertical = 24.dp)
-            ) {
-                IconButton(
-                    onClick = onLogoutRequest,
-                    modifier = Modifier.align(Alignment.TopStart)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Logout,
-                        contentDescription = stringResource(R.string.logout),
-                        tint = Color(0xFF6B7280),
-                        modifier = Modifier.size(23.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = onEditProfileClick,
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = stringResource(R.string.edit_profile),
-                        tint = Color(0xFF6B7280),
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CompanyProfileLogo(
-                        companyName = company.companyName,
-                        size = 100
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = company.companyName,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 40.dp)
-                    )
-
-                    if (!company.businessArea.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text(
-                            text = company.businessArea,
-                            fontSize = 13.sp,
-                            color = Color(0xFF8A8A8A),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .weight(0.6f)
-                    .fillMaxHeight(),
-                contentPadding = PaddingValues(
-                    start = 20.dp,
-                    end = 28.dp,
-                    top = 24.dp,
-                    bottom = 40.dp
-                )
-            ) {
-                item {
-                    CompanyProfileSectionTitle(
-                        title = stringResource(R.string.company_profile_about)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = descriptionText,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        lineHeight = 20.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(26.dp))
-
-                    CompanyProfileSectionTitle(
-                        title = stringResource(R.string.location)
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = locationText,
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(26.dp))
-
-                    CompanyProfileSectionTitle(
-                        title = stringResource(R.string.contacts)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CompanyContactRow(
-                        phone = phoneText
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    CompanyProfileSectionTitle(
-                        title = stringResource(R.string.internships)
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                if (offers.isEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.company_profile_no_offers),
-                            color = Color(0xFF8A8A8A),
-                            fontSize = 14.sp
-                        )
-                    }
-                } else {
-                    items(
-                        items = offers,
-                        key = { offer ->
-                            offer.id
-                        }
-                    ) { offer ->
-                        CompanyProfileOfferCard(
-                            company = company,
-                            offer = offer,
-                            onClick = {
-                                onOfferClick(offer.id)
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-            }
-        }
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .statusBarsPadding(),
-            contentPadding = PaddingValues(
-                start = 28.dp,
-                end = 28.dp,
-                top = 30.dp,
-                bottom = 110.dp
-            )
-        ) {
-            item {
-                CompanyProfileHeader(
-                    company = company,
-                    onEditProfileClick = onEditProfileClick,
-                    onLogoutRequest = onLogoutRequest
-                )
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                CompanyProfileSectionTitle(
-                    title = stringResource(R.string.company_profile_about)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = descriptionText,
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(26.dp))
-
-                CompanyProfileSectionTitle(
-                    title = stringResource(R.string.location)
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = locationText,
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(26.dp))
-
-                CompanyProfileSectionTitle(
-                    title = stringResource(R.string.contacts)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                CompanyContactRow(
-                    phone = phoneText
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                CompanyProfileSectionTitle(
-                    title = stringResource(R.string.internships)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            if (offers.isEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(R.string.company_profile_no_offers),
-                        color = Color(0xFF8A8A8A),
-                        fontSize = 14.sp
-                    )
-                }
-            } else {
-                items(
-                    items = offers,
-                    key = { offer ->
-                        offer.id
-                    }
-                ) { offer ->
-                    CompanyProfileOfferCard(
-                        company = company,
-                        offer = offer,
-                        onClick = {
-                            onOfferClick(offer.id)
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CompanyProfileHeader(
-    company: CompanyProfileDto,
     onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        IconButton(
-            onClick = onLogoutRequest,
-            modifier = Modifier.align(Alignment.TopStart)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Logout,
-                contentDescription = stringResource(R.string.logout),
-                tint = Color(0xFF6B7280),
-                modifier = Modifier.size(23.dp)
-            )
+    val fields = buildList {
+        add(ProfileField(stringResource(R.string.email), ""))
+        add(ProfileField(stringResource(R.string.contact), company.phone.orEmpty()))
+        if (!company.location.isNullOrBlank()) {
+            add(ProfileField(stringResource(R.string.city), company.location))
         }
-
-        IconButton(
-            onClick = onEditProfileClick,
-            modifier = Modifier.align(Alignment.TopEnd)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = stringResource(R.string.edit_profile),
-                tint = Color(0xFF6B7280),
-                modifier = Modifier.size(22.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CompanyProfileLogo(
-                companyName = company.companyName,
-                size = 116
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = company.companyName,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 56.dp)
-            )
-
-            if (!company.businessArea.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = company.businessArea,
-                    fontSize = 13.sp,
-                    color = Color(0xFF8A8A8A),
-                    textAlign = TextAlign.Center
-                )
-            }
+        if (!company.businessArea.isNullOrBlank()) {
+            add(ProfileField(stringResource(R.string.business_area), company.businessArea))
         }
     }
-}
 
-@Composable
-private fun CompanyProfileLogo(
-    companyName: String,
-    size: Int
-) {
-    val initials = companyName
-        .split(" ")
-        .filter { it.isNotBlank() }
-        .take(2)
-        .joinToString("") { part ->
-            part.first().uppercase()
-        }
-        .ifBlank {
-            "?"
-        }
-
-    Box(
-        modifier = Modifier
-            .size(size.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFE8392A)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initials,
-            color = Color.White,
-            fontSize = if (size >= 100) 28.sp else 12.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun CompanyProfileSectionTitle(
-    title: String
-) {
-    Text(
-        text = title,
-        color = Color(0xFF8A8A8A),
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Medium
+    ProfileScreenLayout(
+        title = stringResource(R.string.profile),
+        name = company.companyName,
+        fields = fields,
+        onMenuClick = onLogoutRequest,
+        onEditClick = onEditProfileClick
     )
-}
-
-@Composable
-private fun CompanyContactRow(
-    phone: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.Phone,
-            contentDescription = null,
-            tint = Color.Black,
-            modifier = Modifier.size(16.dp)
-        )
-
-        Spacer(modifier = Modifier.size(6.dp))
-
-        Text(
-            text = phone,
-            color = Color.Black,
-            fontSize = 14.sp
-        )
-    }
-}
-
-@Composable
-private fun CompanyProfileOfferCard(
-    company: CompanyProfileDto,
-    offer: OfferDto,
-    onClick: () -> Unit
-) {
-    val offerLocation = offer.location.orEmpty().ifBlank {
-        stringResource(R.string.not_available)
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .border(
-                width = 1.dp,
-                color = Color(0xFFE1E1E1),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .clickable {
-                onClick()
-            }
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CompanyProfileLogo(
-            companyName = company.companyName,
-            size = 42
-        )
-
-        Spacer(modifier = Modifier.size(12.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = company.companyName,
-                color = Color(0xFF8A8A8A),
-                fontSize = 12.sp
-            )
-
-            Text(
-                text = offer.title,
-                color = Color.Black,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.size(15.dp)
-                )
-
-                Text(
-                    text = offerLocation,
-                    color = Color.Black,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
 }

@@ -1,8 +1,5 @@
 package com.example.nextstep.ui.screens.advisor
 
-import androidx.annotation.StringRes
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,25 +20,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorAssignedApplicationDto
+import com.example.nextstep.ui.components.BottomBarItem
+import com.example.nextstep.ui.components.NextStepBottomBar
 
 @Composable
 fun AdvisorHomeContent() {
@@ -263,47 +252,6 @@ fun AdvisorNotificationsContent() {
 }
 
 @Composable
-fun AdvisorProfileContent(
-    onLogoutClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.profile),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            IconButton(onClick = onLogoutClick) {
-                Icon(
-                    imageVector = Icons.Outlined.Logout,
-                    contentDescription = stringResource(R.string.logout),
-                    tint = Color.Black
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.advisor_profile_placeholder),
-            fontSize = 15.sp,
-            color = Color(0xFF777777)
-        )
-    }
-}
-
-@Composable
 fun AdvisorStudentAvatar(fullName: String) {
     val initials = fullName
         .split(" ")
@@ -328,138 +276,37 @@ fun AdvisorStudentAvatar(fullName: String) {
     }
 }
 
-private data class AdvisorBottomNavItem(
-    val tab: AdvisorTab,
-    @StringRes val labelRes: Int,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
-)
-
 @Composable
 fun AdvisorBottomBar(
     selectedTab: AdvisorTab,
     onTabSelected: (AdvisorTab) -> Unit
 ) {
-    val items = listOf(
-        AdvisorBottomNavItem(
-            tab = AdvisorTab.HOME,
-            labelRes = R.string.home,
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home
-        ),
-        AdvisorBottomNavItem(
-            tab = AdvisorTab.CHAT,
-            labelRes = R.string.chat,
-            selectedIcon = Icons.AutoMirrored.Filled.Chat,
-            unselectedIcon = Icons.AutoMirrored.Outlined.Chat
-        ),
-        AdvisorBottomNavItem(
-            tab = AdvisorTab.NOTIFICATIONS,
-            labelRes = R.string.notifications,
-            selectedIcon = Icons.Filled.Notifications,
-            unselectedIcon = Icons.Outlined.NotificationsNone
-        ),
-        AdvisorBottomNavItem(
-            tab = AdvisorTab.PROFILE,
-            labelRes = R.string.profile,
-            selectedIcon = Icons.Filled.Person,
-            unselectedIcon = Icons.Outlined.PersonOutline
-        )
-    )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(86.dp)
-            .background(Color.White)
-            .border(
-                width = 1.dp,
-                color = Color(0xFFEAEAEA)
+    NextStepBottomBar(
+        items = listOf(
+            BottomBarItem(
+                route = AdvisorTab.HOME.name,
+                icon = Icons.Filled.Home,
+                label = stringResource(R.string.home)
+            ),
+            BottomBarItem(
+                route = AdvisorTab.CHAT.name,
+                icon = Icons.AutoMirrored.Filled.Chat,
+                label = stringResource(R.string.chat)
+            ),
+            BottomBarItem(
+                route = AdvisorTab.NOTIFICATIONS.name,
+                icon = Icons.Filled.Notifications,
+                label = stringResource(R.string.notifications)
+            ),
+            BottomBarItem(
+                route = AdvisorTab.PROFILE.name,
+                icon = Icons.Filled.Person,
+                label = stringResource(R.string.profile)
             )
-            .navigationBarsPadding()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        items.forEach { item ->
-            AdvisorBottomBarItem(
-                item = item,
-                selected = selectedTab == item.tab,
-                onClick = {
-                    onTabSelected(item.tab)
-                }
-            )
+        ),
+        selectedItem = selectedTab.name,
+        onItemClick = { tabName ->
+            onTabSelected(AdvisorTab.valueOf(tabName))
         }
-    }
-}
-
-@Composable
-private fun AdvisorBottomBarItem(
-    item: AdvisorBottomNavItem,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    val label = stringResource(item.labelRes)
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (selected) {
-            Color(0xFFFDFA52)
-        } else {
-            Color.Transparent
-        },
-        label = "advisor_bottom_background"
     )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (selected) {
-            Color.Black
-        } else {
-            Color(0xFF222222)
-        },
-        label = "advisor_bottom_content"
-    )
-
-    val itemWidth by animateDpAsState(
-        targetValue = if (selected) {
-            116.dp
-        } else {
-            44.dp
-        },
-        label = "advisor_bottom_width"
-    )
-
-    Column(
-        modifier = Modifier
-            .width(itemWidth)
-            .clip(RoundedCornerShape(24.dp))
-            .background(backgroundColor)
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = if (selected) {
-                item.selectedIcon
-            } else {
-                item.unselectedIcon
-            },
-            contentDescription = label,
-            tint = contentColor,
-            modifier = Modifier.size(24.dp)
-        )
-
-        if (selected) {
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = label,
-                color = contentColor,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
 }

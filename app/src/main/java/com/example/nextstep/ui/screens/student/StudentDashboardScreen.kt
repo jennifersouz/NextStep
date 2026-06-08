@@ -1,9 +1,6 @@
 package com.example.nextstep.ui.screens.student
 
 import android.util.Log
-import androidx.annotation.StringRes
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -28,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LocationOn
@@ -36,10 +31,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -79,6 +70,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.components.BottomBarItem
+import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
 
 object StudentBottomRoutes {
@@ -88,14 +81,6 @@ object StudentBottomRoutes {
     const val MESSAGES = "messages"
     const val PROFILE = "profile"
 }
-
-data class StudentBottomNavItem(
-    val route: String,
-    @StringRes val labelRes: Int,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeCount: Int = 0
-)
 
 @Composable
 fun StudentDashboardScreen(
@@ -269,9 +254,36 @@ fun StudentDashboardScreen(
             }
         }
 
-        StudentBottomBar(
-            currentRoute = selectedBottomRoute,
-            notificationBadgeCount = state.unreadNotificationsCount,
+        NextStepBottomBar(
+            items = listOf(
+                BottomBarItem(
+                    route = StudentBottomRoutes.HOME,
+                    icon = Icons.Filled.Home,
+                    label = stringResource(R.string.home)
+                ),
+                BottomBarItem(
+                    route = StudentBottomRoutes.INTERNSHIPS,
+                    icon = Icons.Filled.Work,
+                    label = stringResource(R.string.internships)
+                ),
+                BottomBarItem(
+                    route = StudentBottomRoutes.NOTIFICATIONS,
+                    icon = Icons.Filled.Notifications,
+                    label = stringResource(R.string.notifications),
+                    badgeCount = state.unreadNotificationsCount
+                ),
+                BottomBarItem(
+                    route = StudentBottomRoutes.MESSAGES,
+                    icon = Icons.AutoMirrored.Filled.Chat,
+                    label = stringResource(R.string.messages)
+                ),
+                BottomBarItem(
+                    route = StudentBottomRoutes.PROFILE,
+                    icon = Icons.Filled.Person,
+                    label = stringResource(R.string.profile)
+                )
+            ),
+            selectedItem = selectedBottomRoute,
             onItemClick = { route ->
                 selectedBottomRoute = route
 
@@ -693,170 +705,6 @@ fun StudentPlaceholderContent(
             color = Color(0xFF6B7280),
             textAlign = TextAlign.Center
         )
-    }
-}
-
-@Composable
-fun StudentBottomBar(
-    currentRoute: String,
-    notificationBadgeCount: Int = 0,
-    onItemClick: (String) -> Unit
-) {
-    val items = listOf(
-        StudentBottomNavItem(
-            route = StudentBottomRoutes.HOME,
-            labelRes = R.string.home,
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home
-        ),
-        StudentBottomNavItem(
-            route = StudentBottomRoutes.INTERNSHIPS,
-            labelRes = R.string.internships,
-            selectedIcon = Icons.Filled.Work,
-            unselectedIcon = Icons.Outlined.WorkOutline
-        ),
-        StudentBottomNavItem(
-            route = StudentBottomRoutes.NOTIFICATIONS,
-            labelRes = R.string.notifications,
-            selectedIcon = Icons.Filled.Notifications,
-            unselectedIcon = Icons.Outlined.NotificationsNone,
-            badgeCount = notificationBadgeCount
-        ),
-        StudentBottomNavItem(
-            route = StudentBottomRoutes.MESSAGES,
-            labelRes = R.string.messages,
-            selectedIcon = Icons.AutoMirrored.Filled.Chat,
-            unselectedIcon = Icons.AutoMirrored.Outlined.Chat
-        ),
-        StudentBottomNavItem(
-            route = StudentBottomRoutes.PROFILE,
-            labelRes = R.string.profile,
-            selectedIcon = Icons.Filled.Person,
-            unselectedIcon = Icons.Outlined.PersonOutline
-        )
-    )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(86.dp)
-            .background(Color.White)
-            .border(
-                width = 1.dp,
-                color = Color(0xFFEAEAEA)
-            )
-            .navigationBarsPadding()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        items.forEach { item ->
-            StudentBottomBarItem(
-                item = item,
-                selected = currentRoute == item.route,
-                onClick = {
-                    onItemClick(item.route)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun StudentBottomBarItem(
-    item: StudentBottomNavItem,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    val label = stringResource(item.labelRes)
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (selected) {
-            Color(0xFFFDFA52)
-        } else {
-            Color.Transparent
-        },
-        label = "student_bottom_background"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (selected) {
-            Color.Black
-        } else {
-            Color(0xFF222222)
-        },
-        label = "student_bottom_content"
-    )
-
-    val itemWidth by animateDpAsState(
-        targetValue = if (selected) {
-            116.dp
-        } else {
-            44.dp
-        },
-        label = "student_bottom_width"
-    )
-
-    Row(
-        modifier = Modifier
-            .width(itemWidth)
-            .height(48.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(backgroundColor)
-            .clickable {
-                onClick()
-            }
-            .padding(horizontal = if (selected) 10.dp else 0.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box {
-            Icon(
-                imageVector = if (selected) {
-                    item.selectedIcon
-                } else {
-                    item.unselectedIcon
-                },
-                contentDescription = label,
-                tint = contentColor,
-                modifier = Modifier.size(26.dp)
-            )
-
-            if (item.badgeCount > 0) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(17.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE8505B)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (item.badgeCount > 9) {
-                            "9+"
-                        } else {
-                            item.badgeCount.toString()
-                        },
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        if (selected) {
-            Spacer(modifier = Modifier.width(6.dp))
-
-            Text(
-                text = label,
-                color = contentColor,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
     }
 }
 

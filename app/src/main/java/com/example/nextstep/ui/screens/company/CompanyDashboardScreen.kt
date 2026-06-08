@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -46,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyInternshipDto
+import com.example.nextstep.ui.components.BottomBarItem
+import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
 
 enum class CompanyBottomRoutes {
@@ -203,9 +203,37 @@ fun CompanyDashboardScreen(
             }
         }
 
-        CompanyBottomBar(
-            currentRoute = selectedBottomRoute,
-            onItemClick = { route ->
+        NextStepBottomBar(
+            items = listOf(
+                BottomBarItem(
+                    route = CompanyBottomRoutes.INTERNSHIPS.name,
+                    icon = Icons.Filled.Home,
+                    label = stringResource(R.string.company_tab_internships)
+                ),
+                BottomBarItem(
+                    route = CompanyBottomRoutes.APPLICATIONS.name,
+                    icon = Icons.Filled.Assignment,
+                    label = stringResource(R.string.company_tab_applications)
+                ),
+                BottomBarItem(
+                    route = CompanyBottomRoutes.CREATE_OFFER.name,
+                    icon = Icons.Filled.Add,
+                    label = stringResource(R.string.company_tab_create)
+                ),
+                BottomBarItem(
+                    route = CompanyBottomRoutes.TEAM.name,
+                    icon = Icons.Filled.Groups,
+                    label = stringResource(R.string.company_tab_team)
+                ),
+                BottomBarItem(
+                    route = CompanyBottomRoutes.PROFILE.name,
+                    icon = Icons.Filled.Person,
+                    label = stringResource(R.string.company_tab_profile)
+                )
+            ),
+            selectedItem = selectedBottomRoute.name,
+            onItemClick = { routeName ->
+                val route = CompanyBottomRoutes.valueOf(routeName)
                 selectedBottomRoute = route
 
                 if (route != CompanyBottomRoutes.PROFILE) {
@@ -543,128 +571,5 @@ fun CompanyPlaceholderContent(
             textAlign = TextAlign.Center,
             lineHeight = 22.sp
         )
-    }
-}
-
-@Composable
-fun CompanyBottomBar(
-    currentRoute: CompanyBottomRoutes,
-    onItemClick: (CompanyBottomRoutes) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(82.dp)
-            .background(Color.White)
-            .border(
-                width = 1.dp,
-                color = Color(0xFFEAEAEA)
-            )
-            .navigationBarsPadding()
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        CompanyBottomBarItem(
-            route = CompanyBottomRoutes.INTERNSHIPS,
-            currentRoute = currentRoute,
-            label = stringResource(R.string.company_tab_internships),
-            selectedIcon = Icons.Filled.Home,
-            unselectedIcon = Icons.Outlined.Home,
-            onItemClick = onItemClick
-        )
-
-        CompanyBottomBarItem(
-            route = CompanyBottomRoutes.APPLICATIONS,
-            currentRoute = currentRoute,
-            label = stringResource(R.string.company_tab_applications),
-            selectedIcon = Icons.Filled.Assignment,
-            unselectedIcon = Icons.Outlined.Assignment,
-            onItemClick = onItemClick
-        )
-
-        CompanyBottomBarItem(
-            route = CompanyBottomRoutes.CREATE_OFFER,
-            currentRoute = currentRoute,
-            label = stringResource(R.string.company_tab_create),
-            selectedIcon = Icons.Filled.Add,
-            unselectedIcon = Icons.Outlined.Add,
-            onItemClick = onItemClick
-        )
-
-        CompanyBottomBarItem(
-            route = CompanyBottomRoutes.TEAM,
-            currentRoute = currentRoute,
-            label = stringResource(R.string.company_tab_team),
-            selectedIcon = Icons.Filled.Groups,
-            unselectedIcon = Icons.Outlined.Groups,
-            onItemClick = onItemClick
-        )
-
-        CompanyBottomBarItem(
-            route = CompanyBottomRoutes.PROFILE,
-            currentRoute = currentRoute,
-            label = stringResource(R.string.company_tab_profile),
-            selectedIcon = Icons.Filled.Person,
-            unselectedIcon = Icons.Outlined.Person,
-            onItemClick = onItemClick
-        )
-    }
-}
-
-@Composable
-fun CompanyBottomBarItem(
-    route: CompanyBottomRoutes,
-    currentRoute: CompanyBottomRoutes,
-    label: String,
-    selectedIcon: ImageVector,
-    unselectedIcon: ImageVector,
-    onItemClick: (CompanyBottomRoutes) -> Unit
-) {
-    val selected = route == currentRoute
-
-    Row(
-        modifier = Modifier
-            .height(46.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                if (selected) {
-                    Color(0xFFFDFA52)
-                } else {
-                    Color.Transparent
-                }
-            )
-            .clickable {
-                onItemClick(route)
-            }
-            .padding(
-                horizontal = if (selected) 14.dp else 10.dp,
-                vertical = 8.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = if (selected) {
-                selectedIcon
-            } else {
-                unselectedIcon
-            },
-            contentDescription = label,
-            tint = Color.Black,
-            modifier = Modifier.size(25.dp)
-        )
-
-        if (selected) {
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                maxLines = 1
-            )
-        }
     }
 }

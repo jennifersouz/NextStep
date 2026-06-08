@@ -422,6 +422,7 @@
     <string name="student">Aluno</string>
     <string name="student_number">Número de aluno</string>
     <string name="course">Curso</string>
+    <string name="academic_year">Ano académico</string>
     <string name="year">Ano</string>
     <string name="city">Cidade</string>
     <string name="country">País</string>
@@ -460,4 +461,9 @@
     <string name="assigned_students">Alunos atribuídos</string>
     <string name="no_assigned_students">Ainda não tens alunos atribuídos.</string>
     <string name="advisor_assigned_students_load_error">Não foi possível carregar os alunos atribuídos.</string>
+    <string name="menu">Menu</string>
+    <string name="contact">Contacto</string>
+    <string name="department">Departamento</string>
+    <string name="advisor_name_placeholder">Orientador</string>
+    <string name="advisor_profile_load_error">Não foi possível carregar o perfil do orientador.</string>
 </resources>

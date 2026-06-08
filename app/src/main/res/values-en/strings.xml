@@ -420,6 +420,7 @@
     <string name="student">Student</string>
     <string name="student_number">Student number</string>
     <string name="course">Course</string>
+    <string name="academic_year">Academic year</string>
     <string name="year">Year</string>
     <string name="city">City</string>
     <string name="country">Country</string>
@@ -458,4 +459,9 @@
     <string name="assigned_students">Assigned students</string>
     <string name="no_assigned_students">You do not have assigned students yet.</string>
     <string name="advisor_assigned_students_load_error">Could not load assigned students.</string>
+    <string name="menu">Menu</string>
+    <string name="contact">Contact</string>
+    <string name="department">Department</string>
+    <string name="advisor_name_placeholder">Advisor</string>
+    <string name="advisor_profile_load_error">Could not load advisor profile.</string>
 </resources>
