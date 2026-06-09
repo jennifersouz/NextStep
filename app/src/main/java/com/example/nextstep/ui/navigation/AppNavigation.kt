@@ -15,6 +15,10 @@ import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
+import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
+import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
+import com.example.nextstep.ui.screens.institution.InstitutionUsersScreen
+import com.example.nextstep.ui.screens.institution.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.chat.ApplicationChatScreen
@@ -89,6 +93,8 @@ fun AppNavigation() {
                         UserRole.STUDENT -> Routes.STUDENT_DASHBOARD
                         UserRole.COMPANY -> Routes.COMPANY_DASHBOARD
                         UserRole.ADVISOR -> Routes.ADVISOR_DASHBOARD
+                        UserRole.INSTITUTION -> Routes.INSTITUTION_DASHBOARD
+                        UserRole.TEACHER -> Routes.TEACHER_DASHBOARD
                     }
 
                     navController.navigate(destination) {
@@ -169,6 +175,57 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.applicationChat(applicationId)
                     )
+                }
+            )
+        }
+
+        composable(Routes.INSTITUTION_DASHBOARD) {
+            InstitutionDashboardScreen(
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onUsersClick = {
+                    navController.navigate(Routes.INSTITUTION_USERS)
+                }
+            )
+        }
+
+        composable(Routes.INSTITUTION_USERS) {
+            InstitutionUsersScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onAddUserClick = {
+                    navController.navigate(Routes.ADD_INSTITUTION_USER)
+                }
+            )
+        }
+
+        composable(Routes.ADD_INSTITUTION_USER) {
+            AddInstitutionUserScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_DASHBOARD) {
+            TeacherDashboardScreen(
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

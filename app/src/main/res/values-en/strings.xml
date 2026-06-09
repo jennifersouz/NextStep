@@ -464,4 +464,23 @@
     <string name="department">Department</string>
     <string name="advisor_name_placeholder">Advisor</string>
     <string name="advisor_profile_load_error">Could not load advisor profile.</string>
+
+    <!-- Institution Flow -->
+    <string name="institution">Education institution</string>
+    <string name="institution_area">Institution area</string>
+    <string name="institution_home_empty">Here you will be able to manage students and teachers.</string>
+    <string name="institution_name">Institution name</string>
+    <string name="nif">Tax number</string>
+    <string name="locality">Locality</string>
+    <string name="address">Address</string>
+    <string name="institutional_email">Institutional email</string>
+    <string name="manage_users">Manage users</string>
+    <string name="add_user">Add user</string>
+    <string name="register_user">Register user</string>
+    <string name="teacher">Teacher</string>
+    <string name="invite_created_success">Invite created. The user must create an account with this email.</string>
+    <string name="invite_not_found">There is no invite for this email. Contact the institution.</string>
+    <string name="teacher_register_title">Teacher registration</string>
+    <string name="teacher_register_description">To create a teacher account, the institution must have previously created an invite with this email.</string>
+    <string name="phone_placeholder">Ex: 912345678</string>
 </resources>

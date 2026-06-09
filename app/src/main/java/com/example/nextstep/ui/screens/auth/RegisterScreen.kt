@@ -77,6 +77,8 @@ fun RegisterScreen(
         UserRole.STUDENT -> stringResource(R.string.role_student)
         UserRole.COMPANY -> stringResource(R.string.role_company)
         UserRole.ADVISOR -> stringResource(R.string.role_advisor)
+        UserRole.INSTITUTION -> stringResource(R.string.role_institution)
+        UserRole.TEACHER -> stringResource(R.string.role_teacher)
     }
 
     Scaffold(
@@ -247,6 +249,22 @@ private fun RegisterForm(
                     onRoleMenuExpandChange(false)
                 }
             )
+
+            RoleDropdownItem(
+                text = stringResource(R.string.role_institution),
+                onClick = {
+                    viewModel.onRoleChange(UserRole.INSTITUTION)
+                    onRoleMenuExpandChange(false)
+                }
+            )
+
+            RoleDropdownItem(
+                text = stringResource(R.string.role_teacher),
+                onClick = {
+                    viewModel.onRoleChange(UserRole.TEACHER)
+                    onRoleMenuExpandChange(false)
+                }
+            )
         }
     }
 
@@ -331,6 +349,84 @@ private fun RegisterForm(
 
         UserRole.ADVISOR -> {
             AdvisorRegisterInfoBox()
+        }
+
+        UserRole.INSTITUTION -> {
+            RegisterTextField(
+                label = stringResource(R.string.institution_name_required),
+                value = state.institutionName,
+                onValueChange = viewModel::onInstitutionNameChange,
+                placeholder = stringResource(R.string.institution_name_placeholder),
+                errorMessageRes = state.institutionNameError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.nif_required),
+                value = state.institutionNif,
+                onValueChange = viewModel::onInstitutionNifChange,
+                placeholder = stringResource(R.string.nif_placeholder),
+                errorMessageRes = state.institutionNifError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.locality),
+                value = state.institutionLocality,
+                onValueChange = viewModel::onInstitutionLocalityChange,
+                placeholder = stringResource(R.string.location_placeholder),
+                errorMessageRes = state.institutionLocalityError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.address),
+                value = state.institutionAddress,
+                onValueChange = viewModel::onInstitutionAddressChange,
+                placeholder = stringResource(R.string.location_placeholder),
+                errorMessageRes = state.institutionAddressError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.phone),
+                value = state.institutionPhone,
+                onValueChange = viewModel::onInstitutionPhoneChange,
+                placeholder = stringResource(R.string.phone_placeholder),
+                errorMessageRes = state.institutionPhoneError
+            )
+        }
+
+        UserRole.TEACHER -> {
+            RegisterTextField(
+                label = stringResource(R.string.name_required),
+                value = state.name,
+                onValueChange = viewModel::onNameChange,
+                placeholder = stringResource(R.string.name_placeholder),
+                errorMessageRes = state.nameError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.last_name_required),
+                value = state.lastName,
+                onValueChange = viewModel::onLastNameChange,
+                placeholder = stringResource(R.string.last_name_placeholder),
+                errorMessageRes = state.lastNameError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.department_required),
+                value = state.teacherDepartment,
+                onValueChange = viewModel::onTeacherDepartmentChange,
+                placeholder = stringResource(R.string.department_placeholder),
+                errorMessageRes = state.teacherDepartmentError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.phone),
+                value = state.teacherPhone,
+                onValueChange = viewModel::onTeacherPhoneChange,
+                placeholder = stringResource(R.string.phone_placeholder),
+                errorMessageRes = state.teacherPhoneError
+            )
+
+            TeacherRegisterInfoBox()
         }
     }
 
@@ -442,6 +538,37 @@ private fun AdvisorRegisterInfoBox() {
 
         Text(
             text = stringResource(R.string.advisor_register_description),
+            color = Color(0xFF6B7280),
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
+    }
+
+    Spacer(modifier = Modifier.height(18.dp))
+}
+
+@Composable
+private fun TeacherRegisterInfoBox() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFFFFDE8),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(14.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.teacher_register_title),
+            color = Color.Black,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = stringResource(R.string.teacher_register_description),
             color = Color(0xFF6B7280),
             fontSize = 14.sp,
             lineHeight = 20.sp

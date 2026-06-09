@@ -22,6 +22,10 @@ object Routes {
     const val APPLICATION_CHAT = "application_chat/{applicationId}"
     const val APPLICATION_CHAT_ARG = "applicationId"
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
+    const val INSTITUTION_DASHBOARD = "institution_dashboard"
+    const val INSTITUTION_USERS = "institution_users"
+    const val ADD_INSTITUTION_USER = "add_institution_user"
+    const val TEACHER_DASHBOARD = "teacher_dashboard"
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
 

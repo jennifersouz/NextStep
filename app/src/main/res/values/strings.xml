@@ -466,4 +466,23 @@
     <string name="department">Departamento</string>
     <string name="advisor_name_placeholder">Orientador</string>
     <string name="advisor_profile_load_error">Não foi possível carregar o perfil do orientador.</string>
+
+    <!-- Institution Flow -->
+    <string name="institution">Instituição de ensino</string>
+    <string name="institution_area">Área da instituição</string>
+    <string name="institution_home_empty">Aqui poderás gerir alunos e docentes.</string>
+    <string name="institution_name">Nome da instituição</string>
+    <string name="nif">NIF</string>
+    <string name="locality">Localidade</string>
+    <string name="address">Morada</string>
+    <string name="institutional_email">Email institucional</string>
+    <string name="manage_users">Gerir utilizadores</string>
+    <string name="add_user">Adicionar utilizador</string>
+    <string name="register_user">Registar utilizador</string>
+    <string name="teacher">Docente</string>
+    <string name="invite_created_success">Convite criado. O utilizador deve criar conta com este email.</string>
+    <string name="invite_not_found">Não existe convite para este email. Contacta a instituição.</string>
+    <string name="teacher_register_title">Registo de docente</string>
+    <string name="teacher_register_description">Para criares uma conta como docente, a instituição deve ter criado previamente um convite com este email.</string>
+    <string name="phone_placeholder">Ex: 912345678</string>
 </resources>

@@ -1,0 +1,64 @@
+package com.example.nextstep.data.repository
+
+import android.util.Log
+import com.example.nextstep.data.model.InstitutionInviteInsertDto
+import com.example.nextstep.data.model.InstitutionUserDto
+import com.example.nextstep.data.remote.SupabaseClientProvider
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.from
+
+class InstitutionUsersRepository {
+
+    private val supabase = SupabaseClientProvider.client
+
+    suspend fun createInvite(
+        targetRole: String,
+        email: String,
+        firstName: String,
+        lastName: String,
+        studentNumber: String? = null,
+        course: String? = null,
+        academicYear: Int? = null,
+        department: String? = null,
+        phone: String? = null
+    ): Result<Unit> {
+        return try {
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+
+            supabase.from("institution_invites").insert(
+                InstitutionInviteInsertDto(
+                    institutionProfileId = currentUser.id,
+                    targetRole = targetRole,
+                    email = email,
+                    firstName = firstName,
+                    lastName = lastName,
+                    studentNumber = studentNumber,
+                    course = course,
+                    academicYear = academicYear,
+                    department = department,
+                    phone = phone
+                )
+            )
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("InstitutionUsersRepository", "Erro ao criar convite", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getInstitutionUsers(): Result<List<InstitutionUserDto>> {
+        return try {
+            val users = supabase
+                .from("institution_users_view")
+                .select()
+                .decodeList<InstitutionUserDto>()
+
+            Result.success(users)
+        } catch (exception: Exception) {
+            Log.e("InstitutionUsersRepository", "Erro ao buscar utilizadores da instituição", exception)
+            Result.failure(exception)
+        }
+    }
+}

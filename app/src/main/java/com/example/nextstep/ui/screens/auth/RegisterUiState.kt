@@ -20,6 +20,15 @@ data class RegisterUiState(
     val area: String = "",
     val location: String = "",
 
+    val institutionName: String = "",
+    val institutionNif: String = "",
+    val institutionLocality: String = "",
+    val institutionAddress: String = "",
+    val institutionPhone: String = "",
+
+    val teacherDepartment: String = "",
+    val teacherPhone: String = "",
+
     @StringRes val nameError: Int? = null,
     @StringRes val lastNameError: Int? = null,
     @StringRes val emailError: Int? = null,
@@ -34,6 +43,15 @@ data class RegisterUiState(
     @StringRes val nifError: Int? = null,
     @StringRes val areaError: Int? = null,
     @StringRes val locationError: Int? = null,
+
+    @StringRes val institutionNameError: Int? = null,
+    @StringRes val institutionNifError: Int? = null,
+    @StringRes val institutionLocalityError: Int? = null,
+    @StringRes val institutionAddressError: Int? = null,
+    @StringRes val institutionPhoneError: Int? = null,
+
+    @StringRes val teacherDepartmentError: Int? = null,
+    @StringRes val teacherPhoneError: Int? = null,
 
     @StringRes val generalError: Int? = null,
     val generalErrorText: String? = null,

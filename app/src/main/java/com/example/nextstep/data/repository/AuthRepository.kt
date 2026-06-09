@@ -2,6 +2,7 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.CompanyDto
+import com.example.nextstep.data.model.InstitutionInsertDto
 import com.example.nextstep.data.model.ProfileDto
 import com.example.nextstep.data.model.StudentDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
@@ -129,6 +130,47 @@ class AuthRepository {
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e("AuthRepository", "Erro ao criar conta de empresa", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun registerInstitution(
+        name: String,
+        nif: String?,
+        locality: String,
+        address: String?,
+        phone: String?,
+        email: String,
+        password: String
+    ): Result<Unit> {
+        return try {
+            val userId = createAuthUserAndGetId(
+                email = email,
+                password = password
+            )
+
+            supabase.from("profiles").insert(
+                ProfileDto(
+                    id = userId,
+                    email = email,
+                    role = "institution"
+                )
+            )
+
+            supabase.from("institutions").insert(
+                InstitutionInsertDto(
+                    profileId = userId,
+                    name = name,
+                    nif = nif,
+                    locality = locality,
+                    address = address,
+                    phone = phone
+                )
+            )
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao criar conta de instituição", exception)
             Result.failure(exception)
         }
     }
