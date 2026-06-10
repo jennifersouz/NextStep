@@ -49,6 +49,14 @@ fun InstitutionDashboardScreen(
         mutableStateOf(InstitutionTab.HOME)
     }
 
+    var showInstitutionEditProfile by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var institutionProfileRefreshKey by rememberSaveable {
+        mutableStateOf(0)
+    }
+
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
@@ -56,6 +64,9 @@ fun InstitutionDashboardScreen(
                 selectedTab = selectedTab,
                 onTabSelected = { tab ->
                     selectedTab = tab
+                    if (tab != InstitutionTab.PROFILE) {
+                        showInstitutionEditProfile = false
+                    }
                 }
             )
         }
@@ -73,13 +84,29 @@ fun InstitutionDashboardScreen(
                 )
 
                 InstitutionTab.PROFILE -> {
-                    InstitutionProfileScreen(
-                        onLogoutClick = {
-                            sessionViewModel.logout(
-                                onSuccess = onLogoutSuccess
-                            )
-                        }
-                    )
+                    if (showInstitutionEditProfile) {
+                        InstitutionEditProfileScreen(
+                            onBackClick = {
+                                showInstitutionEditProfile = false
+                            },
+                            onProfileUpdated = {
+                                institutionProfileRefreshKey++
+                                showInstitutionEditProfile = false
+                            }
+                        )
+                    } else {
+                        InstitutionProfileScreen(
+                            refreshKey = institutionProfileRefreshKey,
+                            onEditProfileClick = {
+                                showInstitutionEditProfile = true
+                            },
+                            onLogoutClick = {
+                                sessionViewModel.logout(
+                                    onSuccess = onLogoutSuccess
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -150,48 +177,6 @@ fun InstitutionUsersContent(
         ) {
             Text(
                 text = stringResource(R.string.add_user),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun InstitutionProfileScreen(
-    onLogoutClick: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Text(
-            text = stringResource(R.string.institution),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Button(
-            onClick = onLogoutClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF1A1A1A),
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.logout),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )

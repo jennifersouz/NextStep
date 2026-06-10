@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">NextStep</string>
     <string name="continue_button">Continuar</string>
@@ -71,8 +72,6 @@
 
     <string name="institution_name_required">Nome da instituição *</string>
     <string name="institution_name_placeholder">Ex: IPVC</string>
-    <string name="institutional_domain_required">Domínio institucional *</string>
-    <string name="institutional_domain_placeholder">Ex: ipvc.pt</string>
 
     <string name="create_account_button">Criar conta</string>
     <string name="request_account_button">Solicitar conta</string>
@@ -491,4 +490,9 @@
     <string name="invite_already_exists">Já existe um convite para este email.</string>
     <string name="incomplete_account">Conta incompleta. Contacta a tua instituição.</string>
     <string name="student_register_title">Registo por convite</string>
+
+    <!-- Institution Profile -->
+    <string name="institution_profile_load_error">Não foi possível carregar o perfil da instituição.</string>
+    <string name="institution_profile_update_error">Não foi possível atualizar o perfil da instituição.</string>
+    <string name="institution_profile_update_success">Perfil atualizado com sucesso.</string>
 </resources>

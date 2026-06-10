@@ -71,8 +71,6 @@
 
     <string name="institution_name_required">Institution name *</string>
     <string name="institution_name_placeholder">Ex: IPVC</string>
-    <string name="institutional_domain_required">Institutional domain *</string>
-    <string name="institutional_domain_placeholder">Ex: ipvc.pt</string>
 
     <string name="create_account_button">Create account</string>
     <string name="request_account_button">Request account</string>
@@ -488,4 +486,9 @@
     <string name="invite_already_exists">An invite already exists for this email.</string>
     <string name="incomplete_account">Incomplete account. Contact your institution.</string>
     <string name="student_register_title">Invite-only registration</string>
+
+    <!-- Institution Profile -->
+    <string name="institution_profile_load_error">Could not load institution profile.</string>
+    <string name="institution_profile_update_error">Could not update institution profile.</string>
+    <string name="institution_profile_update_success">Profile updated successfully.</string>
 </resources>
