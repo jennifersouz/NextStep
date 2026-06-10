@@ -10,6 +10,8 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class AuthRepository {
 
@@ -32,10 +34,29 @@ class AuthRepository {
                 return Result.success(roleResult.getOrThrow())
             }
 
-            // Caso seja orientador: a conta existe no Auth,
-            // mas ainda não tem linha em profiles/advisors.
+            // Caso seja orientador ou docente que acabou de criar conta:
+            // a conta existe no Auth, mas ainda não tem linha em profiles/advisors/teachers.
+            // Tentamos aceitar convite se houver.
             runCatching {
                 supabase.postgrest.rpc("accept_advisor_invite")
+            }
+            
+            runCatching {
+                supabase.postgrest.rpc(
+                    function = "accept_institution_invite",
+                    parameters = buildJsonObject {
+                        put("invite_role", "teacher")
+                    }
+                )
+            }
+            
+            runCatching {
+                supabase.postgrest.rpc(
+                    function = "accept_institution_invite",
+                    parameters = buildJsonObject {
+                        put("invite_role", "student")
+                    }
+                )
             }
 
             val roleAfterInvite = getCurrentUserRole()
@@ -43,10 +64,14 @@ class AuthRepository {
             if (roleAfterInvite.isSuccess) {
                 Result.success(roleAfterInvite.getOrThrow())
             } else {
-                Result.failure(
-                    roleAfterInvite.exceptionOrNull()
-                        ?: IllegalStateException("Não foi possível obter o perfil do utilizador.")
-                )
+                val error = roleAfterInvite.exceptionOrNull()
+                if (error?.message == "PROFILE_NOT_FOUND") {
+                    Result.failure(IllegalStateException("INCOMPLETE_ACCOUNT"))
+                } else {
+                    Result.failure(
+                        error ?: IllegalStateException("Não foi possível obter o perfil do utilizador.")
+                    )
+                }
             }
         } catch (exception: Exception) {
             Log.e("AuthRepository", "Erro ao iniciar sessão", exception)
@@ -54,6 +79,70 @@ class AuthRepository {
         }
     }
 
+    suspend fun hasPendingInstitutionInvite(
+        email: String,
+        role: String
+    ): Result<Boolean> {
+        return try {
+            val result = supabase.postgrest.rpc(
+                function = "has_pending_institution_invite",
+                parameters = buildJsonObject {
+                    put("invite_email", email.trim().lowercase())
+                    put("invite_role", role)
+                }
+            )
+            Result.success(result.data.toString().toBoolean())
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao verificar convite pendente", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun acceptInstitutionInvite(
+        role: String
+    ): Result<Unit> {
+        return try {
+            supabase.postgrest.rpc(
+                function = "accept_institution_invite",
+                parameters = buildJsonObject {
+                    put("invite_role", role)
+                }
+            )
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao aceitar convite da instituição", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun registerInvitedStudent(
+        email: String,
+        password: String
+    ): Result<Unit> {
+        return try {
+            // 1. Verificar se existe convite pendente
+            val inviteCheck = hasPendingInstitutionInvite(email, "student")
+            if (inviteCheck.isFailure || inviteCheck.getOrNull() == false) {
+                return Result.failure(IllegalStateException("INVITE_NOT_FOUND"))
+            }
+
+            // 2. Criar utilizador no Auth
+            createAuthUserAndGetId(email, password)
+
+            // 3. Chamar RPC para aceitar convite e criar perfil/student
+            val acceptResult = acceptInstitutionInvite("student")
+            if (acceptResult.isFailure) {
+                return Result.failure(acceptResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
+            }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao registar aluno convidado", exception)
+            Result.failure(exception)
+        }
+    }
+
+    @Deprecated("Use registerInvitedStudent para alunos")
     suspend fun registerStudent(
         email: String,
         password: String,

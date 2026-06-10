@@ -311,7 +311,7 @@
     <string name="location">Localização</string>
     <string name="contacts">Contactos</string>
     <string name="not_available">Não disponível</string>
-    <string name="company_profile_no_offers">Esta empresa ainda não publicou estágios.</string>
+    <string name="company_profile_no_offers">Esta empresa ainda não publicou estájáios.</string>
     <string name="edit_company_profile">Editar perfil da empresa</string>
     <string name="company_name">Nome da empresa</string>
     <string name="business_area">Área de negócio</string>
@@ -485,4 +485,10 @@
     <string name="teacher_register_title">Registo de docente</string>
     <string name="teacher_register_description">Para criares uma conta como docente, a instituição deve ter criado previamente um convite com este email.</string>
     <string name="phone_placeholder">Ex: 912345678</string>
+
+    <string name="student_invite_required_info">Para criares uma conta como aluno, a tua instituição deve ter criado previamente um convite com este email.</string>
+    <string name="student_invite_created_success">Convite criado. O aluno deve criar conta com este email.</string>
+    <string name="invite_already_exists">Já existe um convite para este email.</string>
+    <string name="incomplete_account">Conta incompleta. Contacta a tua instituição.</string>
+    <string name="student_register_title">Registo por convite</string>
 </resources>

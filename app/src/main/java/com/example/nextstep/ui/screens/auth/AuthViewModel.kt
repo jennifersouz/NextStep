@@ -36,7 +36,7 @@ class AuthViewModel : ViewModel() {
                 R.string.advisor_register_no_invite
 
             "invite_not_found" in message ->
-                R.string.advisor_register_no_invite
+                R.string.invite_not_found
 
             "auth_required" in message ->
                 R.string.error_unknown_auth
@@ -49,6 +49,9 @@ class AuthViewModel : ViewModel() {
 
             "email" in message && "invalid" in message ->
                 R.string.error_invalid_email
+                
+            "incomplete_account" in message ->
+                R.string.incomplete_account
 
             else -> R.string.error_unknown_auth
         }
@@ -298,39 +301,22 @@ class AuthViewModel : ViewModel() {
         )
 
         val nameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.TEACHER) {
                 validatePersonName(state.name)
             } else {
                 null
             }
 
         val lastNameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.TEACHER) {
                 validatePersonName(state.lastName)
             } else {
                 null
             }
 
-        val studentNumberError =
-            if (state.selectedRole == UserRole.STUDENT) {
-                validateStudentNumber(state.studentNumber)
-            } else {
-                null
-            }
-
-        val courseError =
-            if (state.selectedRole == UserRole.STUDENT) {
-                validateRequiredText(state.course)
-            } else {
-                null
-            }
-
-        val yearError =
-            if (state.selectedRole == UserRole.STUDENT) {
-                validateYear(state.year)
-            } else {
-                null
-            }
+        val studentNumberError = null
+        val courseError = null
+        val yearError = null
 
         val companyNameError =
             if (state.selectedRole == UserRole.COMPANY) {
@@ -387,14 +373,6 @@ class AuthViewModel : ViewModel() {
             } else {
                 null
             }
-
-        Log.d("AuthViewModel", "selectedRole=${state.selectedRole}")
-        Log.d("AuthViewModel", "nameError=$nameError, lastNameError=$lastNameError")
-        Log.d("AuthViewModel", "studentNumberError=$studentNumberError, courseError=$courseError, yearError=$yearError")
-        Log.d("AuthViewModel", "companyNameError=$companyNameError, nifError=$nifError, areaError=$areaError, locationError=$locationError")
-        Log.d("AuthViewModel", "institutionNameError=$institutionNameError, institutionNifError=$institutionNifError, institutionLocalityError=$institutionLocalityError")
-        Log.d("AuthViewModel", "teacherDepartmentError=$teacherDepartmentError")
-        Log.d("AuthViewModel", "emailError=$emailError, passwordError=$passwordError, confirmPasswordError=$confirmPasswordError")
 
         val hasErrors = listOf(
             nameError,
@@ -596,14 +574,9 @@ class AuthViewModel : ViewModel() {
 
             val result = when (state.selectedRole) {
                 UserRole.STUDENT -> {
-                    authRepository.registerStudent(
+                    authRepository.registerInvitedStudent(
                         email = state.email,
-                        password = state.password,
-                        firstName = state.name,
-                        lastName = state.lastName,
-                        studentNumber = state.studentNumber,
-                        course = state.course,
-                        academicYear = state.year.toInt()
+                        password = state.password
                     )
                 }
 

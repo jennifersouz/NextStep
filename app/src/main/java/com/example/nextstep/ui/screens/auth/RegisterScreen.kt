@@ -272,6 +272,8 @@ private fun RegisterForm(
 
     when (state.selectedRole) {
         UserRole.STUDENT -> {
+            StudentRegisterInfoBox()
+
             RegisterTextField(
                 label = stringResource(R.string.name_required),
                 value = state.name,
@@ -394,6 +396,8 @@ private fun RegisterForm(
         }
 
         UserRole.TEACHER -> {
+            TeacherRegisterInfoBox()
+
             RegisterTextField(
                 label = stringResource(R.string.name_required),
                 value = state.name,
@@ -425,8 +429,6 @@ private fun RegisterForm(
                 placeholder = stringResource(R.string.phone_placeholder),
                 errorMessageRes = state.teacherPhoneError
             )
-
-            TeacherRegisterInfoBox()
         }
     }
 
@@ -514,6 +516,37 @@ private fun RegisterForm(
             }
         )
     }
+}
+
+@Composable
+private fun StudentRegisterInfoBox() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFFFFDE8),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(14.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.student_register_title),
+            color = Color.Black,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = stringResource(R.string.student_invite_required_info),
+            color = Color(0xFF6B7280),
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
+    }
+
+    Spacer(modifier = Modifier.height(18.dp))
 }
 
 @Composable

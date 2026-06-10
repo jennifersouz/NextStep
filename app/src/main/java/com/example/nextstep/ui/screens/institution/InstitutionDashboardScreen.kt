@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
@@ -18,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -140,7 +142,7 @@ fun InstitutionUsersContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFDFA52),
                 contentColor = Color.Black
@@ -182,7 +184,7 @@ fun InstitutionProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF1A1A1A),
                 contentColor = Color.White
@@ -214,7 +216,12 @@ fun InstitutionBottomBar(
                     contentDescription = null
                 )
             },
-            label = { Text(stringResource(R.string.home)) }
+            label = { Text(stringResource(R.string.home)) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.Black,
+                unselectedIconColor = Color(0xFF222222),
+                indicatorColor = Color(0xFFFDFA52)
+            )
         )
 
         NavigationBarItem(
@@ -226,7 +233,12 @@ fun InstitutionBottomBar(
                     contentDescription = null
                 )
             },
-            label = { Text(stringResource(R.string.manage_users)) }
+            label = { Text(stringResource(R.string.manage_users)) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.Black,
+                unselectedIconColor = Color(0xFF222222),
+                indicatorColor = Color(0xFFFDFA52)
+            )
         )
 
         NavigationBarItem(
@@ -238,7 +250,12 @@ fun InstitutionBottomBar(
                     contentDescription = null
                 )
             },
-            label = { Text(stringResource(R.string.profile)) }
+            label = { Text(stringResource(R.string.profile)) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.Black,
+                unselectedIconColor = Color(0xFF222222),
+                indicatorColor = Color(0xFFFDFA52)
+            )
         )
     }
 }

@@ -483,4 +483,9 @@
     <string name="teacher_register_title">Teacher registration</string>
     <string name="teacher_register_description">To create a teacher account, the institution must have previously created an invite with this email.</string>
     <string name="phone_placeholder">Ex: 912345678</string>
+    <string name="student_invite_required_info">To create a student account, your institution must have previously created an invite with this email.</string>
+    <string name="student_invite_created_success">Invite created. The student must create an account with this email.</string>
+    <string name="invite_already_exists">An invite already exists for this email.</string>
+    <string name="incomplete_account">Incomplete account. Contact your institution.</string>
+    <string name="student_register_title">Invite-only registration</string>
 </resources>
