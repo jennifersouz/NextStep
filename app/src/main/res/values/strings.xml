@@ -538,4 +538,10 @@
     <string name="no_users_yet_description">Começa por adicionar alunos ou docentes à tua instituição.</string>
     <string name="no_users_found">Não foram encontrados utilizadores.</string>
     <string name="status_accepted">Aceite</string>
+    <string name="delete_invite">Eliminar convite</string>
+    <string name="delete_invite_title">Eliminar convite?</string>
+    <string name="delete_invite_message">Este convite ainda não foi aceite. Queres eliminá-lo?</string>
+    <string name="delete_invite_error">Não foi possível eliminar o convite.</string>
+    <string name="cannot_delete_accepted_invite">Não é possível eliminar um convite já aceite.</string>
+    <string name="delete">Eliminar</string>
 </resources>

@@ -534,4 +534,10 @@
     <string name="no_users_yet_description">Start by adding students or teachers to your institution.</string>
     <string name="no_users_found">No users found.</string>
     <string name="status_accepted">Accepted</string>
+    <string name="delete_invite">Delete invite</string>
+    <string name="delete_invite_title">Delete invite?</string>
+    <string name="delete_invite_message">This invite has not been accepted yet. Do you want to delete it?</string>
+    <string name="delete">Delete</string>
+    <string name="delete_invite_error">Could not delete the invite.</string>
+    <string name="cannot_delete_accepted_invite">An accepted invite cannot be deleted.</string>
 </resources>

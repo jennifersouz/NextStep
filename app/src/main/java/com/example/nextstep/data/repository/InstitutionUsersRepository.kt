@@ -6,6 +6,9 @@ import com.example.nextstep.data.model.InstitutionUserDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class InstitutionUsersRepository {
 
@@ -46,6 +49,22 @@ class InstitutionUsersRepository {
             Result.success(users)
         } catch (exception: Exception) {
             Log.e("InstitutionUsersRepository", "Erro ao buscar utilizadores da instituição", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun deletePendingInvite(inviteId: String): Result<Unit> {
+        return try {
+            supabase.postgrest.rpc(
+                function = "delete_pending_institution_invite",
+                parameters = buildJsonObject {
+                    put("invite_uuid", inviteId)
+                }
+            )
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("InstitutionUsersRepo", "Erro ao eliminar convite pendente", exception)
             Result.failure(exception)
         }
     }

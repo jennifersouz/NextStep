@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.institution
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDto
 import com.example.nextstep.data.repository.InstitutionUsersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,40 @@ class InstitutionUsersViewModel : ViewModel() {
     fun updateSearchQuery(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
     }
+
+    fun deleteInvite(invite: InstitutionUserDto) {
+        val isAccepted = !invite.acceptedAt.isNullOrBlank() ||
+            invite.inviteStatus.lowercase().trim() == "accepted"
+
+        if (isAccepted) {
+            _uiState.value = _uiState.value.copy(
+                errorMessageRes = R.string.cannot_delete_accepted_invite
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessageRes = null
+            )
+
+            val result = institutionUsersRepository.deletePendingInvite(invite.inviteId)
+
+            if (result.isSuccess) {
+                loadUsers()
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessageRes = R.string.delete_invite_error
+                )
+            }
+        }
+    }
+
+    fun clearErrorMessage() {
+        _uiState.value = _uiState.value.copy(errorMessageRes = null)
+    }
 }
 
 enum class InstitutionUserFilter {
@@ -57,5 +92,6 @@ data class InstitutionUsersUiState(
     val users: List<InstitutionUserDto> = emptyList(),
     val isLoading: Boolean = false,
     val selectedFilter: InstitutionUserFilter = InstitutionUserFilter.ALL,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val errorMessageRes: Int? = null
 )

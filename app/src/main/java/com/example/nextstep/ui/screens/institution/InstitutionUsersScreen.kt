@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -29,12 +31,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,6 +66,7 @@ fun InstitutionUsersScreen(
     viewModel: InstitutionUsersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    var selectedInviteToDelete by remember { mutableStateOf<InstitutionUserDto?>(null) }
 
     LaunchedEffect(refreshTrigger) {
         viewModel.loadUsers()
@@ -67,8 +78,47 @@ fun InstitutionUsersScreen(
         onBackClick = onBackClick,
         onAddUserClick = onAddUserClick,
         onFilterSelected = viewModel::selectFilter,
-        onSearchChange = viewModel::updateSearchQuery
+        onSearchChange = viewModel::updateSearchQuery,
+        onDeleteInvite = { user -> selectedInviteToDelete = user }
     )
+
+    if (selectedInviteToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { selectedInviteToDelete = null },
+            title = {
+                Text(text = stringResource(R.string.delete_invite_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.delete_invite_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteInvite(selectedInviteToDelete!!)
+                        selectedInviteToDelete = null
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.delete),
+                        color = Color(0xFFB00020)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { selectedInviteToDelete = null }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    state.errorMessageRes?.let { errorRes ->
+        LaunchedEffect(errorRes) {
+            selectedInviteToDelete = null
+        }
+    }
 }
 
 @Composable
@@ -78,7 +128,8 @@ internal fun InstitutionUsersContent(
     onBackClick: (() -> Unit)? = null,
     onAddUserClick: () -> Unit,
     onFilterSelected: (InstitutionUserFilter) -> Unit,
-    onSearchChange: (String) -> Unit
+    onSearchChange: (String) -> Unit,
+    onDeleteInvite: (InstitutionUserDto) -> Unit = {}
 ) {
     val filteredUsers = filterUsers(state.users, state.selectedFilter)
 
@@ -212,23 +263,29 @@ internal fun InstitutionUsersContent(
                     isFiltered = state.selectedFilter != InstitutionUserFilter.ALL || state.searchQuery.isNotBlank()
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    items(sortedUsers) { user ->
-                        InstitutionUserCard(user = user)
-                        Spacer(modifier = Modifier.height(12.dp))
+LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                        ) {
+                            items(sortedUsers) { user ->
+                                InstitutionUserCard(
+                                    user = user,
+                                    onDeleteInvite = onDeleteInvite
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
                     }
-                }
-            }
         }
     }
 }
 
 @Composable
-private fun InstitutionUserCard(user: InstitutionUserDto) {
+private fun InstitutionUserCard(
+    user: InstitutionUserDto,
+    onDeleteInvite: (InstitutionUserDto) -> Unit = {}
+) {
     val accepted = isInviteAccepted(user)
 
     Card(
@@ -275,6 +332,19 @@ private fun InstitutionUserCard(user: InstitutionUserDto) {
                 }
 
                 InviteStatusBadge(isAccepted = accepted)
+
+                if (!accepted) {
+                    Spacer(modifier = Modifier.size(8.dp))
+                    IconButton(
+                        onClick = { onDeleteInvite(user) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete_invite),
+                            tint = Color(0xFFB00020)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
