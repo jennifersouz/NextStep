@@ -1,8 +1,10 @@
 package com.example.nextstep.ui.screens.institution
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,19 +12,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,13 +59,33 @@ fun InstitutionUsersScreen(
         viewModel.loadUsers()
     }
 
+    val filteredUsers = filterUsers(state.users, state.selectedFilter)
+    
+    val searchedUsers = if (state.searchQuery.isBlank()) {
+        filteredUsers
+    } else {
+        val query = state.searchQuery.trim().lowercase()
+        filteredUsers.filter { user ->
+            val fullName = "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".lowercase()
+            fullName.contains(query) ||
+                user.email.lowercase().contains(query) ||
+                user.course.orEmpty().lowercase().contains(query) ||
+                user.department.orEmpty().lowercase().contains(query) ||
+                user.studentNumber.orEmpty().lowercase().contains(query)
+        }
+    }
+
+    val sortedUsers = searchedUsers.sortedWith(
+        compareBy<InstitutionUserDto> { isInviteAccepted(it) }
+            .thenByDescending { it.createdAt.orEmpty() }
+    )
+
     Scaffold(
         containerColor = Color.White
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .padding(innerPadding)
         ) {
             Row(
@@ -70,7 +96,7 @@ fun InstitutionUsersScreen(
             ) {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back)
                     )
                 }
@@ -81,30 +107,72 @@ fun InstitutionUsersScreen(
                     text = stringResource(R.string.manage_users),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier.weight(1f)
                 )
+
+                Button(
+                    onClick = onAddUserClick,
+                    modifier = Modifier.height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFDFA52),
+                        contentColor = Color.Black
+                    ),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.add_user),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                items(InstitutionUserFilter.entries) { filter ->
+                    val isSelected = state.selectedFilter == filter
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { viewModel.selectFilter(filter) },
+                        label = {
+                            Text(text = institutionUserFilterLabel(filter))
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFFDFA52),
+                            selectedLabelColor = Color.Black,
+                            containerColor = Color(0xFFF3F3F3),
+                            labelColor = Color.Black
+                        )
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = onAddUserClick,
+            OutlinedTextField(
+                value = state.searchQuery,
+                onValueChange = viewModel::updateSearchQuery,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFDFA52),
-                    contentColor = Color.Black
+                    .padding(horizontal = 16.dp),
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search),
+                        color = Color(0xFF6B7280)
+                    )
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFFDFA52),
+                    cursorColor = Color.Black
                 )
-            ) {
-                Text(
-                    text = stringResource(R.string.add_user),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -117,14 +185,9 @@ fun InstitutionUsersScreen(
                     textAlign = TextAlign.Center,
                     color = Color(0xFF6B7280)
                 )
-            } else if (state.users.isEmpty()) {
-                Text(
-                    text = "Ainda não existem utilizadores.",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                    color = Color(0xFF6B7280)
+            } else if (sortedUsers.isEmpty()) {
+                InstitutionUsersEmptyState(
+                    isFiltered = state.selectedFilter != InstitutionUserFilter.ALL || state.searchQuery.isNotBlank()
                 )
             } else {
                 LazyColumn(
@@ -132,8 +195,8 @@ fun InstitutionUsersScreen(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
                 ) {
-                    items(state.users) { user ->
-                        UserCard(user = user)
+                    items(sortedUsers) { user ->
+                        InstitutionUserCard(user = user)
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
@@ -143,38 +206,8 @@ fun InstitutionUsersScreen(
 }
 
 @Composable
-fun UserCard(user: InstitutionUserDto) {
-    val studentLabel = stringResource(R.string.student)
-    val teacherLabel = stringResource(R.string.teacher)
-    val pendingLabel = stringResource(R.string.pending_invite)
-    val acceptedLabel = stringResource(R.string.accepted)
-
-    val roleLabel = when (user.targetRole) {
-        "student" -> studentLabel
-        "teacher" -> teacherLabel
-        else -> user.targetRole
-    }
-
-    val statusLabel = when (user.inviteStatus) {
-        "pending" -> pendingLabel
-        "accepted" -> acceptedLabel
-        else -> user.inviteStatus
-    }
-
-    val statusColor = if (user.inviteStatus == "pending") Color(0xFFFF9800) else Color(0xFF4CAF50)
-
-    val hasName = !user.firstName.isNullOrBlank() && !user.lastName.isNullOrBlank()
-    val displayName = if (hasName) {
-        "${user.firstName} ${user.lastName}"
-    } else {
-        user.email
-    }
-
-    val subtitle = if (hasName) {
-        user.email
-    } else {
-        stringResource(R.string.pending_invite)
-    }
+private fun InstitutionUserCard(user: InstitutionUserDto) {
+    val accepted = isInviteAccepted(user)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -191,21 +224,16 @@ fun UserCard(user: InstitutionUserDto) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(44.dp)
                         .background(
-                            color = Color(0xFFFDFA52),
+                            color = Color(0xFFEFEFEF),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    val initials = if (hasName) {
-                        getInitials(user.firstName!!, user.lastName!!)
-                    } else {
-                        user.email.firstOrNull()?.uppercase() ?: "?"
-                    }
                     Text(
-                        text = initials,
-                        fontSize = 20.sp,
+                        text = getUserInitials(user),
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
@@ -217,48 +245,30 @@ fun UserCard(user: InstitutionUserDto) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = displayName,
+                        text = displayInstitutionUserName(user),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-
-                    Text(
-                        text = subtitle,
-                        fontSize = 14.sp,
-                        color = Color(0xFF6B7280)
-                    )
                 }
 
-                StatusBadge(status = user.inviteStatus)
+                InviteStatusBadge(isAccepted = accepted)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Text(
+                text = institutionUserSubtitle(user),
+                fontSize = 14.sp,
+                color = Color(0xFF6B7280)
+            )
+
+            if (accepted) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = roleLabel,
+                    text = user.email,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF6B7280)
-                )
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Text(
-                    text = "•",
-                    color = Color(0xFF6B7280)
-                )
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Text(
-                    text = statusLabel,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = statusColor
                 )
             }
         }
@@ -266,38 +276,35 @@ fun UserCard(user: InstitutionUserDto) {
 }
 
 @Composable
-fun StatusBadge(status: String) {
-    val pendingLabel = stringResource(R.string.pending)
-    val acceptedLabel = stringResource(R.string.accepted)
-
-    val backgroundColor = when (status) {
-        "pending" -> Color(0xFFFFF3E0)
-        "accepted" -> Color(0xFFE8F5E9)
-        else -> Color(0xFFF5F5F5)
+private fun InviteStatusBadge(isAccepted: Boolean) {
+    val label = if (isAccepted) {
+        stringResource(R.string.accepted)
+    } else {
+        stringResource(R.string.pending)
     }
 
-    val textColor = when (status) {
-        "pending" -> Color(0xFFFF9800)
-        "accepted" -> Color(0xFF4CAF50)
-        else -> Color(0xFF6B7280)
+    val containerColor = if (isAccepted) {
+        Color(0xFFE7F7EC)
+    } else {
+        Color(0xFFFFF8CC)
     }
 
-    val statusText = when (status) {
-        "pending" -> pendingLabel
-        "accepted" -> acceptedLabel
-        else -> status
+    val textColor = if (isAccepted) {
+        Color(0xFF1B7F3A)
+    } else {
+        Color(0xFF7A5D00)
     }
 
     Box(
         modifier = Modifier
             .background(
-                color = backgroundColor,
+                color = containerColor,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Text(
-            text = statusText,
+            text = label,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = textColor
@@ -305,6 +312,118 @@ fun StatusBadge(status: String) {
     }
 }
 
-fun getInitials(firstName: String, lastName: String): String {
-    return "${firstName.firstOrNull()?.uppercase() ?: ""}${lastName.firstOrNull()?.uppercase() ?: ""}"
+@Composable
+private fun InstitutionUsersEmptyState(isFiltered: Boolean) {
+    val title = if (isFiltered) {
+        stringResource(R.string.no_users_found)
+    } else {
+        stringResource(R.string.no_users_yet)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+
+        if (!isFiltered) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.no_users_yet_description),
+                fontSize = 14.sp,
+                color = Color(0xFF6B7280),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
+    return !user.acceptedAt.isNullOrBlank() ||
+        user.inviteStatus.lowercase().trim() == "accepted"
+}
+
+private fun displayInstitutionUserName(user: InstitutionUserDto): String {
+    val fullName = "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".trim()
+    return if (fullName.isNotBlank()) {
+        fullName
+    } else {
+        user.email
+    }
+}
+
+@Composable
+private fun institutionUserSubtitle(user: InstitutionUserDto): String {
+    val roleLabel = when (user.targetRole.lowercase().trim()) {
+        "student" -> stringResource(R.string.student)
+        "teacher" -> stringResource(R.string.teacher)
+        else -> user.targetRole
+    }
+
+    val accepted = isInviteAccepted(user)
+
+    if (!accepted) {
+        return "$roleLabel · ${stringResource(R.string.pending_invite)}"
+    }
+
+    val detail = when (user.targetRole.lowercase().trim()) {
+        "student" -> user.course.orEmpty()
+        "teacher" -> user.department.orEmpty()
+        else -> ""
+    }
+
+    return if (detail.isNotBlank()) {
+        "$roleLabel · $detail"
+    } else {
+        roleLabel
+    }
+}
+
+private fun getUserInitials(user: InstitutionUserDto): String {
+    val fullName = "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".trim()
+    return if (fullName.isNotBlank()) {
+        val parts = fullName.split(" ")
+        val first = parts.firstOrNull()?.firstOrNull()?.uppercase() ?: ""
+        val last = parts.lastOrNull()?.firstOrNull()?.uppercase() ?: ""
+        "$first$last"
+    } else {
+        user.email.firstOrNull()?.uppercase() ?: "?"
+    }
+}
+
+private fun filterUsers(
+    users: List<InstitutionUserDto>,
+    filter: InstitutionUserFilter
+): List<InstitutionUserDto> {
+    return when (filter) {
+        InstitutionUserFilter.ALL -> users
+        InstitutionUserFilter.STUDENTS -> users.filter { 
+            it.targetRole.lowercase().trim() == "student" 
+        }
+        InstitutionUserFilter.TEACHERS -> users.filter { 
+            it.targetRole.lowercase().trim() == "teacher" 
+        }
+        InstitutionUserFilter.PENDING -> users.filter { !isInviteAccepted(it) }
+        InstitutionUserFilter.ACCEPTED -> users.filter { isInviteAccepted(it) }
+    }
+}
+
+@Composable
+private fun institutionUserFilterLabel(filter: InstitutionUserFilter): String {
+    return when (filter) {
+        InstitutionUserFilter.ALL -> stringResource(R.string.filter_all)
+        InstitutionUserFilter.STUDENTS -> stringResource(R.string.student)
+        InstitutionUserFilter.TEACHERS -> stringResource(R.string.teacher)
+        InstitutionUserFilter.PENDING -> stringResource(R.string.pending)
+        InstitutionUserFilter.ACCEPTED -> stringResource(R.string.accepted)
+    }
 }

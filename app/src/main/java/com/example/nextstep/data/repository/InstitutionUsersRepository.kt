@@ -41,6 +41,8 @@ class InstitutionUsersRepository {
                 .select()
                 .decodeList<InstitutionUserDto>()
 
+            Log.d("InstitutionUsers", "usersCount=${users.size}")
+
             Result.success(users)
         } catch (exception: Exception) {
             Log.e("InstitutionUsersRepository", "Erro ao buscar utilizadores da instituição", exception)

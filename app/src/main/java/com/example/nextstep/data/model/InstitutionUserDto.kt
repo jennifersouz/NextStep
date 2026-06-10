@@ -23,6 +23,8 @@ data class InstitutionUserDto(
     val department: String? = null,
     @SerialName("accepted_at")
     val acceptedAt: String? = null,
+    @SerialName("created_at")
+    val createdAt: String? = null,
     @SerialName("invite_status")
-    val inviteStatus: String
+    val inviteStatus: String = "pending"
 )

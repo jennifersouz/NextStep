@@ -35,9 +35,27 @@ class InstitutionUsersViewModel : ViewModel() {
             }
         }
     }
+
+    fun selectFilter(filter: InstitutionUserFilter) {
+        _uiState.value = _uiState.value.copy(selectedFilter = filter)
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+    }
+}
+
+enum class InstitutionUserFilter {
+    ALL,
+    STUDENTS,
+    TEACHERS,
+    PENDING,
+    ACCEPTED
 }
 
 data class InstitutionUsersUiState(
     val users: List<InstitutionUserDto> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val selectedFilter: InstitutionUserFilter = InstitutionUserFilter.ALL,
+    val searchQuery: String = ""
 )

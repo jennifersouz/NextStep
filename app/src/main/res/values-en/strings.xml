@@ -530,5 +530,8 @@
     <string name="no_institution_users_title">There are no registered users yet.</string>
     <string name="no_institution_users_description">Start by adding students or teachers to your institution.</string>
     <string name="institution_home_load_error">Could not load the institution home.</string>
+    <string name="no_users_yet">There are no users yet.</string>
+    <string name="no_users_yet_description">Start by adding students or teachers to your institution.</string>
+    <string name="no_users_found">No users found.</string>
     <string name="status_accepted">Accepted</string>
 </resources>
