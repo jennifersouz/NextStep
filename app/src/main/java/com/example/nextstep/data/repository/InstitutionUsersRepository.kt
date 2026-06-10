@@ -13,33 +13,19 @@ class InstitutionUsersRepository {
 
     suspend fun createInvite(
         targetRole: String,
-        email: String,
-        firstName: String,
-        lastName: String,
-        studentNumber: String? = null,
-        course: String? = null,
-        academicYear: Int? = null,
-        department: String? = null,
-        phone: String? = null
+        email: String
     ): Result<Unit> {
         return try {
             val currentUser = supabase.auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            supabase.from("institution_invites").insert(
-                InstitutionInviteInsertDto(
-                    institutionProfileId = currentUser.id,
-                    targetRole = targetRole,
-                    email = email,
-                    firstName = firstName,
-                    lastName = lastName,
-                    studentNumber = studentNumber,
-                    course = course,
-                    academicYear = academicYear,
-                    department = department,
-                    phone = phone
-                )
+            val invite = InstitutionInviteInsertDto(
+                institutionProfileId = currentUser.id,
+                targetRole = targetRole,
+                email = email.trim().lowercase()
             )
+
+            supabase.from("institution_invites").insert(invite)
 
             Result.success(Unit)
         } catch (exception: Exception) {

@@ -144,10 +144,9 @@ fun InstitutionUsersScreen(
 
 @Composable
 fun UserCard(user: InstitutionUserDto) {
-    // Resolve strings before usage to avoid @Composable invocation issues in certain contexts
     val studentLabel = stringResource(R.string.student)
     val teacherLabel = stringResource(R.string.teacher)
-    val pendingLabel = stringResource(R.string.pending)
+    val pendingLabel = stringResource(R.string.pending_invite)
     val acceptedLabel = stringResource(R.string.accepted)
 
     val roleLabel = when (user.targetRole) {
@@ -162,7 +161,20 @@ fun UserCard(user: InstitutionUserDto) {
         else -> user.inviteStatus
     }
 
-    val statusColor = if (user.inviteStatus == "pending") Color(0xFFB00020) else Color(0xFF4CAF50)
+    val statusColor = if (user.inviteStatus == "pending") Color(0xFFFF9800) else Color(0xFF4CAF50)
+
+    val hasName = !user.firstName.isNullOrBlank() && !user.lastName.isNullOrBlank()
+    val displayName = if (hasName) {
+        "${user.firstName} ${user.lastName}"
+    } else {
+        user.email
+    }
+
+    val subtitle = if (hasName) {
+        user.email
+    } else {
+        stringResource(R.string.pending_invite)
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -186,8 +198,13 @@ fun UserCard(user: InstitutionUserDto) {
                         ),
                     contentAlignment = Alignment.Center
                 ) {
+                    val initials = if (hasName) {
+                        getInitials(user.firstName!!, user.lastName!!)
+                    } else {
+                        user.email.firstOrNull()?.uppercase() ?: "?"
+                    }
                     Text(
-                        text = getInitials(user.firstName, user.lastName),
+                        text = initials,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -200,14 +217,14 @@ fun UserCard(user: InstitutionUserDto) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "${user.firstName} ${user.lastName}",
+                        text = displayName,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
 
                     Text(
-                        text = user.email,
+                        text = subtitle,
                         fontSize = 14.sp,
                         color = Color(0xFF6B7280)
                     )

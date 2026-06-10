@@ -476,7 +476,10 @@
     <string name="add_user">Add user</string>
     <string name="register_user">Register user</string>
     <string name="teacher">Teacher</string>
+    <string name="send_invite">Send invite</string>
+    <string name="invite_email">Invite email</string>
     <string name="invite_created_success">Invite created. The user must create an account with this email.</string>
+    <string name="pending_invite">Pending invite</string>
     <string name="invite_not_found">There is no invite for this email. Contact the institution.</string>
     <string name="teacher_register_title">Teacher registration</string>
     <string name="teacher_register_description">To create a teacher account, the institution must have previously created an invite with this email.</string>

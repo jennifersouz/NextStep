@@ -11,9 +11,9 @@ data class InstitutionUserDto(
     val targetRole: String,
     val email: String,
     @SerialName("first_name")
-    val firstName: String,
+    val firstName: String? = null,
     @SerialName("last_name")
-    val lastName: String,
+    val lastName: String? = null,
     val phone: String? = null,
     @SerialName("student_number")
     val studentNumber: String? = null,

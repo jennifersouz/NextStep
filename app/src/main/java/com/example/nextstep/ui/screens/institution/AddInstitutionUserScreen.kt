@@ -96,7 +96,7 @@ fun AddInstitutionUserScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.register_user),
+                text = stringResource(R.string.send_invite),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -112,76 +112,13 @@ fun AddInstitutionUserScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             RegisterTextField(
-                label = stringResource(R.string.name_required),
-                value = state.firstName,
-                onValueChange = viewModel::onFirstNameChange,
-                placeholder = stringResource(R.string.name_placeholder),
-                errorMessageRes = state.firstNameError
-            )
-
-            RegisterTextField(
-                label = stringResource(R.string.last_name_required),
-                value = state.lastName,
-                onValueChange = viewModel::onLastNameChange,
-                placeholder = stringResource(R.string.last_name_placeholder),
-                errorMessageRes = state.lastNameError
-            )
-
-            RegisterTextField(
-                label = stringResource(R.string.email_required),
+                label = stringResource(R.string.invite_email),
                 value = state.email,
                 onValueChange = viewModel::onEmailChange,
                 placeholder = stringResource(R.string.email_placeholder),
                 errorMessageRes = state.emailError,
                 keyboardType = KeyboardType.Email
             )
-
-            RegisterTextField(
-                label = stringResource(R.string.phone),
-                value = state.phone,
-                onValueChange = viewModel::onPhoneChange,
-                placeholder = stringResource(R.string.phone_placeholder),
-                errorMessageRes = state.phoneError,
-                keyboardType = KeyboardType.Phone
-            )
-
-            if (state.selectedType == UserType.STUDENT) {
-                RegisterTextField(
-                    label = stringResource(R.string.student_number),
-                    value = state.studentNumber,
-                    onValueChange = viewModel::onStudentNumberChange,
-                    placeholder = stringResource(R.string.student_number_placeholder),
-                    errorMessageRes = state.studentNumberError,
-                    keyboardType = KeyboardType.Number
-                )
-
-                RegisterTextField(
-                    label = stringResource(R.string.course),
-                    value = state.course,
-                    onValueChange = viewModel::onCourseChange,
-                    placeholder = stringResource(R.string.course_placeholder),
-                    errorMessageRes = state.courseError
-                )
-
-                RegisterTextField(
-                    label = stringResource(R.string.year),
-                    value = state.academicYear,
-                    onValueChange = viewModel::onAcademicYearChange,
-                    placeholder = stringResource(R.string.year_placeholder),
-                    errorMessageRes = state.academicYearError,
-                    keyboardType = KeyboardType.Number
-                )
-            }
-
-            if (state.selectedType == UserType.TEACHER) {
-                RegisterTextField(
-                    label = stringResource(R.string.department),
-                    value = state.department,
-                    onValueChange = viewModel::onDepartmentChange,
-                    placeholder = stringResource(R.string.department_placeholder),
-                    errorMessageRes = state.departmentError
-                )
-            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -201,7 +138,7 @@ fun AddInstitutionUserScreen(
                     text = if (state.isLoading) {
                         stringResource(R.string.sending)
                     } else {
-                        stringResource(R.string.register_user)
+                        stringResource(R.string.send_invite)
                     },
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -326,9 +263,4 @@ fun RegisterTextField(
     )
 
     Spacer(modifier = Modifier.height(18.dp))
-}
-
-enum class UserType {
-    STUDENT,
-    TEACHER
 }

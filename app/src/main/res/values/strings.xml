@@ -479,7 +479,10 @@
     <string name="add_user">Adicionar utilizador</string>
     <string name="register_user">Registar utilizador</string>
     <string name="teacher">Docente</string>
+    <string name="send_invite">Enviar convite</string>
+    <string name="invite_email">Email do convite</string>
     <string name="invite_created_success">Convite criado. O utilizador deve criar conta com este email.</string>
+    <string name="pending_invite">Convite pendente</string>
     <string name="invite_not_found">Não existe convite para este email. Contacta a instituição.</string>
     <string name="teacher_register_title">Registo de docente</string>
     <string name="teacher_register_description">Para criares uma conta como docente, a instituição deve ter criado previamente um convite com este email.</string>

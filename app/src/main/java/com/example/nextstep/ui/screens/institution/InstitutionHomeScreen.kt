@@ -256,7 +256,7 @@ private fun InstitutionSummaryCard(
 private fun LatestInviteItem(user: InstitutionUserDto) {
     val studentLabel = stringResource(R.string.student)
     val teacherLabel = stringResource(R.string.teacher)
-    val pendingLabel = stringResource(R.string.status_pending)
+    val pendingLabel = stringResource(R.string.pending_invite)
     val acceptedLabel = stringResource(R.string.status_accepted)
 
     val roleLabel = when (user.targetRole) {
@@ -277,15 +277,26 @@ private fun LatestInviteItem(user: InstitutionUserDto) {
         Color(0xFFFF9800)
     }
 
-    val secondaryInfo = when (user.targetRole) {
-        "student" -> user.email
-        "teacher" -> user.department?.takeIf { it.isNotBlank() } ?: user.email
-        else -> user.email
+    val hasName = !user.firstName.isNullOrBlank() && !user.lastName.isNullOrBlank()
+    val displayName = if (hasName) {
+        "${user.firstName} ${user.lastName}"
+    } else {
+        user.email
+    }
+
+    val secondaryInfo = if (hasName) {
+        when (user.targetRole) {
+            "student" -> user.email
+            "teacher" -> user.department?.takeIf { it.isNotBlank() } ?: user.email
+            else -> user.email
+        }
+    } else {
+        stringResource(R.string.pending_invite)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "${user.firstName} ${user.lastName}",
+            text = displayName,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
             color = Color.Black

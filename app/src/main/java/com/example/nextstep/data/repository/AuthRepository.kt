@@ -40,24 +40,9 @@ class AuthRepository {
             runCatching {
                 supabase.postgrest.rpc("accept_advisor_invite")
             }
-            
-            runCatching {
-                supabase.postgrest.rpc(
-                    function = "accept_institution_invite",
-                    parameters = buildJsonObject {
-                        put("invite_role", "teacher")
-                    }
-                )
-            }
-            
-            runCatching {
-                supabase.postgrest.rpc(
-                    function = "accept_institution_invite",
-                    parameters = buildJsonObject {
-                        put("invite_role", "student")
-                    }
-                )
-            }
+
+            // Note: accept_institution_invite now requires user data, so we can't call it here without data.
+            // The registration flow handles this during sign-up.
 
             val roleAfterInvite = getCurrentUserRole()
 
@@ -98,26 +83,15 @@ class AuthRepository {
         }
     }
 
-    suspend fun acceptInstitutionInvite(
-        role: String
-    ): Result<Unit> {
-        return try {
-            supabase.postgrest.rpc(
-                function = "accept_institution_invite",
-                parameters = buildJsonObject {
-                    put("invite_role", role)
-                }
-            )
-            Result.success(Unit)
-        } catch (exception: Exception) {
-            Log.e("AuthRepository", "Erro ao aceitar convite da instituição", exception)
-            Result.failure(exception)
-        }
-    }
-
     suspend fun registerInvitedStudent(
         email: String,
-        password: String
+        password: String,
+        firstName: String,
+        lastName: String,
+        phone: String?,
+        studentNumber: String,
+        course: String,
+        academicYear: Int
     ): Result<Unit> {
         return try {
             val normalizedEmail = email.trim().lowercase()
@@ -134,12 +108,20 @@ class AuthRepository {
             val userId = createAuthUserAndGetId(normalizedEmail, password)
             Log.d("AuthRepository", "Created auth user id=$userId for student")
 
-            // 3. Chamar RPC para aceitar convite e criar perfil/student
-            val acceptResult = acceptInstitutionInvite("student")
-            if (acceptResult.isFailure) {
-                Log.e("AuthRepository", "RPC accept_institution_invite(student) failed", acceptResult.exceptionOrNull())
-                return Result.failure(acceptResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
-            }
+            // 3. Chamar RPC para aceitar convite e criar perfil/student com dados do utilizador
+            supabase.postgrest.rpc(
+                function = "accept_institution_invite",
+                parameters = buildJsonObject {
+                    put("invite_role", "student")
+                    put("user_first_name", firstName.trim())
+                    put("user_last_name", lastName.trim())
+                    put("user_phone", phone?.trim()?.takeIf { it.isNotBlank() })
+                    put("user_student_number", studentNumber.trim())
+                    put("user_course", course.trim())
+                    put("user_academic_year", academicYear)
+                    put("user_department", null)
+                }
+            )
             Log.d("AuthRepository", "RPC accept_institution_invite(student) succeeded")
 
             Result.success(Unit)
@@ -172,12 +154,20 @@ class AuthRepository {
             val userId = createAuthUserAndGetId(normalizedEmail, password)
             Log.d("AuthRepository", "Created auth user id=$userId for teacher")
 
-            // 3. Chamar RPC para aceitar convite e criar perfil/teacher
-            val acceptResult = acceptInstitutionInvite("teacher")
-            if (acceptResult.isFailure) {
-                Log.e("AuthRepository", "RPC accept_institution_invite(teacher) failed", acceptResult.exceptionOrNull())
-                return Result.failure(acceptResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
-            }
+            // 3. Chamar RPC para aceitar convite e criar perfil/teacher com dados do utilizador
+            supabase.postgrest.rpc(
+                function = "accept_institution_invite",
+                parameters = buildJsonObject {
+                    put("invite_role", "teacher")
+                    put("user_first_name", firstName.trim())
+                    put("user_last_name", lastName.trim())
+                    put("user_phone", phone?.trim()?.takeIf { it.isNotBlank() })
+                    put("user_student_number", null)
+                    put("user_course", null)
+                    put("user_academic_year", null)
+                    put("user_department", department?.trim()?.takeIf { it.isNotBlank() })
+                }
+            )
             Log.d("AuthRepository", "RPC accept_institution_invite(teacher) succeeded")
 
             Result.success(Unit)

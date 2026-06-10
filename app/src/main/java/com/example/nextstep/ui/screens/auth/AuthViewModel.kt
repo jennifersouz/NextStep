@@ -301,22 +301,39 @@ class AuthViewModel : ViewModel() {
         )
 
         val nameError =
-            if (state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
                 validatePersonName(state.name)
             } else {
                 null
             }
 
         val lastNameError =
-            if (state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
                 validatePersonName(state.lastName)
             } else {
                 null
             }
 
-        val studentNumberError = null
-        val courseError = null
-        val yearError = null
+        val studentNumberError =
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateStudentNumber(state.studentNumber)
+            } else {
+                null
+            }
+
+        val courseError =
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateRequiredText(state.course)
+            } else {
+                null
+            }
+
+        val yearError =
+            if (state.selectedRole == UserRole.STUDENT) {
+                validateYear(state.year)
+            } else {
+                null
+            }
 
         val companyNameError =
             if (state.selectedRole == UserRole.COMPANY) {
@@ -576,7 +593,13 @@ class AuthViewModel : ViewModel() {
                 UserRole.STUDENT -> {
                     authRepository.registerInvitedStudent(
                         email = state.email,
-                        password = state.password
+                        password = state.password,
+                        firstName = state.name,
+                        lastName = state.lastName,
+                        phone = state.teacherPhone.ifBlank { null },
+                        studentNumber = state.studentNumber,
+                        course = state.course,
+                        academicYear = state.year.toIntOrNull() ?: 0
                     )
                 }
 
