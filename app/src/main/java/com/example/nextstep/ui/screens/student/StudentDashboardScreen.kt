@@ -232,15 +232,15 @@ fun StudentDashboardScreen(
                             )
                         }
 
-                        else -> {
+                else -> {
                             StudentProfileScreen(
                                 refreshKey = profileRefreshKey,
                                 onSavedInternshipsClick = {
                                     showStudentSavedOffers = true
                                 },
                                 onSubmittedApplicationsClick = onSubmittedApplicationsClick,
-                                onSettingsClick = {
-                                    showStudentSettings = true
+                                onEditProfileClick = {
+                                    showStudentEditProfile = true
                                 },
                                 onLogoutClick = {
                                     sessionViewModel.logout(
@@ -259,28 +259,28 @@ fun StudentDashboardScreen(
                 BottomBarItem(
                     route = StudentBottomRoutes.HOME,
                     icon = Icons.Filled.Home,
-                    label = stringResource(R.string.home)
+                    label = stringResource(R.string.tab_home)
                 ),
                 BottomBarItem(
                     route = StudentBottomRoutes.INTERNSHIPS,
                     icon = Icons.Filled.Work,
-                    label = stringResource(R.string.internships)
+                    label = stringResource(R.string.tab_internships)
                 ),
                 BottomBarItem(
                     route = StudentBottomRoutes.NOTIFICATIONS,
                     icon = Icons.Filled.Notifications,
-                    label = stringResource(R.string.notifications),
+                    label = stringResource(R.string.tab_notifications),
                     badgeCount = state.unreadNotificationsCount
                 ),
                 BottomBarItem(
                     route = StudentBottomRoutes.MESSAGES,
                     icon = Icons.AutoMirrored.Filled.Chat,
-                    label = stringResource(R.string.messages)
+                    label = stringResource(R.string.tab_chats)
                 ),
                 BottomBarItem(
                     route = StudentBottomRoutes.PROFILE,
                     icon = Icons.Filled.Person,
-                    label = stringResource(R.string.profile)
+                    label = stringResource(R.string.tab_profile)
                 )
             ),
             selectedItem = selectedBottomRoute,

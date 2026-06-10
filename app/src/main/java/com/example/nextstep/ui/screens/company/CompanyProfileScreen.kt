@@ -29,7 +29,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.CompanyProfileDto
+import com.example.nextstep.ui.components.LanguageOptionsSection
 import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
@@ -173,7 +175,15 @@ private fun CompanyProfileContent(
         title = stringResource(R.string.profile),
         name = company.companyName,
         fields = fields,
-        onMenuClick = onLogoutRequest,
-        onEditClick = onEditProfileClick
+        onEditProfileClick = onEditProfileClick,
+        onLogoutClick = onLogoutRequest,
+        accountOptions = {
+            LanguageOptionsSection(
+                selectedLanguage = "pt",
+                onLanguageSelected = { languageCode ->
+                    LanguageManager.changeLanguage(languageCode)
+                }
+            )
+        }
     )
 }

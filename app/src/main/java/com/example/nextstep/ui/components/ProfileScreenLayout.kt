@@ -1,22 +1,19 @@
 package com.example.nextstep.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,9 +41,10 @@ fun ProfileScreenLayout(
     name: String,
     photoUrl: String? = null,
     fields: List<ProfileField>,
-    onMenuClick: (() -> Unit)? = null,
-    onEditClick: (() -> Unit)? = null,
+    onEditProfileClick: (() -> Unit)? = null,
+    onLogoutClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    accountOptions: (@Composable () -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null
 ) {
     Column(
@@ -63,41 +61,13 @@ fun ProfileScreenLayout(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-
-                if (onEditClick != null) {
-                    IconButton(onClick = onEditClick) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = stringResource(R.string.edit_profile),
-                            modifier = Modifier.size(26.dp),
-                            tint = Color.Black
-                        )
-                    }
-                }
-
-                if (onMenuClick != null) {
-                    IconButton(onClick = onMenuClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = stringResource(R.string.logout),
-                            modifier = Modifier.size(26.dp),
-                            tint = Color.Black
-                        )
-                    }
-                }
-            }
+            Text(
+                text = title,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -118,8 +88,32 @@ fun ProfileScreenLayout(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
+            // Edit Profile Button
+            if (onEditProfileClick != null) {
+                Button(
+                    onClick = onEditProfileClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF374151)
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFFD1D5DB)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.edit_profile),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            // Profile fields
             fields.forEachIndexed { index, field ->
                 ProfileFieldItem(
                     label = field.label,
@@ -131,12 +125,43 @@ fun ProfileScreenLayout(
                 }
             }
 
+            // Extra content (like student menu items)
             if (extraContent != null) {
                 Spacer(modifier = Modifier.height(40.dp))
                 extraContent()
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Account Options section
+            if (accountOptions != null) {
+                Spacer(modifier = Modifier.height(40.dp))
+                accountOptions()
+            }
+
+            // Logout button
+            if (onLogoutClick != null) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = onLogoutClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1A1A1A),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.logout),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // Bottom padding for bottom bar
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }

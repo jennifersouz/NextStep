@@ -16,10 +16,6 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.ui.components.BottomBarItem
+import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
 
 @Composable
@@ -189,60 +187,29 @@ fun InstitutionBottomBar(
     selectedTab: InstitutionTab,
     onTabSelected: (InstitutionTab) -> Unit
 ) {
-    NavigationBar(
-        containerColor = Color.White
-    ) {
-        NavigationBarItem(
-            selected = selectedTab == InstitutionTab.HOME,
-            onClick = { onTabSelected(InstitutionTab.HOME) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = null
-                )
-            },
-            label = { Text(stringResource(R.string.home)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black,
-                unselectedIconColor = Color(0xFF222222),
-                indicatorColor = Color(0xFFFDFA52)
+    NextStepBottomBar(
+        items = listOf(
+            BottomBarItem(
+                route = InstitutionTab.HOME.name,
+                icon = Icons.Filled.Home,
+                label = stringResource(R.string.tab_home)
+            ),
+            BottomBarItem(
+                route = InstitutionTab.USERS.name,
+                icon = Icons.Filled.People,
+                label = stringResource(R.string.tab_users)
+            ),
+            BottomBarItem(
+                route = InstitutionTab.PROFILE.name,
+                icon = Icons.Filled.Person,
+                label = stringResource(R.string.tab_profile)
             )
-        )
-
-        NavigationBarItem(
-            selected = selectedTab == InstitutionTab.USERS,
-            onClick = { onTabSelected(InstitutionTab.USERS) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.People,
-                    contentDescription = null
-                )
-            },
-            label = { Text(stringResource(R.string.manage_users)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black,
-                unselectedIconColor = Color(0xFF222222),
-                indicatorColor = Color(0xFFFDFA52)
-            )
-        )
-
-        NavigationBarItem(
-            selected = selectedTab == InstitutionTab.PROFILE,
-            onClick = { onTabSelected(InstitutionTab.PROFILE) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null
-                )
-            },
-            label = { Text(stringResource(R.string.profile)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Black,
-                unselectedIconColor = Color(0xFF222222),
-                indicatorColor = Color(0xFFFDFA52)
-            )
-        )
-    }
+        ),
+        selectedItem = selectedTab.name,
+        onItemClick = { tabName ->
+            onTabSelected(InstitutionTab.valueOf(tabName))
+        }
+    )
 }
 
 enum class InstitutionTab {

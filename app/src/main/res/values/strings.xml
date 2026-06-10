@@ -495,4 +495,26 @@
     <string name="institution_profile_load_error">Não foi possível carregar o perfil da instituição.</string>
     <string name="institution_profile_update_error">Não foi possível atualizar o perfil da instituição.</string>
     <string name="institution_profile_update_success">Perfil atualizado com sucesso.</string>
+
+    <string name="account_options">Opções da Conta</string>
+    <string name="language">Idioma</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_english">English</string>
+
+    <string name="tab_home">Início</string>
+    <string name="tab_applications">Candidaturas</string>
+    <string name="tab_saved">Guardados</string>
+    <string name="tab_profile">Perfil</string>
+    <string name="tab_internships">Estágios</string>
+    <string name="tab_create">Criar</string>
+    <string name="tab_chats">Chats</string>
+    <string name="tab_notifications">Notificações</string>
+    <string name="tab_users">Utilizadores</string>
+    <string name="tab_students">Alunos</string>
+
+    <string name="save_changes">Guardar alterações</string>
+    <string name="advisor_profile_update_success">Perfil atualizado com sucesso.</string>
+    <string name="advisor_profile_update_error">Não foi possível atualizar o perfil do orientador.</string>
+
+    <string name="language_options">Opções de idioma</string>
 </resources>

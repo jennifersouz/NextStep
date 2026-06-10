@@ -208,27 +208,27 @@ fun CompanyDashboardScreen(
                 BottomBarItem(
                     route = CompanyBottomRoutes.INTERNSHIPS.name,
                     icon = Icons.Filled.Home,
-                    label = stringResource(R.string.company_tab_internships)
+                    label = stringResource(R.string.tab_internships)
                 ),
                 BottomBarItem(
                     route = CompanyBottomRoutes.APPLICATIONS.name,
                     icon = Icons.Filled.Assignment,
-                    label = stringResource(R.string.company_tab_applications)
+                    label = stringResource(R.string.tab_applications)
                 ),
                 BottomBarItem(
                     route = CompanyBottomRoutes.CREATE_OFFER.name,
                     icon = Icons.Filled.Add,
-                    label = stringResource(R.string.company_tab_create)
+                    label = stringResource(R.string.tab_create)
                 ),
                 BottomBarItem(
                     route = CompanyBottomRoutes.TEAM.name,
                     icon = Icons.Filled.Groups,
-                    label = stringResource(R.string.company_tab_team)
+                    label = "Equipa"
                 ),
                 BottomBarItem(
                     route = CompanyBottomRoutes.PROFILE.name,
                     icon = Icons.Filled.Person,
-                    label = stringResource(R.string.company_tab_profile)
+                    label = stringResource(R.string.tab_profile)
                 )
             ),
             selectedItem = selectedBottomRoute.name,

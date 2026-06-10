@@ -1,7 +1,6 @@
 package com.example.nextstep.ui.screens.student
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -41,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.StudentProfile
+import com.example.nextstep.ui.components.LanguageOptionsSection
 import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
@@ -52,7 +52,7 @@ fun StudentProfileScreen(
     onSentRequestsClick: () -> Unit = {},
     onSavedInternshipsClick: () -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
+    onEditProfileClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -129,7 +129,7 @@ fun StudentProfileScreen(
                     onSentRequestsClick = onSentRequestsClick,
                     onSavedInternshipsClick = onSavedInternshipsClick,
                     onSubmittedApplicationsClick = onSubmittedApplicationsClick,
-                    onSettingsClick = onSettingsClick,
+                    onEditProfileClick = onEditProfileClick,
                     onLogoutRequest = {
                         showLogoutDialog = true
                     }
@@ -145,7 +145,7 @@ fun StudentProfileContent(
     onSentRequestsClick: () -> Unit,
     onSavedInternshipsClick: () -> Unit,
     onSubmittedApplicationsClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
     val fields = buildList {
@@ -168,13 +168,21 @@ fun StudentProfileContent(
         title = stringResource(R.string.profile),
         name = profile.fullName,
         fields = fields,
-        onMenuClick = onLogoutRequest,
+        onEditProfileClick = onEditProfileClick,
+        onLogoutClick = onLogoutRequest,
         extraContent = {
             StudentProfileMenuList(
                 onSentRequestsClick = onSentRequestsClick,
                 onSavedInternshipsClick = onSavedInternshipsClick,
-                onSubmittedApplicationsClick = onSubmittedApplicationsClick,
-                onSettingsClick = onSettingsClick
+                onSubmittedApplicationsClick = onSubmittedApplicationsClick
+            )
+        },
+        accountOptions = {
+            LanguageOptionsSection(
+                selectedLanguage = "pt",
+                onLanguageSelected = { languageCode ->
+                    LanguageManager.changeLanguage(languageCode)
+                }
             )
         }
     )
@@ -184,8 +192,7 @@ fun StudentProfileContent(
 fun StudentProfileMenuList(
     onSentRequestsClick: () -> Unit,
     onSavedInternshipsClick: () -> Unit,
-    onSubmittedApplicationsClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSubmittedApplicationsClick: () -> Unit
 ) {
     StudentProfileMenuItem(
         icon = Icons.AutoMirrored.Outlined.Send,
@@ -208,14 +215,6 @@ fun StudentProfileMenuList(
         title = stringResource(R.string.submitted_applications),
         onClick = onSubmittedApplicationsClick
     )
-
-    StudentProfileMenuDivider()
-
-    StudentProfileMenuItem(
-        icon = Icons.Outlined.Settings,
-        title = stringResource(R.string.settings),
-        onClick = onSettingsClick
-    )
 }
 
 @Composable
@@ -228,7 +227,6 @@ fun StudentProfileMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(76.dp)
-            .clickable { onClick() }
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -301,9 +299,7 @@ fun StudentProfileErrorState(
             color = Color.Black,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable {
-                onRetryClick()
-            }
+            modifier = Modifier.padding(8.dp)
         )
     }
 }

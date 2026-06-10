@@ -28,6 +28,7 @@ object Routes {
     const val TEACHER_DASHBOARD = "teacher_dashboard"
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
+    const val ADVISOR_EDIT_PROFILE = "advisor_edit_profile"
 
     const val COMPANY_APPLICATION_DETAIL = "company_application_detail/{applicationId}"
     const val COMPANY_APPLICATION_DETAIL_ARG = "applicationId"

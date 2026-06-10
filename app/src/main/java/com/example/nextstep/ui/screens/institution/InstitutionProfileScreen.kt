@@ -29,7 +29,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.InstitutionProfileDto
+import com.example.nextstep.ui.components.LanguageOptionsSection
 import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
@@ -37,7 +39,6 @@ import com.example.nextstep.ui.components.ProfileScreenLayout
 fun InstitutionProfileScreen(
     refreshKey: Int = 0,
     onEditProfileClick: () -> Unit = {},
-    onLanguageClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     viewModel: InstitutionProfileViewModel = viewModel()
 ) {
@@ -170,7 +171,15 @@ private fun InstitutionProfileContent(
         title = stringResource(R.string.profile),
         name = profile.name.orEmpty(),
         fields = fields,
-        onMenuClick = onLogoutRequest,
-        onEditClick = onEditProfileClick
+        onEditProfileClick = onEditProfileClick,
+        onLogoutClick = onLogoutRequest,
+        accountOptions = {
+            LanguageOptionsSection(
+                selectedLanguage = "pt",
+                onLanguageSelected = { languageCode ->
+                    LanguageManager.changeLanguage(languageCode)
+                }
+            )
+        }
     )
 }

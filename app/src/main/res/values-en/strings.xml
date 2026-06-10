@@ -491,4 +491,26 @@
     <string name="institution_profile_load_error">Could not load institution profile.</string>
     <string name="institution_profile_update_error">Could not update institution profile.</string>
     <string name="institution_profile_update_success">Profile updated successfully.</string>
+
+    <string name="account_options">Account Options</string>
+    <string name="language">Language</string>
+    <string name="language_portuguese">Portuguese</string>
+    <string name="language_english">English</string>
+
+    <string name="tab_home">Home</string>
+    <string name="tab_applications">Applications</string>
+    <string name="tab_saved">Saved</string>
+    <string name="tab_profile">Profile</string>
+    <string name="tab_internships">Internships</string>
+    <string name="tab_create">Create</string>
+    <string name="tab_chats">Chats</string>
+    <string name="tab_notifications">Notifications</string>
+    <string name="tab_users">Users</string>
+    <string name="tab_students">Students</string>
+
+    <string name="save_changes">Save changes</string>
+    <string name="advisor_profile_update_success">Profile updated successfully.</string>
+    <string name="advisor_profile_update_error">Could not update advisor profile.</string>
+
+    <string name="language_options">Language options</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
+import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
@@ -175,6 +176,17 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.applicationChat(applicationId)
                     )
+                },
+                onEditProfileClick = {
+                    navController.navigate(Routes.ADVISOR_EDIT_PROFILE)
+                }
+            )
+        }
+
+        composable(Routes.ADVISOR_EDIT_PROFILE) {
+            AdvisorEditProfileScreen(
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

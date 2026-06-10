@@ -26,6 +26,7 @@ import com.example.nextstep.ui.screens.auth.SessionViewModel
 fun AdvisorDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     onChatClick: (String) -> Unit = {},
+    onEditProfileClick: () -> Unit = {},
     chatsViewModel: AdvisorChatsViewModel = viewModel(),
     sessionViewModel: SessionViewModel = viewModel()
 ) {
@@ -81,6 +82,7 @@ fun AdvisorDashboardScreen(
 
                 AdvisorTab.PROFILE -> {
                     AdvisorProfileScreen(
+                        onEditProfileClick = onEditProfileClick,
                         onLogoutClick = {
                             sessionViewModel.logout(
                                 onSuccess = onLogoutSuccess

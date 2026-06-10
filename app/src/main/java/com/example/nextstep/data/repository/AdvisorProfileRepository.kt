@@ -2,6 +2,7 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.AdvisorProfileDto
+import com.example.nextstep.data.model.UpdateAdvisorProfileDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -35,6 +36,36 @@ class AdvisorProfileRepository {
             Result.success(profile)
         } catch (exception: Exception) {
             Log.e("AdvisorProfileRepo", "Erro ao carregar perfil do orientador", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun updateAdvisorProfile(
+        name: String,
+        phone: String?,
+        department: String?
+    ): Result<Unit> {
+        return try {
+            val currentUser = auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+
+            supabase
+                .from("advisors")
+                .update(
+                    UpdateAdvisorProfileDto(
+                        name = name.trim(),
+                        phone = phone?.trim()?.takeIf { it.isNotBlank() },
+                        department = department?.trim()?.takeIf { it.isNotBlank() }
+                    )
+                ) {
+                    filter {
+                        eq("profile_id", currentUser.id)
+                    }
+                }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdvisorProfileRepo", "Erro ao atualizar perfil do orientador", exception)
             Result.failure(exception)
         }
     }

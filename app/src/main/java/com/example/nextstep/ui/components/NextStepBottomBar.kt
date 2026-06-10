@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -21,13 +22,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class BottomBarItem(
     val route: String,
     val icon: ImageVector,
-    val label: String? = null,
+    val label: String,
     val badgeCount: Int = 0
 )
 
@@ -66,55 +68,93 @@ fun NextStepBottomBar(
                         .clickable { onItemClick(item.route) },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selected) {
-                        Box(
-                            modifier = Modifier
-                                .size(width = 76.dp, height = 48.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(Color(0xFFFDFA52)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.label,
-                                tint = Color.Black,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    } else {
-                        Box(
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.label,
-                                tint = Color(0xFF333333),
-                                modifier = Modifier.size(24.dp)
-                            )
-
-                            if (item.badgeCount > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .offset(x = 10.dp, y = (-8).dp)
-                                        .size(18.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFE8505B)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = if (item.badgeCount > 9) {
-                                            "9+"
-                                        } else {
-                                            item.badgeCount.toString()
-                                        },
-                                        color = Color.White,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (selected) {
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 52.dp, height = 32.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFFDFA52)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = item.label,
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(22.dp)
                                     )
+
+                                    if (item.badgeCount > 0) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .offset(x = 8.dp, y = (-6).dp)
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFFE8505B)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = if (item.badgeCount > 9) {
+                                                    "9+"
+                                                } else {
+                                                    item.badgeCount.toString()
+                                                },
+                                                color = Color.White,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Box {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.label,
+                                    tint = Color(0xFF333333),
+                                    modifier = Modifier.size(22.dp)
+                                )
+
+                                if (item.badgeCount > 0) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = 10.dp, y = (-8).dp)
+                                            .size(16.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFFE8505B)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = if (item.badgeCount > 9) {
+                                                "9+"
+                                            } else {
+                                                item.badgeCount.toString()
+                                            },
+                                            color = Color.White,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 }
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Text(
+                            text = item.label,
+                            fontSize = 11.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selected) Color.Black else Color(0xFF333333),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
+                        )
                     }
                 }
             }

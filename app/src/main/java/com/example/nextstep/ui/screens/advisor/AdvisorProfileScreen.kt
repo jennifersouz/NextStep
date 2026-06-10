@@ -24,12 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.AdvisorProfileDto
+import com.example.nextstep.ui.components.LanguageOptionsSection
 import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
 fun AdvisorProfileScreen(
+    onEditProfileClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     viewModel: AdvisorProfileViewModel = viewModel()
 ) {
@@ -96,6 +99,7 @@ fun AdvisorProfileScreen(
         state.profile != null -> {
             AdvisorProfileContent(
                 profile = state.profile!!,
+                onEditProfileClick = onEditProfileClick,
                 onLogoutRequest = {
                     showLogoutDialog = true
                 }
@@ -107,6 +111,7 @@ fun AdvisorProfileScreen(
 @Composable
 private fun AdvisorProfileContent(
     profile: AdvisorProfileDto,
+    onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
     val displayName = profile.name.orEmpty().ifBlank {
@@ -130,7 +135,16 @@ private fun AdvisorProfileContent(
                 value = profile.department.orEmpty()
             )
         ),
-        onMenuClick = onLogoutRequest
+        onEditProfileClick = onEditProfileClick,
+        onLogoutClick = onLogoutRequest,
+        accountOptions = {
+            LanguageOptionsSection(
+                selectedLanguage = "pt",
+                onLanguageSelected = { languageCode ->
+                    LanguageManager.changeLanguage(languageCode)
+                }
+            )
+        }
     )
 }
 

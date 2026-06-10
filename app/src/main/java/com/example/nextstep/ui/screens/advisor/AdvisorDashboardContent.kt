@@ -291,17 +291,17 @@ fun AdvisorBottomBar(
             BottomBarItem(
                 route = AdvisorTab.CHAT.name,
                 icon = Icons.AutoMirrored.Filled.Chat,
-                label = stringResource(R.string.chat)
+                label = stringResource(R.string.tab_chats)
             ),
             BottomBarItem(
                 route = AdvisorTab.NOTIFICATIONS.name,
                 icon = Icons.Filled.Notifications,
-                label = stringResource(R.string.notifications)
+                label = stringResource(R.string.tab_notifications)
             ),
             BottomBarItem(
                 route = AdvisorTab.PROFILE.name,
                 icon = Icons.Filled.Person,
-                label = stringResource(R.string.profile)
+                label = stringResource(R.string.tab_profile)
             )
         ),
         selectedItem = selectedTab.name,
