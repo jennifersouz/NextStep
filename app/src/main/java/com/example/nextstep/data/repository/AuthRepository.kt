@@ -120,24 +120,69 @@ class AuthRepository {
         password: String
     ): Result<Unit> {
         return try {
+            val normalizedEmail = email.trim().lowercase()
+            Log.d("AuthRepository", "registerInvitedStudent email=$normalizedEmail")
+
             // 1. Verificar se existe convite pendente
-            val inviteCheck = hasPendingInstitutionInvite(email, "student")
+            val inviteCheck = hasPendingInstitutionInvite(normalizedEmail, "student")
+            Log.d("AuthRepository", "hasPendingInvite student email=$normalizedEmail result=${inviteCheck.getOrNull()}")
             if (inviteCheck.isFailure || inviteCheck.getOrNull() == false) {
                 return Result.failure(IllegalStateException("INVITE_NOT_FOUND"))
             }
 
             // 2. Criar utilizador no Auth
-            createAuthUserAndGetId(email, password)
+            val userId = createAuthUserAndGetId(normalizedEmail, password)
+            Log.d("AuthRepository", "Created auth user id=$userId for student")
 
             // 3. Chamar RPC para aceitar convite e criar perfil/student
             val acceptResult = acceptInstitutionInvite("student")
             if (acceptResult.isFailure) {
+                Log.e("AuthRepository", "RPC accept_institution_invite(student) failed", acceptResult.exceptionOrNull())
                 return Result.failure(acceptResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
             }
+            Log.d("AuthRepository", "RPC accept_institution_invite(student) succeeded")
 
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e("AuthRepository", "Erro ao registar aluno convidado", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun registerInvitedTeacher(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String,
+        department: String?,
+        phone: String?
+    ): Result<Unit> {
+        return try {
+            val normalizedEmail = email.trim().lowercase()
+            Log.d("AuthRepository", "registerInvitedTeacher email=$normalizedEmail")
+
+            // 1. Verificar se existe convite pendente
+            val inviteCheck = hasPendingInstitutionInvite(normalizedEmail, "teacher")
+            Log.d("AuthRepository", "hasPendingInvite teacher email=$normalizedEmail result=${inviteCheck.getOrNull()}")
+            if (inviteCheck.isFailure || inviteCheck.getOrNull() == false) {
+                return Result.failure(IllegalStateException("INVITE_NOT_FOUND"))
+            }
+
+            // 2. Criar utilizador no Auth
+            val userId = createAuthUserAndGetId(normalizedEmail, password)
+            Log.d("AuthRepository", "Created auth user id=$userId for teacher")
+
+            // 3. Chamar RPC para aceitar convite e criar perfil/teacher
+            val acceptResult = acceptInstitutionInvite("teacher")
+            if (acceptResult.isFailure) {
+                Log.e("AuthRepository", "RPC accept_institution_invite(teacher) failed", acceptResult.exceptionOrNull())
+                return Result.failure(acceptResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
+            }
+            Log.d("AuthRepository", "RPC accept_institution_invite(teacher) succeeded")
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao registar docente convidado", exception)
             Result.failure(exception)
         }
     }

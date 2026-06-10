@@ -36,6 +36,7 @@ import com.example.nextstep.R
 import com.example.nextstep.ui.components.BottomBarItem
 import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
+import com.example.nextstep.ui.screens.institution.InstitutionHomeScreen
 
 @Composable
 fun InstitutionDashboardScreen(
@@ -75,7 +76,14 @@ fun InstitutionDashboardScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                InstitutionTab.HOME -> InstitutionHomeContent()
+                InstitutionTab.HOME -> InstitutionHomeScreen(
+                    onAddUserClick = {
+                        onUsersClick()
+                    },
+                    onViewUsersClick = {
+                        selectedTab = InstitutionTab.USERS
+                    }
+                )
 
                 InstitutionTab.USERS -> InstitutionUsersContent(
                     onUsersClick = onUsersClick

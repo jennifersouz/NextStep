@@ -513,4 +513,19 @@
     <string name="advisor_profile_update_error">Could not update advisor profile.</string>
 
     <string name="language_options">Language options</string>
+
+    <!-- Institution Home -->
+    <string name="institution_home_greeting">Hello, %1$s</string>
+    <string name="institution_home_description">Manage your students and teachers associated with the platform.</string>
+    <string name="students_summary">Students</string>
+    <string name="teachers_summary">Teachers</string>
+    <string name="pending_invites">Pending</string>
+    <string name="accepted_invites">Accepted</string>
+    <string name="quick_actions">Quick actions</string>
+    <string name="view_users">View users</string>
+    <string name="latest_invites">Latest invites</string>
+    <string name="no_institution_users_title">There are no registered users yet.</string>
+    <string name="no_institution_users_description">Start by adding students or teachers to your institution.</string>
+    <string name="institution_home_load_error">Could not load the institution home.</string>
+    <string name="status_accepted">Accepted</string>
 </resources>

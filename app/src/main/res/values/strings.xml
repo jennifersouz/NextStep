@@ -517,4 +517,19 @@
     <string name="advisor_profile_update_error">Não foi possível atualizar o perfil do orientador.</string>
 
     <string name="language_options">Opções de idioma</string>
+
+    <!-- Institution Home -->
+    <string name="institution_home_greeting">Olá, %1$s</string>
+    <string name="institution_home_description">Gere os teus alunos e docentes associados à plataforma.</string>
+    <string name="students_summary">Alunos</string>
+    <string name="teachers_summary">Docentes</string>
+    <string name="pending_invites">Pendentes</string>
+    <string name="accepted_invites">Aceites</string>
+    <string name="quick_actions">Ações rápidas</string>
+    <string name="view_users">Ver utilizadores</string>
+    <string name="latest_invites">Últimos convites</string>
+    <string name="no_institution_users_title">Ainda não existem utilizadores registados.</string>
+    <string name="no_institution_users_description">Começa por adicionar alunos ou docentes à tua instituição.</string>
+    <string name="institution_home_load_error">Não foi possível carregar o início da instituição.</string>
+    <string name="status_accepted">Aceite</string>
 </resources>

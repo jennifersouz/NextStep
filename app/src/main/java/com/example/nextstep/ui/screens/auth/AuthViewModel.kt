@@ -611,37 +611,14 @@ class AuthViewModel : ViewModel() {
                 }
 
                 UserRole.TEACHER -> {
-                    val authResult = authRepository.registerStudent(
+                    authRepository.registerInvitedTeacher(
                         email = state.email,
                         password = state.password,
                         firstName = state.name,
                         lastName = state.lastName,
-                        studentNumber = "",
-                        course = "",
-                        academicYear = 1
+                        department = state.teacherDepartment.ifBlank { null },
+                        phone = state.teacherPhone.ifBlank { null }
                     )
-
-                    if (authResult.isSuccess) {
-                        val rpcResult = runCatching {
-                            supabase.postgrest.rpc(
-                                function = "accept_institution_invite",
-                                parameters = buildJsonObject {
-                                    put("invite_role", "teacher")
-                                }
-                            )
-                        }
-
-                        if (rpcResult.isFailure) {
-                            rpcResult.exceptionOrNull()?.let {
-                                Log.e("AuthViewModel", "Erro ao aceitar convite de docente", it)
-                            }
-                            Result.failure(rpcResult.exceptionOrNull() ?: IllegalStateException("Erro ao aceitar convite"))
-                        } else {
-                            Result.success(Unit)
-                        }
-                    } else {
-                        authResult
-                    }
                 }
             }
 
