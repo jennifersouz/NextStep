@@ -201,17 +201,6 @@ fun AppNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onUsersClick = {
-                    navController.navigate(Routes.INSTITUTION_USERS)
-                }
-            )
-        }
-
-        composable(Routes.INSTITUTION_USERS) {
-            InstitutionUsersScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                },
                 onAddUserClick = {
                     navController.navigate(Routes.ADD_INSTITUTION_USER)
                 }

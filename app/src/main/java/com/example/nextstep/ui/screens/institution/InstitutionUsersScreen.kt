@@ -49,18 +49,39 @@ import com.example.nextstep.data.model.InstitutionUserDto
 
 @Composable
 fun InstitutionUsersScreen(
-    onBackClick: () -> Unit = {},
-    onAddUserClick: () -> Unit = {},
+    onAddUserClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
+    showBackButton: Boolean = false,
+    refreshTrigger: Int = 0,
     viewModel: InstitutionUsersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(refreshTrigger) {
         viewModel.loadUsers()
     }
 
+    InstitutionUsersContent(
+        state = state,
+        showBackButton = showBackButton,
+        onBackClick = onBackClick,
+        onAddUserClick = onAddUserClick,
+        onFilterSelected = viewModel::selectFilter,
+        onSearchChange = viewModel::updateSearchQuery
+    )
+}
+
+@Composable
+internal fun InstitutionUsersContent(
+    state: InstitutionUsersUiState,
+    showBackButton: Boolean = false,
+    onBackClick: (() -> Unit)? = null,
+    onAddUserClick: () -> Unit,
+    onFilterSelected: (InstitutionUserFilter) -> Unit,
+    onSearchChange: (String) -> Unit
+) {
     val filteredUsers = filterUsers(state.users, state.selectedFilter)
-    
+
     val searchedUsers = if (state.searchQuery.isBlank()) {
         filteredUsers
     } else {
@@ -94,14 +115,15 @@ fun InstitutionUsersScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
-                    )
+                if (showBackButton && onBackClick != null) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
                 }
-
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Text(
                     text = stringResource(R.string.manage_users),
@@ -139,7 +161,7 @@ fun InstitutionUsersScreen(
                     val isSelected = state.selectedFilter == filter
                     FilterChip(
                         selected = isSelected,
-                        onClick = { viewModel.selectFilter(filter) },
+                        onClick = { onFilterSelected(filter) },
                         label = {
                             Text(text = institutionUserFilterLabel(filter))
                         },
@@ -157,7 +179,7 @@ fun InstitutionUsersScreen(
 
             OutlinedTextField(
                 value = state.searchQuery,
-                onValueChange = viewModel::updateSearchQuery,
+                onValueChange = onSearchChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -406,11 +428,11 @@ private fun filterUsers(
 ): List<InstitutionUserDto> {
     return when (filter) {
         InstitutionUserFilter.ALL -> users
-        InstitutionUserFilter.STUDENTS -> users.filter { 
-            it.targetRole.lowercase().trim() == "student" 
+        InstitutionUserFilter.STUDENTS -> users.filter {
+            it.targetRole.lowercase().trim() == "student"
         }
-        InstitutionUserFilter.TEACHERS -> users.filter { 
-            it.targetRole.lowercase().trim() == "teacher" 
+        InstitutionUserFilter.TEACHERS -> users.filter {
+            it.targetRole.lowercase().trim() == "teacher"
         }
         InstitutionUserFilter.PENDING -> users.filter { !isInviteAccepted(it) }
         InstitutionUserFilter.ACCEPTED -> users.filter { isInviteAccepted(it) }
