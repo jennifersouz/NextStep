@@ -587,4 +587,6 @@
     <string name="advisor_role">Orientador</string>
     <string name="institution_role">Instituição de ensino</string>
     <string name="teacher_role">Docente</string>
+    <string name="internship_chat_subtitle">Conversa da candidatura</string>
+    <string name="no_messages_description">Envia a primeira mensagem sobre este estágio.</string>
 </resources>

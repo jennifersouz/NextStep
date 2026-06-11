@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
 import com.example.nextstep.data.repository.ApplicationChatRepository
+import com.example.nextstep.data.remote.SupabaseClientProvider
+import com.example.nextstep.data.model.ApplicationMessageDto
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,11 +15,20 @@ import kotlinx.coroutines.launch
 class ApplicationChatViewModel : ViewModel() {
 
     private val repository = ApplicationChatRepository()
+    private val supabase = SupabaseClientProvider.client
+    private val auth = supabase.auth
 
     private val _uiState = MutableStateFlow(ApplicationChatUiState())
     val uiState: StateFlow<ApplicationChatUiState> = _uiState.asStateFlow()
 
     private var currentApplicationId: String? = null
+
+    init {
+        val currentUser = auth.currentUserOrNull()
+        _uiState.value = _uiState.value.copy(
+            currentUserId = currentUser?.id.orEmpty()
+        )
+    }
 
     fun start(applicationId: String) {
         if (applicationId.isBlank()) return
@@ -54,10 +66,15 @@ class ApplicationChatViewModel : ViewModel() {
             val result = repository.getMessages(applicationId)
 
             _uiState.value = if (result.isSuccess) {
+                val messages = result.getOrDefault(emptyList())
+                val participantName = extractParticipantName(messages)
+                val internshipTitle = extractInternshipTitle(messages)
                 _uiState.value.copy(
-                    messages = result.getOrDefault(emptyList()),
+                    messages = messages,
                     isLoading = false,
-                    errorMessageRes = null
+                    errorMessageRes = null,
+                    participantName = participantName,
+                    internshipTitle = internshipTitle
                 )
             } else if (showLoading) {
                 _uiState.value.copy(
@@ -68,6 +85,27 @@ class ApplicationChatViewModel : ViewModel() {
                 _uiState.value
             }
         }
+    }
+
+    private fun extractParticipantName(messages: List<ApplicationMessageDto>): String {
+        val currentUserId = _uiState.value.currentUserId
+        val otherMessage = messages.firstOrNull { it.senderProfileId != currentUserId }
+            ?: messages.firstOrNull()
+            ?: return ""
+
+        return otherMessage.senderEmail
+            ?.substringBefore("@")
+            ?.replace(".", " ")
+            ?.replace("_", " ")
+            ?.split(" ")
+            ?.filter { it.isNotBlank() }
+            ?.joinToString(" ") { word -> word.replaceFirstChar { c -> c.uppercase() } }
+            ?.takeIf { it.isNotBlank() }
+            ?: ""
+    }
+
+    private fun extractInternshipTitle(messages: List<ApplicationMessageDto>): String {
+        return ""
     }
 
     fun onMessageChanged(text: String) {
