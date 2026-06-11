@@ -603,4 +603,9 @@
     <string name="no_tasks_description">Quando forem criadas tarefas para os estágios, elas aparecem aqui.</string>
     <string name="create_task">Criar tarefa</string>
     <string name="due_date">Data limite</string>
+    <string name="no_notifications">Ainda não tens notificações.</string>
+    <string name="mark_all_as_read">Marcar todas como lidas</string>
+    <string name="new_assigned_student">Novo aluno atribuído</string>
+    <string name="new_assigned_student_message">Foi-te atribuído um novo aluno para orientação.</string>
+    <string name="new_message_from_student">O aluno enviou uma nova mensagem.</string>
 </resources>

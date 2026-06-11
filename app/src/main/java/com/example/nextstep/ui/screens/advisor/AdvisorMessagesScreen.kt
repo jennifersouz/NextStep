@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,10 +33,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorConversationDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 @Composable
 fun AdvisorMessagesScreen(
-    onChatClick: (String) -> Unit = {},
+    onChatClick: (String, String) -> Unit = { _, _ -> },
     viewModel: AdvisorMessagesViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -83,7 +83,7 @@ fun AdvisorMessagesScreen(
                     ) { conversation ->
                         AdvisorConversationCard(
                             conversation = conversation,
-                            onClick = { onChatClick(conversation.applicationId) }
+                            onClick = { onChatClick(conversation.applicationId, conversation.studentName) }
                         )
                     }
                     item {
@@ -104,7 +104,7 @@ private fun AdvisorConversationCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Avatar
@@ -120,18 +120,20 @@ private fun AdvisorConversationCard(
             ) {
                 Text(
                     text = conversation.studentName,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
 
+                Spacer(modifier = Modifier.width(8.dp))
+
                 conversation.lastMessageAt?.takeIf { it.isNotBlank() }?.let { time ->
                     Text(
-                        text = time,
-                        fontSize = 11.sp,
+                        text = DateFormatUtils.formatMessageListTime(time),
+                        fontSize = 12.sp,
                         color = AdvisorUiColors.TextGray
                     )
                 }
@@ -147,7 +149,7 @@ private fun AdvisorConversationCard(
                 conversation.lastMessage?.takeIf { it.isNotBlank() }?.let { msg ->
                     Text(
                         text = msg,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         color = AdvisorUiColors.TextDarkGray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -196,7 +198,7 @@ private fun AdvisorConversationAvatar(studentName: String) {
 
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(48.dp)
             .clip(CircleShape)
             .background(Color(0xFF2B2B2B)),
         contentAlignment = Alignment.Center
@@ -204,7 +206,7 @@ private fun AdvisorConversationAvatar(studentName: String) {
         Text(
             text = initials,
             color = Color.White,
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
     }

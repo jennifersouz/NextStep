@@ -28,11 +28,15 @@ import androidx.compose.material.icons.filled.Groups
 @Composable
 fun AdvisorHomeContent(
     onViewAllStudentsClick: () -> Unit = {},
-    onStudentClick: (String) -> Unit = {}
+    onStudentClick: (String) -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
+    unreadNotificationsCount: Int = 0
 ) {
     AdvisorHomeScreen(
         onViewAllStudentsClick = onViewAllStudentsClick,
-        onStudentClick = onStudentClick
+        onStudentClick = onStudentClick,
+        onNotificationsClick = onNotificationsClick,
+        unreadNotificationsCount = unreadNotificationsCount
     )
 }
 
@@ -54,7 +58,7 @@ fun AdvisorTasksContent(
 
 @Composable
 fun AdvisorMessagesContent(
-    onChatClick: (String) -> Unit = {}
+    onChatClick: (String, String) -> Unit = { _, _ -> }
 ) {
     AdvisorMessagesScreen(onChatClick = onChatClick)
 }

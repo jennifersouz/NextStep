@@ -44,11 +44,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.ApplicationMessageDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -61,14 +63,15 @@ private val BorderGray = Color(0xFFEDEDED)
 @Composable
 fun ApplicationChatScreen(
     applicationId: String,
+    participantName: String? = null,
     onBackClick: () -> Unit,
     viewModel: ApplicationChatViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(applicationId) {
-        viewModel.start(applicationId)
+    LaunchedEffect(applicationId, participantName) {
+        viewModel.start(applicationId, participantName)
     }
 
     DisposableEffect(applicationId) {
@@ -95,7 +98,8 @@ fun ApplicationChatScreen(
         ChatHeader(
             participantName = state.participantName.takeIf { it.isNotBlank() }
                 ?: stringResource(R.string.chat_title),
-            subtitle = stringResource(R.string.internship_chat_subtitle),
+            subtitle = state.internshipTitle.takeIf { it.isNotBlank() } 
+                ?: stringResource(R.string.internship_chat_subtitle),
             onBackClick = onBackClick
         )
 
@@ -105,7 +109,7 @@ fun ApplicationChatScreen(
                 .fillMaxWidth()
         ) {
             when {
-                state.isLoading -> {
+                state.isLoading && state.messages.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -117,11 +121,11 @@ fun ApplicationChatScreen(
                 state.errorMessageRes != null && state.messages.isEmpty() -> {
                     ErrorState(
                         errorRes = state.errorMessageRes!!,
-                        onRetry = { viewModel.start(applicationId) }
+                        onRetry = { viewModel.start(applicationId, participantName) }
                     )
                 }
 
-                state.messages.isEmpty() -> {
+                state.messages.isEmpty() && !state.isLoading -> {
                     EmptyState()
                 }
 
@@ -282,7 +286,7 @@ private fun ChatHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = getInitials(participantName.ifEmpty { "Chat do estágio" }),
+                        text = getInitials(participantName.ifEmpty { "Chat" }),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black
@@ -298,12 +302,16 @@ private fun ChatHeader(
                         text = participantName,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = subtitle,
                         fontSize = 13.sp,
-                        color = TextSecondary
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -6,8 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 @Composable
 fun AdvisorTasksList(
@@ -59,7 +63,7 @@ fun AdvisorTasksList(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 80.dp)
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             items(
                 items = tasks,
@@ -144,8 +148,12 @@ fun AdvisorTaskListItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    task.dueDate?.let { date ->
-                        Text(text = date, fontSize = 11.sp, color = AdvisorUiColors.TextGray)
+                    task.dueDate?.takeIf { it.isNotBlank() }?.let { date ->
+                        Text(
+                            text = DateFormatUtils.formatDateForUi(date),
+                            fontSize = 11.sp,
+                            color = AdvisorUiColors.TextGray
+                        )
                     }
                     
                     PriorityBadge(task.priority ?: "medium")
@@ -185,10 +193,11 @@ fun AdvisorTaskFilterChips(
     selectedFilter: AdvisorTaskFilter,
     onFilterSelected: (AdvisorTaskFilter) -> Unit
 ) {
+    // Usar LazyRow para garantir scroll horizontal e evitar quebra de linha (Ponto 2)
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp)
     ) {
         items(AdvisorTaskFilter.entries.toTypedArray()) { filter ->
             val label = when (filter) {
@@ -199,19 +208,31 @@ fun AdvisorTaskFilterChips(
             }
             val isSelected = filter == selectedFilter
 
-            Box(
+            // Uso de Surface para garantir consistência visual e evitar quebras de texto
+            Surface(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) AdvisorUiColors.YellowAccent else Color(0xFFF5F5F5))
-                    .clickable { onFilterSelected(filter) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .height(44.dp)
+                    .clickable { onFilterSelected(filter) },
+                shape = RoundedCornerShape(22.dp),
+                color = if (isSelected) AdvisorUiColors.YellowAccent else Color(0xFFF5F5F5),
+                border = if (isSelected) null else BorderStroke(1.dp, AdvisorUiColors.BorderGray)
             ) {
-                Text(
-                    text = label,
-                    fontSize = 13.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) Color.Black else Color(0xFF333333)
-                )
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                        color = if (isSelected) Color.Black else Color(0xFF333333),
+                        maxLines = 1, // ABSOLUTAMENTE 1 linha (Ponto 2)
+                        softWrap = false, // NUNCA quebrar palavra (Ponto 2)
+                        overflow = TextOverflow.Visible
+                    )
+                }
             }
         }
     }

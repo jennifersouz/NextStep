@@ -12,23 +12,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.WorkHistory
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,14 +39,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.AdvisorActivityDto
-import com.example.nextstep.data.model.AdvisorAssignedStudentDto
-import com.example.nextstep.data.model.AdvisorSummaryDto
 
 @Composable
 fun AdvisorHomeScreen(
     onViewAllStudentsClick: () -> Unit = {},
     onStudentClick: (String) -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
+    unreadNotificationsCount: Int = 0,
     viewModel: AdvisorHomeViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -74,7 +76,9 @@ fun AdvisorHomeScreen(
                 AdvisorHomeContent(
                     state = state,
                     onViewAllStudentsClick = onViewAllStudentsClick,
-                    onStudentClick = onStudentClick
+                    onStudentClick = onStudentClick,
+                    onNotificationsClick = onNotificationsClick,
+                    unreadNotificationsCount = unreadNotificationsCount
                 )
             }
         }
@@ -85,7 +89,9 @@ fun AdvisorHomeScreen(
 private fun AdvisorHomeContent(
     state: AdvisorHomeUiState,
     onViewAllStudentsClick: () -> Unit,
-    onStudentClick: (String) -> Unit
+    onStudentClick: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
+    unreadNotificationsCount: Int
 ) {
     val greeting = stringResource(R.string.advisor_home_greeting, state.advisorName)
 
@@ -96,7 +102,11 @@ private fun AdvisorHomeContent(
     ) {
         // Header
         item {
-            AdvisorHomeHeader(greeting = greeting)
+            AdvisorHomeHeader(
+                greeting = greeting,
+                unreadCount = unreadNotificationsCount,
+                onNotificationsClick = onNotificationsClick
+            )
         }
 
         // Summary section
@@ -198,15 +208,19 @@ private fun AdvisorHomeContent(
 }
 
 @Composable
-private fun AdvisorHomeHeader(greeting: String) {
+private fun AdvisorHomeHeader(
+    greeting: String,
+    unreadCount: Int,
+    onNotificationsClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 16.dp),
+            .padding(start = 24.dp, end = 8.dp, top = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = greeting,
                 fontSize = 24.sp,
@@ -221,18 +235,29 @@ private fun AdvisorHomeHeader(greeting: String) {
             )
         }
 
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clickable { /* TODO: navigate to notifications */ },
-            contentAlignment = Alignment.Center
+        IconButton(
+            onClick = { onNotificationsClick() },
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = Icons.Filled.Notifications,
-                contentDescription = stringResource(R.string.notifications),
-                tint = Color(0xFF333333),
-                modifier = Modifier.size(24.dp)
-            )
+            BadgedBox(
+                badge = {
+                    if (unreadCount > 0) {
+                        Badge(
+                            containerColor = AdvisorUiColors.YellowAccent,
+                            contentColor = Color.Black
+                        ) {
+                            Text(text = if (unreadCount > 9) "9+" else unreadCount.toString())
+                        }
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = stringResource(R.string.notifications),
+                    tint = Color(0xFF333333),
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
     }
 }

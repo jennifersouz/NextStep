@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorActivityDto
 import com.example.nextstep.data.model.AdvisorAssignedStudentDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 
 @Composable
@@ -124,6 +125,7 @@ fun AdvisorStudentPreviewCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 24.dp) // Adicionado padding horizontal para alinhar com o header
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(1.dp, AdvisorUiColors.BorderGray, RoundedCornerShape(12.dp))
@@ -248,12 +250,13 @@ fun AdvisorActivityItem(activity: AdvisorActivityDto) {
         Row(
             verticalAlignment = Alignment.Top
         ) {
+            // Bolinha cinza discreta em vez de amarela (Ponto 6)
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(6.dp)
                     .offset(y = 6.dp)
                     .clip(CircleShape)
-                    .background(AdvisorUiColors.YellowAccent)
+                    .background(AdvisorUiColors.BorderGray)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -263,7 +266,9 @@ fun AdvisorActivityItem(activity: AdvisorActivityDto) {
                     text = activity.title,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 activity.subtitle?.takeIf { it.isNotBlank() }?.let { subtitle ->
@@ -271,7 +276,7 @@ fun AdvisorActivityItem(activity: AdvisorActivityDto) {
                         text = subtitle,
                         fontSize = 13.sp,
                         color = AdvisorUiColors.TextGray,
-                        maxLines = 2,
+                        maxLines = 1, // Reduzido para 1 linha para manter limpo
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -280,7 +285,7 @@ fun AdvisorActivityItem(activity: AdvisorActivityDto) {
                     Spacer(modifier = Modifier.height(2.dp))
 
                     Text(
-                        text = date,
+                        text = DateFormatUtils.formatDateTimeForUi(date), // Formatação de data (Ponto 1 e 8)
                         fontSize = 11.sp,
                         color = AdvisorUiColors.TextGray
                     )
@@ -288,6 +293,6 @@ fun AdvisorActivityItem(activity: AdvisorActivityDto) {
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(12.dp)) // Aumentado espaçamento entre itens
     }
 }

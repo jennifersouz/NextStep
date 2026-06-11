@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
+import com.example.nextstep.ui.screens.advisor.AdvisorNotificationsScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorStudentDetailScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
@@ -173,9 +174,9 @@ fun AppNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onChatClick = { applicationId ->
+                onChatClick = { applicationId, name ->
                     navController.navigate(
-                        Routes.applicationChat(applicationId)
+                        Routes.applicationChat(applicationId, name)
                     )
                 },
                 onEditProfileClick = {
@@ -185,6 +186,27 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.advisorStudentDetail(applicationId)
                     )
+                },
+                onNotificationsClick = {
+                    navController.navigate(Routes.ADVISOR_NOTIFICATIONS)
+                }
+            )
+        }
+
+        composable(Routes.ADVISOR_NOTIFICATIONS) {
+            AdvisorNotificationsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onNotificationClick = { type, applicationId ->
+                    when (type) {
+                        "advisor_assigned" -> {
+                            navController.navigate(Routes.advisorStudentDetail(applicationId))
+                        }
+                        "new_message" -> {
+                            navController.navigate(Routes.applicationChat(applicationId))
+                        }
+                    }
                 }
             )
         }
@@ -207,6 +229,8 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onMessageClick = {
+                    // Aqui também poderíamos passar o nome se tivéssemos acesso fácil, 
+                    // mas o ViewModel do Chat já busca os detalhes da candidatura se o nome for nulo.
                     navController.navigate(
                         Routes.applicationChat(applicationId)
                     )
@@ -461,17 +485,25 @@ fun AppNavigation() {
             arguments = listOf(
                 navArgument(Routes.APPLICATION_CHAT_ARG) {
                     type = NavType.StringType
+                },
+                navArgument(Routes.APPLICATION_CHAT_NAME_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
             val applicationId = backStackEntry.arguments
                 ?.getString(Routes.APPLICATION_CHAT_ARG)
                 .orEmpty()
+            val name = backStackEntry.arguments
+                ?.getString(Routes.APPLICATION_CHAT_NAME_ARG)
 
-            Log.d("ChatDebug", "Route chat applicationId=$applicationId")
+            Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name")
 
             ApplicationChatScreen(
                 applicationId = applicationId,
+                participantName = name,
                 onBackClick = {
                     navController.popBackStack()
                 }

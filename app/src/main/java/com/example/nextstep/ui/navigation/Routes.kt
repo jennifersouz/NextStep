@@ -1,5 +1,7 @@
 package com.example.nextstep.ui.navigation
 
+import java.net.URLEncoder
+
 object Routes {
     const val SPLASH = "splash"
     const val INTRO = "intro"
@@ -19,8 +21,9 @@ object Routes {
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
-    const val APPLICATION_CHAT = "application_chat/{applicationId}"
+    const val APPLICATION_CHAT = "application_chat/{applicationId}?name={name}"
     const val APPLICATION_CHAT_ARG = "applicationId"
+    const val APPLICATION_CHAT_NAME_ARG = "name"
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
     const val INSTITUTION_DASHBOARD = "institution_dashboard"
     const val INSTITUTION_USERS = "institution_users"
@@ -33,6 +36,7 @@ object Routes {
     const val ADVISOR_STUDENT_DETAIL_ARG = "applicationId"
     const val ADVISOR_EVALUATE_STUDENT = "advisor_evaluate_student/{applicationId}"
     const val ADVISOR_EVALUATE_STUDENT_ARG = "applicationId"
+    const val ADVISOR_NOTIFICATIONS = "advisor_notifications"
 
     const val COMPANY_APPLICATION_DETAIL = "company_application_detail/{applicationId}"
     const val COMPANY_APPLICATION_DETAIL_ARG = "applicationId"
@@ -56,8 +60,17 @@ object Routes {
         return "chat/$applicationId"
     }
 
-    fun applicationChat(applicationId: String): String {
-        return "application_chat/$applicationId"
+    fun applicationChat(applicationId: String, name: String? = null): String {
+        return if (!name.isNullOrBlank()) {
+            val encodedName = try {
+                URLEncoder.encode(name, "UTF-8")
+            } catch (e: Exception) {
+                name
+            }
+            "application_chat/$applicationId?name=$encodedName"
+        } else {
+            "application_chat/$applicationId"
+        }
     }
     fun companyOfferDetail(offerId: String): String {
         return "company_offer_detail/$offerId"
