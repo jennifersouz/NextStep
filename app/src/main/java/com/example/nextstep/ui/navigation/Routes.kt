@@ -1,6 +1,6 @@
 package com.example.nextstep.ui.navigation
 
-import java.net.URLEncoder
+import android.net.Uri
 
 object Routes {
     const val SPLASH = "splash"
@@ -62,11 +62,7 @@ object Routes {
 
     fun applicationChat(applicationId: String, name: String? = null): String {
         return if (!name.isNullOrBlank()) {
-            val encodedName = try {
-                URLEncoder.encode(name, "UTF-8")
-            } catch (e: Exception) {
-                name
-            }
+            val encodedName = Uri.encode(name)
             "application_chat/$applicationId?name=$encodedName"
         } else {
             "application_chat/$applicationId"

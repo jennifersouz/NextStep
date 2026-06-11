@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.navigation
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,10 +19,6 @@ import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorNotificationsScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorStudentDetailScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
-import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
-import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
-import com.example.nextstep.ui.screens.institution.InstitutionUsersScreen
-import com.example.nextstep.ui.screens.institution.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.chat.ApplicationChatScreen
@@ -31,6 +28,9 @@ import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
+import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
+import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
+import com.example.nextstep.ui.screens.institution.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
@@ -229,8 +229,6 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onMessageClick = {
-                    // Aqui também poderíamos passar o nome se tivéssemos acesso fácil, 
-                    // mas o ViewModel do Chat já busca os detalhes da candidatura se o nome for nulo.
                     navController.navigate(
                         Routes.applicationChat(applicationId)
                     )
@@ -496,8 +494,13 @@ fun AppNavigation() {
             val applicationId = backStackEntry.arguments
                 ?.getString(Routes.APPLICATION_CHAT_ARG)
                 .orEmpty()
-            val name = backStackEntry.arguments
+            val rawName = backStackEntry.arguments
                 ?.getString(Routes.APPLICATION_CHAT_NAME_ARG)
+            
+            // Decodificar nome para remover + e %20 (Ponto 2)
+            val name = rawName?.let { 
+                Uri.decode(it).replace("+", " ").trim()
+            }
 
             Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name")
 

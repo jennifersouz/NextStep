@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
 
 class ApplicationChatViewModel : ViewModel() {
 
@@ -43,20 +44,24 @@ class ApplicationChatViewModel : ViewModel() {
         refreshCurrentUserId()
         
         val isNewConversation = currentApplicationId != applicationId
+        val normalizedName = normalizeName(participantName)
         
         if (isNewConversation) {
             currentApplicationId = applicationId
             _uiState.value = _uiState.value.copy(
                 messages = emptyList(),
-                participantName = if (participantName.isNullOrBlank() || participantName == "Chat") "" else participantName,
+                participantName = if (normalizedName == "Chat" || normalizedName == "Aluno") "" else normalizedName,
                 isLoading = true,
                 errorMessageRes = null
             )
-        } else if (!participantName.isNullOrBlank() && participantName != "Chat") {
-            _uiState.value = _uiState.value.copy(participantName = participantName)
+        } else if (normalizedName.isNotBlank() && normalizedName != "Chat" && normalizedName != "Aluno") {
+            // Se o nome passado for válido e diferente de genérico, atualiza
+            if (_uiState.value.participantName != normalizedName) {
+                _uiState.value = _uiState.value.copy(participantName = normalizedName)
+            }
         }
 
-        // Se o nome ainda é nulo ou genérico, tenta buscar de forma robusta no repositório
+        // Se ainda não temos um nome real, tenta buscar de forma robusta no repositório
         if (_uiState.value.participantName.isBlank()) {
             fetchParticipantDetails(applicationId)
         }
@@ -79,15 +84,31 @@ class ApplicationChatViewModel : ViewModel() {
         )
     }
 
+    private fun normalizeName(name: String?): String {
+        if (name.isNullOrBlank()) return ""
+        return try {
+            // URLDecoder é fundamental aqui porque ele converte '+' em espaço corretamente
+            URLDecoder.decode(name, "UTF-8")
+                .replace("+", " ") // Garantia extra
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        } catch (e: Exception) {
+            name.replace("+", " ").trim()
+        }
+    }
+
     private fun fetchParticipantDetails(applicationId: String) {
         viewModelScope.launch {
             try {
                 assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
                     val app = apps.find { it.applicationId == applicationId }
                     if (app != null) {
-                        _uiState.value = _uiState.value.copy(
-                            participantName = app.studentFullName
-                        )
+                        val studentName = app.studentFullName
+                        if (studentName.isNotBlank()) {
+                            _uiState.value = _uiState.value.copy(
+                                participantName = normalizeName(studentName)
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -113,7 +134,6 @@ class ApplicationChatViewModel : ViewModel() {
             if (result.isSuccess) {
                 val messages = result.getOrDefault(emptyList())
                 
-                // Só extrai o nome das mensagens se ainda não tivermos um nome real (não vazio e não "Chat"/"Aluno")
                 val currentName = _uiState.value.participantName
                 val finalName = if (currentName.isBlank() || currentName == "Chat" || currentName == "Aluno") {
                     extractParticipantName(messages)
@@ -139,9 +159,9 @@ class ApplicationChatViewModel : ViewModel() {
     }
 
     private fun extractParticipantName(messages: List<ApplicationMessageDto>): String {
-        // Garantir que temos o ID do usuário atual para filtrar corretamente
-        val currentUserId = auth.currentUserOrNull()?.id ?: _uiState.value.currentUserId
-        val currentUserEmail = auth.currentUserOrNull()?.email
+        val currentUser = auth.currentUserOrNull()
+        val currentUserId = currentUser?.id ?: _uiState.value.currentUserId
+        val currentUserEmail = currentUser?.email
         
         if (currentUserId.isBlank() && (currentUserEmail == null || currentUserEmail.isBlank())) {
             return "Chat"
@@ -169,6 +189,7 @@ class ApplicationChatViewModel : ViewModel() {
 
         // Formata o email (ex: joana.silva@email.com -> Joana Silva)
         return emailToParse.substringBefore("@")
+            .replace("+", " ")
             .replace(".", " ")
             .replace("_", " ")
             .split(" ")

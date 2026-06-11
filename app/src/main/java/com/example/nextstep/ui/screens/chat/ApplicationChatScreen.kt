@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.chat
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -252,6 +253,12 @@ private fun ChatHeader(
     subtitle: String,
     onBackClick: () -> Unit
 ) {
+    // Normalizar nome para exibição (remover + e espaços duplos)
+    val displayName = participantName
+        .replace("+", " ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+
     Column {
         Surface(
             modifier = Modifier
@@ -286,7 +293,7 @@ private fun ChatHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = getInitials(participantName.ifEmpty { "Chat" }),
+                        text = getInitials(displayName.ifEmpty { "Chat" }),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black
@@ -299,7 +306,7 @@ private fun ChatHeader(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = participantName,
+                        text = displayName,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -327,11 +334,23 @@ private fun ChatHeader(
 }
 
 private fun getInitials(name: String): String {
-    return name.split(" ")
-        .filter { it.isNotEmpty() }
-        .take(2)
-        .joinToString("") { it.take(1).uppercase() }
-        .takeIf { it.isNotEmpty() } ?: "C"
+    val parts = name
+        .replace("+", " ")
+        .trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+
+    return when {
+        parts.size >= 2 -> {
+            val first = parts.first().first().uppercase()
+            val last = parts.last().first().uppercase()
+            "$first$last"
+        }
+        parts.size == 1 -> {
+            parts.first().take(2).uppercase()
+        }
+        else -> "A"
+    }
 }
 
 @Composable
