@@ -25,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -96,11 +97,12 @@ fun CompanyEditProfileScreen(
                             )
                         },
                         bodyContent = {
-                            CompanyEditProfileFormContent(
-                                state = state,
-                                viewModel = viewModel,
-                                onProfileUpdated = onProfileUpdated
-                            )
+CompanyEditProfileFormContent(
+                            state = state,
+                            viewModel = viewModel,
+                            onProfileUpdated = onProfileUpdated,
+                            onBackClick = onBackClick
+                        )
                         }
                     )
                 } else {
@@ -126,7 +128,8 @@ fun CompanyEditProfileScreen(
                         CompanyEditProfileFormContent(
                             state = state,
                             viewModel = viewModel,
-                            onProfileUpdated = onProfileUpdated
+                            onProfileUpdated = onProfileUpdated,
+                            onBackClick = onBackClick
                         )
                     }
                 }
@@ -183,7 +186,8 @@ private fun CompanyEditProfileLandscapeHeader(
 private fun CompanyEditProfileFormContent(
     state: CompanyEditProfileUiState,
     viewModel: CompanyEditProfileViewModel,
-    onProfileUpdated: () -> Unit
+    onProfileUpdated: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     CompanyEditTextField(
         value = state.companyName,
@@ -228,7 +232,7 @@ private fun CompanyEditProfileFormContent(
         maxLines = 8
     )
 
-    if (state.errorMessageRes != null) {
+if (state.errorMessageRes != null) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -247,8 +251,8 @@ private fun CompanyEditProfileFormContent(
         enabled = !state.isSaving,
         modifier = Modifier
             .fillMaxWidth()
-            .height(54.dp),
-        shape = RoundedCornerShape(18.dp),
+            .height(52.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFFDFA52),
             contentColor = Color.Black,
@@ -256,21 +260,33 @@ private fun CompanyEditProfileFormContent(
             disabledContentColor = Color(0xFF8A8A8A)
         )
     ) {
-        if (state.isSaving) {
-            CircularProgressIndicator(
-                color = Color.Black,
-                strokeWidth = 2.dp
-            )
-        } else {
-            Text(
-                text = stringResource(R.string.save),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Text(
+            text = if (state.isSaving) {
+                stringResource(R.string.saving)
+            } else {
+                stringResource(R.string.save_changes)
+            },
+            fontWeight = FontWeight.Bold
+        )
     }
 
-    Spacer(modifier = Modifier.height(40.dp))
+    Spacer(modifier = Modifier.height(12.dp))
+
+    OutlinedButton(
+        onClick = onBackClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        shape = RoundedCornerShape(14.dp),
+        enabled = !state.isSaving
+    ) {
+        Text(
+            text = stringResource(R.string.cancel),
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

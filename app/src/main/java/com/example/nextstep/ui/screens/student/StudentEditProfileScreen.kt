@@ -23,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -153,14 +154,14 @@ fun StudentEditProfileScreen(
                     Button(
                         onClick = {
                             viewModel.saveProfile(
-                                onSuccess = onProfileUpdated
+                                onSuccess = onBackClick
                             )
                         },
                         enabled = !state.isSaving,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFDFA52),
                             contentColor = Color.Black,
@@ -172,9 +173,24 @@ fun StudentEditProfileScreen(
                             text = if (state.isSaving) {
                                 stringResource(R.string.saving)
                             } else {
-                                stringResource(R.string.save)
+                                stringResource(R.string.save_changes)
                             },
-                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedButton(
+                        onClick = onBackClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        enabled = !state.isSaving
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
                             fontWeight = FontWeight.Bold
                         )
                     }

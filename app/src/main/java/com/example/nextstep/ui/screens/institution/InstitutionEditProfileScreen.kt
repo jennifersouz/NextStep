@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -151,35 +152,47 @@ fun InstitutionEditProfileScreen(
 
                     Button(
                         onClick = {
-                            viewModel.saveProfile(onSuccess = onProfileUpdated)
+                            viewModel.saveProfile(onSuccess = onBackClick)
                         },
                         enabled = !state.isSaving,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp),
-                        shape = RoundedCornerShape(18.dp),
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFDFA52),
                             contentColor = Color.Black,
-                            disabledContainerColor = Color(0xFFEAEAEA),
-                            disabledContentColor = Color(0xFF8A8A8A)
+                            disabledContainerColor = Color(0xFFE5E5A0),
+                            disabledContentColor = Color.Black
                         )
                     ) {
-                        if (state.isSaving) {
-                            CircularProgressIndicator(
-                                color = Color.Black,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.save),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        Text(
+                            text = if (state.isSaving) {
+                                stringResource(R.string.saving)
+                            } else {
+                                stringResource(R.string.save_changes)
+                            },
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedButton(
+                        onClick = onBackClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        enabled = !state.isSaving
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

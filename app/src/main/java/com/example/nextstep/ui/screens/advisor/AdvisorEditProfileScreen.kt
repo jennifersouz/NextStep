@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -147,45 +148,35 @@ fun AdvisorEditProfileScreen(
                         .fillMaxWidth()
                         .height(52.dp),
                     enabled = !state.isSaving,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFDFA52),
                         contentColor = Color.Black
                     )
                 ) {
-                    if (state.isSaving) {
-                        CircularProgressIndicator(
-                            color = Color.Black,
-                            modifier = Modifier.height(24.dp)
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.save_changes),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = if (state.isSaving) {
+                            stringResource(R.string.saving)
+                        } else {
+                            stringResource(R.string.save_changes)
+                        },
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Cancel button
-                Button(
+                OutlinedButton(
                     onClick = onBackClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF374151)
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB))
+                    shape = RoundedCornerShape(14.dp),
+                    enabled = !state.isSaving
                 ) {
                     Text(
                         text = stringResource(R.string.cancel),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
