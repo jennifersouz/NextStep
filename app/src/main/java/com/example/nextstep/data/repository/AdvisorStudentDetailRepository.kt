@@ -2,14 +2,13 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.AdvisorStudentDetailDto
-import com.example.nextstep.data.model.AdvisorTaskDto
-import com.example.nextstep.data.model.AdvisorDocumentDto
-import com.example.nextstep.data.model.AdvisorEvaluationDto
 import com.example.nextstep.data.model.AdvisorAssignedApplicationDto
+import com.example.nextstep.data.model.AdvisorTaskListItemDto
 
 class AdvisorStudentDetailRepository {
 
     private val assignedAppsRepository = AdvisorAssignedApplicationsRepository()
+    private val tasksRepository = AdvisorTasksRepository()
 
     suspend fun getStudentDetail(applicationId: String): Result<AdvisorStudentDetailDto> {
         return try {
@@ -19,7 +18,10 @@ class AdvisorStudentDetailRepository {
             val app = applications.find { it.applicationId == applicationId }
                 ?: return Result.failure(IllegalStateException("Aplicação não encontrada."))
 
-            val detail = mapApplicationToDetail(app)
+            val tasksResult = tasksRepository.getTasksByApplication(applicationId)
+            val tasks = tasksResult.getOrDefault(emptyList())
+
+            val detail = mapApplicationToDetail(app, tasks)
 
             Result.success(detail)
         } catch (exception: Exception) {
@@ -28,7 +30,10 @@ class AdvisorStudentDetailRepository {
         }
     }
 
-    private fun mapApplicationToDetail(app: AdvisorAssignedApplicationDto): AdvisorStudentDetailDto {
+    private fun mapApplicationToDetail(
+        app: AdvisorAssignedApplicationDto,
+        tasks: List<AdvisorTaskListItemDto>
+    ): AdvisorStudentDetailDto {
         return AdvisorStudentDetailDto(
             applicationId = app.applicationId,
             studentName = app.studentFullName,
@@ -38,9 +43,9 @@ class AdvisorStudentDetailRepository {
             status = app.status,
             startDate = null,
             expectedEndDate = null,
-            completedTasks = 0,
-            totalTasks = 0,
-            tasks = emptyList(),
+            completedTasks = tasks.count { it.status == "completed" },
+            totalTasks = tasks.size,
+            tasks = tasks,
             documents = emptyList(),
             evaluation = null
         )

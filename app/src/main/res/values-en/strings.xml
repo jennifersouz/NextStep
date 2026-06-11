@@ -480,7 +480,6 @@
     <string name="message_advisor">Message advisor</string>
     <string name="type_message">Write a message...</string>
     <string name="send">Send</string>
-    <string name="no_messages_yet">There are no messages yet.</string>
     <string name="message_send_error">Could not send the message.</string>
     <string name="assigned_students">Assigned students</string>
     <string name="no_assigned_students">You do not have assigned students yet.</string>
@@ -544,6 +543,7 @@
     <string name="advisor_tasks_placeholder">Here you will be able to manage your tasks.</string>
     <string name="advisor_messages_placeholder">Here you will be able to exchange messages with students and companies.</string>
     <string name="no_messages">There are no messages yet.</string>
+    <string name="no_messages_yet">No messages yet.</string>
 
     <string name="save_changes">Save changes</string>
     <string name="advisor_profile_update_success">Profile updated successfully.</string>
@@ -585,4 +585,18 @@
     <string name="teacher_role">Teacher</string>
     <string name="internship_chat_subtitle">Application conversation</string>
     <string name="no_messages_description">Send the first message about this internship.</string>
+
+    <!-- Advisor Tasks -->
+    <string name="tasks_subtitle">Track your students\' activities.</string>
+    <string name="new_task">New task</string>
+    <string name="in_progress">In progress</string>
+    <string name="status_in_progress">In progress</string>
+    <string name="status_completed">Completed</string>
+    <string name="total">Total</string>
+    <string name="priority_low">Low priority</string>
+    <string name="priority_medium">Medium priority</string>
+    <string name="priority_high">High priority</string>
+    <string name="no_tasks_description">When tasks are created for internships, they will appear here.</string>
+    <string name="create_task">Create task</string>
+    <string name="due_date">Due date</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.example.nextstep.ui.screens.advisor
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,11 +30,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +41,8 @@ import com.example.nextstep.data.model.AdvisorTaskListItemDto
 
 @Composable
 fun AdvisorTasksScreen(
-    onTaskClick: (String) -> Unit = {},
+    onTaskClick: (AdvisorTaskListItemDto) -> Unit = {},
+    onNewTaskClick: () -> Unit = {},
     viewModel: AdvisorTasksViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -49,192 +50,124 @@ fun AdvisorTasksScreen(
         viewModel.getFilteredTasks()
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
-        Text(
-            text = stringResource(R.string.tasks),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        AdvisorTaskFilterChips(
-            selectedFilter = state.selectedFilter,
-            onFilterSelected = { viewModel.onFilterSelected(it) }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when {
-            state.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color.Black)
-                }
-            }
-
-            state.errorMessage != null -> {
-                AdvisorTaskEmptyContent(
-                    text = state.errorMessage ?: ""
-                )
-            }
-
-            filteredTasks.isEmpty() && state.tasks.isEmpty() -> {
-                AdvisorTaskEmptyContent(
-                    text = stringResource(R.string.no_tasks)
-                )
-            }
-
-            filteredTasks.isEmpty() -> {
-                AdvisorTaskEmptyContent(
-                    text = stringResource(R.string.no_tasks)
-                )
-            }
-
-            else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = filteredTasks,
-                        key = { it.id }
-                    ) { task ->
-                        AdvisorTaskListItem(
-                            task = task,
-                            onClick = { onTaskClick(task.applicationId) }
-                        )
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AdvisorTaskFilterChips(
-    selectedFilter: AdvisorTaskFilter,
-    onFilterSelected: (AdvisorTaskFilter) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        AdvisorTaskFilter.entries.forEach { filter ->
-            val label = when (filter) {
-                AdvisorTaskFilter.ALL -> stringResource(R.string.all)
-                AdvisorTaskFilter.PENDING -> stringResource(R.string.pending)
-                AdvisorTaskFilter.COMPLETED -> stringResource(R.string.completed)
-            }
-            val isSelected = filter == selectedFilter
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) Color(0xFF2B2B2B) else Color(0xFFF5F5F5))
-                    .clickable { onFilterSelected(filter) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = label,
-                    fontSize = 13.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) Color.White else Color(0xFF333333)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AdvisorTaskListItem(
-    task: AdvisorTaskListItemDto,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val isDone = task.status.lowercase() in listOf("completed", "done", "concluido", "concluída")
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(if (isDone) Color(0xFF2E7D32) else Color(0xFFF5F5F5)),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isDone) {
-                Text(text = "✓", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            } else {
-                Text(text = "!", color = Color(0xFF999999), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Text(
-                text = task.title,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
+                text = stringResource(R.string.tasks),
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp)
             )
-
+            
             Text(
-                text = task.studentName,
-                fontSize = 13.sp,
-                color = AdvisorUiColors.TextDarkGray,
-                modifier = Modifier.padding(top = 2.dp)
+                text = stringResource(R.string.tasks_subtitle),
+                fontSize = 14.sp,
+                color = AdvisorUiColors.TextGray,
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            task.offerTitle?.takeIf { it.isNotBlank() }?.let { offer ->
-                Text(
-                    text = offer,
-                    fontSize = 12.sp,
-                    color = AdvisorUiColors.TextGray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
+            Spacer(modifier = Modifier.height(20.dp))
 
-            task.dueDate?.takeIf { it.isNotBlank() }?.let { date ->
-                Text(
-                    text = date,
-                    fontSize = 11.sp,
-                    color = AdvisorUiColors.TextGray,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+            // Summary Cards
+            TaskSummarySection(state.tasks)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Filter Chips (Usando componente reutilizável)
+            AdvisorTaskFilterChips(
+                selectedFilter = state.selectedFilter,
+                onFilterSelected = { viewModel.onFilterSelected(it) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when {
+                state.isLoading -> {
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.Black)
+                    }
+                }
+
+                state.errorMessage != null && state.tasks.isEmpty() -> {
+                    AdvisorTaskEmptyContent(title = state.errorMessage ?: "")
+                }
+
+                state.tasks.isEmpty() -> {
+                    AdvisorTaskEmptyContent(
+                        title = stringResource(R.string.no_tasks),
+                        subtitle = stringResource(R.string.no_tasks_description)
+                    )
+                }
+
+                else -> {
+                    AdvisorTasksList(
+                        tasks = filteredTasks,
+                        onTaskClick = onTaskClick,
+                        onStatusChange = { taskId, status -> viewModel.updateTaskStatus(taskId, status) },
+                        showStudentInfo = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            tint = AdvisorUiColors.BorderGray,
-            modifier = Modifier.size(20.dp)
-        )
+        // FAB for New Task - Apenas se habilitado
+        FloatingActionButton(
+            onClick = onNewTaskClick,
+            containerColor = AdvisorUiColors.YellowAccent,
+            contentColor = Color.Black,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp),
+            shape = CircleShape
+        ) {
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.new_task))
+        }
     }
 }
 
 @Composable
-private fun AdvisorTaskEmptyContent(text: String) {
-    Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-        Text(text = text, fontSize = 15.sp, color = AdvisorUiColors.TextGray)
+private fun TaskSummarySection(tasks: List<AdvisorTaskListItemDto>) {
+    val total = tasks.size
+    val pending = tasks.count { it.status == "pending" }
+    val inProgress = tasks.count { it.status == "in_progress" }
+    val completed = tasks.count { it.status == "completed" }
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            SummaryCard(label = stringResource(R.string.total), count = total, color = Color.Black)
+        }
+        item {
+            SummaryCard(label = stringResource(R.string.status_pending), count = pending, color = AdvisorUiColors.PendingText)
+        }
+        item {
+            SummaryCard(label = stringResource(R.string.status_in_progress), count = inProgress, color = AdvisorUiColors.InProgressText)
+        }
+        item {
+            SummaryCard(label = stringResource(R.string.status_completed), count = completed, color = AdvisorUiColors.CompletedText)
+        }
+    }
+}
+
+@Composable
+private fun SummaryCard(label: String, count: Int, color: Color) {
+    Card(
+        modifier = Modifier.width(100.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, AdvisorUiColors.BorderGray)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = count.toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = color)
+            Text(text = label, fontSize = 11.sp, color = AdvisorUiColors.TextGray)
+        }
     }
 }

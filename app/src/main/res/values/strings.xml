@@ -588,5 +588,19 @@
     <string name="institution_role">Instituição de ensino</string>
     <string name="teacher_role">Docente</string>
     <string name="internship_chat_subtitle">Conversa da candidatura</string>
-    <string name="no_messages_description">Envia a primeira mensagem sobre este estágio.</string>
+    <string name="no_messages_description">Envia a primeira message sobre este estágio.</string>
+
+    <!-- Advisor Tasks -->
+    <string name="tasks_subtitle">Acompanha as atividades dos teus alunos.</string>
+    <string name="new_task">Nova tarefa</string>
+    <string name="in_progress">Em curso</string>
+    <string name="status_in_progress">Em curso</string>
+    <string name="status_completed">Concluída</string>
+    <string name="total">Total</string>
+    <string name="priority_low">Prioridade baixa</string>
+    <string name="priority_medium">Prioridade média</string>
+    <string name="priority_high">Prioridade alta</string>
+    <string name="no_tasks_description">Quando forem criadas tarefas para os estágios, elas aparecem aqui.</string>
+    <string name="create_task">Criar tarefa</string>
+    <string name="due_date">Data limite</string>
 </resources>

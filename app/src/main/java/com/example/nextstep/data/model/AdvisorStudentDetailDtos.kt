@@ -1,5 +1,8 @@
 package com.example.nextstep.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class AdvisorStudentDetailDto(
     val applicationId: String,
     val studentName: String,
@@ -12,19 +15,12 @@ data class AdvisorStudentDetailDto(
     val expectedEndDate: String? = null,
     val completedTasks: Int = 0,
     val totalTasks: Int = 0,
-    val tasks: List<AdvisorTaskDto> = emptyList(),
+    val tasks: List<AdvisorTaskListItemDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
     val evaluation: AdvisorEvaluationDto? = null
 )
 
-data class AdvisorTaskDto(
-    val id: String,
-    val title: String,
-    val description: String? = null,
-    val status: String? = null,
-    val dueDate: String? = null
-)
-
+@Serializable
 data class AdvisorDocumentDto(
     val id: String,
     val name: String,
@@ -32,6 +28,7 @@ data class AdvisorDocumentDto(
     val url: String? = null
 )
 
+@Serializable
 data class AdvisorEvaluationDto(
     val grade: String? = null,
     val comments: String? = null,

@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.advisor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.data.model.AdvisorTaskListItemDto
 import com.example.nextstep.data.repository.AdvisorTasksRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,18 +44,29 @@ class AdvisorTasksViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(selectedFilter = filter)
     }
 
-    fun getFilteredTasks(): List<com.example.nextstep.data.model.AdvisorTaskListItemDto> {
+    fun updateTaskStatus(taskId: String, status: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isUpdating = true)
+            repository.updateTaskStatus(taskId, status)
+                .onSuccess {
+                    loadTasks() // Refresh list after update
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isUpdating = false,
+                        errorMessage = "Erro ao atualizar tarefa: ${exception.message}"
+                    )
+                }
+        }
+    }
+
+    fun getFilteredTasks(): List<AdvisorTaskListItemDto> {
         val state = _uiState.value
         return when (state.selectedFilter) {
             AdvisorTaskFilter.ALL -> state.tasks
-            AdvisorTaskFilter.PENDING -> state.tasks.filter {
-                val s = it.status.lowercase()
-                s == "pending" || s == "pendente" || s == "to_complete" || s == "por_concluir"
-            }
-            AdvisorTaskFilter.COMPLETED -> state.tasks.filter {
-                val s = it.status.lowercase()
-                s == "completed" || s == "concluido" || s == "concluída" || s == "done"
-            }
+            AdvisorTaskFilter.PENDING -> state.tasks.filter { it.status == "pending" }
+            AdvisorTaskFilter.IN_PROGRESS -> state.tasks.filter { it.status == "in_progress" }
+            AdvisorTaskFilter.COMPLETED -> state.tasks.filter { it.status == "completed" }
         }
     }
 }

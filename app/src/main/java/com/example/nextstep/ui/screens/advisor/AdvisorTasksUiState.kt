@@ -6,5 +6,6 @@ data class AdvisorTasksUiState(
     val isLoading: Boolean = false,
     val tasks: List<AdvisorTaskListItemDto> = emptyList(),
     val selectedFilter: AdvisorTaskFilter = AdvisorTaskFilter.ALL,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isUpdating: Boolean = false
 )

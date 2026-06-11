@@ -1,24 +1,51 @@
 package com.example.nextstep.data.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class AdvisorTaskListItemDto(
-    val id: String,
-    val applicationId: String,
-    val title: String,
-    val description: String? = null,
-    val studentName: String,
-    val offerTitle: String? = null,
-    val companyName: String? = null,
-    val status: String,
-    val dueDate: String? = null,
-    val completedAt: String? = null
+    @SerialName("id") val id: String,
+    @SerialName("application_id") val applicationId: String,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String? = null,
+    @SerialName("status") val status: String = "pending",
+    @SerialName("priority") val priority: String? = "medium",
+    @SerialName("due_date") val dueDate: String? = null,
+    @SerialName("student_name") val studentName: String? = null,
+    @SerialName("student_email") val studentEmail: String? = null,
+    @SerialName("offer_title") val offerTitle: String? = null,
+    @SerialName("company_name") val companyName: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("completed_at") val completedAt: String? = null
 )
 
+@Serializable
+data class CreateApplicationTaskDto(
+    @SerialName("application_id") val applicationId: String,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String? = null,
+    @SerialName("status") val status: String = "pending",
+    @SerialName("priority") val priority: String = "medium",
+    @SerialName("due_date") val dueDate: String? = null,
+    @SerialName("created_by_profile_id") val createdByProfileId: String,
+    @SerialName("assigned_to_profile_id") val assignedToProfileId: String? = null
+)
+
+@Serializable
+data class UpdateApplicationTaskStatusDto(
+    @SerialName("status") val status: String,
+    @SerialName("completed_at") val completedAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String
+)
+
+@Serializable
 data class AdvisorConversationDto(
-    val applicationId: String,
-    val studentName: String,
-    val studentEmail: String? = null,
-    val offerTitle: String? = null,
-    val lastMessage: String? = null,
-    val lastMessageAt: String? = null,
-    val unreadCount: Int = 0
+    @SerialName("application_id") val applicationId: String,
+    @SerialName("student_name") val studentName: String,
+    @SerialName("student_email") val studentEmail: String? = null,
+    @SerialName("offer_title") val offerTitle: String? = null,
+    @SerialName("last_message") val lastMessage: String? = null,
+    @SerialName("last_message_at") val lastMessageAt: String? = null,
+    @SerialName("unread_count") val unreadCount: Int = 0
 )

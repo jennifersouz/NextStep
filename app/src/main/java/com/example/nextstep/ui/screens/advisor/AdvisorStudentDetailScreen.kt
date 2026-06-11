@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +55,7 @@ import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorDocumentDto
 import com.example.nextstep.data.model.AdvisorEvaluationDto
 import com.example.nextstep.data.model.AdvisorStudentDetailDto
-import com.example.nextstep.data.model.AdvisorTaskDto
+import com.example.nextstep.data.model.AdvisorTaskListItemDto
 
 @Composable
 fun AdvisorStudentDetailScreen(
@@ -62,6 +63,7 @@ fun AdvisorStudentDetailScreen(
     onBackClick: () -> Unit = {},
     onMessageClick: () -> Unit = {},
     onEvaluateClick: () -> Unit = {},
+    onTaskClick: (AdvisorTaskListItemDto) -> Unit = {},
     viewModel: AdvisorStudentDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -92,7 +94,9 @@ fun AdvisorStudentDetailScreen(
                 AdvisorDetailContent(
                     detail = state.detail!!,
                     onMessageClick = onMessageClick,
-                    onEvaluateClick = onEvaluateClick
+                    onEvaluateClick = onEvaluateClick,
+                    onTaskClick = onTaskClick,
+                    onStatusChange = { taskId, status -> viewModel.updateTaskStatus(taskId, status, applicationId) }
                 )
             }
         }
@@ -128,7 +132,9 @@ private fun AdvisorDetailTopBar(onBackClick: () -> Unit) {
 private fun AdvisorDetailContent(
     detail: AdvisorStudentDetailDto,
     onMessageClick: () -> Unit,
-    onEvaluateClick: () -> Unit
+    onEvaluateClick: () -> Unit,
+    onTaskClick: (AdvisorTaskListItemDto) -> Unit,
+    onStatusChange: (String, String) -> Unit
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -184,7 +190,13 @@ private fun AdvisorDetailContent(
                 onMessageClick = onMessageClick,
                 onEvaluateClick = onEvaluateClick
             )
-            1 -> AdvisorTasksTab(tasks = detail.tasks)
+            1 -> AdvisorTasksList(
+                tasks = detail.tasks,
+                onTaskClick = onTaskClick,
+                onStatusChange = onStatusChange,
+                showStudentInfo = false,
+                modifier = Modifier.padding(top = 16.dp)
+            )
             2 -> AdvisorEvaluationsTab(
                 evaluation = detail.evaluation,
                 onEvaluateClick = onEvaluateClick
@@ -320,7 +332,7 @@ private fun AdvisorSummaryTab(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "$completed / $total ${stringResource(R.string.completed).lowercase()}",
+                text = "$completed / $total ${stringResource(R.string.status_completed).lowercase()}",
                 fontSize = 14.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Medium
@@ -408,87 +420,6 @@ private fun AdvisorSummaryTab(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
-    }
-}
-
-// ──────────────────────────────────────────────────
-// TASKS TAB
-// ──────────────────────────────────────────────────
-
-@Composable
-private fun AdvisorTasksTab(tasks: List<AdvisorTaskDto>) {
-    if (tasks.isEmpty()) {
-        EmptyState(text = stringResource(R.string.no_tasks))
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp)
-        ) {
-            tasks.forEach { task ->
-                AdvisorTaskCard(task = task)
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-
-@Composable
-private fun AdvisorTaskCard(task: AdvisorTaskDto) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .padding(16.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        // Status indicator
-        val isDone = task.status == "completed" || task.status == "done" || task.status == "concluido"
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .clip(CircleShape)
-                .background(if (isDone) Color(0xFF2E7D32) else AdvisorUiColors.BorderGray),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isDone) {
-                Text(text = "✓", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = task.title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
-
-            task.description?.takeIf { it.isNotBlank() }?.let { desc ->
-                Text(
-                    text = desc,
-                    fontSize = 13.sp,
-                    color = AdvisorUiColors.TextGray,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
-            task.dueDate?.takeIf { it.isNotBlank() }?.let { date ->
-                Text(
-                    text = date,
-                    fontSize = 11.sp,
-                    color = AdvisorUiColors.TextGray,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
     }
 }
 
