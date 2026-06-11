@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.ui.components.LanguageOptionsSection
-import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -68,16 +67,7 @@ fun TeacherProfileScreen(
     ProfileScreenLayout(
         title = stringResource(R.string.teacher),
         name = stringResource(R.string.teacher),
-        fields = listOf(
-            ProfileField(
-                label = stringResource(R.string.email),
-                value = "-"
-            ),
-            ProfileField(
-                label = stringResource(R.string.department),
-                value = "-"
-            )
-        ),
+        subtitle = stringResource(R.string.teacher_role),
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = {
             showLogoutDialog = true

@@ -404,6 +404,34 @@
     <string name="advisor_chats_load_error">Não foi possível carregar os chats.</string>
     <string name="advisor_notifications_placeholder">Aqui vais receber atualizações sobre os alunos atribuídos.</string>
     <string name="advisor_profile_placeholder">Aqui vais poder consultar e editar o teu perfil.</string>
+    <string name="advisor_home_greeting">Olá, %1$s 👋</string>
+    <string name="summary">Resumo</string>
+    <string name="students_in_guidance">Alunos em orientação</string>
+    <string name="active_internships">Estágios ativos</string>
+    <string name="pending_tasks">Tarefas pendentes</string>
+    <string name="my_students">Os meus alunos</string>
+    <string name="view_all">Ver todos</string>
+    <string name="recent_activities">Atividades recentes</string>
+    <string name="no_recent_activities">Ainda não existem atividades recentes.</string>
+    <string name="evaluations">Avaliações</string>
+    <string name="documents">Documentos</string>
+    <string name="about_internship">Sobre o estágio</string>
+    <string name="start_date">Início</string>
+    <string name="expected_end">Fim previsto</string>
+    <string name="task_progress">Progresso das tarefas</string>
+    <string name="next_deadlines">Próximos prazos</string>
+    <string name="message">Mensagem</string>
+    <string name="evaluate_student">Avaliar aluno</string>
+    <string name="no_tasks">Ainda não existem tarefas registadas.</string>
+    <string name="no_documents">Ainda não existem documentos disponíveis.</string>
+    <string name="evaluation_not_submitted">A avaliação ainda não foi submetida.</string>
+    <string name="all">Todos</string>
+    <string name="active">Ativos</string>
+    <string name="to_complete">Por concluir</string>
+    <string name="completed">Concluídos</string>
+    <string name="no_students_found">Não foram encontrados alunos.</string>
+    <string name="need_help">Precisa de ajuda?</string>
+    <string name="advisor_help_text">Fale com o aluno ou com a instituição sempre que precisar.</string>
 
     <string name="advisor_invite_pending">Pendente</string>
     <string name="advisor_invite_active">Ativo</string>
@@ -455,7 +483,6 @@
     <string name="message_advisor">Enviar mensagem ao orientador</string>
     <string name="type_message">Escreve uma mensagem...</string>
     <string name="send">Enviar</string>
-    <string name="no_messages_yet">Ainda não existem mensagens.</string>
     <string name="message_send_error">Não foi possível enviar a mensagem.</string>
     <string name="assigned_students">Alunos atribuídos</string>
     <string name="no_assigned_students">Ainda não tens alunos atribuídos.</string>
@@ -514,6 +541,13 @@
     <string name="tab_notifications">Notificações</string>
     <string name="tab_users">Utilizadores</string>
     <string name="tab_students">Alunos</string>
+    <string name="students">Alunos</string>
+    <string name="tasks">Tarefas</string>
+    <string name="advisor_students_placeholder">Aqui vais poder consultar os teus alunos atribuídos.</string>
+    <string name="advisor_tasks_placeholder">Aqui vais poder gerir as tuas tarefas.</string>
+    <string name="advisor_messages_placeholder">Aqui vais poder trocar mensagens com alunos e empresas.</string>
+    <string name="no_messages">Ainda não existem mensagens.</string>
+    <string name="no_messages_yet">Sem mensagens ainda.</string>
 
     <string name="save_changes">Guardar alterações</string>
     <string name="advisor_profile_update_success">Perfil atualizado com sucesso.</string>

@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
+import com.example.nextstep.ui.screens.advisor.AdvisorStudentDetailScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
@@ -179,6 +180,41 @@ fun AppNavigation() {
                 },
                 onEditProfileClick = {
                     navController.navigate(Routes.ADVISOR_EDIT_PROFILE)
+                },
+                onStudentClick = { applicationId ->
+                    navController.navigate(
+                        Routes.advisorStudentDetail(applicationId)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Routes.ADVISOR_STUDENT_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.ADVISOR_STUDENT_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.ADVISOR_STUDENT_DETAIL_ARG)
+                .orEmpty()
+
+            AdvisorStudentDetailScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onMessageClick = {
+                    navController.navigate(
+                        Routes.applicationChat(applicationId)
+                    )
+                },
+                onEvaluateClick = {
+                    navController.navigate(
+                        Routes.advisorEvaluateStudent(applicationId)
+                    )
                 }
             )
         }

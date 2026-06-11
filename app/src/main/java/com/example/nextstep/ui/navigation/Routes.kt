@@ -29,6 +29,10 @@ object Routes {
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
     const val ADVISOR_EDIT_PROFILE = "advisor_edit_profile"
+    const val ADVISOR_STUDENT_DETAIL = "advisor_student_detail/{applicationId}"
+    const val ADVISOR_STUDENT_DETAIL_ARG = "applicationId"
+    const val ADVISOR_EVALUATE_STUDENT = "advisor_evaluate_student/{applicationId}"
+    const val ADVISOR_EVALUATE_STUDENT_ARG = "applicationId"
 
     const val COMPANY_APPLICATION_DETAIL = "company_application_detail/{applicationId}"
     const val COMPANY_APPLICATION_DETAIL_ARG = "applicationId"
@@ -71,5 +75,13 @@ object Routes {
 
     fun studentOfferDetail(offerId: String): String {
         return "$STUDENT_OFFER_DETAIL/$offerId"
+    }
+
+    fun advisorStudentDetail(applicationId: String): String {
+        return "advisor_student_detail/$applicationId"
+    }
+
+    fun advisorEvaluateStudent(applicationId: String): String {
+        return "advisor_evaluate_student/$applicationId"
     }
 }

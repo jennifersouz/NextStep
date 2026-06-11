@@ -401,6 +401,34 @@
     <string name="advisor_chats_load_error">Could not load chats.</string>
     <string name="advisor_notifications_placeholder">Here you will receive updates about assigned students.</string>
     <string name="advisor_profile_placeholder">Here you will be able to view and edit your profile.</string>
+    <string name="advisor_home_greeting">Hello, %1$s 👋</string>
+    <string name="summary">Summary</string>
+    <string name="students_in_guidance">Students in guidance</string>
+    <string name="active_internships">Active internships</string>
+    <string name="pending_tasks">Pending tasks</string>
+    <string name="my_students">My students</string>
+    <string name="view_all">View all</string>
+    <string name="recent_activities">Recent activities</string>
+    <string name="no_recent_activities">There are no recent activities yet.</string>
+    <string name="evaluations">Evaluations</string>
+    <string name="documents">Documents</string>
+    <string name="about_internship">About the internship</string>
+    <string name="start_date">Start date</string>
+    <string name="expected_end">Expected end</string>
+    <string name="task_progress">Task progress</string>
+    <string name="next_deadlines">Next deadlines</string>
+    <string name="message">Message</string>
+    <string name="evaluate_student">Evaluate student</string>
+    <string name="no_tasks">There are no tasks yet.</string>
+    <string name="no_documents">There are no documents available yet.</string>
+    <string name="evaluation_not_submitted">The evaluation has not been submitted yet.</string>
+    <string name="all">All</string>
+    <string name="active">Active</string>
+    <string name="to_complete">To complete</string>
+    <string name="completed">Completed</string>
+    <string name="no_students_found">No students found.</string>
+    <string name="need_help">Need help?</string>
+    <string name="advisor_help_text">Talk to the student or the institution whenever needed.</string>
 
     <string name="advisor_invite_pending">Pending</string>
     <string name="advisor_invite_active">Active</string>
@@ -510,6 +538,12 @@
     <string name="tab_notifications">Notifications</string>
     <string name="tab_users">Users</string>
     <string name="tab_students">Students</string>
+    <string name="students">Students</string>
+    <string name="tasks">Tasks</string>
+    <string name="advisor_students_placeholder">Here you will be able to view your assigned students.</string>
+    <string name="advisor_tasks_placeholder">Here you will be able to manage your tasks.</string>
+    <string name="advisor_messages_placeholder">Here you will be able to exchange messages with students and companies.</string>
+    <string name="no_messages">There are no messages yet.</string>
 
     <string name="save_changes">Save changes</string>
     <string name="advisor_profile_update_success">Profile updated successfully.</string>
