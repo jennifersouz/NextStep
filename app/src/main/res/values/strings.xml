@@ -544,4 +544,13 @@
     <string name="delete_invite_error">Não foi possível eliminar o convite.</string>
     <string name="cannot_delete_accepted_invite">Não é possível eliminar um convite já aceite.</string>
     <string name="delete">Eliminar</string>
+    <string name="actions">Ações</string>
+    <string name="sent_requests_description">Acompanha os pedidos e respostas</string>
+    <string name="saved_internships_description">Consulta oportunidades guardadas</string>
+    <string name="submitted_applications_description">Vê o estado das tuas candidaturas</string>
+    <string name="student_role">Aluna</string>
+    <string name="company_role">Empresa</string>
+    <string name="advisor_role">Orientador</string>
+    <string name="institution_role">Instituição de ensino</string>
+    <string name="teacher_role">Docente</string>
 </resources>

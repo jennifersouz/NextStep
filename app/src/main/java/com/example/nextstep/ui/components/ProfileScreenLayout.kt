@@ -26,21 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 
-data class ProfileField(
-    val label: String,
-    val value: String
-)
-
-fun displayProfileValue(value: String?): String {
-    return value?.takeIf { it.isNotBlank() } ?: "-"
-}
-
 @Composable
 fun ProfileScreenLayout(
     title: String,
     name: String,
     photoUrl: String? = null,
-    fields: List<ProfileField>,
+    subtitle: String? = null,
     onEditProfileClick: (() -> Unit)? = null,
     onLogoutClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -88,6 +79,19 @@ fun ProfileScreenLayout(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Subtitle
+            if (!subtitle.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = subtitle,
+                    fontSize = 16.sp,
+                    color = Color(0xFF6F7585),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             // Edit Profile Button
@@ -111,18 +115,6 @@ fun ProfileScreenLayout(
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
-            }
-
-            // Profile fields
-            fields.forEachIndexed { index, field ->
-                ProfileFieldItem(
-                    label = field.label,
-                    value = displayProfileValue(field.value)
-                )
-
-                if (index < fields.lastIndex) {
-                    Spacer(modifier = Modifier.height(26.dp))
-                }
             }
 
             // Extra content (like student menu items)

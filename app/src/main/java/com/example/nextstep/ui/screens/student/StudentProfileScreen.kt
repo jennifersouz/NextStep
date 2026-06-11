@@ -1,6 +1,8 @@
 package com.example.nextstep.ui.screens.student
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,14 +13,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,6 +35,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -42,7 +48,6 @@ import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.StudentProfile
 import com.example.nextstep.ui.components.LanguageOptionsSection
-import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -148,33 +153,26 @@ fun StudentProfileContent(
     onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
-    val fields = buildList {
-        add(ProfileField(stringResource(R.string.email), profile.email))
-        add(ProfileField(stringResource(R.string.contact), ""))
-        add(ProfileField(stringResource(R.string.city), ""))
-        add(ProfileField(stringResource(R.string.country), ""))
-        add(ProfileField(stringResource(R.string.course), profile.course))
-        if (profile.academicYear > 0) {
-            add(
-                ProfileField(
-                    label = stringResource(R.string.academic_year),
-                    value = profile.academicYear.toString()
-                )
-            )
+    val subtitle = buildString {
+        append(stringResource(R.string.student_role))
+        if (!profile.course.isNullOrBlank()) {
+            append(" · ")
+            append(profile.course)
         }
     }
 
     ProfileScreenLayout(
         title = stringResource(R.string.profile),
         name = profile.fullName,
-        fields = fields,
+        subtitle = subtitle,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
         extraContent = {
-            StudentProfileMenuList(
+            StudentProfileActionsSection(
                 onSentRequestsClick = onSentRequestsClick,
                 onSavedInternshipsClick = onSavedInternshipsClick,
-                onSubmittedApplicationsClick = onSubmittedApplicationsClick
+                onSubmittedApplicationsClick = onSubmittedApplicationsClick,
+                modifier = Modifier.padding(top = 12.dp)
             )
         },
         accountOptions = {
@@ -189,73 +187,117 @@ fun StudentProfileContent(
 }
 
 @Composable
-fun StudentProfileMenuList(
+fun StudentProfileActionsSection(
     onSentRequestsClick: () -> Unit,
     onSavedInternshipsClick: () -> Unit,
-    onSubmittedApplicationsClick: () -> Unit
+    onSubmittedApplicationsClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    StudentProfileMenuItem(
-        icon = Icons.AutoMirrored.Outlined.Send,
-        title = stringResource(R.string.sent_requests),
-        onClick = onSentRequestsClick
-    )
-
-    StudentProfileMenuDivider()
-
-    StudentProfileMenuItem(
-        icon = Icons.Outlined.BookmarkBorder,
-        title = stringResource(R.string.saved_internships),
-        onClick = onSavedInternshipsClick
-    )
-
-    StudentProfileMenuDivider()
-
-    StudentProfileMenuItem(
-        icon = Icons.Outlined.Description,
-        title = stringResource(R.string.submitted_applications),
-        onClick = onSubmittedApplicationsClick
-    )
-}
-
-@Composable
-fun StudentProfileMenuItem(
-    icon: ImageVector,
-    title: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(76.dp)
-            .padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = Color.Black,
-            modifier = Modifier.size(32.dp)
-        )
-
-        Spacer(modifier = Modifier.size(22.dp))
-
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = title,
-            fontSize = 21.sp,
-            color = Color.Black,
-            fontWeight = FontWeight.Normal
+            text = stringResource(R.string.actions),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
         )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            ProfileActionCard(
+                title = stringResource(R.string.sent_requests),
+                subtitle = stringResource(R.string.sent_requests_description),
+                icon = Icons.AutoMirrored.Filled.Send,
+                onClick = onSentRequestsClick
+            )
+
+            ProfileActionCard(
+                title = stringResource(R.string.saved_internships),
+                subtitle = stringResource(R.string.saved_internships_description),
+                icon = Icons.Outlined.BookmarkBorder,
+                onClick = onSavedInternshipsClick
+            )
+
+            ProfileActionCard(
+                title = stringResource(R.string.submitted_applications),
+                subtitle = stringResource(R.string.submitted_applications_description),
+                icon = Icons.AutoMirrored.Filled.Article,
+                onClick = onSubmittedApplicationsClick
+            )
+        }
     }
 }
 
 @Composable
-fun StudentProfileMenuDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(start = 4.dp),
-        color = Color(0xFFE0E0E0),
-        thickness = 1.dp
-    )
+fun ProfileActionCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        color = Color.White,
+        tonalElevation = 0.dp,
+        shadowElevation = 1.dp,
+        border = BorderStroke(
+            width = 1.dp,
+            color = Color(0xFFEDEDED)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color(0xFFFDFA52).copy(alpha = 0.25f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Text(
+                    text = subtitle,
+                    fontSize = 14.sp,
+                    color = Color(0xFF6F7585),
+                    lineHeight = 18.sp
+                )
+            }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Color(0xFF6F7585),
+                modifier = Modifier.size(26.dp)
+            )
+        }
+    }
 }
 
 @Composable

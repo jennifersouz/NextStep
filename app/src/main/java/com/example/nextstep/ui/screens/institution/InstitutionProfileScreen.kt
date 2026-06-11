@@ -32,7 +32,6 @@ import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.InstitutionProfileDto
 import com.example.nextstep.ui.components.LanguageOptionsSection
-import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -159,18 +158,18 @@ private fun InstitutionProfileContent(
     onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
-    val fields = buildList {
-        add(ProfileField(stringResource(R.string.institutional_email), profile.email.orEmpty()))
-        add(ProfileField(stringResource(R.string.nif), profile.nif.orEmpty()))
-        add(ProfileField(stringResource(R.string.locality), profile.locality.orEmpty()))
-        add(ProfileField(stringResource(R.string.address), profile.address.orEmpty()))
-        add(ProfileField(stringResource(R.string.contact), profile.phone.orEmpty()))
+    val subtitle = buildString {
+        append(stringResource(R.string.institution_role))
+        if (!profile.locality.isNullOrBlank()) {
+            append(" · ")
+            append(profile.locality)
+        }
     }
 
     ProfileScreenLayout(
         title = stringResource(R.string.profile),
         name = profile.name.orEmpty(),
-        fields = fields,
+        subtitle = subtitle,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
         accountOptions = {

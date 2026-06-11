@@ -540,4 +540,13 @@
     <string name="delete">Delete</string>
     <string name="delete_invite_error">Could not delete the invite.</string>
     <string name="cannot_delete_accepted_invite">An accepted invite cannot be deleted.</string>
+    <string name="actions">Actions</string>
+    <string name="sent_requests_description">Track your requests and replies</string>
+    <string name="saved_internships_description">View saved opportunities</string>
+    <string name="submitted_applications_description">Check the status of your applications</string>
+    <string name="student_role">Student</string>
+    <string name="company_role">Company</string>
+    <string name="advisor_role">Advisor</string>
+    <string name="institution_role">Education institution</string>
+    <string name="teacher_role">Teacher</string>
 </resources>

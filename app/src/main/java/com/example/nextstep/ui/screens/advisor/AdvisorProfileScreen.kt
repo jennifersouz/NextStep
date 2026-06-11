@@ -27,7 +27,6 @@ import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.AdvisorProfileDto
 import com.example.nextstep.ui.components.LanguageOptionsSection
-import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -118,23 +117,18 @@ private fun AdvisorProfileContent(
         stringResource(R.string.advisor_name_placeholder)
     }
 
+    val subtitle = buildString {
+        append(stringResource(R.string.advisor_role))
+        if (!profile.department.isNullOrBlank()) {
+            append(" · ")
+            append(profile.department)
+        }
+    }
+
     ProfileScreenLayout(
         title = stringResource(R.string.profile),
         name = displayName,
-        fields = listOf(
-            ProfileField(
-                label = stringResource(R.string.email),
-                value = profile.email.orEmpty()
-            ),
-            ProfileField(
-                label = stringResource(R.string.contact),
-                value = profile.phone.orEmpty()
-            ),
-            ProfileField(
-                label = stringResource(R.string.department),
-                value = profile.department.orEmpty()
-            )
-        ),
+        subtitle = subtitle,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
         accountOptions = {

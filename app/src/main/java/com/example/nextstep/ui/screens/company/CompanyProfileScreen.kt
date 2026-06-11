@@ -32,7 +32,6 @@ import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.CompanyProfileDto
 import com.example.nextstep.ui.components.LanguageOptionsSection
-import com.example.nextstep.ui.components.ProfileField
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -160,21 +159,18 @@ private fun CompanyProfileContent(
     onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
-    val fields = buildList {
-        add(ProfileField(stringResource(R.string.email), ""))
-        add(ProfileField(stringResource(R.string.contact), company.phone.orEmpty()))
-        if (!company.location.isNullOrBlank()) {
-            add(ProfileField(stringResource(R.string.city), company.location))
-        }
+    val subtitle = buildString {
+        append(stringResource(R.string.company_role))
         if (!company.businessArea.isNullOrBlank()) {
-            add(ProfileField(stringResource(R.string.business_area), company.businessArea))
+            append(" · ")
+            append(company.businessArea)
         }
     }
 
     ProfileScreenLayout(
         title = stringResource(R.string.profile),
         name = company.companyName,
-        fields = fields,
+        subtitle = subtitle,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
         accountOptions = {
