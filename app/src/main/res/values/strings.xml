@@ -4,19 +4,9 @@
     <string name="continue_button">Continuar</string>
     <string name="login_register">Entrar/Registar</string>
     <string name="back">Voltar</string>
-
-    <string name="onboarding1_description">
-        Unimos escolas e empresas numa plataforma única para criar oportunidades reais e simplificar a gestão de talentos.
-    </string>
-
-    <string name="onboarding2_description">
-        Acompanhe a sua evolução prática e conecte-se com as melhores empresas de forma simples e rápida.
-    </string>
-
-    <string name="onboarding3_description">
-        A forma simples e eficiente de gerir estágios, acompanhar o progresso e ligar alunos, orientadores e empresas num só lugar.
-    </string>
-
+    <string name="onboarding1_description">Unimos escolas e empresas numa plataforma única para criar oportunidades reais e simplificar a gestão de talentos.</string>
+    <string name="onboarding2_description">Acompanhe a sua evolução prática e conecte-se com as melhores empresas de forma simples e rápida.</string>
+    <string name="onboarding3_description">A forma simples e eficiente de gerir estágios, acompanhar o progresso e ligar alunos, orientadores e empresas num só lugar.</string>
     <string name="change_language">Alterar idioma</string>
     <string name="login_welcome_back">Bem-vindo de volta!</string>
     <string name="login_subtitle">Entra na tua conta para continuar.</string>
@@ -29,20 +19,16 @@
     <string name="create_account">Criar conta</string>
     <string name="create_account_title">Criar conta</string>
     <string name="create_account_subtitle">Escolhe o teu perfil e preenche os dados necessários.</string>
-
     <string name="user_type_required">Tipo de utilizador *</string>
     <string name="role_student">Aluno</string>
     <string name="role_company">Empresa</string>
     <string name="role_teacher">Docente</string>
     <string name="role_supervisor">Orientador</string>
     <string name="role_institution">Instituição</string>
-
     <string name="account_validation_warning">Este tipo de conta requer validação pela instituição ou administrador antes de ter acesso total à plataforma.</string>
-
     <string name="name_required">Nome *</string>
     <string name="name_placeholder">Insira o seu nome</string>
     <string name="last_name_required">Apelido *</string>
-
     <string name="last_name_placeholder">Insira o seu último nome</string>
     <string name="student_number_required">Número*</string>
     <string name="student_number_placeholder">Ex: 31086</string>
@@ -50,7 +36,6 @@
     <string name="course_placeholder">Ex: Engenharia Informática</string>
     <string name="year_required">Ano *</string>
     <string name="year_placeholder">Ex: 3.º ano</string>
-
     <string name="company_name_required">Nome da empresa *</string>
     <string name="company_name_placeholder">Ex: Tech Solutions</string>
     <string name="nif_required">NIF *</string>
@@ -59,28 +44,22 @@
     <string name="area_placeholder">Ex: Desenvolvimento de Software</string>
     <string name="location_required">Localização *</string>
     <string name="location_placeholder">Ex: Porto</string>
-
     <string name="teacher_number_required">Número de docente *</string>
     <string name="teacher_number_placeholder">Ex: D1234</string>
     <string name="department_required">Departamento *</string>
     <string name="department_placeholder">Ex: Informática</string>
-
     <string name="supervisor_company_required">Empresa associada *</string>
     <string name="supervisor_company_placeholder">Ex: Tech Solutions</string>
     <string name="job_title_required">Cargo *</string>
     <string name="job_title_placeholder">Ex: Engenheiro de Software Sénior</string>
-
     <string name="institution_name_required">Nome da instituição *</string>
     <string name="institution_name_placeholder">Ex: IPVC</string>
-
     <string name="create_account_button">Criar conta</string>
     <string name="request_account_button">Solicitar conta</string>
     <string name="already_have_account">Já tens conta?</string>
     <string name="login">Entrar</string>
-
     <string name="confirm_password_required">Confirmar palavra-passe *</string>
     <string name="confirm_password_placeholder">Confirme a sua palavra-passe</string>
-
     <string name="form_has_errors">Corrija os campos assinalados antes de continuar.</string>
     <string name="error_required_field">Campo obrigatório.</string>
     <string name="error_invalid_email">Introduza um email válido.</string>
@@ -97,7 +76,6 @@
     <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
     <string name="error_login_failed">Não foi possível iniciar sessão. Verifique o email e a palavra-passe.</string>
     <string name="error_register_failed">Não foi possível criar a conta. Verifique os dados ou tente novamente.</string>
-
     <string name="error_user_already_exists">Este email já está registado. Tente iniciar sessão.</string>
     <string name="error_invalid_credentials">Email ou palavra-passe incorretos.</string>
     <string name="error_password_invalid_supabase">A palavra-passe não cumpre os requisitos de segurança.</string>
@@ -107,7 +85,6 @@
     <string name="search">Pesquisar</string>
     <string name="filter">Filtrar</string>
     <string name="results_count">%1$d resultados</string>
-
     <string name="home">Início</string>
     <string name="internships">Estágios</string>
     <string name="notifications">Notificações</string>
@@ -121,30 +98,22 @@
     <string name="company_manage_internships_title">Gerir estágios</string>
     <string name="company_pending">Por concluir</string>
     <string name="company_completed">Concluído</string>
-
     <string name="company_internships_load_error">Não foi possível carregar os estágios. Tente novamente.</string>
-
     <string name="company_no_pending_internships_title">Sem estágios por concluir</string>
     <string name="company_no_pending_internships_subtitle">Quando existirem alunos em estágio ativo, eles vão aparecer aqui.</string>
-
     <string name="company_no_completed_internships_title">Sem estágios concluídos</string>
     <string name="company_no_completed_internships_subtitle">Os estágios finalizados vão aparecer nesta secção.</string>
-
     <string name="company_tab_internships">Estágios</string>
     <string name="company_tab_applications">Candid.</string>
     <string name="company_tab_create">Criar</string>
     <string name="company_tab_team">Equipa</string>
     <string name="company_tab_profile">Perfil</string>
-
     <string name="company_applications_title">Candidaturas</string>
     <string name="company_applications_placeholder">Aqui vais poder analisar candidaturas recebidas.</string>
-
     <string name="company_create_offer_title">Criar oferta</string>
     <string name="company_create_offer_placeholder">Aqui vais poder publicar uma nova oferta de estágio.</string>
-
     <string name="company_team_title">Equipa</string>
     <string name="company_team_placeholder">Aqui vais poder gerir orientadores e utilizadores da empresa.</string>
-
     <string name="company_profile_title">Perfil</string>
     <string name="company_profile_placeholder">Aqui vais poder consultar e editar os dados da empresa.</string>
     <string name="error_unknown_user_role">Tipo de utilizador desconhecido. Contacte o suporte.</string>
@@ -164,7 +133,6 @@
     <string name="offer_vacancies_placeholder">Ex: 2</string>
     <string name="offer_requirements_required">Requisitos *</string>
     <string name="offer_requirements_placeholder">Ex: Kotlin, Git, trabalho em equipa</string>
-
     <string name="offer_area_mobile">Programação Móvel</string>
     <string name="offer_area_web">Sistemas Web</string>
     <string name="offer_area_ai">Inteligência Artificial</string>
@@ -173,30 +141,24 @@
     <string name="offer_area_design">Design</string>
     <string name="offer_area_management">Gestão</string>
     <string name="offer_area_other">Outra</string>
-
     <string name="work_mode_remote">Remoto</string>
     <string name="work_mode_onsite">Presencial</string>
     <string name="work_mode_hybrid">Híbrido</string>
-
     <string name="error_vacancies_number">O número de vagas deve ser numérico.</string>
     <string name="error_vacancies_min">Deve existir pelo menos 1 vaga.</string>
     <string name="error_vacancies_max">O número máximo de vagas é 99.</string>
-
     <string name="create_offer_success">Oferta criada com sucesso.</string>
     <string name="create_offer_error">Não foi possível criar a oferta. Tente novamente.</string>
     <string name="creating">A criar...</string>
     <string name="create">Criar</string>
-
     <string name="create_offer_error_permission">Não tens permissão para criar ofertas. Confirma se esta conta está registada como empresa.</string>
     <string name="create_offer_error_company_profile">Não foi possível encontrar os dados da empresa associados a esta conta.</string>
     <string name="create_offer_error_missing_database_field">A estrutura da tabela de ofertas não está compatível com os dados enviados.</string>
     <string name="create_offer_error_unauthenticated">Sessão expirada. Inicie sessão novamente.</string>
     <string name="apply_button">Candidatar-me</string>
     <string name="save_offer">Guardar oferta</string>
-
     <string name="offer_detail_load_error">Não foi possível carregar os detalhes da oferta. Tente novamente.</string>
     <string name="offer_detail_not_found">Oferta não encontrada.</string>
-
     <string name="offer_location">Localização</string>
     <string name="offer_description">Descrição</string>
     <string name="offer_area">Área</string>
@@ -207,13 +169,11 @@
     <string name="offer_requirements">Requisitos</string>
     <string name="applying">A candidatar...</string>
     <string name="applied_button">Candidatura enviada</string>
-
     <string name="application_success">Candidatura enviada com sucesso.</string>
     <string name="application_already_exists">Já te candidataste a esta oferta.</string>
     <string name="application_permission_error">Não tens permissão para te candidatares a esta oferta.</string>
     <string name="application_company_not_found">Não foi possível identificar a empresa desta oferta.</string>
     <string name="application_generic_error">Não foi possível enviar a candidatura. Tente novamente.</string>
-
     <string name="student_notifications_placeholder">Aqui vais receber atualizações sobre candidaturas e estágios.</string>
     <string name="student_messages_placeholder">Aqui vais poder trocar mensagens com empresas e orientadores.</string>
     <string name="student_profile_placeholder">Aqui vais poder consultar e editar o teu perfil.</string>
@@ -226,13 +186,10 @@
     <string name="upload">Carregar</string>
     <string name="submit_application">Submeter candidatura</string>
     <string name="submitting_application">A submeter...</string>
-
     <string name="application_documents_required">Carrega a carta de motivação e o CV antes de submeter.</string>
     <string name="application_documents_read_error">Não foi possível ler os documentos selecionados.</string>
     <string name="checking_application">A verificar...</string>
     <string name="already_applied_button">Já te candidataste</string>
-
-
     <string name="company_applications_unseen">Por ver</string>
     <string name="company_applications_seen">Vistas</string>
     <string name="company_applications_load_error">Não foi possível carregar as candidaturas.</string>
@@ -243,7 +200,6 @@
     <string name="application_status_pending">Pendente</string>
     <string name="application_status_accepted">Aceite</string>
     <string name="application_status_rejected">Rejeitada</string>
-
     <string name="company_application_detail_not_found">Candidatura não encontrada.</string>
     <string name="company_application_detail_load_error">Não foi possível carregar a candidatura.</string>
     <string name="company_application_status_update_error">Não foi possível atualizar o estado da candidatura.</string>
@@ -252,10 +208,8 @@
     <string name="company_application_opening_document">A abrir documento...</string>
     <string name="company_application_mark_viewed_error">Não foi possível marcar a candidatura como vista.</string>
     <string name="student_profile_load_error">Não foi possível carregar o perfil.</string>
-
     <string name="email">Email</string>
     <string name="education_institution">Instituição de Ensino</string>
-
     <string name="sent_requests">Pedidos enviados</string>
     <string name="saved_internships">Estágios guardados</string>
     <string name="submitted_applications">Candidaturas submetidas</string>
@@ -263,14 +217,11 @@
     <string name="student_submitted_applications_load_error">Não foi possível carregar as candidaturas submetidas.</string>
     <string name="student_no_submitted_applications">Ainda não submeteste nenhuma candidatura.</string>
     <string name="application_status_title">Estado</string>
-
     <string name="student_application_detail_not_found">Candidatura não encontrada.</string>
     <string name="student_application_detail_load_error">Não foi possível carregar os detalhes da candidatura.</string>
-
     <string name="student_application_document_missing">Este documento não está disponível.</string>
     <string name="student_application_document_open_error">Não foi possível abrir o documento.</string>
     <string name="student_application_opening_document">A abrir documento...</string>
-
     <string name="confirm_presence">Confirmar presença</string>
     <string name="confirming_presence">A confirmar...</string>
     <string name="presence_confirmed">Presença confirmada</string>
@@ -300,7 +251,6 @@
     <string name="student_notifications_load_error">Não foi possível carregar as notificações.</string>
     <string name="student_notification_mark_seen_error">Não foi possível marcar a notificação como lida.</string>
     <string name="student_no_notifications">Ainda não tens notificações.</string>
-
     <string name="notification_application_accepted">Aceitou a sua candidatura</string>
     <string name="notification_application_rejected">Rejeitou a sua candidatura</string>
     <string name="notification_application_updated">Atualizou a sua candidatura</string>
@@ -324,13 +274,11 @@
     <string name="company_offer_update_error">Não foi possível atualizar a oferta.</string>
     <string name="company_offer_deactivate_error">Não foi possível desativar a oferta.</string>
     <string name="company_offer_activate_error">Não foi possível ativar a oferta.</string>
-
     <string name="edit_offer">Editar oferta</string>
     <string name="deactivate_offer">Desativar oferta</string>
     <string name="activate_offer">Ativar oferta</string>
     <string name="deactivate">Desativar</string>
     <string name="deactivate_offer_confirmation">Esta oferta deixará de aparecer para os alunos. As candidaturas existentes serão mantidas.</string>
-
     <string name="offer_active">Oferta ativa</string>
     <string name="offer_inactive">Oferta inativa</string>
     <string name="offer_title">Título da oferta</string>
@@ -365,7 +313,6 @@
     <string name="only_with_vacancies">Apenas com vagas disponíveis</string>
     <string name="only_with_vacancies_subtitle">Mostra apenas ofertas com pelo menos uma vaga.</string>
     <string name="apply_filters">Aplicar filtros</string>
-
     <string name="area_management">Gestão</string>
     <string name="area_design">Design</string>
     <string name="area_data">Dados</string>
@@ -382,7 +329,8 @@
     <string name="student_messages_load_error">Não foi possível carregar as conversas.</string>
     <string name="manage_advisors">Gerir orientadores</string>
     <string name="add_advisor">Adicionar</string>
-    <string name="register_advisor">Enviar convite</string>    <string name="advisor_name">Nome</string>
+    <string name="register_advisor">Enviar convite</string>
+    <string name="advisor_name">Nome</string>
     <string name="advisor_email">Email</string>
     <string name="advisor_phone">Contacto</string>
     <string name="advisor_department">Departamento</string>
@@ -432,7 +380,6 @@
     <string name="no_students_found">Não foram encontrados alunos.</string>
     <string name="need_help">Precisa de ajuda?</string>
     <string name="advisor_help_text">Fale com o aluno ou com a instituição sempre que precisar.</string>
-
     <string name="advisor_invite_pending">Pendente</string>
     <string name="advisor_invite_active">Ativo</string>
     <string name="advisor_register_no_invite">Não existe convite de orientador para este email.</string>
@@ -465,8 +412,6 @@
     <string name="student_advisors_load_error">Não foi possível carregar os orientadores.</string>
     <string name="student_advisor_request_error">Não foi possível enviar o pedido.</string>
     <string name="no_advisors_available">Ainda não existem orientadores disponíveis.</string>
-
-    <!-- Advisor Assignment -->
     <string name="assign_advisor">Atribuir orientador</string>
     <string name="change_advisor">Alterar orientador</string>
     <string name="assigned_advisor">Orientador atribuído</string>
@@ -478,7 +423,6 @@
     <string name="student_assigned_advisor_load_error">Não foi possível carregar o orientador atribuído.</string>
     <string name="advisor_assigned_notification_title">Orientador atribuído</string>
     <string name="advisor_assigned_notification_message">Foi atribuído um orientador à tua candidatura.</string>
-
     <string name="chat_title">Chat do estágio</string>
     <string name="message_advisor">Enviar mensagem ao orientador</string>
     <string name="type_message">Escreve uma mensagem...</string>
@@ -492,8 +436,6 @@
     <string name="department">Departamento</string>
     <string name="advisor_name_placeholder">Orientador</string>
     <string name="advisor_profile_load_error">Não foi possível carregar o perfil do orientador.</string>
-
-    <!-- Institution Flow -->
     <string name="institution">Instituição de ensino</string>
     <string name="institution_area">Área da instituição</string>
     <string name="institution_home_empty">Aqui poderás gerir alunos e docentes.</string>
@@ -514,23 +456,18 @@
     <string name="teacher_register_title">Registo de docente</string>
     <string name="teacher_register_description">Para criares uma conta como docente, a instituição deve ter criado previamente um convite com este email.</string>
     <string name="phone_placeholder">Ex: 912345678</string>
-
     <string name="student_invite_required_info">Para criares uma conta como aluno, a tua instituição deve ter criado previamente um convite com este email.</string>
     <string name="student_invite_created_success">Convite criado. O aluno deve criar conta com este email.</string>
     <string name="invite_already_exists">Já existe um convite para este email.</string>
     <string name="incomplete_account">Conta incompleta. Contacta a tua instituição.</string>
     <string name="student_register_title">Registo por convite</string>
-
-    <!-- Institution Profile -->
     <string name="institution_profile_load_error">Não foi possível carregar o perfil da instituição.</string>
     <string name="institution_profile_update_error">Não foi possível atualizar o perfil da instituição.</string>
     <string name="institution_profile_update_success">Perfil atualizado com sucesso.</string>
-
     <string name="account_options">Opções da Conta</string>
     <string name="language">Idioma</string>
     <string name="language_portuguese">Português</string>
     <string name="language_english">English</string>
-
     <string name="tab_home">Início</string>
     <string name="tab_applications">Candidaturas</string>
     <string name="tab_saved">Guardados</string>
@@ -548,14 +485,10 @@
     <string name="advisor_messages_placeholder">Aqui vais poder trocar mensagens com alunos e empresas.</string>
     <string name="no_messages">Ainda não existem mensagens.</string>
     <string name="no_messages_yet">Sem mensagens ainda.</string>
-
     <string name="save_changes">Guardar alterações</string>
     <string name="advisor_profile_update_success">Perfil atualizado com sucesso.</string>
     <string name="advisor_profile_update_error">Não foi possível atualizar o perfil do orientador.</string>
-
     <string name="language_options">Opções de idioma</string>
-
-    <!-- Institution Home -->
     <string name="institution_home_greeting">Olá, %1$s</string>
     <string name="institution_home_description">Gere os teus alunos e docentes associados à plataforma.</string>
     <string name="students_summary">Alunos</string>
@@ -589,8 +522,6 @@
     <string name="teacher_role">Docente</string>
     <string name="internship_chat_subtitle">Conversa da candidatura</string>
     <string name="no_messages_description">Envia a primeira message sobre este estágio.</string>
-
-    <!-- Advisor Tasks -->
     <string name="tasks_subtitle">Acompanha as atividades dos teus alunos.</string>
     <string name="new_task">Nova tarefa</string>
     <string name="in_progress">Em curso</string>
@@ -608,4 +539,90 @@
     <string name="new_assigned_student">Novo aluno atribuído</string>
     <string name="new_assigned_student_message">Foi-te atribuído um novo aluno para orientação.</string>
     <string name="new_message_from_student">O aluno enviou uma nova mensagem.</string>
+    <string name="requests">Pedidos</string>
+    <string name="search_requests_placeholder">Pesquisar aluno ou estágio</string>
+    <string name="teacher_filter_all">Todos</string>
+    <string name="teacher_filter_pending">Pendentes</string>
+    <string name="teacher_filter_accepted">Aceites</string>
+    <string name="teacher_filter_rejected">Rejeitados</string>
+    <string name="no_requests">Ainda não tens pedidos de orientação.</string>
+    <string name="no_requests_found">Nenhum pedido encontrado.</string>
+    <string name="load_requests_error">Não foi possível carregar os pedidos. Tenta novamente.</string>
+    <string name="request_detail">Detalhe do pedido</string>
+    <string name="section_student">Aluno</string>
+    <string name="section_offer">Oferta</string>
+    <string name="section_documents">Documentos</string>
+    <string name="view_details">Ver detalhes</string>
+    <string name="reject">Rejeitar</string>
+    <string name="accept">Aceitar</string>
+    <string name="reject_request_title">Rejeitar pedido</string>
+    <string name="reject_request_message">Tens a certeza que queres rejeitar este pedido de orientação?</string>
+    <string name="request_accepted">Pedido aceite</string>
+    <string name="request_rejected">Pedido rejeitado</string>
+
+    <!-- Teacher Students -->
+    <string name="search_student_placeholder">Pesquisar aluno</string>
+    <string name="to_evaluate">Por avaliar</string>
+    <string name="no_students_yet">Ainda não tens alunos acompanhados.</string>
+    <string name="pending_evaluation">Avaliação pendente</string>
+    <string name="view_pdf">Ver PDF</string>
+    <string name="download">Download</string>
+    <string name="no_documents_submitted">Ainda não existem documentos submetidos.</string>
+    <string name="student_evaluation_form">Formulário de avaliação</string>
+    <string name="grade_label">Nota</string>
+    <string name="grade_placeholder">Insira a nota (ex: 0-20)</string>
+    <string name="qualitative_comment">Comentário qualitativo</string>
+    <string name="comment_placeholder">Descreva o desempenho do aluno</string>
+    <string name="strengths">Pontos fortes</string>
+    <string name="strengths_placeholder">Indique os pontos fortes do aluno</string>
+    <string name="weaknesses">Pontos a melhorar</string>
+    <string name="weaknesses_placeholder">Indique os aspetos a melhorar</string>
+    <string name="save_evaluation">Guardar avaliação</string>
+    <string name="evaluation_saved">Avaliação guardada com sucesso.</string>
+    <string name="last_activity">Última atividade</string>
+    <string name="evaluation_completed">Avaliação concluída</string>
+    <string name="update_evaluation">Atualizar avaliação</string>
+    <string name="edit_evaluation">Editar avaliação</string>
+    <string name="improvements">Pontos a melhorar</string>
+    <string name="improvements_placeholder">Indique os aspetos a melhorar</string>
+    <string name="evaluation_error_grade_invalid">Insere uma nota válida entre 0 e 20.</string>
+    <string name="evaluation_error_grade_required">Insere uma nota.</string>
+    <string name="evaluation_error_feedback_required">Escreve uma apreciação qualitativa.</string>
+    <string name="evaluation_error_save_failed">Não foi possível guardar a avaliação. Tente novamente.</string>
+    <string name="evaluation_error_table_missing">A tabela de avaliações ainda não está disponível. Contacte o administrador.</string>
+    <string name="evaluated">Avaliado</string>
+
+    <!-- Teacher Notifications -->
+    <string name="teacher_notifications_title">Notificações</string>
+    <string name="teacher_no_notifications">Ainda não tens notificações.</string>
+    <string name="teacher_notification_new_request">Novo pedido de orientação</string>
+    <string name="teacher_notification_new_message">Nova mensagem</string>
+    <string name="teacher_notification_report_submitted">Relatório submetido</string>
+    <string name="teacher_notification_evaluation_pending">Avaliação pendente</string>
+    <string name="teacher_notifications_load_error">Não foi possível carregar as notificações.</string>
+
+    <!-- Teacher Profile -->
+    <string name="teacher_profile_load_error">Não foi possível carregar o perfil do docente.</string>
+    <string name="teacher_profile_update_success">Perfil atualizado com sucesso.</string>
+    <string name="teacher_profile_update_error">Não foi possível atualizar o perfil do docente.</string>
+    <string name="teacher_profile_name_placeholder">Docente</string>
+    <string name="teacher_institution">Instituição</string>
+    <string name="teacher_department">Departamento / Área</string>
+    <string name="teacher_last_name">Apelido</string>
+
+    <!-- Teacher Home -->
+    <string name="teacher_home_greeting">Olá, %1$s 👋</string>
+    <string name="teacher_pending_requests">Pedidos pendentes</string>
+    <string name="teacher_students_followed">Alunos acompanhados</string>
+    <string name="teacher_pending_evaluations">Avaliações por fazer</string>
+    <string name="teacher_recent_requests">Pedidos recentes</string>
+    <string name="teacher_no_pending_requests">Ainda não tens pedidos pendentes.</string>
+    <string name="teacher_recent_activities">Atividades recentes</string>
+    <string name="teacher_no_recent_activities">Ainda não existem atividades recentes.</string>
+
+    <!-- Teacher Student Status -->
+    <string name="teacher_status_active">Ativo</string>
+    <string name="teacher_status_in_progress">Em curso</string>
+    <string name="teacher_status_completed">Concluído</string>
+    <string name="teacher_status_pending">Pendente</string>
 </resources>

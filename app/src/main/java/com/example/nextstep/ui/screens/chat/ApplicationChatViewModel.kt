@@ -38,26 +38,37 @@ class ApplicationChatViewModel : ViewModel() {
         )
     }
 
-    fun start(applicationId: String, participantName: String? = null) {
+    fun start(
+        applicationId: String, 
+        participantName: String? = null,
+        offerTitle: String? = null,
+        studentProfileId: String? = null
+    ) {
         if (applicationId.isBlank()) return
         
         refreshCurrentUserId()
         
         val isNewConversation = currentApplicationId != applicationId
         val normalizedName = normalizeName(participantName)
+        val normalizedOffer = normalizeName(offerTitle)
         
         if (isNewConversation) {
             currentApplicationId = applicationId
             _uiState.value = _uiState.value.copy(
                 messages = emptyList(),
                 participantName = if (normalizedName == "Chat" || normalizedName == "Aluno") "" else normalizedName,
+                internshipTitle = normalizedOffer,
                 isLoading = true,
                 errorMessageRes = null
             )
-        } else if (normalizedName.isNotBlank() && normalizedName != "Chat" && normalizedName != "Aluno") {
-            // Se o nome passado for válido e diferente de genérico, atualiza
-            if (_uiState.value.participantName != normalizedName) {
-                _uiState.value = _uiState.value.copy(participantName = normalizedName)
+        } else {
+            if (normalizedName.isNotBlank() && normalizedName != "Chat" && normalizedName != "Aluno") {
+                if (_uiState.value.participantName != normalizedName) {
+                    _uiState.value = _uiState.value.copy(participantName = normalizedName)
+                }
+            }
+            if (normalizedOffer.isNotBlank() && _uiState.value.internshipTitle != normalizedOffer) {
+                _uiState.value = _uiState.value.copy(internshipTitle = normalizedOffer)
             }
         }
 
@@ -87,9 +98,8 @@ class ApplicationChatViewModel : ViewModel() {
     private fun normalizeName(name: String?): String {
         if (name.isNullOrBlank()) return ""
         return try {
-            // URLDecoder é fundamental aqui porque ele converte '+' em espaço corretamente
             URLDecoder.decode(name, "UTF-8")
-                .replace("+", " ") // Garantia extra
+                .replace("+", " ")
                 .replace(Regex("\\s+"), " ")
                 .trim()
         } catch (e: Exception) {

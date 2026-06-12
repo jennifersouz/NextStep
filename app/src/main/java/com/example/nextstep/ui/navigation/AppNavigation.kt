@@ -2,10 +2,15 @@ package com.example.nextstep.ui.navigation
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -30,7 +35,6 @@ import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
-import com.example.nextstep.ui.screens.institution.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
@@ -38,6 +42,12 @@ import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
+import com.example.nextstep.ui.screens.teacher.TeacherDashboardScreen
+import com.example.nextstep.ui.screens.teacher.TeacherEditProfileScreen
+import com.example.nextstep.ui.screens.teacher.TeacherNotificationsScreen
+import com.example.nextstep.ui.screens.teacher.TeacherRequestDetailScreen
+import com.example.nextstep.ui.screens.teacher.TeacherStudentsScreen
+import com.example.nextstep.ui.screens.teacher.TeacherStudentDetailScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -285,6 +295,107 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                },
+                onNotificationsClick = {
+                    navController.navigate(Routes.TEACHER_NOTIFICATIONS)
+                },
+                onEditProfileClick = {
+                    navController.navigate(Routes.TEACHER_EDIT_PROFILE)
+                },
+                onRequestClick = { applicationId ->
+                    navController.navigate(Routes.teacherRequestDetail(applicationId))
+                },
+                onChatClick = { studentProfileId, applicationId, name, offerTitle ->
+                    navController.navigate(
+                        Routes.applicationChat(applicationId, name, offerTitle, studentProfileId)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Routes.TEACHER_REQUEST_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.TEACHER_REQUEST_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.TEACHER_REQUEST_DETAIL_ARG)
+                .orEmpty()
+
+            TeacherRequestDetailScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_NOTIFICATIONS) {
+            TeacherNotificationsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onNotificationClick = { type, applicationId ->
+                    when (type) {
+                        "new_message" -> {
+                            if (applicationId.isNotBlank()) {
+                                navController.navigate(Routes.applicationChat(applicationId))
+                            }
+                        }
+                        "advisor_assigned" -> {
+                            if (applicationId.isNotBlank()) {
+                                navController.navigate(
+                                    Routes.teacherRequestDetail(applicationId)
+                                )
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_EDIT_PROFILE) {
+            TeacherEditProfileScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_STUDENTS) {
+            TeacherStudentsScreen(
+                onStudentClick = { applicationId ->
+                    navController.navigate(
+                        Routes.teacherStudentDetail(applicationId)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Routes.TEACHER_STUDENT_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments
+                ?.getString(Routes.TEACHER_STUDENT_DETAIL_ARG)
+                .orEmpty()
+
+            TeacherStudentDetailScreen(
+                applicationId = applicationId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onMessageClick = {
+                    navController.navigate(
+                        Routes.applicationChat(applicationId)
+                    )
                 }
             )
         }
@@ -488,6 +599,16 @@ fun AppNavigation() {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
+                },
+                navArgument(Routes.APPLICATION_CHAT_OFFER_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument(Routes.APPLICATION_CHAT_STUDENT_ID_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
@@ -496,17 +617,25 @@ fun AppNavigation() {
                 .orEmpty()
             val rawName = backStackEntry.arguments
                 ?.getString(Routes.APPLICATION_CHAT_NAME_ARG)
+            val rawOffer = backStackEntry.arguments
+                ?.getString(Routes.APPLICATION_CHAT_OFFER_ARG)
+            val studentProfileId = backStackEntry.arguments
+                ?.getString(Routes.APPLICATION_CHAT_STUDENT_ID_ARG)
             
-            // Decodificar nome para remover + e %20 (Ponto 2)
             val name = rawName?.let { 
                 Uri.decode(it).replace("+", " ").trim()
             }
+            val offerTitle = rawOffer?.let {
+                Uri.decode(it).replace("+", " ").trim()
+            }
 
-            Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name")
+            Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name, offer=$offerTitle")
 
             ApplicationChatScreen(
                 applicationId = applicationId,
                 participantName = name,
+                offerTitle = offerTitle,
+                studentProfileId = studentProfileId,
                 onBackClick = {
                     navController.popBackStack()
                 }
