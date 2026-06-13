@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
 import com.example.nextstep.data.model.StudentSubmittedApplicationDto
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,11 +75,24 @@ fun StudentInternshipDetailScreen(
                         internship = uiState.internship!!,
                         tasks = uiState.tasks,
                         onChatClick = onChatClick,
-                        onSearchAdvisorClick = onSearchAdvisorClick
+                        onSearchAdvisorClick = onSearchAdvisorClick,
+                        onAddTaskClick = viewModel::showAddTaskDialog,
+                        onTaskStatusChange = viewModel::updateTaskStatus
                     )
                 }
             }
         }
+    }
+
+    if (uiState.showAddTaskDialog) {
+        AddTaskDialog(
+            title = uiState.taskTitle,
+            isSaving = uiState.isSavingTask,
+            error = uiState.taskError,
+            onTitleChange = viewModel::updateTaskTitle,
+            onSave = viewModel::createTask,
+            onDismiss = viewModel::hideAddTaskDialog
+        )
     }
 }
 
@@ -85,7 +101,9 @@ fun InternshipDetailContent(
     internship: StudentSubmittedApplicationDto,
     tasks: List<AdvisorTaskListItemDto>,
     onChatClick: (String, String) -> Unit,
-    onSearchAdvisorClick: () -> Unit
+    onSearchAdvisorClick: () -> Unit,
+    onAddTaskClick: () -> Unit,
+    onTaskStatusChange: (String, String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -133,8 +151,11 @@ fun InternshipDetailContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Academic Advisor
-        if (internship.teacherProfileId != null) {
+        // Academic Advisor (Teacher)
+        val isTeacherAssigned = internship.teacherProfileId != null
+                && internship.teacherStatus == "accepted"
+
+        if (isTeacherAssigned) {
             AdvisorItem(
                 organization = internship.institutionName ?: "Instituição",
                 name = internship.teacherName ?: "Orientador Académico",
@@ -160,7 +181,7 @@ fun InternshipDetailContent(
         if (internship.status == "completed") {
             EvaluationsSection(internship)
         } else {
-            TasksSection(tasks)
+            TasksSection(tasks, onAddTaskClick, onTaskStatusChange)
         }
     }
 }
@@ -199,32 +220,80 @@ fun AdvisorItem(
 }
 
 @Composable
-fun TasksSection(tasks: List<AdvisorTaskListItemDto>) {
+fun TasksSection(
+    tasks: List<AdvisorTaskListItemDto>,
+    onAddTaskClick: () -> Unit,
+    onTaskStatusChange: (String, String) -> Unit
+) {
     Text("Tarefas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
-    
-    if (tasks.isEmpty()) {
+
+    val grouped = tasks.groupBy { task ->
+        if (!task.dueDate.isNullOrBlank()) task.dueDate
+        else task.createdAt?.take(10) ?: "sem data"
+    }
+
+    if (grouped.isEmpty()) {
         Text("Sem tarefas atribuídas.", color = Color.Gray)
     } else {
-        tasks.forEach { task ->
-            TaskCard(task)
-            Spacer(modifier = Modifier.height(12.dp))
+        grouped.forEach { (dateKey, dateTasks) ->
+            if (dateKey != "sem data") {
+                val formattedDate = try {
+                    val date = if (dateKey.length == 10) LocalDate.parse(dateKey)
+                    else LocalDate.parse(dateKey.take(10))
+                    date.format(DateTimeFormatter.ofPattern("EEE, d 'de' MMMM", Locale("pt", "PT")))
+                } catch (_: Exception) {
+                    dateKey
+                }
+
+                Text(formattedDate, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF666666))
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            dateTasks.forEach { task ->
+                TaskCard(task, onTaskStatusChange)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    Button(
+        onClick = onAddTaskClick,
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFDFA52), contentColor = Color.Black),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Adicionar Tarefa", fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-fun TaskCard(task: AdvisorTaskListItemDto) {
+fun TaskCard(task: AdvisorTaskListItemDto, onStatusChange: (String, String) -> Unit) {
+    val isCompleted = task.status == "completed"
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color(0xFFE5E5E5))
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = task.status == "completed", onCheckedChange = null, enabled = false)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(task.title, fontWeight = FontWeight.Medium)
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = isCompleted,
+                onCheckedChange = { checked ->
+                    onStatusChange(task.id, if (checked) "completed" else "pending")
+                }
+            )
+            Text(
+                task.title,
+                fontWeight = FontWeight.Medium,
+                color = if (isCompleted) Color.Gray else Color.Black,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -275,4 +344,52 @@ fun EvaluationRow(name: String, grade: String) {
         }
         Text(text = " / 20", color = Color.Gray, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
     }
+}
+
+@Composable
+fun AddTaskDialog(
+    title: String,
+    isSaving: Boolean,
+    error: String?,
+    onTitleChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Adicionar Tarefa", fontWeight = FontWeight.Bold) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = onTitleChange,
+                    label = { Text("Tarefa") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (error != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(error, color = Color.Red, fontSize = 13.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onSave,
+                enabled = !isSaving,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFDFA52), contentColor = Color.Black)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
+                } else {
+                    Text("Guardar", fontWeight = FontWeight.Bold)
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isSaving) {
+                Text("Cancelar")
+            }
+        }
+    )
 }

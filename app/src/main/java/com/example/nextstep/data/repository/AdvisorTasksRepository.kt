@@ -7,7 +7,6 @@ import com.example.nextstep.data.model.UpdateApplicationTaskStatusDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
-import java.time.Instant
 
 class AdvisorTasksRepository {
 
@@ -52,22 +51,13 @@ class AdvisorTasksRepository {
 
     suspend fun createTask(
         applicationId: String,
-        title: String,
-        description: String?,
-        dueDate: String?,
-        priority: String
+        title: String
     ): Result<Unit> {
         return try {
-            val userId = auth.currentUserOrNull()?.id ?: throw IllegalStateException("Não autenticado")
-            
             val taskDto = CreateApplicationTaskDto(
                 applicationId = applicationId,
                 title = title,
-                description = description,
-                dueDate = dueDate,
-                priority = priority,
-                status = "pending",
-                createdByProfileId = userId
+                status = "pending"
             )
             
             supabase.from("application_tasks").insert(taskDto)
@@ -80,13 +70,7 @@ class AdvisorTasksRepository {
 
     suspend fun updateTaskStatus(taskId: String, status: String): Result<Unit> {
         return try {
-            val completedAt = if (status == "completed") Instant.now().toString() else null
-            
-            val updateDto = UpdateApplicationTaskStatusDto(
-                status = status,
-                completedAt = completedAt,
-                updatedAt = Instant.now().toString()
-            )
+            val updateDto = UpdateApplicationTaskStatusDto(status = status)
             
             supabase.from("application_tasks")
                 .update(updateDto) {

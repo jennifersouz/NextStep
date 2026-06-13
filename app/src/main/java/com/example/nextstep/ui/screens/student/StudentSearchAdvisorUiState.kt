@@ -10,7 +10,9 @@ data class StudentSearchAdvisorUiState(
     val isSendingRequest: Boolean = false,
     val sendingTeacherId: String? = null,
     @StringRes val errorMessageRes: Int? = null,
-    val isRequestSent: Boolean = false
+    val isRequestSent: Boolean = false,
+    val currentTeacherProfileId: String? = null,
+    val currentTeacherStatus: String? = null
 ) {
     val filteredTeachers: List<TeacherDto>
         get() = if (searchQuery.isBlank()) {

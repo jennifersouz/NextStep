@@ -32,14 +32,8 @@ fun StudentSearchAdvisorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadTeachers()
-    }
-
-    if (uiState.isRequestSent) {
-        LaunchedEffect(Unit) {
-            onBackClick()
-        }
+    LaunchedEffect(internshipId) {
+        viewModel.loadTeachers(applicationId = internshipId)
     }
 
     Scaffold(
@@ -99,9 +93,11 @@ fun StudentSearchAdvisorScreen(
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     items(uiState.filteredTeachers) { teacher ->
+                        val isThisTeacher = teacher.safeProfileId == uiState.currentTeacherProfileId
                         TeacherRow(
                             teacher = teacher,
                             isSending = uiState.sendingTeacherId == teacher.safeProfileId,
+                            currentStatus = if (isThisTeacher) uiState.currentTeacherStatus else null,
                             onSendClick = { viewModel.sendRequest(internshipId, teacher.safeProfileId) }
                         )
                     }
@@ -115,8 +111,19 @@ fun StudentSearchAdvisorScreen(
 fun TeacherRow(
     teacher: TeacherDto,
     isSending: Boolean,
+    currentStatus: String?,
     onSendClick: () -> Unit
 ) {
+    val buttonEnabled = !isSending && teacher.safeProfileId.isNotBlank()
+            && currentStatus != "pending" && currentStatus != "accepted"
+
+    val buttonText = when {
+        isSending -> "Enviando..."
+        currentStatus == "pending" -> "Pedido Enviado"
+        currentStatus == "accepted" -> "Aceite"
+        else -> "Enviar Pedido"
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -149,16 +156,18 @@ fun TeacherRow(
         
         Button(
             onClick = onSendClick,
-            enabled = !isSending && teacher.safeProfileId.isNotBlank(),
+            enabled = buttonEnabled,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFDFA52),
-                contentColor = Color.Black
+                contentColor = Color.Black,
+                disabledContainerColor = Color(0xFFEAEAEA),
+                disabledContentColor = Color(0xFF777777)
             ),
             shape = RoundedCornerShape(8.dp),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
         ) {
             Text(
-                text = if (isSending) "Enviando..." else "Enviar Pedido",
+                text = buttonText,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )

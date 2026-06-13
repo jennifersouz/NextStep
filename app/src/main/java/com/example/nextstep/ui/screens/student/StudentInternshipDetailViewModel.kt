@@ -17,7 +17,10 @@ class StudentInternshipDetailViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(StudentInternshipDetailUiState())
     val uiState: StateFlow<StudentInternshipDetailUiState> = _uiState.asStateFlow()
 
+    private var currentInternshipId: String = ""
+
     fun loadDetail(internshipId: String) {
+        currentInternshipId = internshipId
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
@@ -36,6 +39,65 @@ class StudentInternshipDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Erro ao carregar detalhes do estágio."
+                )
+            }
+        }
+    }
+
+    fun showAddTaskDialog() {
+        _uiState.value = _uiState.value.copy(
+            showAddTaskDialog = true,
+            taskTitle = "",
+            taskError = null
+        )
+    }
+
+    fun hideAddTaskDialog() {
+        _uiState.value = _uiState.value.copy(showAddTaskDialog = false, taskError = null)
+    }
+
+    fun updateTaskTitle(title: String) {
+        _uiState.value = _uiState.value.copy(taskTitle = title)
+    }
+
+    fun createTask() {
+        val state = _uiState.value
+        if (state.taskTitle.isBlank()) {
+            _uiState.value = state.copy(taskError = "O título é obrigatório.")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSavingTask = true, taskError = null)
+
+            val result = tasksRepository.createTask(
+                applicationId = currentInternshipId,
+                title = state.taskTitle.trim()
+            )
+
+            if (result.isSuccess) {
+                val tasksResult = tasksRepository.getTasksByApplication(currentInternshipId)
+                _uiState.value = _uiState.value.copy(
+                    isSavingTask = false,
+                    showAddTaskDialog = false,
+                    tasks = tasksResult.getOrDefault(emptyList())
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isSavingTask = false,
+                    taskError = "Erro ao guardar tarefa."
+                )
+            }
+        }
+    }
+
+    fun updateTaskStatus(taskId: String, newStatus: String) {
+        viewModelScope.launch {
+            val result = tasksRepository.updateTaskStatus(taskId, newStatus)
+            if (result.isSuccess) {
+                val tasksResult = tasksRepository.getTasksByApplication(currentInternshipId)
+                _uiState.value = _uiState.value.copy(
+                    tasks = tasksResult.getOrDefault(emptyList())
                 )
             }
         }
