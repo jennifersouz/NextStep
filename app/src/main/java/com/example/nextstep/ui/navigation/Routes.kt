@@ -21,14 +21,30 @@ object Routes {
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
-    const val APPLICATION_CHAT = "application_chat/{applicationId}?name={name}"
+
+    const val APPLICATION_CHAT = "application_chat/{applicationId}?name={name}&offerTitle={offerTitle}&studentProfileId={studentProfileId}"
     const val APPLICATION_CHAT_ARG = "applicationId"
     const val APPLICATION_CHAT_NAME_ARG = "name"
+    const val APPLICATION_CHAT_OFFER_ARG = "offerTitle"
+    const val APPLICATION_CHAT_STUDENT_ID_ARG = "studentProfileId"
+
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
     const val INSTITUTION_DASHBOARD = "institution_dashboard"
     const val INSTITUTION_USERS = "institution_users"
     const val ADD_INSTITUTION_USER = "add_institution_user"
+
     const val TEACHER_DASHBOARD = "teacher_dashboard"
+    const val TEACHER_NOTIFICATIONS = "teacher_notifications"
+    const val TEACHER_REQUESTS = "teacher_requests"
+    const val TEACHER_REQUEST_DETAIL = "teacher_request_detail/{applicationId}"
+    const val TEACHER_REQUEST_DETAIL_ARG = "applicationId"
+    const val TEACHER_STUDENTS = "teacher_students"
+    const val TEACHER_STUDENT_DETAIL = "teacher_student_detail/{applicationId}"
+    const val TEACHER_STUDENT_DETAIL_ARG = "applicationId"
+    const val TEACHER_MESSAGES = "teacher_messages"
+    const val TEACHER_PROFILE = "teacher_profile"
+    const val TEACHER_EDIT_PROFILE = "teacher_edit_profile"
+
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
     const val ADVISOR_EDIT_PROFILE = "advisor_edit_profile"
@@ -50,6 +66,14 @@ object Routes {
     const val COMPANY_ASSIGN_ADVISOR = "company_assign_advisor/{applicationId}"
     const val COMPANY_ASSIGN_ADVISOR_ARG = "applicationId"
 
+    fun teacherRequestDetail(applicationId: String): String {
+        return "teacher_request_detail/$applicationId"
+    }
+
+    fun teacherStudentDetail(applicationId: String): String {
+        return "teacher_student_detail/$applicationId"
+    }
+
     fun companyApplicationDetail(applicationId: String): String {
         return "company_application_detail/$applicationId"
     }
@@ -66,14 +90,19 @@ object Routes {
         return "chat/$applicationId"
     }
 
-    fun applicationChat(applicationId: String, name: String? = null): String {
-        return if (!name.isNullOrBlank()) {
-            val encodedName = Uri.encode(name)
-            "application_chat/$applicationId?name=$encodedName"
-        } else {
-            "application_chat/$applicationId"
-        }
+    fun applicationChat(
+        applicationId: String,
+        name: String? = null,
+        offerTitle: String? = null,
+        studentProfileId: String? = null
+    ): String {
+        val builder = StringBuilder("application_chat/$applicationId?")
+        name?.let { builder.append("name=${Uri.encode(it)}&") }
+        offerTitle?.let { builder.append("offerTitle=${Uri.encode(it)}&") }
+        studentProfileId?.let { builder.append("studentProfileId=${Uri.encode(it)}&") }
+        return builder.toString().removeSuffix("&").removeSuffix("?")
     }
+
     fun companyOfferDetail(offerId: String): String {
         return "company_offer_detail/$offerId"
     }
@@ -81,9 +110,11 @@ object Routes {
     fun companyEditOffer(offerId: String): String {
         return "company_edit_offer/$offerId"
     }
+
     fun studentSubmittedApplicationDetail(applicationId: String): String {
         return "$STUDENT_SUBMITTED_APPLICATION_DETAIL/$applicationId"
     }
+
     fun studentApplication(offerId: String): String {
         return "$STUDENT_APPLICATION/$offerId"
     }

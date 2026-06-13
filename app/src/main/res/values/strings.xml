@@ -42,7 +42,6 @@
     <string name="name_required">Nome *</string>
     <string name="name_placeholder">Insira o seu nome</string>
     <string name="last_name_required">Apelido *</string>
-
     <string name="last_name_placeholder">Insira o seu último nome</string>
     <string name="student_number_required">Número*</string>
     <string name="student_number_placeholder">Ex: 31086</string>
@@ -97,7 +96,6 @@
     <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
     <string name="error_login_failed">Não foi possível iniciar sessão. Verifique o email e a palavra-passe.</string>
     <string name="error_register_failed">Não foi possível criar a conta. Verifique os dados ou tente novamente.</string>
-
     <string name="error_user_already_exists">Este email já está registado. Tente iniciar sessão.</string>
     <string name="error_invalid_credentials">Email ou palavra-passe incorretos.</string>
     <string name="error_password_invalid_supabase">A palavra-passe não cumpre os requisitos de segurança.</string>
@@ -231,7 +229,6 @@
     <string name="application_documents_read_error">Não foi possível ler os documentos selecionados.</string>
     <string name="checking_application">A verificar...</string>
     <string name="already_applied_button">Já te candidataste</string>
-
 
     <string name="company_applications_unseen">Por ver</string>
     <string name="company_applications_seen">Vistas</string>
@@ -382,7 +379,8 @@
     <string name="student_messages_load_error">Não foi possível carregar as conversas.</string>
     <string name="manage_advisors">Gerir orientadores</string>
     <string name="add_advisor">Adicionar</string>
-    <string name="register_advisor">Enviar convite</string>    <string name="advisor_name">Nome</string>
+    <string name="register_advisor">Enviar convite</string>
+    <string name="advisor_name">Nome</string>
     <string name="advisor_email">Email</string>
     <string name="advisor_phone">Contacto</string>
     <string name="advisor_department">Departamento</string>
@@ -514,7 +512,6 @@
     <string name="teacher_register_title">Registo de docente</string>
     <string name="teacher_register_description">Para criares uma conta como docente, a instituição deve ter criado previamente um convite com este email.</string>
     <string name="phone_placeholder">Ex: 912345678</string>
-
     <string name="student_invite_required_info">Para criares uma conta como aluno, a tua instituição deve ter criado previamente um convite com este email.</string>
     <string name="student_invite_created_success">Convite criado. O aluno deve criar conta com este email.</string>
     <string name="invite_already_exists">Já existe um convite para este email.</string>
@@ -608,6 +605,96 @@
     <string name="new_assigned_student">Novo aluno atribuído</string>
     <string name="new_assigned_student_message">Foi-te atribuído um novo aluno para orientação.</string>
     <string name="new_message_from_student">O aluno enviou uma nova mensagem.</string>
+
+    <!-- Teacher Requests -->
+    <string name="requests">Pedidos</string>
+    <string name="search_requests_placeholder">Pesquisar aluno ou estágio</string>
+    <string name="teacher_filter_all">Todos</string>
+    <string name="teacher_filter_pending">Pendentes</string>
+    <string name="teacher_filter_accepted">Aceites</string>
+    <string name="teacher_filter_rejected">Rejeitados</string>
+    <string name="no_requests">Ainda não tens pedidos de orientação.</string>
+    <string name="no_requests_found">Nenhum pedido encontrado.</string>
+    <string name="load_requests_error">Não foi possível carregar os pedidos. Tenta novamente.</string>
+    <string name="request_detail">Detalhe do pedido</string>
+    <string name="section_student">Aluno</string>
+    <string name="section_offer">Oferta</string>
+    <string name="section_documents">Documentos</string>
+    <string name="view_details">Ver detalhes</string>
+    <string name="reject">Rejeitar</string>
+    <string name="accept">Aceitar</string>
+    <string name="reject_request_title">Rejeitar pedido</string>
+    <string name="reject_request_message">Tens a certeza que queres rejeitar este pedido de orientação?</string>
+    <string name="request_accepted">Pedido aceite</string>
+    <string name="request_rejected">Pedido rejeitado</string>
+
+    <!-- Teacher Students -->
+    <string name="search_student_placeholder">Pesquisar aluno</string>
+    <string name="to_evaluate">Por avaliar</string>
+    <string name="no_students_yet">Ainda não tens alunos acompanhados.</string>
+    <string name="pending_evaluation">Avaliação pendente</string>
+    <string name="view_pdf">Ver PDF</string>
+    <string name="download">Download</string>
+    <string name="no_documents_submitted">Ainda não existem documentos submetidos.</string>
+    <string name="student_evaluation_form">Formulário de avaliação</string>
+    <string name="grade_label">Nota</string>
+    <string name="grade_placeholder">Insira a nota (ex: 0-20)</string>
+    <string name="qualitative_comment">Comentário qualitativo</string>
+    <string name="comment_placeholder">Descreva o desempenho do aluno</string>
+    <string name="strengths">Pontos fortes</string>
+    <string name="strengths_placeholder">Indique os pontos fortes do aluno</string>
+    <string name="weaknesses">Pontos a melhorar</string>
+    <string name="weaknesses_placeholder">Indique os aspetos a melhorar</string>
+    <string name="save_evaluation">Guardar avaliação</string>
+    <string name="evaluation_saved">Avaliação guardada com sucesso.</string>
+    <string name="last_activity">Última atividade</string>
+    <string name="evaluation_completed">Avaliação concluída</string>
+    <string name="update_evaluation">Atualizar avaliação</string>
+    <string name="edit_evaluation">Editar avaliação</string>
+    <string name="improvements">Pontos a melhorar</string>
+    <string name="improvements_placeholder">Indique os aspetos a melhorar</string>
+    <string name="evaluation_error_grade_invalid">Insere uma nota válida entre 0 e 20.</string>
+    <string name="evaluation_error_grade_required">Insere uma nota.</string>
+    <string name="evaluation_error_feedback_required">Escreve uma apreciação qualitativa.</string>
+    <string name="evaluation_error_save_failed">Não foi possível guardar a avaliação. Tente novamente.</string>
+    <string name="evaluation_error_table_missing">A tabela de avaliações ainda não está disponível. Contacte o administrador.</string>
+    <string name="evaluated">Avaliado</string>
+
+    <!-- Teacher Notifications -->
+    <string name="teacher_notifications_title">Notificações</string>
+    <string name="teacher_no_notifications">Ainda não tens notificações.</string>
+    <string name="teacher_notification_new_request">Novo pedido de orientação</string>
+    <string name="teacher_notification_new_message">Nova mensagem</string>
+    <string name="teacher_notification_report_submitted">Relatório submetido</string>
+    <string name="teacher_notification_evaluation_pending">Avaliação pendente</string>
+    <string name="teacher_notifications_load_error">Não foi possível carregar as notificações.</string>
+
+    <!-- Teacher Profile -->
+    <string name="teacher_profile_load_error">Não foi possível carregar o perfil do docente.</string>
+    <string name="teacher_profile_update_success">Perfil atualizado com sucesso.</string>
+    <string name="teacher_profile_update_error">Não foi possível atualizar o perfil do docente.</string>
+    <string name="teacher_profile_name_placeholder">Docente</string>
+    <string name="teacher_institution">Instituição</string>
+    <string name="teacher_department">Departamento / Área</string>
+    <string name="teacher_last_name">Apelido</string>
+
+    <!-- Teacher Home -->
+    <string name="teacher_home_greeting">Olá, %1$s 👋</string>
+    <string name="teacher_pending_requests">Pedidos pendentes</string>
+    <string name="teacher_students_followed">Alunos acompanhados</string>
+    <string name="teacher_pending_evaluations">Avaliações por fazer</string>
+    <string name="teacher_recent_requests">Pedidos recentes</string>
+    <string name="teacher_no_pending_requests">Ainda não tens pedidos pendentes.</string>
+    <string name="teacher_recent_activities">Atividades recentes</string>
+    <string name="teacher_no_recent_activities">Ainda não existem atividades recentes.</string>
+
+    <!-- Teacher Student Status -->
+    <string name="teacher_status_active">Ativo</string>
+    <string name="teacher_status_in_progress">Em curso</string>
+    <string name="teacher_status_completed">Concluído</string>
+    <string name="teacher_status_pending">Pendente</string>
+
+    <!-- Shared -->
     <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>
     <string name="error_institution_not_found">Instituição de ensino não encontrada.</string>
     <string name="error_sending_request">Erro ao enviar o pedido de orientação.</string>

@@ -65,14 +65,16 @@ private val BorderGray = Color(0xFFEDEDED)
 fun ApplicationChatScreen(
     applicationId: String,
     participantName: String? = null,
+    offerTitle: String? = null,
+    studentProfileId: String? = null,
     onBackClick: () -> Unit,
     viewModel: ApplicationChatViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(applicationId, participantName) {
-        viewModel.start(applicationId, participantName)
+    LaunchedEffect(applicationId, participantName, offerTitle, studentProfileId) {
+        viewModel.start(applicationId, participantName, offerTitle, studentProfileId)
     }
 
     DisposableEffect(applicationId) {
@@ -122,7 +124,7 @@ fun ApplicationChatScreen(
                 state.errorMessageRes != null && state.messages.isEmpty() -> {
                     ErrorState(
                         errorRes = state.errorMessageRes!!,
-                        onRetry = { viewModel.start(applicationId, participantName) }
+                        onRetry = { viewModel.start(applicationId, participantName, offerTitle, studentProfileId) }
                     )
                 }
 

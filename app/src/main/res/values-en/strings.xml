@@ -25,7 +25,7 @@
     <string name="password_required">Password *</string>
     <string name="password_placeholder">Enter your password</string>
     <string name="toggle_password_visibility">Show or hide password</string>
-    <string name="no_account">Don’t have an account?</string>
+    <string name="no_account">Don't have an account?</string>
     <string name="create_account">Create account</string>
     <string name="create_account_title">Create account</string>
     <string name="create_account_subtitle">Choose your profile and fill in the required information.</string>
@@ -189,7 +189,8 @@
     <string name="company_application_status_update_error">Could not update the application status.</string>
     <string name="company_application_document_missing">This document is not available.</string>
     <string name="company_application_document_open_error">Could not open the document.</string>
-    <string name="company_application_opening_document">Opening document...</string>    <string name="work_mode_hybrid">Hybrid</string>
+    <string name="company_application_opening_document">Opening document...</string>
+    <string name="work_mode_hybrid">Hybrid</string>
 
     <string name="create_offer_success">Offer created successfully.</string>
     <string name="create_offer_error">Could not create the offer. Please try again.</string>
@@ -587,7 +588,7 @@
     <string name="no_messages_description">Send the first message about this internship.</string>
 
     <!-- Advisor Tasks -->
-    <string name="tasks_subtitle">Track your students\' activities.</string>
+    <string name="tasks_subtitle">Track your students\'  activities.</string>
     <string name="new_task">New task</string>
     <string name="in_progress">In progress</string>
     <string name="status_in_progress">In progress</string>
@@ -599,6 +600,86 @@
     <string name="no_tasks_description">When tasks are created for internships, they will appear here.</string>
     <string name="create_task">Create task</string>
     <string name="due_date">Due date</string>
+    <string name="requests">Requests</string>
+
+    <!-- Teacher Requests -->
+    <string name="search_requests_placeholder">Search student or internship</string>
+    <string name="teacher_filter_all">All</string>
+    <string name="teacher_filter_pending">Pending</string>
+    <string name="teacher_filter_accepted">Accepted</string>
+    <string name="teacher_filter_rejected">Rejected</string>
+    <string name="no_requests">You don\'t have any guidance requests yet.</string>
+    <string name="no_requests_found">No requests found.</string>
+    <string name="load_requests_error">Could not load requests. Try again.</string>
+    <string name="request_detail">Request details</string>
+    <string name="section_student">Student</string>
+    <string name="section_offer">Offer</string>
+    <string name="section_documents">Documents</string>
+    <string name="view_details">View details</string>
+    <string name="reject">Reject</string>
+    <string name="accept">Accept</string>
+    <string name="reject_request_title">Reject request</string>
+    <string name="reject_request_message">Are you sure you want to reject this guidance request?</string>
+    <string name="request_accepted">Request accepted</string>
+    <string name="request_rejected">Request rejected</string>
+
+    <!-- Teacher Evaluation -->
+    <string name="student_evaluation_form">Student evaluation form</string>
+    <string name="grade_label">Grade</string>
+    <string name="grade_placeholder">Enter grade (e.g.: 0-20)</string>
+    <string name="qualitative_comment">Qualitative feedback</string>
+    <string name="comment_placeholder">Describe student performance</string>
+    <string name="strengths_placeholder">Indicate student strengths</string>
+    <string name="weaknesses_placeholder">Indicate areas to improve</string>
+    <string name="save_evaluation">Save evaluation</string>
+    <string name="update_evaluation">Update evaluation</string>
+    <string name="edit_evaluation">Edit evaluation</string>
+    <string name="evaluation_saved">Evaluation saved successfully.</string>
+    <string name="evaluation_completed">Evaluation completed</string>
+    <string name="improvements">Areas to improve</string>
+    <string name="improvements_placeholder">Indicate areas to improve</string>
+    <string name="evaluation_error_grade_invalid">Enter a valid grade between 0 and 20.</string>
+    <string name="evaluation_error_grade_required">Enter a grade.</string>
+    <string name="evaluation_error_feedback_required">Write qualitative feedback.</string>
+    <string name="evaluation_error_save_failed">Could not save the evaluation. Please try again.</string>
+    <string name="evaluation_error_table_missing">The evaluations table is not available yet. Contact the administrator.</string>
+    <string name="evaluated">Evaluated</string>
+
+    <!-- Teacher Notifications -->
+    <string name="teacher_notifications_title">Notifications</string>
+    <string name="teacher_no_notifications">You don\'t have any notifications yet.</string>
+    <string name="teacher_notification_new_request">New guidance request</string>
+    <string name="teacher_notification_new_message">New message</string>
+    <string name="teacher_notification_report_submitted">Report submitted</string>
+    <string name="teacher_notification_evaluation_pending">Pending evaluation</string>
+    <string name="teacher_notifications_load_error">Could not load notifications.</string>
+
+    <!-- Teacher Profile -->
+    <string name="teacher_profile_load_error">Could not load teacher profile.</string>
+    <string name="teacher_profile_update_success">Profile updated successfully.</string>
+    <string name="teacher_profile_update_error">Could not update teacher profile.</string>
+    <string name="teacher_profile_name_placeholder">Teacher</string>
+    <string name="teacher_institution">Institution</string>
+    <string name="teacher_department">Department / Area</string>
+    <string name="teacher_last_name">Last name</string>
+
+    <!-- Teacher Home -->
+    <string name="teacher_home_greeting">Hello, %1$s 👋</string>
+    <string name="teacher_pending_requests">Pending requests</string>
+    <string name="teacher_students_followed">Students followed</string>
+    <string name="teacher_pending_evaluations">Evaluations to do</string>
+    <string name="teacher_recent_requests">Recent requests</string>
+    <string name="teacher_no_pending_requests">You do not have any pending requests yet.</string>
+    <string name="teacher_recent_activities">Recent activities</string>
+    <string name="teacher_no_recent_activities">There are no recent activities yet.</string>
+
+    <!-- Teacher Student Status -->
+    <string name="teacher_status_active">Active</string>
+    <string name="teacher_status_in_progress">In progress</string>
+    <string name="teacher_status_completed">Completed</string>
+    <string name="teacher_status_pending">Pending</string>
+
+    <!-- Shared (from doc 1) -->
     <string name="error_loading_teachers">Error loading advisors.</string>
     <string name="error_institution_not_found">Education institution not found.</string>
     <string name="error_sending_request">Error sending orientation request.</string>
