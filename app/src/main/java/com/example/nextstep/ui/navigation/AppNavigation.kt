@@ -2,15 +2,10 @@ package com.example.nextstep.ui.navigation
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -46,7 +41,6 @@ import com.example.nextstep.ui.screens.teacher.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.teacher.TeacherEditProfileScreen
 import com.example.nextstep.ui.screens.teacher.TeacherNotificationsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherRequestDetailScreen
-import com.example.nextstep.ui.screens.teacher.TeacherStudentsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherStudentDetailScreen
 import kotlinx.coroutines.delay
 
@@ -305,6 +299,17 @@ fun AppNavigation() {
                 onRequestClick = { applicationId ->
                     navController.navigate(Routes.teacherRequestDetail(applicationId))
                 },
+                onStudentClick = { student ->
+                    navController.navigate(
+                        Routes.teacherStudentDetail(
+                            applicationId = student.applicationId,
+                            studentProfileId = student.studentProfileId,
+                            studentName = student.studentName,
+                            offerTitle = student.offerTitle,
+                            companyName = student.companyName
+                        )
+                    )
+                },
                 onChatClick = { studentProfileId, applicationId, name, offerTitle ->
                     navController.navigate(
                         Routes.applicationChat(applicationId, name, offerTitle, studentProfileId)
@@ -365,27 +370,17 @@ fun AppNavigation() {
             )
         }
 
-        composable(Routes.TEACHER_STUDENTS) {
-            TeacherStudentsScreen(
-                onStudentClick = { applicationId ->
-                    navController.navigate(
-                        Routes.teacherStudentDetail(applicationId)
-                    )
-                }
-            )
-        }
-
         composable(
             route = Routes.TEACHER_STUDENT_DETAIL,
             arguments = listOf(
-                navArgument(Routes.TEACHER_STUDENT_DETAIL_ARG) {
-                    type = NavType.StringType
-                }
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_APP_ID_ARG) { type = NavType.StringType },
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_PROFILE_ID_ARG) { type = NavType.StringType },
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_NAME_ARG) { type = NavType.StringType },
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_OFFER_ARG) { type = NavType.StringType },
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_COMPANY_ARG) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val applicationId = backStackEntry.arguments
-                ?.getString(Routes.TEACHER_STUDENT_DETAIL_ARG)
-                .orEmpty()
+            val applicationId = backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_APP_ID_ARG).orEmpty()
 
             TeacherStudentDetailScreen(
                 applicationId = applicationId,
