@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
+import com.example.nextstep.ui.screens.admin.AdminDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorNotificationsScreen
@@ -35,8 +36,8 @@ import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentInternshipDetailScreen
-import com.example.nextstep.ui.screens.student.StudentSearchAdvisorScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
+import com.example.nextstep.ui.screens.student.StudentSearchAdvisorScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherDashboardScreen
@@ -104,6 +105,7 @@ fun AppNavigation() {
                         UserRole.ADVISOR -> Routes.ADVISOR_DASHBOARD
                         UserRole.INSTITUTION -> Routes.INSTITUTION_DASHBOARD
                         UserRole.TEACHER -> Routes.TEACHER_DASHBOARD
+                        UserRole.ADMIN -> Routes.ADMIN_DASHBOARD
                     }
 
                     navController.navigate(destination) {
@@ -325,6 +327,19 @@ fun AppNavigation() {
                 },
                 onSuccess = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.ADMIN_DASHBOARD) {
+            AdminDashboardScreen(
+                onLogoutSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
