@@ -13,9 +13,9 @@ data class AdminCompaniesUiState(
     val successMessage: String? = null
 )
 
-enum class AdminCompaniesFilter(val label: String) {
-    ALL("Todas"),
-    ACTIVE("Ativas"),
-    INACTIVE("Inativas"),
-    ARCHIVED("Arquivadas")
+enum class AdminCompaniesFilter(val labelRes: Int) {
+    ALL(com.example.nextstep.R.string.filter_all),
+    ACTIVE(com.example.nextstep.R.string.filter_active),
+    INACTIVE(com.example.nextstep.R.string.inactive_feminine),
+    ARCHIVED(com.example.nextstep.R.string.filter_archived)
 }

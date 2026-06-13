@@ -39,10 +39,10 @@ fun StudentSearchAdvisorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Orientadores", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.advisors), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -62,7 +62,7 @@ fun StudentSearchAdvisorScreen(
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = viewModel::onSearchChange,
-                placeholder = { Text("Pesquisar", color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.search), color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -118,10 +118,10 @@ fun TeacherRow(
             && currentStatus != "pending" && currentStatus != "accepted"
 
     val buttonText = when {
-        isSending -> "Enviando..."
-        currentStatus == "pending" -> "Pedido Enviado"
-        currentStatus == "accepted" -> "Aceite"
-        else -> "Enviar Pedido"
+        isSending -> stringResource(R.string.sending_label)
+        currentStatus == "pending" -> stringResource(R.string.request_sent_label)
+        currentStatus == "accepted" -> stringResource(R.string.accepted_label)
+        else -> stringResource(R.string.send_request)
     }
 
     Row(

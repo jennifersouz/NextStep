@@ -26,5 +26,10 @@ data class AdvisorStudentDetailUiState(
 
     // Feedback geral
     val evaluationSuccessMessage: String? = null,
-    val evaluationErrorMessage: String? = null
+    val evaluationErrorMessage: String? = null,
+
+    // ── Acções de estágio ──────────────────────────────
+    val isActingOnInternship: Boolean = false,
+    val internshipActionSuccess: String? = null,
+    val internshipActionError: String? = null
 )

@@ -156,7 +156,7 @@ private fun InstitutionStudentDetailContent(
             )
 
             if (student.institutionArchivedAt != null) {
-                Badge(label = "Arquivado", containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
+                Badge(label = stringResource(R.string.status_archived), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
             }
         }
 
@@ -198,7 +198,7 @@ private fun InstitutionStudentDetailContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     StudentDetailRow(
                         label = stringResource(R.string.academic_year),
-                        value = "${student.academicYear}º ano"
+                        value = student.academicYear.toString() + stringResource(R.string.academic_year_suffix)
                     )
                 }
 
@@ -252,7 +252,7 @@ private fun InstitutionStudentDetailContent(
                 if (isActionLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color(0xFFC62828))
                 } else {
-                    Text("Arquivar aluno", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.archive_student), fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -287,19 +287,19 @@ private fun ArchiveStudentDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Arquivar aluno") },
-        text = { Text("Esta ação remove o aluno da lista ativa da instituição, mas mantém o histórico na plataforma.") },
+        title = { Text(stringResource(R.string.archive_student)) },
+        text = { Text(stringResource(R.string.student_archive_dialog_message)) },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
                 colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFC62828))
             ) {
-                Text("Arquivar")
+                Text(stringResource(R.string.archive_action))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

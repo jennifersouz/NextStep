@@ -51,7 +51,7 @@ fun StudentSubmittedApplicationDetailScreen(
     applicationId: String,
     onBackClick: () -> Unit,
     viewModel: StudentSubmittedApplicationDetailViewModel = viewModel(),
-    onMessagesClick: (String) -> Unit = {}
+    onMessagesClick: (String, String) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -126,7 +126,7 @@ fun StudentApplicationDetailContent(
     onOpenMotivationLetter: () -> Unit,
     onOpenCv: () -> Unit,
     onConfirmPresence: () -> Unit,
-    onMessagesClick: (String) -> Unit
+    onMessagesClick: (String, String) -> Unit
 ) {
     val canAcceptInternship = application.status == "accepted" &&
             !application.studentPresenceConfirmed &&
@@ -297,22 +297,28 @@ fun StudentApplicationDetailContent(
             )
         }
 
-        val canOpenChat =
+        val canChatAdvisor =
             application.status.lowercase().trim() in listOf("accepted", "aceite") &&
                 application.studentPresenceConfirmed &&
                 !application.advisorProfileId.isNullOrBlank()
 
-        if (canOpenChat) {
+        val canChatTeacher =
+            application.status.lowercase().trim() in listOf("accepted", "aceite") &&
+                application.studentPresenceConfirmed &&
+                !application.teacherProfileId.isNullOrBlank() &&
+                application.teacherStatus == "accepted"
+
+        if (canChatAdvisor) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    Log.d("ChatDebug", "Button chat applicationId=$applicationId")
+                    Log.d("ChatDebug", "Button advisor chat applicationId=$applicationId")
                     Log.d("ChatDebug", "status=${application.status}")
                     Log.d("ChatDebug", "studentPresenceConfirmed=${application.studentPresenceConfirmed}")
                     Log.d("ChatDebug", "advisorProfileId=${application.advisorProfileId}")
-                    Log.d("ChatNavigation", "Abrir chat applicationId=$applicationId")
-                    onMessagesClick(applicationId)
+                    Log.d("ChatNavigation", "Abrir chat orientador applicationId=$applicationId")
+                    onMessagesClick(applicationId, "advisor")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -325,6 +331,31 @@ fun StudentApplicationDetailContent(
             ) {
                 Text(
                     text = stringResource(R.string.message_advisor),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        if (canChatTeacher) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    Log.d("ChatDebug", "Button teacher chat applicationId=$applicationId")
+                    Log.d("ChatNavigation", "Abrir chat docente applicationId=$applicationId")
+                    onMessagesClick(applicationId, "teacher")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2B2B2B),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.message_teacher),
                     fontWeight = FontWeight.Bold
                 )
             }

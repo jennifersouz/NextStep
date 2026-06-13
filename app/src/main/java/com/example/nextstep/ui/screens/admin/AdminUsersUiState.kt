@@ -13,13 +13,13 @@ data class AdminUsersUiState(
     val successMessage: String? = null
 )
 
-enum class AdminUsersFilter(val label: String) {
-    ALL("Todos"),
-    STUDENTS("Alunos"),
-    TEACHERS("Docentes"),
-    COMPANIES("Empresas"),
-    ADMINS("Admins"),
-    ACTIVE("Ativos"),
-    INACTIVE("Inativos"),
-    ARCHIVED("Arquivados")
+enum class AdminUsersFilter(val labelRes: Int) {
+    ALL(com.example.nextstep.R.string.filter_all),
+    STUDENTS(com.example.nextstep.R.string.tab_students),
+    TEACHERS(com.example.nextstep.R.string.tab_teachers),
+    COMPANIES(com.example.nextstep.R.string.companies_label),
+    ADMINS(com.example.nextstep.R.string.role_admin),
+    ACTIVE(com.example.nextstep.R.string.filter_active),
+    INACTIVE(com.example.nextstep.R.string.inactive_feminine),
+    ARCHIVED(com.example.nextstep.R.string.filter_archived)
 }

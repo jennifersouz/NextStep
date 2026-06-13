@@ -155,9 +155,9 @@ private fun InstitutionTeacherDetailContent(
             )
 
             if (teacher.institutionArchivedAt != null) {
-                Badge(label = "Arquivado", containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
+                Badge(label = stringResource(R.string.status_archived), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
             } else {
-                Badge(label = "Ativo", containerColor = Color(0xFFE7F7EC), textColor = Color(0xFF1B7F3A))
+                Badge(label = stringResource(R.string.active_status), containerColor = Color(0xFFE7F7EC), textColor = Color(0xFF1B7F3A))
             }
         }
 
@@ -218,7 +218,7 @@ private fun InstitutionTeacherDetailContent(
         if (teacher.institutionArchivedAt != null) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Este docente foi arquivado pela instituição. O histórico foi mantido.",
+                text = stringResource(R.string.teacher_archived_info),
                 fontSize = 14.sp,
                 color = Color(0xFF6B7280),
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -238,7 +238,7 @@ private fun InstitutionTeacherDetailContent(
                 if (isActionLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color(0xFFC62828))
                 } else {
-                    Text("Arquivar docente", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.archive_teacher), fontWeight = FontWeight.SemiBold)
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
@@ -272,19 +272,19 @@ private fun ArchiveTeacherDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Arquivar docente") },
-        text = { Text("Esta ação remove o docente da lista ativa da instituição, mas mantém o histórico na plataforma.") },
+        title = { Text(stringResource(R.string.archive_teacher)) },
+        text = { Text(stringResource(R.string.teacher_archive_dialog_message)) },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
                 colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFC62828))
             ) {
-                Text("Arquivar")
+                Text(stringResource(R.string.archive_action))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

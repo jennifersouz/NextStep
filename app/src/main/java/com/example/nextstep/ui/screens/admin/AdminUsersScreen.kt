@@ -61,7 +61,7 @@ fun AdminUsersScreen(
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Adicionar utilizador")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_user))
             }
         },
         containerColor = Color.White
@@ -74,7 +74,7 @@ fun AdminUsersScreen(
         ) {
             // Header
             Text(
-                text = "Utilizadores",
+                text = stringResource(R.string.users_label),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -137,7 +137,7 @@ fun AdminUsersScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Nenhum utilizador encontrado.",
+                            text = stringResource(R.string.no_users_found_label),
                             fontSize = 15.sp,
                             color = Color(0xFF777777)
                         )
@@ -188,7 +188,7 @@ fun AdminUsersFilterChips(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = filter.label,
+                    text = stringResource(filter.labelRes),
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                     color = Color.Black
@@ -283,15 +283,15 @@ fun AdminUserListItem(
                 val statusColor: Color
                 val statusBg: Color
                 if (profile.isArchived) {
-                    statusLabel = "Arquivado"
+                    statusLabel = stringResource(R.string.archived_status)
                     statusColor = Color(0xFF6D4C41)
                     statusBg = Color(0xFFEFEBE9)
                 } else if (profile.isActive == true) {
-                    statusLabel = "Ativo"
+                    statusLabel = stringResource(R.string.active_status_label)
                     statusColor = Color(0xFF2E7D32)
                     statusBg = Color(0xFFE8F5E9)
                 } else {
-                    statusLabel = "Inativo"
+                    statusLabel = stringResource(R.string.inactive_status_label)
                     statusColor = Color(0xFFC62828)
                     statusBg = Color(0xFFFFEBEE)
                 }
@@ -316,7 +316,7 @@ fun AdminUserListItem(
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Detalhes",
+            contentDescription = stringResource(R.string.details_label),
             tint = Color(0xFFCCCCCC),
             modifier = Modifier.size(20.dp)
         )

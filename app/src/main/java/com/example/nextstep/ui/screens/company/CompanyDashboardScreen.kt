@@ -156,7 +156,7 @@ fun CompanyDashboardScreen(
                 BottomBarItem(
                     route = CompanyBottomRoutes.TEAM.name,
                     icon = Icons.Filled.Groups,
-                    label = "Equipa"
+                    label = stringResource(R.string.company_tab_team)
                 ),
                 BottomBarItem(
                     route = CompanyBottomRoutes.PROFILE.name,

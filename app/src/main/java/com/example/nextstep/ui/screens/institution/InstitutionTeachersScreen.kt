@@ -124,9 +124,9 @@ private fun TeacherFilters(
     ) {
         InstitutionRepository.ArchiveFilter.entries.forEach { filter ->
             val label = when (filter) {
-                InstitutionRepository.ArchiveFilter.ACTIVE -> "Ativos"
-                InstitutionRepository.ArchiveFilter.ARCHIVED -> "Arquivados"
-                InstitutionRepository.ArchiveFilter.ALL -> "Todos"
+                InstitutionRepository.ArchiveFilter.ACTIVE -> stringResource(R.string.filter_active)
+                InstitutionRepository.ArchiveFilter.ARCHIVED -> stringResource(R.string.filter_archived)
+                InstitutionRepository.ArchiveFilter.ALL -> stringResource(R.string.filter_all_masc)
             }
             FilterChip(
                 selected = selectedFilter == filter,
@@ -210,7 +210,7 @@ private fun InstitutionTeacherCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             if (teacher.institutionArchivedAt != null) {
-                StatusBadge(label = "Arquivado", containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
+                StatusBadge(label = stringResource(R.string.status_archived), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
             } else {
                 StatusBadge(
                     label = if (teacher.isActive) stringResource(R.string.active_status) else stringResource(R.string.inactive_status),
@@ -245,7 +245,7 @@ private fun StatusBadge(label: String, containerColor: Color, textColor: Color) 
 private fun InstitutionTeachersEmptyState(filter: InstitutionRepository.ArchiveFilter) {
     val message = when (filter) {
         InstitutionRepository.ArchiveFilter.ACTIVE -> stringResource(R.string.no_teachers)
-        InstitutionRepository.ArchiveFilter.ARCHIVED -> "Nenhum docente arquivado."
+        InstitutionRepository.ArchiveFilter.ARCHIVED -> stringResource(R.string.no_archived_teachers)
         InstitutionRepository.ArchiveFilter.ALL -> stringResource(R.string.no_teachers)
     }
     

@@ -290,7 +290,7 @@ fun AdminBottomBar(
             BottomBarItem(
                 route = AdminTab.COMPANIES.name,
                 icon = Icons.Filled.Business,
-                label = "Empresas"
+                label = stringResource(R.string.companies_label)
             ),
             BottomBarItem(
                 route = AdminTab.PROFILE.name,

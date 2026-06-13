@@ -46,11 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 
 @Composable
 fun CompanyEditOfferScreen(
@@ -99,7 +101,7 @@ fun CompanyEditOfferScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Voltar",
+                        contentDescription = stringResource(R.string.back),
                         tint = Color.Black
                     )
                 }
@@ -112,7 +114,7 @@ fun CompanyEditOfferScreen(
                     verticalArrangement = Arrangement.Top
                 ) {
                     Text(
-                        text = "Editar oferta",
+                        text = stringResource(R.string.edit_offer),
                         color = Color.Black,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold
@@ -129,7 +131,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.title,
                                     onValueChange = viewModel::onTitleChange,
-                                    label = "Título",
+                                    label = stringResource(R.string.offer_title),
                                     isError = state.titleError != null,
                                     supportingText = state.titleError
                                 )
@@ -139,7 +141,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.area,
                                     onValueChange = viewModel::onAreaChange,
-                                    label = "Área",
+                                    label = stringResource(R.string.offer_area),
                                     isError = state.areaError != null,
                                     supportingText = state.areaError
                                 )
@@ -149,7 +151,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.location,
                                     onValueChange = viewModel::onLocationChange,
-                                    label = "Localização",
+                                    label = stringResource(R.string.offer_location),
                                     isError = state.locationError != null,
                                     supportingText = state.locationError
                                 )
@@ -157,7 +159,7 @@ fun CompanyEditOfferScreen(
                                 Spacer(modifier = Modifier.height(14.dp))
 
                                 CompanyEditOfferDropdownField(
-                                    label = "Regime",
+                                    label = stringResource(R.string.offer_work_mode),
                                     selectedValue = state.workMode,
                                     onValueChange = viewModel::onWorkModeChange,
                                     items = listOf("Presencial", "Remoto", "Híbrido"),
@@ -170,7 +172,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.duration,
                                     onValueChange = viewModel::onDurationChange,
-                                    label = "Duração",
+                                    label = stringResource(R.string.offer_duration),
                                     isError = state.durationError != null,
                                     supportingText = state.durationError
                                 )
@@ -180,7 +182,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.vacancies,
                                     onValueChange = viewModel::onVacanciesChange,
-                                    label = "Vagas",
+                                    label = stringResource(R.string.offer_vacancies),
                                     isError = state.vacanciesError != null,
                                     supportingText = state.vacanciesError,
                                     keyboardType = KeyboardType.Number
@@ -191,7 +193,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.description,
                                     onValueChange = viewModel::onDescriptionChange,
-                                    label = "Descrição",
+                                    label = stringResource(R.string.offer_description),
                                     isError = state.descriptionError != null,
                                     supportingText = state.descriptionError,
                                     minLines = 4,
@@ -203,7 +205,7 @@ fun CompanyEditOfferScreen(
                                 CompanyEditOfferOutlinedTextField(
                                     value = state.requirements,
                                     onValueChange = viewModel::onRequirementsChange,
-                                    label = "Requisitos",
+                                    label = stringResource(R.string.offer_requirements),
                                     minLines = 4,
                                     maxLines = 7
                                 )
@@ -217,7 +219,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.title,
                             onValueChange = viewModel::onTitleChange,
-                            label = "Título",
+                            label = stringResource(R.string.offer_title),
                             isError = state.titleError != null,
                             supportingText = state.titleError
                         )
@@ -227,7 +229,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.description,
                             onValueChange = viewModel::onDescriptionChange,
-                            label = "Descrição",
+                            label = stringResource(R.string.offer_description),
                             isError = state.descriptionError != null,
                             supportingText = state.descriptionError,
                             minLines = 4,
@@ -239,7 +241,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.area,
                             onValueChange = viewModel::onAreaChange,
-                            label = "Área",
+                            label = stringResource(R.string.offer_area),
                             isError = state.areaError != null,
                             supportingText = state.areaError
                         )
@@ -249,7 +251,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.location,
                             onValueChange = viewModel::onLocationChange,
-                            label = "Localização",
+                            label = stringResource(R.string.offer_location),
                             isError = state.locationError != null,
                             supportingText = state.locationError
                         )
@@ -257,7 +259,7 @@ fun CompanyEditOfferScreen(
                         Spacer(modifier = Modifier.height(14.dp))
 
                         CompanyEditOfferDropdownField(
-                            label = "Regime",
+                            label = stringResource(R.string.offer_work_mode),
                             selectedValue = state.workMode,
                             onValueChange = viewModel::onWorkModeChange,
                             items = listOf("Presencial", "Remoto", "Híbrido"),
@@ -270,7 +272,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.duration,
                             onValueChange = viewModel::onDurationChange,
-                            label = "Duração",
+                            label = stringResource(R.string.offer_duration),
                             isError = state.durationError != null,
                             supportingText = state.durationError
                         )
@@ -280,7 +282,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.vacancies,
                             onValueChange = viewModel::onVacanciesChange,
-                            label = "Vagas",
+                            label = stringResource(R.string.offer_vacancies),
                             isError = state.vacanciesError != null,
                             supportingText = state.vacanciesError,
                             keyboardType = KeyboardType.Number
@@ -291,7 +293,7 @@ fun CompanyEditOfferScreen(
                         CompanyEditOfferOutlinedTextField(
                             value = state.requirements,
                             onValueChange = viewModel::onRequirementsChange,
-                            label = "Requisitos",
+                            label = stringResource(R.string.offer_requirements),
                             minLines = 4,
                             maxLines = 7
                         )

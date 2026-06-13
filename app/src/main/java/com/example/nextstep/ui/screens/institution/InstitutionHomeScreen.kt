@@ -308,7 +308,7 @@ private fun LatestInviteItem(user: InstitutionUserDto) {
                 color = Color(0xFF6B7280)
             )
             Text(
-                text = " · ",
+                text = stringResource(R.string.separator_middle_dot),
                 fontSize = 14.sp,
                 color = Color(0xFF6B7280)
             )

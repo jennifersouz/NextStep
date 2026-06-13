@@ -88,6 +88,7 @@ class TeacherMessagesRepository {
                 .select {
                     filter {
                         isIn("application_id", applicationIds)
+                        eq("participant_type", "teacher")
                     }
                     limit(1)
                     order("created_at", Order.DESCENDING)
@@ -101,10 +102,10 @@ class TeacherMessagesRepository {
     }
 
     suspend fun getMessages(applicationId: String): Result<List<ApplicationMessageDto>> {
-        return chatRepository.getMessages(applicationId)
+        return chatRepository.getMessages(applicationId, "teacher")
     }
 
     suspend fun sendMessage(applicationId: String, message: String): Result<Unit> {
-        return chatRepository.sendMessage(applicationId, message)
+        return chatRepository.sendMessage(applicationId, message, "teacher")
     }
 }

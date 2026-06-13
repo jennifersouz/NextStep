@@ -24,6 +24,9 @@ data class ApplicationMessageDto(
     @SerialName("read_at")
     val readAt: String? = null,
 
+    @SerialName("participant_type")
+    val participantType: String? = null,
+
     @SerialName("sender_email")
     val senderEmail: String? = null,
 

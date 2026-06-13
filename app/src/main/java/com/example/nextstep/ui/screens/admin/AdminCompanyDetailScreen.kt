@@ -41,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
 
 @Composable
@@ -77,14 +79,14 @@ fun AdminCompanyDetailScreen(
     if (showDeactivateDialog) {
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Desativar acesso") },
-            text = { Text("Esta ação bloqueia temporariamente o acesso da empresa, mas mantém os dados e o histórico na plataforma.") },
+            title = { Text(stringResource(R.string.deactivate_access)) },
+            text = { Text(stringResource(R.string.deactivate_access_description)) },
             confirmButton = {
                 TextButton(onClick = { dismissDialogs(); onDeactivate() }) {
-                    Text("Desativar", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.deactivate_action), color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             },
-            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) } }
         )
     }
 
@@ -92,14 +94,14 @@ fun AdminCompanyDetailScreen(
     if (showReactivateDialog) {
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Reativar acesso") },
-            text = { Text("Esta ação permite que a empresa volte a aceder à plataforma. As ofertas antigas não serão reativadas automaticamente.") },
+            title = { Text(stringResource(R.string.reactivate_access)) },
+            text = { Text(stringResource(R.string.reactivate_access_description)) },
             confirmButton = {
                 TextButton(onClick = { dismissDialogs(); onReactivate() }) {
-                    Text("Reativar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.reactivate_action), color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                 }
             },
-            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) } }
         )
     }
 
@@ -108,15 +110,15 @@ fun AdminCompanyDetailScreen(
         var reason by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Remover da plataforma") },
+            title = { Text(stringResource(R.string.remove_from_platform)) },
             text = {
                 Column {
-                    Text("Esta ação remove a empresa da lista principal, bloqueia o acesso e desativa as ofertas ativas. As candidaturas e o histórico serão mantidos.")
+                    Text(stringResource(R.string.remove_company_description))
                     Spacer(modifier = Modifier.height(12.dp))
                     TextField(
                         value = reason,
                         onValueChange = { reason = it },
-                        label = { Text("Motivo (opcional)") },
+                        label = { Text(stringResource(R.string.reason_optional)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -124,10 +126,10 @@ fun AdminCompanyDetailScreen(
             },
             confirmButton = {
                 TextButton(onClick = { dismissDialogs(); onArchive(reason.ifBlank { null }) }) {
-                    Text("Remover", color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.remove_action), color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
                 }
             },
-            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) } }
         )
     }
 
@@ -147,9 +149,9 @@ fun AdminCompanyDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_label), tint = Color.Black)
             }
-            Text("Detalhes da Empresa", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(stringResource(R.string.company_details_title), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             if (isActionLoading) {
                 Spacer(modifier = Modifier.width(12.dp))
                 CircularProgressIndicator(
@@ -209,7 +211,7 @@ fun AdminCompanyDetailScreen(
 
                 Column {
                     Text(
-                        text = company.companyName ?: "Empresa",
+                        text = company.companyName ?: stringResource(R.string.company),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -220,17 +222,17 @@ fun AdminCompanyDetailScreen(
                     val statusBg: Color
                     when {
                         isArchived -> {
-                            statusLabel = "Arquivada"
+                            statusLabel = stringResource(R.string.archived_feminine)
                             statusColor = Color(0xFF6D4C41)
                             statusBg = Color(0xFFEFEBE9)
                         }
                         isActive -> {
-                            statusLabel = "Ativa"
+                            statusLabel = stringResource(R.string.active_feminine)
                             statusColor = Color(0xFF2E7D32)
                             statusBg = Color(0xFFE8F5E9)
                         }
                         else -> {
-                            statusLabel = "Inativa"
+                            statusLabel = stringResource(R.string.inactive_feminine)
                             statusColor = Color(0xFFC62828)
                             statusBg = Color(0xFFFFEBEE)
                         }
@@ -262,13 +264,13 @@ fun AdminCompanyDetailScreen(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    DetailRow(label = "Nome", value = company.companyName ?: "")
-                    company.nif?.let { DetailRow(label = "NIF", value = it) }
-                    company.businessArea?.let { DetailRow(label = "Área de Negócio", value = it) }
-                    company.location?.let { DetailRow(label = "Localização", value = it) }
-                    company.phone?.let { DetailRow(label = "Telefone", value = it) }
-                    company.description?.let { DetailRow(label = "Descrição", value = it) }
-                    company.offersCount?.let { DetailRow(label = "Ofertas Publicadas", value = it.toString()) }
+                    DetailRow(label = stringResource(R.string.detail_name), value = company.companyName ?: "")
+                    company.nif?.let { DetailRow(label = stringResource(R.string.detail_nif), value = it) }
+                    company.businessArea?.let { DetailRow(label = stringResource(R.string.detail_business_area), value = it) }
+                    company.location?.let { DetailRow(label = stringResource(R.string.detail_location), value = it) }
+                    company.phone?.let { DetailRow(label = stringResource(R.string.detail_phone), value = it) }
+                    company.description?.let { DetailRow(label = stringResource(R.string.detail_description), value = it) }
+                    company.offersCount?.let { DetailRow(label = stringResource(R.string.detail_published_offers), value = it.toString()) }
                 }
             }
 
@@ -292,7 +294,7 @@ fun AdminCompanyDetailScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Editar empresa", fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.edit_company_action), fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
                 }
             }
@@ -329,9 +331,9 @@ fun AdminCompanyDetailScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = when {
-                                isActionLoading -> "A atualizar..."
-                                isActive -> "Desativar acesso"
-                                else -> "Reativar acesso"
+                                isActionLoading -> stringResource(R.string.updating_label)
+                                isActive -> stringResource(R.string.deactivate_access)
+                                else -> stringResource(R.string.reactivate_access)
                             },
                             fontSize = 15.sp,
                             color = if (isActionLoading) Color(0xFF999999) else Color.Black,
@@ -362,7 +364,7 @@ fun AdminCompanyDetailScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "Remover da plataforma",
+                            stringResource(R.string.remove_from_platform),
                             fontSize = 15.sp,
                             color = if (isActionLoading) Color(0xFF999999) else Color(0xFFBF360C),
                             modifier = Modifier.weight(1f)
@@ -392,7 +394,7 @@ fun AdminCompanyDetailScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Ver ofertas da empresa", fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.view_company_offers), fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
                 }
             }

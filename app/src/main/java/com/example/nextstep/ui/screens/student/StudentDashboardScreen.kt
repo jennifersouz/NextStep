@@ -92,7 +92,7 @@ fun StudentDashboardScreen(
     onApplicationNotificationClick: (type: String, applicationId: String) -> Unit = { _, _ -> },
     onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel(),
-    onChatClick: (String) -> Unit = {},
+    onChatClick: (String, String, String?, String?) -> Unit = { _, _, _, _ -> },
     onInternshipClick: (String) -> Unit = {},
     onCompanyClick: (String) -> Unit = {}
 ) {
@@ -203,7 +203,7 @@ fun StudentDashboardScreen(
 
                 StudentBottomRoutes.MESSAGES -> {
                     StudentMessagesScreen(
-                        onConversationClick = onChatClick
+                        onChatClick = onChatClick
                     )
                 }
 

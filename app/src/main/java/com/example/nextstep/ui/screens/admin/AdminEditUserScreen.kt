@@ -39,19 +39,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-private val roleOptions = listOf(
-    "student" to "Aluno",
-    "teacher" to "Docente",
-    "company" to "Empresa",
-    "advisor" to "Orientador",
-    "institution" to "Instituição",
-    "admin" to "Administrador"
-)
+import com.example.nextstep.R
 
 @Composable
 fun AdminEditUserScreen(
@@ -62,6 +55,15 @@ fun AdminEditUserScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     var roleMenuExpanded by remember { mutableStateOf(false) }
+
+    val roleOptions = listOf(
+        "student" to stringResource(R.string.role_student),
+        "teacher" to stringResource(R.string.role_teacher),
+        "company" to stringResource(R.string.role_company),
+        "advisor" to stringResource(R.string.role_advisor),
+        "institution" to stringResource(R.string.role_institution),
+        "admin" to stringResource(R.string.role_admin)
+    )
 
     // Carregar utilizador apenas quando o userId mudar
     LaunchedEffect(userId) {
@@ -95,13 +97,13 @@ fun AdminEditUserScreen(
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = stringResource(R.string.back_label),
                     tint = Color.Black
                 )
             }
 
             Text(
-                text = "Editar utilizador",
+                text = stringResource(R.string.edit_user_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -163,8 +165,8 @@ fun AdminEditUserScreen(
             OutlinedTextField(
                 value = state.firstName,
                 onValueChange = viewModel::onFirstNameChange,
-                label = { Text("Nome *") },
-                placeholder = { Text("Insira o nome") },
+                label = { Text(stringResource(R.string.name_required)) },
+                placeholder = { Text(stringResource(R.string.name_placeholder_text)) },
                 isError = state.firstNameError != null,
                 supportingText = state.firstNameError?.let {
                     { Text(it, color = Color(0xFFB00020)) }
@@ -185,8 +187,8 @@ fun AdminEditUserScreen(
             OutlinedTextField(
                 value = state.lastName,
                 onValueChange = viewModel::onLastNameChange,
-                label = { Text("Apelido") },
-                placeholder = { Text("Insira o apelido") },
+                label = { Text(stringResource(R.string.last_name_required)) },
+                placeholder = { Text(stringResource(R.string.last_name_placeholder_text)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -203,7 +205,7 @@ fun AdminEditUserScreen(
             OutlinedTextField(
                 value = state.email,
                 onValueChange = {},
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.email_label)) },
                 enabled = false,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -218,7 +220,7 @@ fun AdminEditUserScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "O email não pode ser alterado nesta tela.",
+                text = stringResource(R.string.email_not_editable),
                 fontSize = 12.sp,
                 color = Color(0xFF8A8A8A),
                 modifier = Modifier.padding(start = 4.dp)
@@ -230,8 +232,8 @@ fun AdminEditUserScreen(
             OutlinedTextField(
                 value = state.phone,
                 onValueChange = viewModel::onPhoneChange,
-                label = { Text("Telefone") },
-                placeholder = { Text("Insira o telefone") },
+                label = { Text(stringResource(R.string.phone)) },
+                placeholder = { Text(stringResource(R.string.phone_placeholder_text)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -246,7 +248,7 @@ fun AdminEditUserScreen(
 
             // Função
             Text(
-                text = "Função *",
+                text = stringResource(R.string.function_label),
                 fontSize = 14.sp,
                 color = Color(0xFF8A8A8A),
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -262,7 +264,7 @@ fun AdminEditUserScreen(
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "Selecionar",
+                            contentDescription = stringResource(R.string.select),
                             tint = Color(0xFF333333)
                         )
                     },
@@ -302,7 +304,10 @@ fun AdminEditUserScreen(
 
             // Estado ativo
             Text(
-                text = "Estado da conta: ${if (state.isActive) "Ativo" else "Inativo"}",
+                text = stringResource(
+                    R.string.account_status_format,
+                    stringResource(if (state.isActive) R.string.active_status_label else R.string.inactive_status_label)
+                ),
                 fontSize = 14.sp,
                 color = if (state.isActive) Color(0xFF2E7D32) else Color(0xFFC62828),
                 fontWeight = FontWeight.Medium
@@ -330,7 +335,7 @@ fun AdminEditUserScreen(
                     )
                 } else {
                     Text(
-                        text = "Guardar alterações",
+                        text = stringResource(R.string.save_changes),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )

@@ -11,5 +11,6 @@ data class ApplicationChatUiState(
     val currentUserId: String = "",
     val participantName: String = "",
     val internshipTitle: String = "",
+    val chatType: String = "advisor",
     val errorMessageRes: Int? = null
 )

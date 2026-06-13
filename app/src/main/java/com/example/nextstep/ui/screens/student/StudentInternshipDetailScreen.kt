@@ -24,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.nextstep.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,7 +41,7 @@ import java.util.Locale
 fun StudentInternshipDetailScreen(
     internshipId: String,
     onBackClick: () -> Unit,
-    onChatClick: (String, String) -> Unit,
+    onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
     onAdvisorProfileClick: (String) -> Unit = {},
     onTeacherProfileClick: (String) -> Unit = {},
@@ -71,10 +73,10 @@ fun StudentInternshipDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Estágios", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.tab_internships), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -140,7 +142,7 @@ fun StudentInternshipDetailScreen(
 fun InternshipDetailContent(
     internship: StudentSubmittedApplicationDto,
     tasks: List<AdvisorTaskListItemDto>,
-    onChatClick: (String, String) -> Unit,
+    onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
     onAddTaskClick: () -> Unit,
     onTaskStatusChange: (String, String) -> Unit,
@@ -191,14 +193,14 @@ fun InternshipDetailContent(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text("Orientadores", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(stringResource(R.string.advisors), fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
         AdvisorItem(
             organization = internship.companyName,
             name = internship.advisorName ?: "A aguardar atribuição",
             onChatClick = if (internship.advisorProfileId != null) {
-                { onChatClick(internship.id, internship.advisorName ?: "") }
+                { onChatClick(internship.id, internship.advisorName ?: "", "advisor") }
             } else null,
             onProfileClick = if (internship.advisorProfileId != null) {
                 {
@@ -215,9 +217,9 @@ fun InternshipDetailContent(
 
         if (isTeacherAssigned) {
             AdvisorItem(
-                organization = internship.institutionName ?: "Instituição",
-                name = internship.teacherName ?: "Orientador Académico",
-                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "") },
+                organization = internship.institutionName ?: stringResource(R.string.default_not_available),
+                name = internship.teacherName ?: stringResource(R.string.default_not_available),
+                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "", "teacher") },
                 onProfileClick = if (internship.teacherProfileId != null) {
                     {
                         Log.d("ProfileDebug", "Teacher click teacherProfileId=${internship.teacherProfileId} applicationId=${internship.id}")
@@ -227,7 +229,7 @@ fun InternshipDetailContent(
             )
         } else {
             Column {
-                Text("Instituição", color = Color.Gray, fontSize = 13.sp)
+                Text(stringResource(R.string.institution_label), color = Color.Gray, fontSize = 13.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = onSearchAdvisorClick,
@@ -235,7 +237,7 @@ fun InternshipDetailContent(
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text("Procurar", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.search_label), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -270,7 +272,7 @@ fun ReportSection(
     onAttachClick: () -> Unit,
     onClearMessages: () -> Unit
 ) {
-    Text("Relatório Final", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Text(stringResource(R.string.final_report), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
     if (errorMessage != null) {
@@ -370,7 +372,7 @@ fun AdvisorItem(
             if (onChatClick != null) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = "Chat",
+                    contentDescription = stringResource(R.string.chat),
                     tint = Color.Gray,
                     modifier = Modifier.size(24.dp).clickable { onChatClick() }
                 )
@@ -385,7 +387,7 @@ fun TasksSection(
     onAddTaskClick: () -> Unit,
     onTaskStatusChange: (String, String) -> Unit
 ) {
-    Text("Tarefas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Text(stringResource(R.string.tasks_title), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
     val grouped = tasks.groupBy { task ->
@@ -394,7 +396,7 @@ fun TasksSection(
     }
 
     if (grouped.isEmpty()) {
-        Text("Sem tarefas atribuídas.", color = Color.Gray)
+        Text(stringResource(R.string.no_tasks_assigned), color = Color.Gray)
     } else {
         grouped.forEach { (dateKey, dateTasks) ->
             if (dateKey != "sem data") {
@@ -425,7 +427,7 @@ fun TasksSection(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Adicionar Tarefa", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.add_task), fontWeight = FontWeight.Bold)
     }
 }
 
@@ -465,15 +467,15 @@ fun TaskCard(task: AdvisorTaskListItemDto, onStatusChange: (String, String) -> U
 
 @Composable
 fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
-    Text("Avaliação Orientadores", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Text(stringResource(R.string.advisor_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
-    EvaluationRow(name = internship.advisorName ?: "Orientador Empresa", grade = internship.companyAdvisorGrade ?: "18")
+    EvaluationRow(name = internship.advisorName ?: stringResource(R.string.default_not_available), grade = internship.companyAdvisorGrade ?: stringResource(R.string.default_not_available))
     Spacer(modifier = Modifier.height(16.dp))
-    EvaluationRow(name = internship.teacherName ?: "Orientador Académico", grade = internship.academicAdvisorGrade ?: "18")
+    EvaluationRow(name = internship.teacherName ?: stringResource(R.string.default_not_available), grade = internship.academicAdvisorGrade ?: stringResource(R.string.default_not_available))
 
     Spacer(modifier = Modifier.height(32.dp))
-    Text("Avaliação Final", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Text(stringResource(R.string.final_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -482,9 +484,9 @@ fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
             shape = RoundedCornerShape(8.dp),
             color = Color.White
         ) {
-            Text(text = "18", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = stringResource(R.string.default_not_available), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-        Text(text = " / 20", color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+        Text(text = stringResource(R.string.grade_max), color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -507,7 +509,7 @@ fun EvaluationRow(name: String, grade: String) {
         ) {
             Text(text = grade, fontWeight = FontWeight.Medium)
         }
-        Text(text = " / 20", color = Color.Gray, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
+        Text(text = stringResource(R.string.grade_max), color = Color.Gray, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
     }
 }
 
@@ -522,13 +524,13 @@ fun AddTaskDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Adicionar Tarefa", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.add_task), fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = onTitleChange,
-                    label = { Text("Tarefa") },
+                    label = { Text(stringResource(R.string.task_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -547,13 +549,13 @@ fun AddTaskDialog(
                 if (isSaving) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
                 } else {
-                    Text("Guardar", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.save_task), fontWeight = FontWeight.Bold)
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, enabled = !isSaving) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

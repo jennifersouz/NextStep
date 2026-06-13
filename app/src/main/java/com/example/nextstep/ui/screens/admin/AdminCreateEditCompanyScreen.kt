@@ -32,9 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
 
 @Composable
@@ -109,12 +111,12 @@ fun AdminCreateEditCompanyScreen(
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = stringResource(R.string.back_label),
                     tint = Color.Black
                 )
             }
             Text(
-                text = if (isEditing) "Editar Empresa" else "Nova Empresa",
+                text = if (isEditing) stringResource(R.string.editing_company_title) else stringResource(R.string.new_company_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -129,7 +131,7 @@ fun AdminCreateEditCompanyScreen(
         ) {
             // Company name (required)
             Text(
-                text = "Nome da Empresa *",
+                text = stringResource(R.string.company_name_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -141,7 +143,7 @@ fun AdminCreateEditCompanyScreen(
                     companyName = it
                     nameError = false
                 },
-                placeholder = { Text("Ex: Empresa XYZ", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.company_name_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -156,7 +158,7 @@ fun AdminCreateEditCompanyScreen(
             )
             if (nameError) {
                 Text(
-                    text = "Nome da empresa obrigatório.",
+                    text = stringResource(R.string.company_name_required_error),
                     color = Color(0xFFC62828),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp)
@@ -167,7 +169,7 @@ fun AdminCreateEditCompanyScreen(
 
             // NIF
             Text(
-                text = "NIF",
+                text = stringResource(R.string.nif_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -176,7 +178,7 @@ fun AdminCreateEditCompanyScreen(
             OutlinedTextField(
                 value = nif,
                 onValueChange = { nif = it },
-                placeholder = { Text("Ex: 123456789", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.nif_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -193,7 +195,7 @@ fun AdminCreateEditCompanyScreen(
 
             // Business area
             Text(
-                text = "Área de Negócio",
+                text = stringResource(R.string.business_area_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -202,7 +204,7 @@ fun AdminCreateEditCompanyScreen(
             OutlinedTextField(
                 value = businessArea,
                 onValueChange = { businessArea = it },
-                placeholder = { Text("Ex: Tecnologia", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.business_area_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -219,7 +221,7 @@ fun AdminCreateEditCompanyScreen(
 
             // Location
             Text(
-                text = "Localização",
+                text = stringResource(R.string.location_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -228,7 +230,7 @@ fun AdminCreateEditCompanyScreen(
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
-                placeholder = { Text("Ex: Lisboa", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.location_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -245,7 +247,7 @@ fun AdminCreateEditCompanyScreen(
 
             // Phone
             Text(
-                text = "Telefone",
+                text = stringResource(R.string.phone_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -254,7 +256,7 @@ fun AdminCreateEditCompanyScreen(
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                placeholder = { Text("Ex: 912345678", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.phone_placeholder_example), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -271,7 +273,7 @@ fun AdminCreateEditCompanyScreen(
 
             // Description
             Text(
-                text = "Descrição",
+                text = stringResource(R.string.description_field),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -280,7 +282,7 @@ fun AdminCreateEditCompanyScreen(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                placeholder = { Text("Descrição da empresa...", color = Color(0xFF999999)) },
+                placeholder = { Text(stringResource(R.string.description_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
@@ -304,14 +306,14 @@ fun AdminCreateEditCompanyScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Empresa Ativa",
+                            text = stringResource(R.string.company_active_label),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black
                         )
                         Text(
-                            text = if (isActive) "A empresa pode publicar ofertas"
-                                   else "A empresa não pode publicar ofertas",
+                            text = if (isActive) stringResource(R.string.company_can_publish)
+                                   else stringResource(R.string.company_cannot_publish),
                             fontSize = 12.sp,
                             color = Color(0xFF777777)
                         )
@@ -360,7 +362,7 @@ fun AdminCreateEditCompanyScreen(
                 )
             ) {
                 Text(
-                    text = if (isEditing) "Guardar Alterações" else "Criar Empresa",
+                    text = if (isEditing) stringResource(R.string.save_changes_button) else stringResource(R.string.create_company_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black

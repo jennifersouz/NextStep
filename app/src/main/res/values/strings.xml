@@ -195,7 +195,7 @@
 
     <string name="create_offer_success">Oferta criada com sucesso.</string>
     <string name="create_offer_error">Não foi possível criar a oferta. Tente novamente.</string>
-    <string name="creating">A criar…</string>
+    <string name="creating">A criar...</string>
     <string name="create">Criar</string>
 
     <string name="create_offer_error_permission">Não tens permissão para criar ofertas. Confirma se esta conta está registada como empresa.</string>
@@ -216,7 +216,7 @@
     <string name="offer_vacancies">Vagas</string>
     <string name="offer_vacancies_value">%1$d vaga(s)</string>
     <string name="offer_requirements">Requisitos</string>
-    <string name="applying">A candidatar…</string>
+    <string name="applying">A candidatar...</string>
     <string name="applied_button">Candidatura enviada</string>
 
     <string name="application_success">Candidatura enviada com sucesso.</string>
@@ -236,11 +236,11 @@
     <string name="cv_placeholder">CV.pdf</string>
     <string name="upload">Carregar</string>
     <string name="submit_application">Submeter candidatura</string>
-    <string name="submitting_application">A submeter…</string>
+    <string name="submitting_application">A submeter...</string>
 
     <string name="application_documents_required">Carrega a carta de motivação e o CV antes de submeter.</string>
     <string name="application_documents_read_error">Não foi possível ler os documentos selecionados.</string>
-    <string name="checking_application">A verificar…</string>
+    <string name="checking_application">A verificar...</string>
     <string name="already_applied_button">Já te candidataste</string>
 
     <string name="company_applications_unseen">Por ver</string>
@@ -259,7 +259,7 @@
     <string name="company_application_status_update_error">Não foi possível atualizar o estado da candidatura.</string>
     <string name="company_application_document_missing">Este documento não está disponível.</string>
     <string name="company_application_document_open_error">Não foi possível abrir o documento.</string>
-    <string name="company_application_opening_document">A abrir documento…</string>
+    <string name="company_application_opening_document">A abrir documento...</string>
     <string name="company_application_mark_viewed_error">Não foi possível marcar a candidatura como vista.</string>
     <string name="student_profile_load_error">Não foi possível carregar o perfil.</string>
 
@@ -279,16 +279,16 @@
 
     <string name="student_application_document_missing">Este documento não está disponível.</string>
     <string name="student_application_document_open_error">Não foi possível abrir o documento.</string>
-    <string name="student_application_opening_document">A abrir documento…</string>
+    <string name="student_application_opening_document">A abrir documento...</string>
 
     <string name="confirm_presence">Confirmar presença</string>
-    <string name="confirming_presence">A confirmar…</string>
+    <string name="confirming_presence">A confirmar...</string>
     <string name="presence_confirmed">Presença confirmada</string>
     <string name="presence_only_after_acceptance">Disponível após aceitação</string>
     <string name="student_presence_only_accepted">Só podes confirmar presença depois da candidatura ser aceite.</string>
     <string name="student_presence_confirm_error">Não foi possível confirmar presença.</string>
     <string name="accept_internship">Aceitar estágio</string>
-    <string name="accepting_internship">A aceitar estágio…</string>
+    <string name="accepting_internship">A aceitar estágio...</string>
     <string name="internship_accepted">Estágio aceite</string>
     <string name="internship_acceptance_only_after_application_acceptance">Disponível após aceitação da candidatura</string>
     <string name="accept_internship_error">Não foi possível aceitar o estágio. Tenta novamente.</string>
@@ -301,7 +301,7 @@
     <string name="student_application_status_rejected">Recusada</string>
     <string name="first_name">Nome</string>
     <string name="last_name">Apelido</string>
-    <string name="saving">A guardar…</string>
+    <string name="saving">A guardar...</string>
     <string name="student_profile_update_success">Perfil atualizado com sucesso.</string>
     <string name="student_profile_update_error">Não foi possível atualizar o perfil.</string>
     <string name="saved_offer_update_error">Não foi possível atualizar os estágios guardados.</string>
@@ -334,62 +334,6 @@
     <string name="company_offer_update_error">Não foi possível atualizar a oferta.</string>
     <string name="company_offer_deactivate_error">Não foi possível desativar a oferta.</string>
     <string name="company_offer_activate_error">Não foi possível ativar a oferta.</string>
-    <string name="company_offer_archive_error">Não foi possível remover a oferta.</string>
-
-    <string name="archive_offer">Remover oferta</string>
-    <string name="archive_offer_confirmation">Esta ação remove a oferta da lista principal, mas mantém o histórico e as candidaturas associadas.</string>
-    <string name="archive">Remover</string>
-    <string name="activate">Ativar</string>
-    <string name="activate_offer_confirmation">Esta oferta voltará a ficar disponível para novas candidaturas.</string>
-
-    <!-- Company Candidate Profile -->
-    <string name="company_candidate_permission_denied">Não tens permissão para ver este candidato.</string>
-    <string name="company_candidate_cv_not_available">CV não disponível.</string>
-    <string name="company_candidate_letter_not_available">Carta de motivação não disponível.</string>
-
-    <!-- Company Intern Student Profile (RF26) -->
-    <string name="company_intern_profile_permission_denied">Não tens permissão para ver este aluno.</string>
-    <string name="company_intern_profile_not_in_internship">Este aluno ainda não se encontra em estágio.</string>
-    <string name="company_intern_profile_load_error">Não foi possível carregar o perfil do aluno.</string>
-    <string name="company_intern_profile_personal_data">Dados pessoais</string>
-    <string name="company_intern_profile_academic_data">Dados académicos</string>
-    <string name="company_intern_profile_internship">Estágio</string>
-    <string name="company_intern_profile_application_date">Data de candidatura</string>
-
-    <!-- Company Intern Student Activities (RF27) -->
-    <string name="company_intern_activities_load_error">Não foi possível carregar as atividades.</string>
-    <string name="company_intern_tab_summary">Resumo</string>
-    <string name="company_intern_tab_activities">Atividades</string>
-    <string name="company_intern_tab_evaluation">Avaliação</string>
-    <string name="company_intern_activities_title">Atividades do aluno</string>
-    <string name="company_intern_activities_empty">Ainda não existem atividades registadas.</string>
-    <string name="company_intern_activities_empty_subtitle">As atividades atribuídas ao aluno aparecerão aqui.</string>
-    <string name="company_intern_activity_status_pending">Pendente</string>
-    <string name="company_intern_activity_status_in_progress">Em progresso</string>
-    <string name="company_intern_activity_status_completed">Concluída</string>
-    <string name="company_intern_activity_status_cancelled">Cancelada</string>
-    <string name="company_intern_filter_all">Todas</string>
-    <string name="company_intern_filter_pending">Pendentes</string>
-    <string name="company_intern_filter_in_progress">Em progresso</string>
-    <string name="company_intern_filter_completed">Concluídas</string>
-    <string name="company_intern_due_date">Data limite</string>
-    <string name="company_intern_completed_at">Concluída em</string>
-    <string name="company_intern_no_due_date">Sem data limite</string>
-
-    <!-- Company Intern Student Evaluation (RF28) -->
-    <string name="company_intern_evaluation_load_error">Não foi possível carregar a avaliação do orientador.</string>
-    <string name="company_intern_evaluation_title">Avaliação do orientador</string>
-    <string name="company_intern_evaluation_empty">A avaliação do orientador ainda não está disponível.</string>
-    <string name="company_intern_evaluation_empty_subtitle">Quando o orientador submeter a avaliação, esta aparecerá aqui.</string>
-    <string name="company_intern_evaluation_grade">Nota final</string>
-    <string name="company_intern_evaluation_feedback">Comentário qualitativo</string>
-    <string name="company_intern_evaluation_strengths">Pontos fortes</string>
-    <string name="company_intern_evaluation_improvements">Pontos a melhorar</string>
-    <string name="company_intern_evaluation_status">Estado da avaliação</string>
-    <string name="company_intern_evaluation_date">Data da avaliação</string>
-    <string name="company_intern_evaluation_status_draft">Rascunho</string>
-    <string name="company_intern_evaluation_status_submitted">Submetida</string>
-    <string name="company_intern_evaluation_status_final">Final</string>
 
     <string name="edit_offer">Editar oferta</string>
     <string name="deactivate_offer">Desativar oferta</string>
@@ -438,7 +382,7 @@
     <string name="area_it">Informática</string>
     <string name="area_marketing">Marketing</string>
     <string name="area_other">Outra</string>
-    <string name="write_message">Escreve uma mensagem…</string>
+    <string name="write_message">Escreve uma mensagem...</string>
     <string name="send_message">Enviar mensagem</string>
     <string name="chat_empty">Ainda não existem mensagens nesta candidatura.</string>
     <string name="chat_load_error">Não foi possível carregar o chat.</string>
@@ -507,7 +451,7 @@
     <string name="role_advisor">Orientador</string>
     <string name="advisor_register_title">Registo de orientador</string>
     <string name="advisor_register_description">Para criares uma conta como orientador, a empresa deve ter criado previamente um convite com este email.</string>
-    <string name="loading">A carregar…</string>
+    <string name="loading">A carregar...</string>
     <string name="send_advisor_invite">Enviar convite</string>
     <string name="advisor_invite_description">O orientador receberá/terá de usar este email para criar a própria conta na aplicação. A empresa não define a palavra-passe do orientador.</string>
     <string name="view_student_profile">Ver perfil do aluno</string>
@@ -525,7 +469,7 @@
     <string name="status">Estado</string>
     <string name="advisors">Orientadores</string>
     <string name="send_request">Enviar Pedido</string>
-    <string name="sending">A enviar…</string>
+    <string name="sending">A enviar...</string>
     <string name="pending">Pendente</string>
     <string name="accepted">Aceite</string>
     <string name="rejected">Recusado</string>
@@ -556,7 +500,7 @@
 
     <string name="chat_title">Chat do estágio</string>
     <string name="message_advisor">Enviar mensagem ao orientador</string>
-    <string name="type_message">Escreve uma mensagem…</string>
+    <string name="type_message">Escreve uma mensagem...</string>
     <string name="send">Enviar</string>
     <string name="message_send_error">Não foi possível enviar a mensagem.</string>
     <string name="assigned_students">Alunos atribuídos</string>
@@ -667,6 +611,7 @@
     <!-- Advisor Tasks -->
     <string name="tasks_subtitle">Acompanha as atividades dos teus alunos.</string>
     <string name="new_task">Nova tarefa</string>
+    <string name="in_progress">Em curso</string>
     <string name="status_active">Ativo</string>
     <string name="status_in_progress">Em curso</string>
     <string name="status_completed">Concluída</string>
@@ -802,27 +747,4 @@
 
     <!-- Institution Tab -->
     <string name="tab_teachers">Docentes</string>
-
-    <!-- RF24: Intern Student Status Update -->
-    <string name="company_intern_status_active">Ativo</string>
-    <string name="company_intern_status_inactive">Inativo</string>
-    <string name="company_intern_status_completed">Concluído</string>
-    <string name="company_intern_mark_inactive">Marcar como inativo</string>
-    <string name="company_intern_mark_active">Marcar como ativo</string>
-    <string name="company_intern_confirm_inactive_title">Marcar aluno como inativo?</string>
-    <string name="company_intern_confirm_inactive_message">Este aluno deixará de aparecer como estágio ativo, mas o histórico será mantido.</string>
-    <string name="company_intern_confirm_active_title">Marcar aluno como ativo?</string>
-    <string name="company_intern_confirm_active_message">Este aluno voltará a aparecer como estágio ativo.</string>
-    <string name="company_intern_status_updated_success">Estado atualizado com sucesso.</string>
-    <string name="company_intern_status_updated_error">Não foi possível atualizar o estado do aluno.</string>
-    <string name="company_intern_status_completed_message">Estágio concluído.</string>
-
-    <!-- RF25: Responsible Advisor -->
-    <string name="advisor">Orientador</string>
-    <string name="responsible_advisor">Orientador responsável</string>
-    <string name="not_assigned">Não atribuído</string>
-    <string name="no_advisor_assigned">Sem orientador atribuído.</string>
-    <string name="advisor_assigned_at">Atribuído em</string>
-    <string name="advisor_empty_state_description">Quando for atribuído um orientador, os dados aparecerão aqui.</string>
-    <string name="view_advisor_profile">Ver perfil do orientador</string>
 </resources>

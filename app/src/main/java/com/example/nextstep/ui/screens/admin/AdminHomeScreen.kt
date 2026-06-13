@@ -96,7 +96,7 @@ private fun AdminHomeContent(
         item {
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Painel de gestão",
+                text = stringResource(R.string.admin_management_panel),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF555555),
@@ -114,13 +114,13 @@ private fun AdminHomeContent(
                 AdminStatCard(
                     icon = Icons.Filled.BusinessCenter,
                     value = state.activeInternshipsCount.toString(),
-                    label = "Estágios ativos",
+                    label = stringResource(R.string.active_internships_label),
                     modifier = Modifier.weight(1f)
                 )
                 AdminStatCard(
                     icon = Icons.Filled.Description,
                     value = state.applicationsCount.toString(),
-                    label = "Candidaturas",
+                    label = stringResource(R.string.applications_label),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -137,13 +137,13 @@ private fun AdminHomeContent(
                 AdminStatCard(
                     icon = Icons.Filled.Business,
                     value = state.totalCompaniesCount.toString(),
-                    label = "Total de empresas",
+                    label = stringResource(R.string.total_companies_label),
                     modifier = Modifier.weight(1f)
                 )
                 AdminStatCard(
                     icon = Icons.Filled.BusinessCenter,
                     value = state.activeCompaniesCount.toString(),
-                    label = "Empresas ativas",
+                    label = stringResource(R.string.active_companies_label),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -160,13 +160,13 @@ private fun AdminHomeContent(
                 AdminStatCard(
                     icon = Icons.Filled.CheckCircle,
                     value = state.completedEvaluationsCount.toString(),
-                    label = "Avaliações concluídas",
+                    label = stringResource(R.string.completed_evaluations_label),
                     modifier = Modifier.weight(1f)
                 )
                 AdminStatCard(
                     icon = Icons.Filled.People,
                     value = state.usersCount.toString(),
-                    label = "Utilizadores registados",
+                    label = stringResource(R.string.registered_users_label),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -176,7 +176,7 @@ private fun AdminHomeContent(
         item {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = "Atividades recentes",
+                text = stringResource(R.string.recent_activities_label),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -193,7 +193,7 @@ private fun AdminHomeContent(
         } else {
             item {
                 Text(
-                    text = "Sem atividades recentes.",
+                    text = stringResource(R.string.no_recent_activities_label),
                     fontSize = 14.sp,
                     color = Color(0xFF777777),
                     modifier = Modifier.padding(horizontal = 24.dp)
@@ -210,7 +210,7 @@ private fun AdminHomeContent(
 
 @Composable
 private fun AdminHomeHeader(adminName: String) {
-    val displayName = adminName.ifBlank { "Administrador" }
+    val displayName = adminName.ifBlank { stringResource(R.string.role_admin) }
 
     Column(
         modifier = Modifier
@@ -218,7 +218,7 @@ private fun AdminHomeHeader(adminName: String) {
             .padding(start = 24.dp, end = 24.dp, top = 16.dp)
     ) {
         Text(
-            text = "Olá, $displayName 👋",
+            text = stringResource(R.string.greeting_format, displayName),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -331,7 +331,7 @@ private fun AdminHomeErrorContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Tentar novamente",
+                text = stringResource(R.string.retry_label),
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { onRetry() }

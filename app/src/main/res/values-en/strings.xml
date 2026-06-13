@@ -334,39 +334,6 @@
     <string name="company_offer_update_error">Could not update the offer.</string>
     <string name="company_offer_deactivate_error">Could not deactivate the offer.</string>
     <string name="company_offer_activate_error">Could not activate the offer.</string>
-    <string name="company_offer_archive_error">Could not archive the offer.</string>
-
-    <string name="archive_offer">Archive offer</string>
-    <string name="archive_offer_confirmation">This action removes the offer from the main list, but keeps its history and related applications.</string>
-    <string name="archive">Archive</string>
-    <string name="activate">Activate</string>
-    <string name="activate_offer_confirmation">Do you want to activate this offer again?</string>
-
-    <string name="company_candidate_permission_denied">You do not have permission to view this candidate.</string>
-    <string name="company_candidate_cv_not_available">CV not available.</string>
-    <string name="company_candidate_letter_not_available">Motivation letter not available.</string>
-
-    <string name="company_intern_profile_permission_denied">You do not have permission to view this student.</string>
-    <string name="company_intern_profile_not_in_internship">This student is not currently in an internship.</string>
-    <string name="company_intern_profile_load_error">Could not load the student profile.</string>
-    <string name="company_intern_profile_personal_data">Personal data</string>
-    <string name="company_intern_profile_academic_data">Academic data</string>
-    <string name="company_intern_profile_internship">Internship</string>
-    <string name="company_intern_profile_application_date">Application date</string>
-
-    <!-- RF24: Intern Student Status Update -->
-    <string name="company_intern_status_active">Active</string>
-    <string name="company_intern_status_inactive">Inactive</string>
-    <string name="company_intern_status_completed">Completed</string>
-    <string name="company_intern_mark_inactive">Mark as inactive</string>
-    <string name="company_intern_mark_active">Mark as active</string>
-    <string name="company_intern_confirm_inactive_title">Mark student as inactive?</string>
-    <string name="company_intern_confirm_inactive_message">This student will no longer appear as an active internship, but the history will be kept.</string>
-    <string name="company_intern_confirm_active_title">Mark student as active?</string>
-    <string name="company_intern_confirm_active_message">This student will appear as an active internship again.</string>
-    <string name="company_intern_status_updated_success">Status updated successfully.</string>
-    <string name="company_intern_status_updated_error">Could not update the student status.</string>
-    <string name="company_intern_status_completed_message">Internship completed.</string>
 
     <string name="edit_offer">Edit offer</string>
     <string name="deactivate_offer">Deactivate offer</string>

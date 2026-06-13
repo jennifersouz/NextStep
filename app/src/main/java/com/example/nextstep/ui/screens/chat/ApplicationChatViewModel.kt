@@ -26,6 +26,7 @@ class ApplicationChatViewModel : ViewModel() {
     val uiState: StateFlow<ApplicationChatUiState> = _uiState.asStateFlow()
 
     private var currentApplicationId: String? = null
+    private var currentChatType: String = "advisor"
 
     init {
         refreshCurrentUserId()
@@ -42,13 +43,16 @@ class ApplicationChatViewModel : ViewModel() {
         applicationId: String, 
         participantName: String? = null,
         offerTitle: String? = null,
-        studentProfileId: String? = null
+        studentProfileId: String? = null,
+        chatType: String = "advisor"
     ) {
         if (applicationId.isBlank()) return
         
         refreshCurrentUserId()
         
-        val isNewConversation = currentApplicationId != applicationId
+        val isNewConversation = currentApplicationId != applicationId || currentChatType != chatType
+        currentChatType = chatType
+        
         val normalizedName = normalizeName(participantName)
         val normalizedOffer = normalizeName(offerTitle)
         
@@ -58,6 +62,7 @@ class ApplicationChatViewModel : ViewModel() {
                 messages = emptyList(),
                 participantName = if (normalizedName == "Chat" || normalizedName == "Aluno") "" else normalizedName,
                 internshipTitle = normalizedOffer,
+                chatType = chatType,
                 isLoading = true,
                 errorMessageRes = null
             )
@@ -72,25 +77,25 @@ class ApplicationChatViewModel : ViewModel() {
             }
         }
 
-        // Se ainda não temos um nome real, tenta buscar de forma robusta no repositório
         if (_uiState.value.participantName.isBlank()) {
-            fetchParticipantDetails(applicationId)
+            fetchParticipantDetails(applicationId, chatType)
         }
         
-        loadMessages(applicationId, showLoading = isNewConversation)
+        loadMessages(applicationId, chatType, showLoading = isNewConversation)
         
         viewModelScope.launch {
-            repository.markMessagesAsRead(applicationId)
+            repository.markMessagesAsRead(applicationId, chatType)
         }
         
         viewModelScope.launch {
             repository.subscribeToMessages(
                 applicationId = applicationId,
+                chatType = chatType,
                 scope = viewModelScope,
                 onMessageReceived = {
-                    loadMessages(applicationId, showLoading = false)
+                    loadMessages(applicationId, chatType, showLoading = false)
                     viewModelScope.launch {
-                        repository.markMessagesAsRead(applicationId)
+                        repository.markMessagesAsRead(applicationId, chatType)
                     }
                 }
             )
@@ -109,17 +114,19 @@ class ApplicationChatViewModel : ViewModel() {
         }
     }
 
-    private fun fetchParticipantDetails(applicationId: String) {
+    private fun fetchParticipantDetails(applicationId: String, chatType: String = "advisor") {
         viewModelScope.launch {
             try {
-                assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
-                    val app = apps.find { it.applicationId == applicationId }
-                    if (app != null) {
-                        val studentName = app.studentFullName
-                        if (studentName.isNotBlank()) {
-                            _uiState.value = _uiState.value.copy(
-                                participantName = normalizeName(studentName)
-                            )
+                if (chatType == "advisor") {
+                    assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
+                        val app = apps.find { it.applicationId == applicationId }
+                        if (app != null) {
+                            val studentName = app.studentFullName
+                            if (studentName.isNotBlank()) {
+                                _uiState.value = _uiState.value.copy(
+                                    participantName = normalizeName(studentName)
+                                )
+                            }
                         }
                     }
                 }
@@ -131,6 +138,7 @@ class ApplicationChatViewModel : ViewModel() {
 
     fun loadMessages(
         applicationId: String,
+        chatType: String = "advisor",
         showLoading: Boolean = true
     ) {
         viewModelScope.launch {
@@ -141,7 +149,7 @@ class ApplicationChatViewModel : ViewModel() {
                 )
             }
 
-            val result = repository.getMessages(applicationId)
+            val result = repository.getMessages(applicationId, chatType)
 
             if (result.isSuccess) {
                 val messages = result.getOrDefault(emptyList())
@@ -220,6 +228,7 @@ class ApplicationChatViewModel : ViewModel() {
 
     fun sendMessage() {
         val applicationId = currentApplicationId ?: return
+        val chatType = currentChatType
         val content = _uiState.value.messageText.trim()
         if (content.isBlank()) return
 
@@ -229,14 +238,14 @@ class ApplicationChatViewModel : ViewModel() {
                 errorMessageRes = null
             )
 
-            val result = repository.sendMessage(applicationId, content)
+            val result = repository.sendMessage(applicationId, content, chatType)
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
                     messageText = "",
                     isSending = false
                 )
-                loadMessages(applicationId, showLoading = false)
+                loadMessages(applicationId, chatType, showLoading = false)
             } else {
                 _uiState.value = _uiState.value.copy(
                     isSending = false,

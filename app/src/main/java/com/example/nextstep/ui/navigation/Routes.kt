@@ -64,12 +64,13 @@ object Routes {
     const val CHAT_ARG = "applicationId"
 
     const val APPLICATION_CHAT =
-        "application_chat/{applicationId}?name={name}&offerTitle={offerTitle}&studentProfileId={studentProfileId}"
+        "application_chat/{applicationId}?name={name}&offerTitle={offerTitle}&studentProfileId={studentProfileId}&chatType={chatType}"
 
     const val APPLICATION_CHAT_ARG = "applicationId"
     const val APPLICATION_CHAT_NAME_ARG = "name"
     const val APPLICATION_CHAT_OFFER_ARG = "offerTitle"
     const val APPLICATION_CHAT_STUDENT_ID_ARG = "studentProfileId"
+    const val APPLICATION_CHAT_TYPE_ARG = "chatType"
 
     const val ADVISOR_EDIT_PROFILE = "advisor_edit_profile"
 
@@ -177,7 +178,8 @@ object Routes {
         applicationId: String,
         participantName: String? = null,
         offerTitle: String? = null,
-        studentProfileId: String? = null
+        studentProfileId: String? = null,
+        chatType: String? = null
     ): String {
         val queryParams = mutableListOf<String>()
 
@@ -191,6 +193,10 @@ object Routes {
 
         if (!studentProfileId.isNullOrBlank()) {
             queryParams.add("studentProfileId=${Uri.encode(studentProfileId)}")
+        }
+
+        if (!chatType.isNullOrBlank()) {
+            queryParams.add("chatType=${Uri.encode(chatType)}")
         }
 
         val query = if (queryParams.isEmpty()) {
