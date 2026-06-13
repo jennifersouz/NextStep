@@ -17,6 +17,12 @@ object Routes {
     const val STUDENT_SUBMITTED_APPLICATIONS = "student_submitted_applications"
     const val STUDENT_SUBMITTED_APPLICATION_DETAIL = "student_submitted_application_detail"
     const val STUDENT_SUBMITTED_APPLICATION_DETAIL_ARG = "applicationId"
+
+    const val STUDENT_INTERNSHIP_DETAIL = "student_internship_detail"
+    const val STUDENT_INTERNSHIP_DETAIL_ARG = "internshipId"
+    const val STUDENT_SEARCH_ADVISOR = "student_search_advisor/{internshipId}"
+    const val STUDENT_SEARCH_ADVISOR_ARG = "internshipId"
+
     const val COMPANY_OFFER_DETAIL = "company_offer_detail/{offerId}"
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
     const val CHAT = "chat/{applicationId}"
@@ -143,5 +149,13 @@ object Routes {
 
     fun advisorEvaluateStudent(applicationId: String): String {
         return "advisor_evaluate_student/$applicationId"
+    }
+
+    fun studentInternshipDetail(internshipId: String): String {
+        return "student_internship_detail/$internshipId"
+    }
+
+    fun studentSearchAdvisor(internshipId: String): String {
+        return "student_search_advisor/$internshipId"
     }
 }

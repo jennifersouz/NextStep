@@ -25,7 +25,7 @@
     <string name="password_required">Password *</string>
     <string name="password_placeholder">Enter your password</string>
     <string name="toggle_password_visibility">Show or hide password</string>
-    <string name="no_account">Don't have an account?</string>
+    <string name="no_account">Don\'t have an account?</string>
     <string name="create_account">Create account</string>
     <string name="create_account_title">Create account</string>
     <string name="create_account_subtitle">Choose your profile and fill in the required information.</string>
