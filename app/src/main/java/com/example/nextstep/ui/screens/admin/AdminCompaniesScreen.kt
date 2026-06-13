@@ -173,7 +173,7 @@ fun AdminCompaniesFilterChips(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = filter.label,
+                    text = stringResource(filter.labelRes),
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                     color = Color.Black
@@ -253,7 +253,7 @@ fun AdminCompanyListItem(
                 // Offer count if available
                 company.offersCount?.let { count ->
                     Text(
-                        text = "$count oferta(s)",
+                        text = stringResource(R.string.offer_count_format, count),
                         fontSize = 12.sp,
                         color = Color(0xFF555555),
                         fontWeight = FontWeight.Medium

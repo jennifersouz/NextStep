@@ -218,7 +218,7 @@ private fun AdminHomeHeader(adminName: String) {
             .padding(start = 24.dp, end = 24.dp, top = 16.dp)
     ) {
         Text(
-            text = "Olá, $displayName 👋",
+            text = stringResource(R.string.greeting_format, displayName),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black

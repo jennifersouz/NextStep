@@ -188,7 +188,7 @@ fun AdminUsersFilterChips(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = filter.label,
+                    text = stringResource(filter.labelRes),
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                     color = Color.Black
