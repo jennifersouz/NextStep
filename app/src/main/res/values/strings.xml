@@ -701,6 +701,12 @@
 
     <!-- Admin -->
     <string name="account_disabled">Conta desativada. Contacta o administrador.</string>
+    <string name="company_offers_title">Ofertas da empresa</string>
+    <string name="admin_company_no_offers">Esta empresa ainda não publicou ofertas.</string>
+    <string name="offer_no_title">Sem título</string>
+    <string name="badge_active">Ativa</string>
+    <string name="badge_inactive">Inativa</string>
+    <string name="duration_with_value">Duração: %1$s</string>
 
     <!-- Shared -->
     <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>

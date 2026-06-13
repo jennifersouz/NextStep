@@ -1,20 +1,9 @@
 package com.example.nextstep.ui.screens.admin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,22 +11,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
@@ -45,104 +33,143 @@ import com.example.nextstep.data.model.AdminProfileDto
 @Composable
 fun AdminUsersScreen(
     viewModel: AdminUsersViewModel = viewModel(),
-    onUserClick: (AdminProfileDto) -> Unit = {}
+    onUserClick: (AdminProfileDto) -> Unit = {},
+    onAddUserClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadUsers()
+    // Refresh when screen becomes visible/resumed (useful when returning from creation screen)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadUsers()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        // Title
-        Text(
-            text = "Utilizadores",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Search bar
-        AdminSearchBar(
-            value = state.searchQuery,
-            onValueChange = { viewModel.onSearchQueryChange(it) },
-            placeholder = stringResource(R.string.search_user),
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddUserClick,
+                containerColor = Color.Black,
+                contentColor = Color.White,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Novo utilizador")
+            }
+        },
+        containerColor = Color.White
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Filter chips
-        AdminUsersFilterChips(
-            selectedFilter = state.selectedFilter,
-            onFilterClick = { viewModel.onFilterChange(it) }
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Content
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color.Black)
+                .fillMaxSize()
+                .padding(padding)
+                .background(Color.White)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Utilizadores",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                
+                TextButton(onClick = onAddUserClick) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFF007AFF))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Novo", color = Color(0xFF007AFF), fontWeight = FontWeight.SemiBold)
                 }
             }
 
-            state.errorMessage != null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = state.errorMessage ?: "",
-                        color = Color(0xFFB00020),
-                        fontSize = 15.sp
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(4.dp))
 
-            state.filteredUsers.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Nenhum utilizador encontrado.",
-                        fontSize = 15.sp,
-                        color = Color(0xFF777777)
-                    )
-                }
-            }
+            // Search bar
+            AdminSearchBar(
+                value = state.searchQuery,
+                onValueChange = { viewModel.onSearchQueryChange(it) },
+                placeholder = stringResource(R.string.search_user),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+            )
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(state.filteredUsers) { profile ->
-                        AdminUserListItem(
-                            profile = profile,
-                            onClick = { onUserClick(profile) }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Filter chips
+            AdminUsersFilterChips(
+                selectedFilter = state.selectedFilter,
+                onFilterClick = { viewModel.onFilterChange(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Content
+            when {
+                state.isLoading && state.users.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.Black)
+                    }
+                }
+
+                state.errorMessage != null && state.users.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.errorMessage ?: "",
+                            color = Color(0xFFB00020),
+                            fontSize = 15.sp
                         )
                     }
+                }
 
-                    item {
-                        Spacer(modifier = Modifier.height(96.dp))
+                state.filteredUsers.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Nenhum utilizador encontrado.",
+                            fontSize = 15.sp,
+                            color = Color(0xFF777777)
+                        )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(state.filteredUsers) { profile ->
+                            AdminUserListItem(
+                                profile = profile,
+                                onClick = { onUserClick(profile) }
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(96.dp))
+                        }
                     }
                 }
             }

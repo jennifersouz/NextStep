@@ -30,9 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyOfferDto
 
 @Composable
@@ -57,19 +60,20 @@ fun AdminCompanyOffersScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.Black
                 )
             }
             Column {
                 Text(
-                    text = "Ofertas da empresa",
+                    text = stringResource(R.string.company_offers_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -120,7 +124,7 @@ fun AdminCompanyOffersScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Esta empresa ainda não publicou ofertas.",
+                            text = stringResource(R.string.admin_company_no_offers),
                             fontSize = 15.sp,
                             color = Color(0xFF777777)
                         )
@@ -155,7 +159,7 @@ private fun AdminOfferListItem(offer: AdminCompanyOfferDto) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = offer.title ?: "Sem título",
+                text = offer.title ?: stringResource(R.string.offer_no_title),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black,
@@ -165,9 +169,9 @@ private fun AdminOfferListItem(offer: AdminCompanyOfferDto) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             val (label, fg, bg) = if (offer.isActive == true) {
-                Triple("Ativa", Color(0xFF2E7D32), Color(0xFFE8F5E9))
+                Triple(stringResource(R.string.badge_active), Color(0xFF2E7D32), Color(0xFFE8F5E9))
             } else {
-                Triple("Inativa", Color(0xFFC62828), Color(0xFFFFEBEE))
+                Triple(stringResource(R.string.badge_inactive), Color(0xFFC62828), Color(0xFFFFEBEE))
             }
             Box(
                 modifier = Modifier
@@ -196,8 +200,8 @@ private fun AdminOfferListItem(offer: AdminCompanyOfferDto) {
 
         // Duration + vacancies
         val secondary = listOfNotNull(
-            offer.duration?.let { "Duração: $it" },
-            offer.vacancies?.let { "$it vaga(s)" }
+            offer.duration?.let { stringResource(R.string.duration_with_value, it) },
+            offer.vacancies?.let { stringResource(R.string.offer_vacancies_value, it) }
         ).joinToString("  ·  ")
         if (secondary.isNotBlank()) {
             Spacer(modifier = Modifier.height(2.dp))

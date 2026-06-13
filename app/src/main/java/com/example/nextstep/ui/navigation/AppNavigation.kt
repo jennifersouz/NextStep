@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
+import com.example.nextstep.ui.screens.admin.AdminCreateUserScreen
 import com.example.nextstep.ui.screens.admin.AdminDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
@@ -340,7 +341,17 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                },
+                onAddUserClick = {
+                    navController.navigate(Routes.ADMIN_CREATE_USER)
                 }
+            )
+        }
+
+        composable(Routes.ADMIN_CREATE_USER) {
+            AdminCreateUserScreen(
+                onBackClick = { navController.popBackStack() },
+                onUserCreated = { navController.popBackStack() }
             )
         }
 

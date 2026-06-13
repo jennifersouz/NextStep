@@ -25,6 +25,32 @@ data class AdminProfileDto(
 )
 
 @Serializable
+data class AdminCreateUserRequest(
+    val email: String,
+    val password: String,
+    val role: String,
+
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val phone: String? = null,
+    val isActive: Boolean = true,
+
+    val studentNumber: String? = null,
+    val course: String? = null,
+    val academicYear: Int? = null,
+    val educationInstitution: String? = null,
+
+    val department: String? = null,
+    val institutionProfileId: String? = null,
+
+    val companyName: String? = null,
+    val nif: String? = null,
+    val businessArea: String? = null,
+    val location: String? = null,
+    val description: String? = null
+)
+
+@Serializable
 data class AdminCompanyDto(
     val id: String,
 

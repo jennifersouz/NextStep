@@ -40,6 +40,7 @@ object Routes {
     const val ADD_INSTITUTION_USER = "add_institution_user"
 
     const val ADMIN_DASHBOARD = "admin_dashboard"
+    const val ADMIN_CREATE_USER = "admin_create_user"
     const val TEACHER_DASHBOARD = "teacher_dashboard"
     const val TEACHER_NOTIFICATIONS = "teacher_notifications"
     const val TEACHER_REQUESTS = "teacher_requests"

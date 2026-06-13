@@ -1,11 +1,18 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
+import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.time.Instant
 
 class AdminUsersRepository {
@@ -25,6 +32,36 @@ class AdminUsersRepository {
             Result.success(profiles)
         } catch (exception: Exception) {
             Log.e("AdminUsersRepo", "Error loading users", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun createUser(request: AdminCreateUserRequest): Result<Unit> {
+        return try {
+            Log.d("AdminUsersRepo", "Calling edge function admin-create-user for ${request.email}")
+            
+            val response = supabase.functions.invoke("admin-create-user", request)
+            
+            if (response.status.isSuccess()) {
+                Log.d("AdminUsersRepo", "User created successfully via edge function")
+                Result.success(Unit)
+            } else {
+                val body = response.bodyAsText()
+                Log.e("AdminUsersRepo", "Edge function error: ${response.status} - $body")
+                
+                val errorMessage = try {
+                    val json = Json.parseToJsonElement(body).jsonObject
+                    json["error"]?.jsonPrimitive?.content 
+                        ?: json["message"]?.jsonPrimitive?.content 
+                        ?: "Erro desconhecido do servidor"
+                } catch (e: Exception) {
+                    "Erro ao criar utilizador (${response.status.value})"
+                }
+                
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Exception calling edge function", exception)
             Result.failure(exception)
         }
     }

@@ -30,6 +30,7 @@ import com.example.nextstep.ui.screens.auth.SessionViewModel
 @Composable
 fun AdminDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
+    onAddUserClick: () -> Unit = {},
     sessionViewModel: SessionViewModel = viewModel()
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.HOME) }
@@ -45,7 +46,7 @@ fun AdminDashboardScreen(
     val usersViewModel: AdminUsersViewModel = viewModel()
     val companiesViewModel: AdminCompaniesViewModel = viewModel()
 
-    // Always read from ViewModel state — never from local remember vars
+    // Always read from ViewModel state
     val usersState by usersViewModel.uiState.collectAsState()
     val companiesState by companiesViewModel.uiState.collectAsState()
 
@@ -209,7 +210,8 @@ fun AdminDashboardScreen(
                         onUserClick = { profile ->
                             usersViewModel.selectUser(profile)
                             showUserDetail = true
-                        }
+                        },
+                        onAddUserClick = onAddUserClick
                     )
                 }
 
@@ -269,4 +271,3 @@ fun AdminBottomBar(
         }
     )
 }
-
