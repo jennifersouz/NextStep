@@ -272,7 +272,7 @@ private fun TeacherConversationCard(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if (conversation.unreadCount > 9) "9+" else conversation.unreadCount.toString(),
+                                text = if (conversation.unreadCount > 9) stringResource(R.string.unread_count_over_9) else conversation.unreadCount.toString(),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black

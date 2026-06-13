@@ -124,9 +124,9 @@ private fun StudentFilters(
     ) {
         InstitutionRepository.ArchiveFilter.entries.forEach { filter ->
             val label = when (filter) {
-                InstitutionRepository.ArchiveFilter.ACTIVE -> "Ativos"
-                InstitutionRepository.ArchiveFilter.ARCHIVED -> "Arquivados"
-                InstitutionRepository.ArchiveFilter.ALL -> "Todos"
+                InstitutionRepository.ArchiveFilter.ACTIVE -> stringResource(R.string.filter_active)
+                InstitutionRepository.ArchiveFilter.ARCHIVED -> stringResource(R.string.filter_archived)
+                InstitutionRepository.ArchiveFilter.ALL -> stringResource(R.string.filter_all_masc)
             }
             FilterChip(
                 selected = selectedFilter == filter,
@@ -201,7 +201,7 @@ private fun InstitutionStudentCard(
                 Row {
                     if (student.studentNumber.isNotBlank()) {
                         Text(
-                            text = "N.º ${student.studentNumber}",
+                            text = stringResource(R.string.student_number_prefix) + student.studentNumber,
                             fontSize = 13.sp,
                             color = Color(0xFF9CA3AF)
                         )
@@ -209,7 +209,7 @@ private fun InstitutionStudentCard(
                     if (student.course.isNotBlank()) {
                         if (student.studentNumber.isNotBlank()) {
                             Text(
-                                text = " · ",
+                                text = stringResource(R.string.separator_bullet),
                                 fontSize = 13.sp,
                                 color = Color(0xFF9CA3AF)
                             )
@@ -222,7 +222,7 @@ private fun InstitutionStudentCard(
                     }
                     if (student.academicYear != null) {
                         Text(
-                            text = " · ${student.academicYear}º ano",
+                            text = stringResource(R.string.separator_bullet) + student.academicYear + stringResource(R.string.academic_year_suffix),
                             fontSize = 13.sp,
                             color = Color(0xFF9CA3AF)
                         )
@@ -233,7 +233,7 @@ private fun InstitutionStudentCard(
             Spacer(modifier = Modifier.width(8.dp))
 
             if (student.institutionArchivedAt != null) {
-                InstitutionStudentStatusBadge(label = "Arquivado", containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
+                InstitutionStudentStatusBadge(label = stringResource(R.string.status_archived), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
             } else {
                 InstitutionStudentStatusBadge(
                     label = if (student.isActive) stringResource(R.string.active_status) else stringResource(R.string.inactive_status),
@@ -268,7 +268,7 @@ private fun InstitutionStudentStatusBadge(label: String, containerColor: Color, 
 private fun InstitutionStudentsEmptyState(filter: InstitutionRepository.ArchiveFilter) {
     val message = when (filter) {
         InstitutionRepository.ArchiveFilter.ACTIVE -> stringResource(R.string.no_students_label)
-        InstitutionRepository.ArchiveFilter.ARCHIVED -> "Nenhum aluno arquivado."
+        InstitutionRepository.ArchiveFilter.ARCHIVED -> stringResource(R.string.no_archived_students)
         InstitutionRepository.ArchiveFilter.ALL -> stringResource(R.string.no_students_label)
     }
 

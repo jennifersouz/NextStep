@@ -391,7 +391,7 @@ private fun AdvisorSummaryTab(
                 trackColor = AdvisorUiColors.BorderGray
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "$percentage%", fontSize = 12.sp, color = AdvisorUiColors.TextGray)
+            Text(text = stringResource(R.string.grade_percentage_format, percentage), fontSize = 12.sp, color = AdvisorUiColors.TextGray)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -540,9 +540,8 @@ private fun AdvisorEvaluationTab(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // Título da secção
         Text(
-            text = "Avaliação do aluno",
+            text = stringResource(R.string.student_evaluation),
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -550,7 +549,6 @@ private fun AdvisorEvaluationTab(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Badge se já existir avaliação guardada
         if (state.evaluation != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -564,7 +562,7 @@ private fun AdvisorEvaluationTab(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Avaliação guardada",
+                    text = stringResource(R.string.evaluation_saved_short),
                     fontSize = 13.sp,
                     color = Color(0xFF2E7D32),
                     fontWeight = FontWeight.Medium
@@ -586,8 +584,8 @@ private fun AdvisorEvaluationTab(
         OutlinedTextField(
             value = state.grade,
             onValueChange = onGradeChange,
-            label = { Text("Nota final (0-20) *") },
-            placeholder = { Text("Ex: 15") },
+            label = { Text(stringResource(R.string.final_grade_required)) },
+            placeholder = { Text(stringResource(R.string.grade_placeholder_example)) },
             isError = state.gradeError != null,
             supportingText = state.gradeError?.let {
                 { Text(it, color = Color(0xFFB00020)) }
@@ -600,12 +598,11 @@ private fun AdvisorEvaluationTab(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Campo: Comentário qualitativo
         OutlinedTextField(
             value = state.qualitativeFeedback,
             onValueChange = onQualitativeFeedbackChange,
-            label = { Text("Comentário qualitativo *") },
-            placeholder = { Text("Descreve o desempenho geral do aluno...") },
+            label = { Text(stringResource(R.string.qualitative_comment_required)) },
+            placeholder = { Text(stringResource(R.string.qualitative_feedback_placeholder)) },
             isError = state.qualitativeFeedbackError != null,
             supportingText = state.qualitativeFeedbackError?.let {
                 { Text(it, color = Color(0xFFB00020)) }
@@ -618,12 +615,11 @@ private fun AdvisorEvaluationTab(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Campo: Pontos fortes (opcional)
         OutlinedTextField(
             value = state.strengths,
             onValueChange = onStrengthsChange,
-            label = { Text("Pontos fortes") },
-            placeholder = { Text("O que o aluno fez bem...") },
+            label = { Text(stringResource(R.string.strengths)) },
+            placeholder = { Text(stringResource(R.string.strengths_placeholder_advisor)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             minLines = 2,
@@ -632,12 +628,11 @@ private fun AdvisorEvaluationTab(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Campo: Pontos a melhorar (opcional)
         OutlinedTextField(
             value = state.improvements,
             onValueChange = onImprovementsChange,
-            label = { Text("Pontos a melhorar") },
-            placeholder = { Text("O que o aluno pode melhorar...") },
+            label = { Text(stringResource(R.string.improvements)) },
+            placeholder = { Text(stringResource(R.string.improvements_placeholder_advisor)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             minLines = 2,
@@ -705,7 +700,7 @@ private fun AdvisorEvaluationTab(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (state.evaluation != null) "Atualizar avaliação" else "Guardar avaliação",
+                    text = if (state.evaluation != null) stringResource(R.string.update_evaluation) else stringResource(R.string.save_evaluation),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )

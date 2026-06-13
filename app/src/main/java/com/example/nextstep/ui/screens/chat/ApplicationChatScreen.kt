@@ -84,8 +84,10 @@ fun ApplicationChatScreen(
         }
     }
 
-    val chatItems = remember(state.messages) {
-        buildChatItems(state.messages, state.currentUserId)
+    val todayLabel = stringResource(R.string.today_label)
+    val yesterdayLabel = stringResource(R.string.yesterday_label)
+    val chatItems = remember(state.messages, todayLabel, yesterdayLabel) {
+        buildChatItems(state.messages, state.currentUserId, todayLabel, yesterdayLabel)
     }
 
     LaunchedEffect(state.messages.size, state.isLoading) {
@@ -180,7 +182,9 @@ private sealed interface ChatListItem {
 
 private fun buildChatItems(
     messages: List<ApplicationMessageDto>,
-    currentUserId: String
+    currentUserId: String,
+    todayLabel: String,
+    yesterdayLabel: String
 ): List<ChatListItem> {
     val items = mutableListOf<ChatListItem>()
     var lastDate: String? = null
@@ -193,7 +197,7 @@ private fun buildChatItems(
             items.add(
                 ChatListItem.DateSeparator(
                     id = "sep_${messageDate}_$index",
-                    label = formatDateLabel(message.createdAt)
+                    label = formatDateLabel(message.createdAt, todayLabel, yesterdayLabel)
                 )
             )
             lastDate = messageDate
@@ -220,7 +224,7 @@ private fun getDateFromTimestamp(timestamp: String): String {
     }
 }
 
-private fun formatDateLabel(timestamp: String): String {
+private fun formatDateLabel(timestamp: String, todayLabel: String, yesterdayLabel: String): String {
     return try {
         val instant = Instant.parse(timestamp)
         val now = Instant.now()
@@ -231,12 +235,12 @@ private fun formatDateLabel(timestamp: String): String {
         val yesterday = today.minusDays(1)
 
         when (messageDate) {
-            today -> "Hoje"
-            yesterday -> "Ontem"
+            today -> todayLabel
+            yesterday -> yesterdayLabel
             else -> messageDate.format(DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy"))
         }
     } catch (e: Exception) {
-        "Hoje"
+        todayLabel
     }
 }
 
@@ -296,7 +300,7 @@ private fun ChatHeader(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = getInitials(displayName.ifEmpty { "Chat" }),
+                        text = getInitials(displayName.ifEmpty { stringResource(R.string.chat_label) }),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,7 +60,7 @@ fun AdvisorTasksScreen(
                 color = Color.Black,
                 modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp)
             )
-            
+
             Text(
                 text = stringResource(R.string.tasks_subtitle),
                 fontSize = 14.sp,
@@ -74,7 +75,7 @@ fun AdvisorTasksScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Filter Chips (Usando componente reutilizável)
+            // Filter Chips
             AdvisorTaskFilterChips(
                 selectedFilter = state.selectedFilter,
                 onFilterSelected = { viewModel.onFilterSelected(it) }
@@ -84,7 +85,12 @@ fun AdvisorTasksScreen(
 
             when {
                 state.isLoading -> {
-                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = Color.Black)
                     }
                 }
@@ -112,7 +118,7 @@ fun AdvisorTasksScreen(
             }
         }
 
-        // FAB for New Task - Apenas se habilitado
+        // FAB for New Task
         FloatingActionButton(
             onClick = onNewTaskClick,
             containerColor = AdvisorUiColors.YellowAccent,
@@ -136,7 +142,7 @@ private fun TaskSummarySection(tasks: List<AdvisorTaskListItemDto>) {
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {

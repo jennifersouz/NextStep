@@ -374,7 +374,7 @@ private fun TeacherSummaryTab(
                 color = Color(0xFF2B2B2B), trackColor = Color(0xFFEDEDED)
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "$percentage%", fontSize = 12.sp, color = Color(0xFF777777))
+            Text(text = stringResource(R.string.grade_percentage_format, percentage), fontSize = 12.sp, color = Color(0xFF777777))
         }
         
         Spacer(modifier = Modifier.height(24.dp))
