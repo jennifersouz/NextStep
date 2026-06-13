@@ -7,8 +7,12 @@ import kotlinx.serialization.Serializable
 data class TeacherStudentDetailDto(
     @SerialName("application_id")
     val applicationId: String,
+    @SerialName("id")
+    val id: String? = null,
     @SerialName("student_profile_id")
     val studentProfileId: String,
+    @SerialName("offer_id")
+    val offerId: String? = null,
     @SerialName("student_name")
     val studentName: String,
     @SerialName("student_email")
@@ -18,7 +22,9 @@ data class TeacherStudentDetailDto(
     @SerialName("company_name")
     val companyName: String? = null,
     val course: String? = null,
-    val status: String? = null,
+    @SerialName("teacher_status")
+    val teacherStatus: String? = null,
+    val status: String? = null, // Fallback if teacher_status is not present or differently named
     val location: String? = null,
     @SerialName("work_mode")
     val workMode: String? = null,
@@ -35,6 +41,10 @@ data class TeacherStudentDetailDto(
     val completedTasks: Int = 0,
     @SerialName("total_tasks")
     val totalTasks: Int = 0,
+    @SerialName("cv_path")
+    val cvPath: String? = null,
+    @SerialName("motivation_letter_path")
+    val motivationLetterPath: String? = null,
     val tasks: List<AdvisorTaskListItemDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
     val evaluation: AdvisorEvaluationDto? = null
@@ -58,8 +68,9 @@ data class TeacherStudentDetailNonSerializable(
     val lastActivityAt: String? = null,
     val completedTasks: Int = 0,
     val totalTasks: Int = 0,
-    val tasks: List<AdvisorTaskListItemDto> = emptyList(),
+    val cvPath: String? = null,
+    val motivationLetterPath: String? = null,
+    val tasks: List<ApplicationTaskDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
     val evaluation: TeacherEvaluationDto? = null
 )
-

@@ -6,6 +6,7 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.storage.storage
 
 object SupabaseClientProvider {
 
@@ -17,5 +18,9 @@ object SupabaseClientProvider {
         install(Postgrest)
         install(Realtime)
         install(Storage)
+    }
+
+    fun getPublicUrl(bucket: String, path: String): String {
+        return client.storage.from(bucket).publicUrl(path)
     }
 }

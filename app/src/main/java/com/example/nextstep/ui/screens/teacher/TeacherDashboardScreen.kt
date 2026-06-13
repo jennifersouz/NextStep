@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.model.TeacherStudentDto
 import com.example.nextstep.data.repository.TeacherProfileRepository
 import com.example.nextstep.ui.components.BottomBarItem
 import com.example.nextstep.ui.components.NextStepBottomBar
@@ -36,6 +37,7 @@ fun TeacherDashboardScreen(
     onNotificationsClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
     onRequestClick: (String) -> Unit = {},
+    onStudentClick: (TeacherStudentDto) -> Unit = {},
     onChatClick: (String, String, String, String) -> Unit = { _, _, _, _ -> },
     sessionViewModel: SessionViewModel = viewModel(),
     notificationsViewModel: TeacherNotificationsViewModel = viewModel()
@@ -81,10 +83,7 @@ fun TeacherDashboardScreen(
                 )
 
                 TeacherTab.STUDENTS -> TeacherStudentsScreen(
-                    onStudentClick = { applicationId ->
-                        // The parent AppNavigation handles this via Routes.teacherStudentDetail(applicationId)
-                        // but here we just show the list
-                    }
+                    onStudentClick = onStudentClick
                 )
                 TeacherTab.MESSAGES -> TeacherMessagesScreen(
                     onChatClick = onChatClick

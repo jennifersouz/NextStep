@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
 import com.example.nextstep.ui.utils.DateFormatUtils
+import com.example.nextstep.ui.utils.localizedPriority
 
 @Composable
 fun AdvisorTasksList(
@@ -172,10 +173,10 @@ fun AdvisorTaskListItem(
 
 @Composable
 fun PriorityBadge(priority: String) {
-    val (labelRes, bgColor, textColor) = when (priority.lowercase()) {
-        "high" -> Triple(R.string.priority_high, AdvisorUiColors.PriorityHighBg, AdvisorUiColors.PriorityHighText)
-        "low" -> Triple(R.string.priority_low, AdvisorUiColors.PriorityLowBg, AdvisorUiColors.PriorityLowText)
-        else -> Triple(R.string.priority_medium, AdvisorUiColors.PriorityMediumBg, AdvisorUiColors.PriorityMediumText)
+    val (bgColor, textColor) = when (priority.lowercase()) {
+        "high" -> AdvisorUiColors.PriorityHighBg to AdvisorUiColors.PriorityHighText
+        "low" -> AdvisorUiColors.PriorityLowBg to AdvisorUiColors.PriorityLowText
+        else -> AdvisorUiColors.PriorityMediumBg to AdvisorUiColors.PriorityMediumText
     }
 
     Box(
@@ -184,7 +185,7 @@ fun PriorityBadge(priority: String) {
             .background(bgColor)
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
-        Text(text = stringResource(labelRes), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = textColor)
+        Text(text = localizedPriority(priority), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = textColor)
     }
 }
 

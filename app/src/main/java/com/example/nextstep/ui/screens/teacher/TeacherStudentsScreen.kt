@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.teacher
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -49,7 +49,7 @@ import com.example.nextstep.data.model.TeacherStudentDto
 
 @Composable
 fun TeacherStudentsScreen(
-    onStudentClick: (String) -> Unit = {},
+    onStudentClick: (TeacherStudentDto) -> Unit = {},
     viewModel: TeacherStudentsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -199,7 +199,10 @@ fun TeacherStudentsScreen(
                     ) { student ->
                         TeacherStudentCard(
                             student = student,
-                            onClick = { onStudentClick(student.applicationId) }
+                            onClick = {
+                                Log.d("TeacherStudentsScreen", "Opening student detail applicationId=${student.applicationId}, student=${student.studentName}, offer=${student.offerTitle}")
+                                onStudentClick(student)
+                            }
                         )
                     }
 
