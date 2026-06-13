@@ -695,6 +695,9 @@
     <string name="teacher_status_completed">Concluído</string>
     <string name="teacher_status_pending">Pendente</string>
 
+    <!-- Admin -->
+    <string name="account_disabled">Conta desativada. Contacta o administrador.</string>
+
     <!-- Shared -->
     <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>
     <string name="error_institution_not_found">Instituição de ensino não encontrada.</string>

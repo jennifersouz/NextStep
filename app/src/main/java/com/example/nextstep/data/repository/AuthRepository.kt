@@ -330,6 +330,13 @@ class AuthRepository {
                     IllegalStateException("PROFILE_NOT_FOUND")
                 )
 
+            // Check if account is active
+            if (!profile.isActive) {
+                return Result.failure(
+                    IllegalStateException("ACCOUNT_DISABLED")
+                )
+            }
+
             Result.success(profile.role)
         } catch (exception: Exception) {
             Log.e("AuthRepository", "Erro ao buscar role do utilizador", exception)
