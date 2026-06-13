@@ -306,7 +306,8 @@ fun AppNavigation() {
                             studentProfileId = student.studentProfileId,
                             studentName = student.studentName,
                             offerTitle = student.offerTitle,
-                            companyName = student.companyName
+                            companyName = student.companyName,
+                            status = student.status
                         )
                     )
                 },
@@ -377,13 +378,24 @@ fun AppNavigation() {
                 navArgument(Routes.TEACHER_STUDENT_DETAIL_PROFILE_ID_ARG) { type = NavType.StringType },
                 navArgument(Routes.TEACHER_STUDENT_DETAIL_NAME_ARG) { type = NavType.StringType },
                 navArgument(Routes.TEACHER_STUDENT_DETAIL_OFFER_ARG) { type = NavType.StringType },
-                navArgument(Routes.TEACHER_STUDENT_DETAIL_COMPANY_ARG) { type = NavType.StringType }
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_COMPANY_ARG) { type = NavType.StringType },
+                navArgument(Routes.TEACHER_STUDENT_DETAIL_STATUS_ARG) { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val applicationId = backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_APP_ID_ARG).orEmpty()
+            val studentProfileId = backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_PROFILE_ID_ARG).orEmpty()
+            val studentName = Uri.decode(backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_NAME_ARG).orEmpty())
+            val offerTitle = Uri.decode(backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_OFFER_ARG).orEmpty())
+            val companyName = Uri.decode(backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_COMPANY_ARG).orEmpty())
+            val status = Uri.decode(backStackEntry.arguments?.getString(Routes.TEACHER_STUDENT_DETAIL_STATUS_ARG).orEmpty())
 
             TeacherStudentDetailScreen(
                 applicationId = applicationId,
+                studentProfileId = studentProfileId,
+                initialStudentName = studentName,
+                initialOfferTitle = offerTitle,
+                initialCompanyName = companyName,
+                status = status,
                 onBackClick = {
                     navController.popBackStack()
                 },

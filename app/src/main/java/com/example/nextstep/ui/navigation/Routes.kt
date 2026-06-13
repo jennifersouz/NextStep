@@ -41,12 +41,13 @@ object Routes {
     const val TEACHER_REQUEST_DETAIL_ARG = "applicationId"
     const val TEACHER_STUDENTS = "teacher_students"
     
-    const val TEACHER_STUDENT_DETAIL = "teacher_student_detail/{applicationId}/{studentProfileId}/{studentName}/{offerTitle}/{companyName}"
+    const val TEACHER_STUDENT_DETAIL = "teacher_student_detail/{applicationId}/{studentProfileId}/{studentName}/{offerTitle}/{companyName}/{status}"
     const val TEACHER_STUDENT_DETAIL_APP_ID_ARG = "applicationId"
     const val TEACHER_STUDENT_DETAIL_PROFILE_ID_ARG = "studentProfileId"
     const val TEACHER_STUDENT_DETAIL_NAME_ARG = "studentName"
     const val TEACHER_STUDENT_DETAIL_OFFER_ARG = "offerTitle"
     const val TEACHER_STUDENT_DETAIL_COMPANY_ARG = "companyName"
+    const val TEACHER_STUDENT_DETAIL_STATUS_ARG = "status"
 
     const val TEACHER_MESSAGES = "teacher_messages"
     const val TEACHER_PROFILE = "teacher_profile"
@@ -131,13 +132,15 @@ object Routes {
         studentProfileId: String,
         studentName: String,
         offerTitle: String?,
-        companyName: String?
+        companyName: String?,
+        status: String?
     ): String {
         return "teacher_student_detail/" +
                 "$applicationId/" +
                 "$studentProfileId/" +
                 "${Uri.encode(studentName)}/" +
                 "${Uri.encode(offerTitle ?: "na")}/" +
-                "${Uri.encode(companyName ?: "na")}"
+                "${Uri.encode(companyName ?: "na")}/" +
+                "${Uri.encode(status ?: "na")}"
     }
 }
