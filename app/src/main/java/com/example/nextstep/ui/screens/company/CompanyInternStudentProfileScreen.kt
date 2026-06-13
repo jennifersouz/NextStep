@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -320,8 +321,17 @@ private fun SummaryTab(
         // RF25: Responsible Advisor Card
         item {
             InternProfileSectionCard(title = stringResource(R.string.responsible_advisor)) {
-                if (profile.hasAdvisor == true) {
-                    InternProfileInfoRow(label = stringResource(R.string.name_required).replace(" *", ""), value = profile.advisorName)
+                val hasAdvisorInfo =
+                    !profile.advisorName.isNullOrBlank()
+                        || !profile.advisorEmail.isNullOrBlank()
+                        || !profile.advisorProfileId.isNullOrBlank()
+                        || profile.hasAdvisor == true
+
+                if (hasAdvisorInfo) {
+                    InternProfileInfoRow(
+                        label = stringResource(R.string.name_required).replace(" *", ""),
+                        value = profile.advisorName?.ifBlank { profile.advisorEmail }
+                    )
                     InternProfileInfoRow(label = stringResource(R.string.email), value = profile.advisorEmail)
                     if (!profile.advisorPhone.isNullOrBlank()) {
                         InternProfileInfoRow(label = stringResource(R.string.phone), value = profile.advisorPhone)

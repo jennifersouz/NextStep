@@ -433,10 +433,17 @@ fun CompanyInternStudentCard(
         Spacer(modifier = Modifier.height(4.dp))
 
         // RF25: Advisor info in list
-        val advisorDisplay = if (student.hasAdvisor == true) {
-            student.advisorName ?: stringResource(R.string.not_assigned)
-        } else {
-            stringResource(R.string.not_assigned)
+        val hasAdvisorInfo =
+            !student.advisorName.isNullOrBlank()
+                || !student.advisorEmail.isNullOrBlank()
+                || !student.advisorProfileId.isNullOrBlank()
+                || student.hasAdvisor == true
+
+        val advisorDisplay = when {
+            !student.advisorName.isNullOrBlank() -> student.advisorName
+            !student.advisorEmail.isNullOrBlank() -> student.advisorEmail
+            hasAdvisorInfo -> stringResource(R.string.not_available)
+            else -> stringResource(R.string.not_assigned)
         }
 
         Text(

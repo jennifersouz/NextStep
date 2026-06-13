@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -31,8 +32,13 @@ class CompanyInternStudentProfileViewModel : ViewModel() {
             val result = repository.getInternStudentProfile(applicationId)
 
             _uiState.value = if (result.isSuccess) {
+                val profile = result.getOrNull()
+                Log.d(
+                    "CompanyInternStudentVM",
+                    "advisorName=${profile?.advisorName}, advisorEmail=${profile?.advisorEmail}, advisorId=${profile?.advisorProfileId}, hasAdvisor=${profile?.hasAdvisor}"
+                )
                 _uiState.value.copy(
-                    profile = result.getOrNull(),
+                    profile = profile,
                     isLoading = false,
                     errorMessageRes = null
                 )
