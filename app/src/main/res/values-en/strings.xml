@@ -594,9 +594,10 @@
     <string name="status_in_progress">In progress</string>
     <string name="status_completed">Completed</string>
     <string name="total">Total</string>
-    <string name="priority_low">Low priority</string>
-    <string name="priority_medium">Medium priority</string>
-    <string name="priority_high">High priority</string>
+    <string name="priority_low">Low</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_high">High</string>
+    <string name="priority_none">No priority</string>
     <string name="no_tasks_description">When tasks are created for internships, they will appear here.</string>
     <string name="create_task">Create task</string>
     <string name="due_date">Due date</string>

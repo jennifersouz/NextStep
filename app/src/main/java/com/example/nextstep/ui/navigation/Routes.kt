@@ -39,8 +39,15 @@ object Routes {
     const val TEACHER_REQUEST_DETAIL = "teacher_request_detail/{applicationId}"
     const val TEACHER_REQUEST_DETAIL_ARG = "applicationId"
     const val TEACHER_STUDENTS = "teacher_students"
-    const val TEACHER_STUDENT_DETAIL = "teacher_student_detail/{applicationId}"
-    const val TEACHER_STUDENT_DETAIL_ARG = "applicationId"
+
+    const val TEACHER_STUDENT_DETAIL = "teacher_student_detail/{applicationId}/{studentProfileId}/{studentName}/{offerTitle}/{companyName}/{status}"
+    const val TEACHER_STUDENT_DETAIL_APP_ID_ARG = "applicationId"
+    const val TEACHER_STUDENT_DETAIL_PROFILE_ID_ARG = "studentProfileId"
+    const val TEACHER_STUDENT_DETAIL_NAME_ARG = "studentName"
+    const val TEACHER_STUDENT_DETAIL_OFFER_ARG = "offerTitle"
+    const val TEACHER_STUDENT_DETAIL_COMPANY_ARG = "companyName"
+    const val TEACHER_STUDENT_DETAIL_STATUS_ARG = "status"
+
     const val TEACHER_MESSAGES = "teacher_messages"
     const val TEACHER_PROFILE = "teacher_profile"
     const val TEACHER_EDIT_PROFILE = "teacher_edit_profile"
@@ -54,12 +61,6 @@ object Routes {
     const val ADVISOR_EVALUATE_STUDENT_ARG = "applicationId"
     const val ADVISOR_NOTIFICATIONS = "advisor_notifications"
 
-    const val STUDENT_INTERNSHIPS = "student_internships"
-    const val STUDENT_INTERNSHIP_DETAIL = "student_internship_detail"
-    const val STUDENT_INTERNSHIP_DETAIL_ARG = "internshipId"
-    const val STUDENT_SEARCH_ADVISOR = "student_search_advisor/{internshipId}"
-    const val STUDENT_SEARCH_ADVISOR_ARG = "internshipId"
-
     const val COMPANY_APPLICATION_DETAIL = "company_application_detail/{applicationId}"
     const val COMPANY_APPLICATION_DETAIL_ARG = "applicationId"
 
@@ -70,8 +71,21 @@ object Routes {
         return "teacher_request_detail/$applicationId"
     }
 
-    fun teacherStudentDetail(applicationId: String): String {
-        return "teacher_student_detail/$applicationId"
+    fun teacherStudentDetail(
+        applicationId: String,
+        studentProfileId: String,
+        studentName: String,
+        offerTitle: String?,
+        companyName: String?,
+        status: String?
+    ): String {
+        return "teacher_student_detail/" +
+                "$applicationId/" +
+                "$studentProfileId/" +
+                "${Uri.encode(studentName)}/" +
+                "${Uri.encode(offerTitle ?: "na")}/" +
+                "${Uri.encode(companyName ?: "na")}/" +
+                "${Uri.encode(status ?: "na")}"
     }
 
     fun companyApplicationDetail(applicationId: String): String {
@@ -129,13 +143,5 @@ object Routes {
 
     fun advisorEvaluateStudent(applicationId: String): String {
         return "advisor_evaluate_student/$applicationId"
-    }
-
-    fun studentInternshipDetail(internshipId: String): String {
-        return "$STUDENT_INTERNSHIP_DETAIL/$internshipId"
-    }
-
-    fun studentSearchAdvisor(internshipId: String): String {
-        return "student_search_advisor/$internshipId"
     }
 }

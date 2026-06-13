@@ -594,9 +594,10 @@
     <string name="status_in_progress">Em curso</string>
     <string name="status_completed">Concluída</string>
     <string name="total">Total</string>
-    <string name="priority_low">Prioridade baixa</string>
-    <string name="priority_medium">Prioridade média</string>
-    <string name="priority_high">Prioridade alta</string>
+    <string name="priority_low">Baixa</string>
+    <string name="priority_medium">Média</string>
+    <string name="priority_high">Alta</string>
+    <string name="priority_none">Sem prioridade</string>
     <string name="no_tasks_description">Quando forem criadas tarefas para os estágios, elas aparecem aqui.</string>
     <string name="create_task">Criar tarefa</string>
     <string name="due_date">Data limite</string>

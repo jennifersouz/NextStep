@@ -2,7 +2,6 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.AdvisorDocumentDto
-import com.example.nextstep.data.model.AdvisorTaskListItemDto
 import com.example.nextstep.data.model.TeacherStudentDetailDto
 import com.example.nextstep.data.model.TeacherStudentDto
 import com.example.nextstep.data.model.TeacherStudentDetailNonSerializable
@@ -10,12 +9,14 @@ import com.example.nextstep.data.model.TeacherEvaluationDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
+import kotlin.time.Duration.Companion.minutes
 
 class TeacherStudentsRepository {
 
     private val supabase = SupabaseClientProvider.client
     private val auth = supabase.auth
-    private val tasksRepository = AdvisorTasksRepository()
+    private val tasksRepository = TeacherTasksRepository()
 
     suspend fun getStudents(): Result<List<TeacherStudentDto>> {
         return try {
@@ -33,7 +34,6 @@ class TeacherStudentsRepository {
             if (exception.message?.contains("relation") == true ||
                 exception.message?.contains("does not exist") == true
             ) {
-                // View not yet created, return empty
                 Result.success(emptyList())
             } else {
                 Result.failure(exception)
@@ -43,45 +43,25 @@ class TeacherStudentsRepository {
 
     suspend fun getStudentDetail(applicationId: String): Result<TeacherStudentDetailNonSerializable> {
         return try {
+            Log.d("TeacherStudentsRepo", "Fetching detail for applicationId: $applicationId")
             auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            // Try to get from the teacher_students_view first
-            val studentDetail = try {
-                supabase
-                    .from("teacher_students_view")
-                    .select {
-                        filter {
-                            eq("application_id", applicationId)
-                        }
+            // Query the view using the specific applicationId
+            val studentDetail = supabase
+                .from("teacher_students_view")
+                .select {
+                    filter {
+                        eq("application_id", applicationId)
                     }
-                    .decodeSingle<TeacherStudentDetailDto>()
-            } catch (e: Exception) {
-                // Fallback: use the existing teacher_orientation_requests_view
-                val students = supabase
-                    .from("teacher_students_view")
-                    .select()
-                    .decodeList<TeacherStudentDto>()
+                }
+                .decodeSingle<TeacherStudentDetailDto>()
 
-                val student = students.find { it.applicationId == applicationId }
-                    ?: return Result.failure(IllegalStateException("Aluno não encontrado."))
-
-                TeacherStudentDetailDto(
-                    applicationId = student.applicationId,
-                    studentProfileId = student.studentProfileId,
-                    studentName = student.studentName,
-                    studentEmail = student.studentEmail,
-                    offerTitle = student.offerTitle,
-                    companyName = student.companyName,
-                    status = student.status
-                )
-            }
+            Log.d("TeacherStudentsRepo", "Fetched detail: cvPath=${studentDetail.cvPath}, motivationPath=${studentDetail.motivationLetterPath}")
 
             // Get tasks
-            val tasksResult = tasksRepository.getTasksByApplication(applicationId)
-            val tasks = tasksResult.getOrDefault(emptyList())
-
-            val completed = tasks.count { it.status == "completed" || it.status == "concluida" || it.status == "concluída" }
+            val tasks = tasksRepository.getTasksByApplication(applicationId)
+            val completed = tasks.count { it.status.lowercase() in listOf("completed", "concluida", "concluída") }
 
             Result.success(
                 TeacherStudentDetailNonSerializable(
@@ -103,6 +83,8 @@ class TeacherStudentsRepository {
                     completedTasks = completed,
                     totalTasks = tasks.size,
                     tasks = tasks,
+                    cvPath = studentDetail.cvPath,
+                    motivationLetterPath = studentDetail.motivationLetterPath,
                     documents = studentDetail.documents,
                     evaluation = studentDetail.evaluation?.let { eval ->
                         TeacherEvaluationDto(
@@ -113,8 +95,25 @@ class TeacherStudentsRepository {
                 )
             )
         } catch (exception: Exception) {
-            Log.e("TeacherStudentsRepo", "Erro ao carregar detalhe do aluno", exception)
+            Log.e("TeacherStudentsRepo", "Erro ao carregar detalhe do aluno para $applicationId", exception)
             Result.failure(exception)
+        }
+    }
+
+    suspend fun getSignedUrl(bucket: String, path: String): Result<String> {
+        return try {
+            // First check if file exists to fulfill the "Object not found" requirement
+            try {
+                supabase.storage.from(bucket).info(path)
+            } catch (e: Exception) {
+                return Result.failure(Exception("Documento não encontrado no Storage."))
+            }
+
+            val url = supabase.storage.from(bucket).createSignedUrl(path, 60.minutes)
+            Result.success(url)
+        } catch (e: Exception) {
+            Log.e("TeacherStudentsRepo", "Error getting signed URL for $path", e)
+            Result.failure(e)
         }
     }
 }
