@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.BusinessCenter
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
@@ -123,7 +124,30 @@ private fun AdminHomeContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Row 2 of cards
+            // Row 2 of cards - Company stats
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AdminStatCard(
+                    icon = Icons.Filled.Business,
+                    value = state.totalCompaniesCount.toString(),
+                    label = "Total de empresas",
+                    modifier = Modifier.weight(1f)
+                )
+                AdminStatCard(
+                    icon = Icons.Filled.BusinessCenter,
+                    value = state.activeCompaniesCount.toString(),
+                    label = "Empresas ativas",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Row 3 of cards
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

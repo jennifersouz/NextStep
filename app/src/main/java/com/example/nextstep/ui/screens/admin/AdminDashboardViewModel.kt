@@ -29,6 +29,8 @@ class AdminDashboardViewModel : ViewModel() {
             val usersResult = repository.getUsersCount()
             val nameResult = repository.getAdminProfileName()
             val recentResult = repository.getRecentProfiles()
+            val totalCompaniesResult = repository.getTotalCompaniesCount()
+            val activeCompaniesResult = repository.getActiveCompaniesCount()
 
             val errors = listOfNotNull(
                 internshipsResult.exceptionOrNull(),
@@ -45,6 +47,8 @@ class AdminDashboardViewModel : ViewModel() {
                 usersCount = usersResult.getOrDefault(0),
                 adminName = nameResult.getOrDefault(""),
                 recentProfiles = recentResult.getOrDefault(emptyList()),
+                totalCompaniesCount = totalCompaniesResult.getOrDefault(0),
+                activeCompaniesCount = activeCompaniesResult.getOrDefault(0),
                 errorMessage = errors?.firstOrNull()?.message
             )
         }

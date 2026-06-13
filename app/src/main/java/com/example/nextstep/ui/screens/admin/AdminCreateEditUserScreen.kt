@@ -37,12 +37,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nextstep.data.model.ProfileDto
-import com.example.nextstep.data.model.UpdateProfileDto
+import com.example.nextstep.data.model.AdminProfileDto
 
 @Composable
 fun AdminCreateEditUserScreen(
-    existingProfile: ProfileDto? = null,
+    existingProfile: AdminProfileDto? = null,
     onBackClick: () -> Unit,
     onSave: (firstName: String, lastName: String, phone: String, role: String, isActive: Boolean) -> Unit
 ) {
@@ -163,7 +162,7 @@ fun AdminCreateEditUserScreen(
             // Email (read-only when editing)
             if (isEditing && existingProfile != null) {
                 OutlinedTextField(
-                    value = existingProfile.email,
+                    value = existingProfile.email ?: "",
                     onValueChange = {},
                     label = { Text("Email") },
                     enabled = false,

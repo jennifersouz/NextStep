@@ -1,8 +1,8 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
-import com.example.nextstep.data.model.ProfileDto
-import com.example.nextstep.data.model.UpdateProfileDto
+import com.example.nextstep.data.model.AdminProfileDto
+import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -11,14 +11,14 @@ class AdminUsersRepository {
 
     private val supabase = SupabaseClientProvider.client
 
-    suspend fun getUsers(): Result<List<ProfileDto>> {
+    suspend fun getUsers(): Result<List<AdminProfileDto>> {
         return try {
             val profiles = supabase
                 .from("profiles")
                 .select {
                     order("created_at", Order.DESCENDING)
                 }
-                .decodeList<ProfileDto>()
+                .decodeList<AdminProfileDto>()
 
             Result.success(profiles)
         } catch (exception: Exception) {
@@ -27,17 +27,17 @@ class AdminUsersRepository {
         }
     }
 
-    suspend fun searchUsers(query: String): Result<List<ProfileDto>> {
+    suspend fun searchUsers(query: String): Result<List<AdminProfileDto>> {
         return try {
             val profiles = supabase
                 .from("profiles")
                 .select {
                     order("created_at", Order.DESCENDING)
                 }
-                .decodeList<ProfileDto>()
+                .decodeList<AdminProfileDto>()
 
             val filtered = profiles.filter { profile ->
-                profile.email.contains(query, ignoreCase = true) ||
+                profile.email?.contains(query, ignoreCase = true) == true ||
                         profile.firstName?.contains(query, ignoreCase = true) == true ||
                         profile.lastName?.contains(query, ignoreCase = true) == true
             }
@@ -51,7 +51,7 @@ class AdminUsersRepository {
 
     suspend fun updateUser(
         userId: String,
-        updateData: UpdateProfileDto
+        updateData: AdminProfileUpdateDto
     ): Result<Unit> {
         return try {
             supabase
@@ -74,7 +74,7 @@ class AdminUsersRepository {
             supabase
                 .from("profiles")
                 .update(
-                    UpdateProfileDto(isActive = isActive)
+                    AdminProfileUpdateDto(isActive = isActive)
                 ) {
                     filter {
                         eq("id", userId)

@@ -4,6 +4,8 @@ import com.example.nextstep.data.model.ProfileDto
 
 data class AdminDashboardUiState(
     val isLoading: Boolean = false,
+    val totalCompaniesCount: Int = 0,
+    val activeCompaniesCount: Int = 0,
     val activeInternshipsCount: Int = 0,
     val applicationsCount: Int = 0,
     val completedEvaluationsCount: Int = 0,

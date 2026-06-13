@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.data.local.LanguageManager
+import com.example.nextstep.ui.components.LanguageOptionsSection
 
 @Composable
 fun AdminProfileScreen(
@@ -126,7 +128,7 @@ private fun AdminProfileContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Perfil",
+            text = stringResource(R.string.profile),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -137,7 +139,7 @@ private fun AdminProfileContent(
 
         // Name
         Text(
-            text = "Nome",
+            text = stringResource(R.string.first_name),
             fontSize = 16.sp,
             color = Color(0xFF8A8A8A)
         )
@@ -152,7 +154,7 @@ private fun AdminProfileContent(
 
         // Email
         Text(
-            text = "Email",
+            text = stringResource(R.string.email),
             fontSize = 16.sp,
             color = Color(0xFF8A8A8A)
         )
@@ -167,16 +169,26 @@ private fun AdminProfileContent(
 
         // Role
         Text(
-            text = "Função",
+            text = stringResource(R.string.function_label),
             fontSize = 16.sp,
             color = Color(0xFF8A8A8A)
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Administrador",
+            text = stringResource(R.string.role_admin),
             fontSize = 17.sp,
             color = Color.Black,
             fontWeight = FontWeight.SemiBold
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        // Language section
+        LanguageOptionsSection(
+            selectedLanguage = "pt",
+            onLanguageSelected = { languageCode ->
+                LanguageManager.changeLanguage(languageCode)
+            }
         )
 
         Spacer(modifier = Modifier.height(48.dp))

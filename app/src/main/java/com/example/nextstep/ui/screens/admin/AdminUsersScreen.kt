@@ -41,12 +41,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nextstep.data.model.ProfileDto
+import com.example.nextstep.data.model.AdminProfileDto
 
 @Composable
 fun AdminUsersScreen(
     viewModel: AdminUsersViewModel = viewModel(),
-    onUserClick: (ProfileDto) -> Unit = {}
+    onUserClick: (AdminProfileDto) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -202,13 +202,13 @@ fun AdminUsersFilterChips(
 
 @Composable
 fun AdminUserListItem(
-    profile: ProfileDto,
+    profile: AdminProfileDto,
     onClick: () -> Unit
 ) {
     val displayName = listOfNotNull(profile.firstName, profile.lastName)
         .filter { it.isNotBlank() }
         .joinToString(" ")
-        .ifBlank { profile.email }
+        .ifBlank { profile.email ?: profile.id }
 
     Row(
         modifier = Modifier
@@ -258,7 +258,7 @@ fun AdminUserListItem(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = profile.email,
+                    text = profile.email ?: "",
                     fontSize = 13.sp,
                     color = Color(0xFF777777),
                     maxLines = 1,
@@ -272,7 +272,7 @@ fun AdminUserListItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Role badge
                 Text(
-                    text = roleLabel(profile.role),
+                    text = roleLabel(profile.role ?: ""),
                     fontSize = 12.sp,
                     color = Color(0xFF555555),
                     fontWeight = FontWeight.Medium
@@ -281,7 +281,7 @@ fun AdminUserListItem(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // Active/Inactive badge
-                val (statusLabel, statusColor) = if (profile.isActive) {
+                val (statusLabel, statusColor) = if (profile.isActive == true) {
                     "Ativo" to Color(0xFF2E7D32)
                 } else {
                     "Inativo" to Color(0xFFC62828)
@@ -291,7 +291,7 @@ fun AdminUserListItem(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .background(
-                            if (profile.isActive) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+                            if (profile.isActive == true) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
                         )
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {

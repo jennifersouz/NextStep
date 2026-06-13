@@ -36,6 +36,8 @@
     <string name="role_teacher">Teacher</string>
     <string name="role_supervisor">Supervisor</string>
     <string name="role_institution">Institution</string>
+    <string name="role_admin">Administrator</string>
+    <string name="function_label">Role</string>
 
     <string name="account_validation_warning">This account type requires validation by the institution or administrator before full access to the platform is granted.</string>
 

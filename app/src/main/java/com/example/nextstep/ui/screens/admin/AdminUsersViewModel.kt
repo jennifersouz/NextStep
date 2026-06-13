@@ -2,7 +2,8 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nextstep.data.model.UpdateProfileDto
+import com.example.nextstep.data.model.AdminProfileDto
+import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.repository.AdminUsersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +37,7 @@ class AdminUsersViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message
+                    errorMessage = "Não foi possível carregar os utilizadores."
                 )
             }
         }
@@ -52,7 +53,7 @@ class AdminUsersViewModel : ViewModel() {
         applyFiltersAndSearch()
     }
 
-    fun updateUser(userId: String, updateData: UpdateProfileDto) {
+    fun updateUser(userId: String, updateData: AdminProfileUpdateDto) {
         viewModelScope.launch {
             val result = repository.updateUser(userId, updateData)
 
@@ -120,7 +121,7 @@ class AdminUsersViewModel : ViewModel() {
                 filtered
             } else {
                 filtered.filter { profile ->
-                    profile.email.contains(state.searchQuery, ignoreCase = true) ||
+                    profile.email?.contains(state.searchQuery, ignoreCase = true) == true ||
                             profile.firstName?.contains(state.searchQuery, ignoreCase = true) == true ||
                             profile.lastName?.contains(state.searchQuery, ignoreCase = true) == true
                 }
@@ -128,15 +129,15 @@ class AdminUsersViewModel : ViewModel() {
         )
     }
 
-    private fun applyFilter(users: List<com.example.nextstep.data.model.ProfileDto>): List<com.example.nextstep.data.model.ProfileDto> {
+    private fun applyFilter(users: List<AdminProfileDto>): List<AdminProfileDto> {
         return when (_uiState.value.selectedFilter) {
             AdminUsersFilter.ALL -> users
             AdminUsersFilter.STUDENTS -> users.filter { it.role == "student" }
             AdminUsersFilter.TEACHERS -> users.filter { it.role == "teacher" }
             AdminUsersFilter.COMPANIES -> users.filter { it.role == "company" }
             AdminUsersFilter.ADMINS -> users.filter { it.role == "admin" }
-            AdminUsersFilter.ACTIVE -> users.filter { it.isActive }
-            AdminUsersFilter.INACTIVE -> users.filter { !it.isActive }
+            AdminUsersFilter.ACTIVE -> users.filter { it.isActive == true }
+            AdminUsersFilter.INACTIVE -> users.filter { it.isActive == false }
         }
     }
 }

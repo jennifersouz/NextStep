@@ -20,8 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.ProfileDto
-import com.example.nextstep.data.model.UpdateProfileDto
+import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.data.model.AdminCompanyUpdateDto
+import com.example.nextstep.data.model.AdminProfileDto
+import com.example.nextstep.data.model.AdminProfileUpdateDto
+import com.example.nextstep.data.model.CreateCompanyDto
 import com.example.nextstep.ui.components.BottomBarItem
 import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
@@ -35,10 +38,16 @@ fun AdminDashboardScreen(
         mutableStateOf(AdminTab.HOME)
     }
 
-    var selectedUser by remember { mutableStateOf<ProfileDto?>(null) }
+    var selectedUser by remember { mutableStateOf<AdminProfileDto?>(null) }
     var showEditUser by remember { mutableStateOf(false) }
 
+    var selectedCompany by remember { mutableStateOf<AdminCompanyDto?>(null) }
+    var showCompanyDetail by remember { mutableStateOf(false) }
+    var showEditCompany by remember { mutableStateOf(false) }
+    var showCreateCompany by remember { mutableStateOf(false) }
+
     val usersViewModel: AdminUsersViewModel = viewModel()
+    val companiesViewModel: AdminCompaniesViewModel = viewModel()
 
     // Handle user detail screen
     if (selectedUser != null && !showEditUser) {
@@ -71,19 +80,101 @@ fun AdminDashboardScreen(
             onSave = { firstName, lastName, phone, role, isActive ->
                 usersViewModel.updateUser(
                     selectedUser!!.id,
-                    UpdateProfileDto(
+                    AdminProfileUpdateDto(
                         firstName = firstName,
                         lastName = lastName,
                         phone = phone
                     )
                 )
-                // Refresh user data by setting it as updated locally
                 selectedUser = selectedUser?.copy(
                     firstName = firstName,
                     lastName = lastName,
                     phone = phone
                 )
                 showEditUser = false
+            }
+        )
+        return
+    }
+
+    // Handle company detail screen
+    if (selectedCompany != null && showCompanyDetail && !showEditCompany && !showCreateCompany) {
+        AdminCompanyDetailScreen(
+            company = selectedCompany!!,
+            onBackClick = {
+                showCompanyDetail = false
+                selectedCompany = null
+            },
+            onEditClick = { company ->
+                selectedCompany = company
+                showEditCompany = true
+            },
+            onToggleActive = { companyId, isActive ->
+                companiesViewModel.setCompanyActive(companyId, isActive)
+                selectedCompany = selectedCompany?.copy(isActive = isActive)
+                showCompanyDetail = false
+                selectedCompany = null
+            },
+            onDeleteCompany = { companyId ->
+                companiesViewModel.deleteCompany(companyId)
+                showCompanyDetail = false
+                selectedCompany = null
+            },
+            onViewOffers = { company ->
+                // Placeholder for viewing offers - can be implemented when offers screen exists
+            }
+        )
+        return
+    }
+
+    // Handle edit company screen
+    if (selectedCompany != null && showEditCompany) {
+        AdminCreateEditCompanyScreen(
+            existingCompany = selectedCompany,
+            onBackClick = {
+                showEditCompany = false
+            },
+            onSave = { name, nif, area, loc, ph, desc, active ->
+                companiesViewModel.updateCompany(
+                    selectedCompany!!.id,
+                    AdminCompanyUpdateDto(
+                        companyName = name,
+                        nif = nif,
+                        businessArea = area,
+                        location = loc,
+                        phone = ph,
+                        description = desc,
+                        isActive = active
+                    )
+                )
+                showEditCompany = false
+                showCompanyDetail = false
+                selectedCompany = null
+            }
+        )
+        return
+    }
+
+    // Handle create company screen
+    if (showCreateCompany) {
+        AdminCreateEditCompanyScreen(
+            existingCompany = null,
+            onBackClick = {
+                showCreateCompany = false
+            },
+            onSave = { name, nif, area, loc, ph, desc, active ->
+                companiesViewModel.createCompany(
+                    CreateCompanyDto(
+                        companyName = name,
+                        nif = nif,
+                        businessArea = area,
+                        location = loc,
+                        phone = ph,
+                        description = desc,
+                        isActive = active
+                    )
+                )
+                showCreateCompany = false
             }
         )
         return
@@ -120,7 +211,13 @@ fun AdminDashboardScreen(
                 }
 
                 AdminTab.COMPANIES -> {
-                    AdminCompaniesScreen()
+                    AdminCompaniesScreen(
+                        viewModel = companiesViewModel,
+                        onCompanyClick = { company ->
+                            selectedCompany = company
+                            showCompanyDetail = true
+                        }
+                    )
                 }
 
                 AdminTab.PROFILE -> {
