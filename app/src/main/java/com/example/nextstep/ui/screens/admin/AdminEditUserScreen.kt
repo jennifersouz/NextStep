@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -27,6 +30,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,45 +42,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nextstep.data.model.AdminProfileDto
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+private val roleOptions = listOf(
+    "student" to "Aluno",
+    "teacher" to "Docente",
+    "company" to "Empresa",
+    "advisor" to "Orientador",
+    "institution" to "Instituição",
+    "admin" to "Administrador"
+)
 
 @Composable
-fun AdminCreateEditUserScreen(
-    existingProfile: AdminProfileDto? = null,
+fun AdminEditUserScreen(
+    userId: String,
     onBackClick: () -> Unit,
-    onSave: (firstName: String, lastName: String, phone: String, role: String, isActive: Boolean) -> Unit
+    onSaved: () -> Unit,
+    viewModel: AdminEditUserViewModel = viewModel()
 ) {
-    val isEditing = existingProfile != null
-
-    var firstName by remember {
-        mutableStateOf(existingProfile?.firstName ?: "")
-    }
-    var lastName by remember {
-        mutableStateOf(existingProfile?.lastName ?: "")
-    }
-    var phone by remember {
-        mutableStateOf(existingProfile?.phone ?: "")
-    }
-    var selectedRole by remember {
-        mutableStateOf(existingProfile?.role ?: "student")
-    }
-    var isActive by remember {
-        mutableStateOf(existingProfile?.isActive ?: true)
-    }
+    val state by viewModel.uiState.collectAsState()
     var roleMenuExpanded by remember { mutableStateOf(false) }
 
-    var firstNameError by remember { mutableStateOf<String?>(null) }
-    var lastNameError by remember { mutableStateOf<String?>(null) }
-    var roleError by remember { mutableStateOf<String?>(null) }
+    // Carregar utilizador apenas quando o userId mudar
+    LaunchedEffect(userId) {
+        viewModel.loadUser(userId)
+    }
 
-    val roleOptions = listOf(
-        "student" to "Aluno",
-        "teacher" to "Docente",
-        "company" to "Empresa",
-        "advisor" to "Orientador",
-        "institution" to "Instituição",
-        "admin" to "Administrador"
-    )
+    // Consumir eventos one-shot (ex: UserSaved) - não fica preso no state
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is AdminEditUserEvent.UserSaved -> {
+                    onSaved()
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -99,20 +101,54 @@ fun AdminCreateEditUserScreen(
             }
 
             Text(
-                text = if (isEditing) "Editar utilizador" else "Criar utilizador",
+                text = "Editar utilizador",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+
+            if (state.isSaving) {
+                Spacer(modifier = Modifier.width(12.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.Black
+                )
+            }
         }
 
-        if (!isEditing) {
-            Text(
-                text = "Nota: A criação de contas com login real requer uma Edge Function segura no servidor. Aqui podes gerir apenas dados de perfis existentes.",
-                fontSize = 13.sp,
-                color = Color(0xFFE65100),
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-            )
+        // Loading state
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.Black)
+            }
+            return
+        }
+
+        // Error messages
+        if (state.errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFEBEE))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(state.errorMessage ?: "", color = Color(0xFFB00020), fontSize = 14.sp)
+            }
+        }
+
+        if (state.successMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFE8F5E9))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(state.successMessage ?: "", color = Color(0xFF2E7D32), fontSize = 14.sp)
+            }
         }
 
         Column(
@@ -123,74 +159,77 @@ fun AdminCreateEditUserScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // First name
+            // Nome
             OutlinedTextField(
-                value = firstName,
-                onValueChange = {
-                    firstName = it
-                    firstNameError = null
-                },
+                value = state.firstName,
+                onValueChange = viewModel::onFirstNameChange,
                 label = { Text("Nome *") },
                 placeholder = { Text("Insira o nome") },
-                isError = firstNameError != null,
-                supportingText = firstNameError?.let { { Text(it, color = Color(0xFFB00020)) } },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color(0xFFEDEDED),
-                    focusedBorderColor = Color(0xFF333333)
-                ),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Last name
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = {
-                    lastName = it
-                    lastNameError = null
+                isError = state.firstNameError != null,
+                supportingText = state.firstNameError?.let {
+                    { Text(it, color = Color(0xFFB00020)) }
                 },
-                label = { Text("Apelido *") },
-                placeholder = { Text("Insira o apelido") },
-                isError = lastNameError != null,
-                supportingText = lastNameError?.let { { Text(it, color = Color(0xFFB00020)) } },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color(0xFFEDEDED),
                     focusedBorderColor = Color(0xFF333333)
                 ),
-                singleLine = true
+                singleLine = true,
+                enabled = !state.isSaving
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Email (read-only when editing)
-            if (isEditing && existingProfile != null) {
-                OutlinedTextField(
-                    value = existingProfile.email ?: "",
-                    onValueChange = {},
-                    label = { Text("Email") },
-                    enabled = false,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFEDEDED),
-                        disabledBorderColor = Color(0xFFEDEDED),
-                        disabledContainerColor = Color(0xFFF5F5F5)
-                    ),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            // Phone
+            // Apelido
             OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
+                value = state.lastName,
+                onValueChange = viewModel::onLastNameChange,
+                label = { Text("Apelido") },
+                placeholder = { Text("Insira o apelido") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFFEDEDED),
+                    focusedBorderColor = Color(0xFF333333)
+                ),
+                singleLine = true,
+                enabled = !state.isSaving
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Email — apenas leitura
+            OutlinedTextField(
+                value = state.email,
+                onValueChange = {},
+                label = { Text("Email") },
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFFEDEDED),
+                    disabledBorderColor = Color(0xFFEDEDED),
+                    disabledContainerColor = Color(0xFFF5F5F5)
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "O email não pode ser alterado nesta tela.",
+                fontSize = 12.sp,
+                color = Color(0xFF8A8A8A),
+                modifier = Modifier.padding(start = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Telefone
+            OutlinedTextField(
+                value = state.phone,
+                onValueChange = viewModel::onPhoneChange,
                 label = { Text("Telefone") },
                 placeholder = { Text("Insira o telefone") },
                 modifier = Modifier.fillMaxWidth(),
@@ -199,12 +238,13 @@ fun AdminCreateEditUserScreen(
                     unfocusedBorderColor = Color(0xFFEDEDED),
                     focusedBorderColor = Color(0xFF333333)
                 ),
-                singleLine = true
+                singleLine = true,
+                enabled = !state.isSaving
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Role dropdown
+            // Função
             Text(
                 text = "Função *",
                 fontSize = 14.sp,
@@ -213,7 +253,7 @@ fun AdminCreateEditUserScreen(
             )
 
             Box {
-                val selectedLabel = roleOptions.find { it.first == selectedRole }?.second ?: selectedRole
+                val selectedLabel = roleOptions.find { it.first == state.role }?.second ?: state.role
 
                 OutlinedTextField(
                     value = selectedLabel,
@@ -230,8 +270,10 @@ fun AdminCreateEditUserScreen(
                         .fillMaxWidth()
                         .clickable { roleMenuExpanded = true },
                     shape = RoundedCornerShape(12.dp),
-                    isError = roleError != null,
-                    supportingText = roleError?.let { { Text(it, color = Color(0xFFB00020)) } },
+                    isError = state.roleError != null,
+                    supportingText = state.roleError?.let {
+                        { Text(it, color = Color(0xFFB00020)) }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color(0xFFEDEDED),
                         focusedBorderColor = Color(0xFF333333)
@@ -248,43 +290,29 @@ fun AdminCreateEditUserScreen(
                         DropdownMenuItem(
                             text = { Text(label) },
                             onClick = {
-                                selectedRole = value
+                                viewModel.onRoleChange(value)
                                 roleMenuExpanded = false
-                                roleError = null
                             }
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Active toggle info
+            // Estado ativo
             Text(
-                text = "Estado da conta: ${if (isActive) "Ativo" else "Inativo"}",
+                text = "Estado da conta: ${if (state.isActive) "Ativo" else "Inativo"}",
                 fontSize = 14.sp,
-                color = if (isActive) Color(0xFF2E7D32) else Color(0xFFC62828),
+                color = if (state.isActive) Color(0xFF2E7D32) else Color(0xFFC62828),
                 fontWeight = FontWeight.Medium
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Save button
+            // Botão Guardar
             Button(
-                onClick = {
-                    var hasError = false
-                    if (firstName.isBlank()) {
-                        firstNameError = "O nome é obrigatório."
-                        hasError = true
-                    }
-                    if (lastName.isBlank() && selectedRole != "company") {
-                        lastNameError = "O apelido é obrigatório."
-                        hasError = true
-                    }
-                    if (!hasError) {
-                        onSave(firstName, lastName, phone, selectedRole, isActive)
-                    }
-                },
+                onClick = { viewModel.saveUser() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -292,13 +320,21 @@ fun AdminCreateEditUserScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF1A1A1A),
                     contentColor = Color.White
-                )
+                ),
+                enabled = !state.isSaving
             ) {
-                Text(
-                    text = if (isEditing) "Guardar alterações" else "Criar utilizador",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (state.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        text = "Guardar alterações",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(96.dp))

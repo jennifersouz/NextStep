@@ -29,6 +29,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
+import com.example.nextstep.ui.utils.roleToDisplayName
 
 @Composable
 fun AdminUsersScreen(
@@ -269,7 +270,7 @@ fun AdminUserListItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Role badge
                 Text(
-                    text = roleLabel(profile.role ?: ""),
+                    text = roleToDisplayName(profile.role),
                     fontSize = 12.sp,
                     color = Color(0xFF555555),
                     fontWeight = FontWeight.Medium
@@ -319,17 +320,5 @@ fun AdminUserListItem(
             tint = Color(0xFFCCCCCC),
             modifier = Modifier.size(20.dp)
         )
-    }
-}
-
-fun roleLabel(role: String): String {
-    return when (role.lowercase()) {
-        "student" -> "Aluno"
-        "teacher" -> "Docente"
-        "company" -> "Empresa"
-        "advisor" -> "Orientador"
-        "institution" -> "Instituição"
-        "admin" -> "Administrador"
-        else -> role.replaceFirstChar { it.uppercase() }
     }
 }

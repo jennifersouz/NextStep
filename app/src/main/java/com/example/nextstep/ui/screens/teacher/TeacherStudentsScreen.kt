@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.TeacherStudentDto
+import com.example.nextstep.ui.utils.applicationStatusToDisplay
 
 @Composable
 fun TeacherStudentsScreen(

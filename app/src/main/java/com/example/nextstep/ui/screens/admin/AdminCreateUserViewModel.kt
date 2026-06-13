@@ -244,8 +244,20 @@ class AdminCreateUserViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true, generalErrorMessage = null)
 
             val state = _uiState.value
+            val cleanedEmail = state.email.trim().lowercase()
+
+            // Verificar email duplicado antes de chamar Edge Function
+            val emailAlreadyExists = repository.emailExists(cleanedEmail)
+            if (emailAlreadyExists) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    emailError = "Já existe uma conta com este email."
+                )
+                return@launch
+            }
+
             val request = AdminCreateUserRequest(
-                email = state.email.trim(),
+                email = cleanedEmail,
                 password = state.password,
                 role = state.selectedRole,
                 firstName = state.firstName.takeIf { it.isNotBlank() }?.trim(),

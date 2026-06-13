@@ -595,8 +595,10 @@
     <string name="tasks_subtitle">Acompanha as atividades dos teus alunos.</string>
     <string name="new_task">Nova tarefa</string>
     <string name="in_progress">Em curso</string>
+    <string name="status_active">Ativo</string>
     <string name="status_in_progress">Em curso</string>
     <string name="status_completed">Concluída</string>
+    <string name="status_submitted">Submetida</string>
     <string name="total">Total</string>
     <string name="priority_low">Baixa</string>
     <string name="priority_medium">Média</string>

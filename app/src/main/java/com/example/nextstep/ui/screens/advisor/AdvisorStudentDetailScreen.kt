@@ -54,6 +54,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorEvaluationDto
+import com.example.nextstep.ui.utils.applicationStatusToDisplay
+import com.example.nextstep.ui.utils.applicationStatusToColor
 import com.example.nextstep.data.model.AdvisorStudentDetailDto
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
 
@@ -280,22 +282,20 @@ private fun AdvisorDetailHeaderCard(detail: AdvisorStudentDetailDto) {
 
 @Composable
 private fun AdvisorDetailStatusBadge(status: String?) {
-    val (label, bgColor, textColor) = when {
+    val (bgColor, textColor) = when {
         status == "accepted" || status == "active" || status == "ativo" || status == "aceite" ->
-            Triple("Ativo", Color(0xFFE8F5E9), Color(0xFF2E7D32))
+            Color(0xFFE8F5E9) to Color(0xFF2E7D32)
         status == "pending" || status == "pendente" ->
-            Triple("Pendente", AdvisorUiColors.YellowLight, Color(0xFF8D6E00))
+            AdvisorUiColors.YellowLight to Color(0xFF8D6E00)
         status == "rejected" || status == "recusado" || status == "recusada" ->
-            Triple("Recusado", Color(0xFFFFEBEE), Color(0xFFC62828))
+            Color(0xFFFFEBEE) to Color(0xFFC62828)
         status == "completed" || status == "concluido" || status == "concluído" ->
-            Triple("Concluído", Color(0xFFE3F2FD), Color(0xFF1565C0))
-        else -> Triple(
-            status?.replaceFirstChar { it.uppercase() } ?: "",
-            Color(0xFFF5F5F5), AdvisorUiColors.TextGray
-        )
+            Color(0xFFE3F2FD) to Color(0xFF1565C0)
+        else -> Color(0xFFF5F5F5) to AdvisorUiColors.TextGray
     }
 
-    if (label.isBlank()) return
+    val label = applicationStatusToDisplay(status)
+    if (label.isBlank() || label == "-") return
 
     Box(
         modifier = Modifier
@@ -328,7 +328,7 @@ private fun AdvisorSummaryTab(
             DetailRow(label = stringResource(R.string.expected_end), value = detail.expectedEndDate ?: "-")
             DetailRow(
                 label = stringResource(R.string.status),
-                value = detail.status?.replaceFirstChar { it.uppercase() } ?: "-"
+                value = applicationStatusToDisplay(detail.status)
             )
         }
 

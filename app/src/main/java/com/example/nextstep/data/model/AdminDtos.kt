@@ -227,6 +227,30 @@ data class AdminCompanyUpdateDto(
 )
 
 /**
+ * DTO específico para edição de utilizador pelo Admin.
+ * Não contém: id, email, archived_at, archived_by, archive_reason.
+ * Email nunca é alterado nesta tela — alterar email exige alterar Supabase Auth.
+ */
+@Serializable
+data class AdminUserEditRequest(
+    @SerialName("first_name")
+    val firstName: String,
+
+    @SerialName("last_name")
+    val lastName: String? = null,
+
+    val phone: String? = null,
+
+    val role: String,
+
+    @SerialName("is_active")
+    val isActive: Boolean,
+
+    @SerialName("updated_at")
+    val updatedAt: String
+)
+
+/**
  * DTO específico para edição de empresa pelo Admin.
  * Não contém: id, profile_id, archived_at, archived_by, archive_reason.
  */

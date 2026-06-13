@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.model.CreateCompanyDto
 import com.example.nextstep.ui.components.BottomBarItem
 import com.example.nextstep.ui.components.NextStepBottomBar
@@ -94,24 +93,17 @@ fun AdminDashboardScreen(
         return
     }
 
-    // ── Edit user ────────────────────────────────────────────────────────────
+    // ── Edit user (new dedicated screen with its own ViewModel) ─────────────
     if (showEditUser && selectedUser != null) {
-        AdminCreateEditUserScreen(
-            existingProfile = selectedUser,
+        AdminEditUserScreen(
+            userId = selectedUser.id,
             onBackClick = {
                 showEditUser = false
             },
-            onSave = { firstName, lastName, phone, role, isActive ->
-                usersViewModel.updateUser(
-                    selectedUser.id,
-                    AdminProfileUpdateDto(
-                        firstName = firstName.ifBlank { null },
-                        lastName = lastName.ifBlank { null },
-                        phone = phone.ifBlank { null },
-                        role = role.ifBlank { null },
-                        isActive = isActive
-                    )
-                )
+            onSaved = {
+                // Recarregar detalhe e lista após guardar
+                userDetailViewModel.loadProfile(selectedUser.id)
+                usersViewModel.loadUsers()
                 showEditUser = false
             }
         )

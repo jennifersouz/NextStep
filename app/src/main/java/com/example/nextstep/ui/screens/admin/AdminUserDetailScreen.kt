@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.ui.utils.DateFormatUtils
+import com.example.nextstep.ui.utils.roleToDisplayName
+
 
 @Composable
 fun AdminUserDetailScreen(
@@ -283,7 +285,7 @@ fun AdminUserDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
             DetailField(label = "Email", value = profile.email ?: "")
             Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = "Função", value = roleLabel(profile.role ?: ""))
+            DetailField(label = "Função", value = roleToDisplayName(profile.role))
             Spacer(modifier = Modifier.height(16.dp))
             DetailField(label = "Telefone", value = profile.phone ?: "Não disponível")
             Spacer(modifier = Modifier.height(16.dp))
@@ -314,7 +316,27 @@ fun AdminUserDetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Editar utilizador — sempre visível para utilizadores não-arquivados
+            if (!isArchived) {
+                Button(
+                    onClick = onEditClick,
+                    enabled = !isActionLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1A1A1A),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Editar utilizador", fontWeight = FontWeight.Medium)
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
             // Action buttons — controlados exclusivamente por estado
             // Arquivado → sem botões

@@ -65,6 +65,8 @@ fun AdminCreateUserScreen(
         "student" to "Aluno",
         "teacher" to "Docente",
         "company" to "Empresa",
+        "advisor" to "Orientador",
+        "institution" to "Instituição",
         "admin" to "Administrador"
     )
 

@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
+import com.example.nextstep.data.model.AdminUserEditRequest
 import com.example.nextstep.data.model.InstitutionOptionDto
 import com.example.nextstep.data.model.UserActiveStatusUpdateDto
 import com.example.nextstep.data.model.UserArchiveUpdateDto
@@ -134,12 +135,78 @@ class AdminUsersRepository {
         }
     }
 
+    /**
+     * Verifica se já existe um profile com o email informado.
+     * O email é normalizado para lowercase e trim antes da consulta.
+     */
+    suspend fun emailExists(email: String): Boolean {
+        return try {
+            val cleaned = email.trim().lowercase()
+            val profiles = supabase
+                .from("profiles")
+                .select {
+                    filter { eq("email", cleaned) }
+                }
+                .decodeList<AdminProfileDto>()
+
+            val exists = profiles.isNotEmpty()
+            Log.d("AdminUsersRepo", "emailExists check for $cleaned: $exists")
+            exists
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error checking email $email", exception)
+            // Em caso de erro, permitir que a validação prossiga (não bloquear)
+            false
+        }
+    }
+
+    /**
+     * Atualiza um utilizador na tabela profiles e retorna os dados atualizados.
+     * Não altera email — o DTO AdminUserEditRequest não contém campo email.
+     */
+    suspend fun updateUser(
+        userId: String,
+        request: AdminUserEditRequest
+    ): Result<AdminProfileDto> {
+        return try {
+            if (userId.isBlank()) throw IllegalArgumentException("ID do utilizador está vazio.")
+
+            Log.d("AdminUsersRepo", "Updating user id=$userId role=${request.role}")
+
+            supabase
+                .from("profiles")
+                .update(request) {
+                    filter { eq("id", userId) }
+                }
+
+            // Select pós-update para confirmar persistência
+            val profiles = supabase
+                .from("profiles")
+                .select { filter { eq("id", userId) } }
+                .decodeList<AdminProfileDto>()
+
+            val user = profiles.firstOrNull()
+                ?: throw IllegalStateException("Utilizador não encontrado após atualização.")
+
+            Log.d(
+                "AdminUsersRepo",
+                "Updated user loaded id=${user.id}, email=${user.email}, firstName=${user.firstName}"
+            )
+
+            Result.success(user)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error updating user id=$userId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    // ===== Legacy updateUser with AdminProfileUpdateDto (kept for backward compat) =====
+
     suspend fun updateUser(
         userId: String,
         updateData: AdminProfileUpdateDto
     ): Result<Unit> {
         return try {
-            Log.d("AdminUsersRepo", "Updating user id=$userId")
+            Log.d("AdminUsersRepo", "Updating user id=$userId (legacy)")
             Log.d("AdminUsersRepo", "Payload user update = $updateData")
 
             val payload = updateData.copy(
