@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.model.ApplicationTaskDto
 import com.example.nextstep.data.model.TeacherEvaluationDto
 import com.example.nextstep.data.model.TeacherStudentDetailNonSerializable
+import com.example.nextstep.data.repository.InternshipActionsRepository
 import com.example.nextstep.data.repository.TeacherEvaluationRepository
 import com.example.nextstep.data.repository.TeacherRequestsRepository
 import com.example.nextstep.data.repository.TeacherStudentsRepository
@@ -18,7 +19,10 @@ import kotlinx.coroutines.launch
 data class TeacherStudentDetailState(
     val isLoading: Boolean = false,
     val detail: TeacherStudentDetailNonSerializable? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isActingOnInternship: Boolean = false,
+    val internshipActionSuccess: String? = null,
+    val internshipActionError: String? = null
 )
 
 data class TeacherTasksState(
@@ -52,6 +56,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
     private val evaluationRepository = TeacherEvaluationRepository()
     private val tasksRepository = TeacherTasksRepository()
     private val requestsRepository = TeacherRequestsRepository()
+    private val internshipActionsRepository = InternshipActionsRepository()
 
     private val _detailState = MutableStateFlow(TeacherStudentDetailState())
     val detailState: StateFlow<TeacherStudentDetailState> = _detailState.asStateFlow()
@@ -255,6 +260,65 @@ class TeacherStudentDetailViewModel : ViewModel() {
                     )
                 }
         }
+    }
+
+    // ── Acções de estágio ─────────────────────────────────────────────────────
+
+    fun cancelInternship(applicationId: String) {
+        viewModelScope.launch {
+            _detailState.value = _detailState.value.copy(
+                isActingOnInternship = true,
+                internshipActionSuccess = null,
+                internshipActionError = null
+            )
+            internshipActionsRepository.cancelInternship(applicationId)
+                .onSuccess {
+                    Log.d("InternshipAction", "Operation successful")
+                    _detailState.value = _detailState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionSuccess = "Estágio cancelado com sucesso."
+                    )
+                }
+                .onFailure { exception ->
+                    Log.e("TeacherDetailVM", "Erro ao cancelar estágio", exception)
+                    _detailState.value = _detailState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionError = exception.message ?: "Erro ao cancelar estágio."
+                    )
+                }
+        }
+    }
+
+    fun finishInternship(applicationId: String) {
+        viewModelScope.launch {
+            _detailState.value = _detailState.value.copy(
+                isActingOnInternship = true,
+                internshipActionSuccess = null,
+                internshipActionError = null
+            )
+            internshipActionsRepository.finishInternship(applicationId)
+                .onSuccess {
+                    Log.d("InternshipAction", "Operation successful")
+                    _detailState.value = _detailState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionSuccess = "Estágio concluído com sucesso."
+                    )
+                }
+                .onFailure { exception ->
+                    Log.e("TeacherDetailVM", "Erro ao concluir estágio", exception)
+                    _detailState.value = _detailState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionError = exception.message ?: "Erro ao concluir estágio."
+                    )
+                }
+        }
+    }
+
+    fun clearInternshipActionMessages() {
+        _detailState.value = _detailState.value.copy(
+            internshipActionSuccess = null,
+            internshipActionError = null
+        )
     }
 
     fun openDocument(path: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {

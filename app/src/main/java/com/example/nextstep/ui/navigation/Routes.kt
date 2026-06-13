@@ -35,11 +35,12 @@ object Routes {
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
 
-    const val APPLICATION_CHAT = "application_chat/{applicationId}?name={name}&offerTitle={offerTitle}&studentProfileId={studentProfileId}"
+    const val APPLICATION_CHAT = "application_chat/{applicationId}?name={name}&offerTitle={offerTitle}&studentProfileId={studentProfileId}&chatType={chatType}"
     const val APPLICATION_CHAT_ARG = "applicationId"
     const val APPLICATION_CHAT_NAME_ARG = "name"
     const val APPLICATION_CHAT_OFFER_ARG = "offerTitle"
     const val APPLICATION_CHAT_STUDENT_ID_ARG = "studentProfileId"
+    const val APPLICATION_CHAT_TYPE_ARG = "chatType"
 
     const val ADVISOR_DASHBOARD = "advisor_dashboard"
     const val INSTITUTION_DASHBOARD = "institution_dashboard"
@@ -131,12 +132,14 @@ object Routes {
         applicationId: String,
         name: String? = null,
         offerTitle: String? = null,
-        studentProfileId: String? = null
+        studentProfileId: String? = null,
+        chatType: String? = null
     ): String {
         val builder = StringBuilder("application_chat/$applicationId?")
         name?.let { builder.append("name=${Uri.encode(it)}&") }
         offerTitle?.let { builder.append("offerTitle=${Uri.encode(it)}&") }
         studentProfileId?.let { builder.append("studentProfileId=${Uri.encode(it)}&") }
+        chatType?.let { builder.append("chatType=${Uri.encode(it)}&") }
         return builder.toString().removeSuffix("&").removeSuffix("?")
     }
 

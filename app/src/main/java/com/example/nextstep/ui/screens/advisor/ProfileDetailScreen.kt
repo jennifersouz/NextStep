@@ -9,9 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nextstep.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.ui.components.ProfileAvatar
 
@@ -33,10 +35,10 @@ fun ProfileDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Perfil", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.profile), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -103,12 +105,12 @@ private fun ProfileDetailContent(profile: ProfileDetailData) {
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                InfoRow(label = "Email", value = profile.email)
+                InfoRow(label = stringResource(R.string.email), value = profile.email)
                 if (!profile.phone.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(12.dp))
                     HorizontalDivider(color = Color(0xFFE5E5E5))
                     Spacer(modifier = Modifier.height(12.dp))
-                    InfoRow(label = "Contacto", value = profile.phone!!)
+                    InfoRow(label = stringResource(R.string.contact), value = profile.phone!!)
                 }
             }
         }

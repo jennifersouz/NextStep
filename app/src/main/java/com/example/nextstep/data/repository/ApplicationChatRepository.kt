@@ -30,7 +30,8 @@ class ApplicationChatRepository {
     private var subscriptionJob: Job? = null
 
     suspend fun getMessages(
-        applicationId: String
+        applicationId: String,
+        chatType: String = "advisor"
     ): Result<List<ApplicationMessageDto>> {
         return try {
             auth.currentUserOrNull()
@@ -41,6 +42,7 @@ class ApplicationChatRepository {
                 .select {
                     filter {
                         eq("application_id", applicationId)
+                        eq("participant_type", chatType)
                     }
                 }
                 .decodeList<ApplicationMessageDto>()
@@ -62,7 +64,8 @@ class ApplicationChatRepository {
 
     suspend fun sendMessage(
         applicationId: String,
-        content: String
+        content: String,
+        chatType: String = "advisor"
     ): Result<Unit> {
         if (applicationId.isBlank()) {
             return Result.failure(IllegalArgumentException("APPLICATION_ID_EMPTY"))
@@ -75,6 +78,7 @@ class ApplicationChatRepository {
 
         val currentUser = auth.currentUserOrNull()
         Log.d("ChatDebug", "sendMessage ApplicationId=$applicationId")
+        Log.d("ChatDebug", "sendMessage ChatType=$chatType")
         Log.d("ChatDebug", "sendMessage Sender=${currentUser?.id}")
         Log.d("ChatDebug", "sendMessage contentLength=${trimmedContent.length}")
 
@@ -87,6 +91,7 @@ class ApplicationChatRepository {
                 parameters = buildJsonObject {
                     put("application_uuid", applicationId)
                     put("message_content", trimmedContent)
+                    put("participant_type", chatType)
                 }
             )
 
@@ -103,7 +108,8 @@ class ApplicationChatRepository {
     }
 
     suspend fun markMessagesAsRead(
-        applicationId: String
+        applicationId: String,
+        chatType: String = "advisor"
     ): Result<Unit> {
         return try {
             val currentUserId = auth.currentUserOrNull()?.id
@@ -119,6 +125,7 @@ class ApplicationChatRepository {
                     filter {
                         eq("application_id", applicationId)
                         eq("receiver_profile_id", currentUserId)
+                        eq("participant_type", chatType)
                         filter("read_at", FilterOperator.EQ, null)
                     }
                 }
@@ -137,6 +144,7 @@ class ApplicationChatRepository {
 
     suspend fun subscribeToMessages(
         applicationId: String,
+        chatType: String = "advisor",
         scope: CoroutineScope,
         onMessageReceived: () -> Unit
     ) {
@@ -145,7 +153,7 @@ class ApplicationChatRepository {
         Log.d("ChatDebug", "subscribeToMessages - Canal criado")
 
         val channel = supabase.channel(
-            channelId = "application-chat-$applicationId"
+            channelId = "application-chat-$applicationId-$chatType"
         )
 
         currentChannel = channel
@@ -158,6 +166,11 @@ class ApplicationChatRepository {
                 column = "application_id",
                 operator = FilterOperator.EQ,
                 value = applicationId
+            )
+            filter(
+                column = "participant_type",
+                operator = FilterOperator.EQ,
+                value = chatType
             )
         }
 

@@ -7,6 +7,7 @@ import com.example.nextstep.data.model.AdvisorEvaluationDto
 import com.example.nextstep.data.repository.AdvisorEvaluationRepository
 import com.example.nextstep.data.repository.AdvisorStudentDetailRepository
 import com.example.nextstep.data.repository.AdvisorTasksRepository
+import com.example.nextstep.data.repository.InternshipActionsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +18,7 @@ class AdvisorStudentDetailViewModel : ViewModel() {
     private val repository = AdvisorStudentDetailRepository()
     private val tasksRepository = AdvisorTasksRepository()
     private val evaluationRepository = AdvisorEvaluationRepository()
+    private val internshipActionsRepository = InternshipActionsRepository()
 
     private val _uiState = MutableStateFlow(AdvisorStudentDetailUiState())
     val uiState: StateFlow<AdvisorStudentDetailUiState> = _uiState.asStateFlow()
@@ -178,6 +180,65 @@ class AdvisorStudentDetailViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             evaluationSuccessMessage = null,
             evaluationErrorMessage = null
+        )
+    }
+
+    // ── Acções de estágio ─────────────────────────────────────────────────────
+
+    fun cancelInternship(applicationId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isActingOnInternship = true,
+                internshipActionSuccess = null,
+                internshipActionError = null
+            )
+            internshipActionsRepository.cancelInternship(applicationId)
+                .onSuccess {
+                    Log.d("InternshipAction", "Operation successful")
+                    _uiState.value = _uiState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionSuccess = "Estágio cancelado com sucesso."
+                    )
+                }
+                .onFailure { exception ->
+                    Log.e("AdvisorDetailVM", "Erro ao cancelar estágio", exception)
+                    _uiState.value = _uiState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionError = exception.message ?: "Erro ao cancelar estágio."
+                    )
+                }
+        }
+    }
+
+    fun finishInternship(applicationId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isActingOnInternship = true,
+                internshipActionSuccess = null,
+                internshipActionError = null
+            )
+            internshipActionsRepository.finishInternship(applicationId)
+                .onSuccess {
+                    Log.d("InternshipAction", "Operation successful")
+                    _uiState.value = _uiState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionSuccess = "Estágio concluído com sucesso."
+                    )
+                }
+                .onFailure { exception ->
+                    Log.e("AdvisorDetailVM", "Erro ao concluir estágio", exception)
+                    _uiState.value = _uiState.value.copy(
+                        isActingOnInternship = false,
+                        internshipActionError = exception.message ?: "Erro ao concluir estágio."
+                    )
+                }
+        }
+    }
+
+    fun clearInternshipActionMessages() {
+        _uiState.value = _uiState.value.copy(
+            internshipActionSuccess = null,
+            internshipActionError = null
         )
     }
 

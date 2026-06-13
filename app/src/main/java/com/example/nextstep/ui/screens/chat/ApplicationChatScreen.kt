@@ -67,14 +67,15 @@ fun ApplicationChatScreen(
     participantName: String? = null,
     offerTitle: String? = null,
     studentProfileId: String? = null,
+    chatType: String = "advisor",
     onBackClick: () -> Unit,
     viewModel: ApplicationChatViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
-    LaunchedEffect(applicationId, participantName, offerTitle, studentProfileId) {
-        viewModel.start(applicationId, participantName, offerTitle, studentProfileId)
+    LaunchedEffect(applicationId, participantName, offerTitle, studentProfileId, chatType) {
+        viewModel.start(applicationId, participantName, offerTitle, studentProfileId, chatType)
     }
 
     DisposableEffect(applicationId) {
@@ -124,7 +125,7 @@ fun ApplicationChatScreen(
                 state.errorMessageRes != null && state.messages.isEmpty() -> {
                     ErrorState(
                         errorRes = state.errorMessageRes!!,
-                        onRetry = { viewModel.start(applicationId, participantName, offerTitle, studentProfileId) }
+                        onRetry = { viewModel.start(applicationId, participantName, offerTitle, studentProfileId, chatType) }
                     )
                 }
 

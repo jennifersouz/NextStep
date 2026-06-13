@@ -238,7 +238,7 @@ fun StudentLanguageBottomSheet(
             Spacer(modifier = Modifier.height(18.dp))
 
             StudentLanguageOption(
-                label = "Português",
+                label = stringResource(R.string.language_portuguese),
                 selected = selectedLanguage == AppLanguage.PORTUGUESE,
                 onClick = {
                     selectedLanguage = AppLanguage.PORTUGUESE
@@ -246,7 +246,7 @@ fun StudentLanguageBottomSheet(
             )
 
             StudentLanguageOption(
-                label = "Inglês",
+                label = stringResource(R.string.language_english),
                 selected = selectedLanguage == AppLanguage.ENGLISH,
                 onClick = {
                     selectedLanguage = AppLanguage.ENGLISH

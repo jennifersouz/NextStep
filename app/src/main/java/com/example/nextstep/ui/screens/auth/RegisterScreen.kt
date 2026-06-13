@@ -79,7 +79,7 @@ fun RegisterScreen(
         UserRole.ADVISOR -> stringResource(R.string.role_advisor)
         UserRole.INSTITUTION -> stringResource(R.string.role_institution)
         UserRole.TEACHER -> stringResource(R.string.role_teacher)
-        UserRole.ADMIN -> "Administrador"
+        UserRole.ADMIN -> stringResource(R.string.role_admin)
     }
 
     Scaffold(

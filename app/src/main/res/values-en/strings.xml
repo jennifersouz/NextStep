@@ -433,6 +433,13 @@
     <string name="next_deadlines">Next deadlines</string>
     <string name="message">Message</string>
     <string name="evaluate_student">Evaluate student</string>
+    <string name="cancel_internship">Cancel Internship</string>
+    <string name="end_internship">End Internship</string>
+    <string name="cancel_internship_title">Cancel internship</string>
+    <string name="cancel_internship_message">Are you sure you want to cancel this internship?</string>
+    <string name="end_internship_title">End internship</string>
+    <string name="end_internship_message">Are you sure you want to finish this internship?</string>
+    <string name="confirm">Confirm</string>
     <string name="no_tasks">There are no tasks yet.</string>
     <string name="no_documents">There are no documents available yet.</string>
     <string name="evaluation_not_submitted">The evaluation has not been submitted yet.</string>
@@ -500,6 +507,7 @@
 
     <string name="chat_title">Internship chat</string>
     <string name="message_advisor">Message advisor</string>
+    <string name="message_teacher">Message teacher</string>
     <string name="type_message">Write a message...</string>
     <string name="send">Send</string>
     <string name="message_send_error">Could not send the message.</string>
@@ -572,6 +580,9 @@
     <string name="advisor_profile_update_error">Could not update advisor profile.</string>
 
     <string name="language_options">Language options</string>
+    <string name="language_code_pt">PT</string>
+    <string name="language_code_en">EN</string>
+    <string name="separator_middle_dot"> · </string>
 
     <!-- Institution Home -->
     <string name="institution_home_greeting">Hello, %1$s</string>
@@ -733,4 +744,16 @@
     <string name="error_loading_teachers">Error loading advisors.</string>
     <string name="error_institution_not_found">Education institution not found.</string>
     <string name="error_sending_request">Error sending orientation request.</string>
+
+    <!-- Student Detail Screen -->
+    <string name="final_report">Final Report</string>
+    <string name="tasks_title">Tasks</string>
+    <string name="add_task">Add Task</string>
+    <string name="advisor_evaluation">Advisor Evaluation</string>
+    <string name="final_evaluation">Final Evaluation</string>
+    <string name="no_tasks_assigned">No tasks assigned.</string>
+    <string name="search_label">Search</string>
+    <string name="institution_label">Institution</string>
+    <string name="task_name">Task</string>
+    <string name="save_task">Save</string>
 </resources>

@@ -433,6 +433,13 @@
     <string name="next_deadlines">Próximos prazos</string>
     <string name="message">Mensagem</string>
     <string name="evaluate_student">Avaliar aluno</string>
+    <string name="cancel_internship">Cancelar estágio</string>
+    <string name="end_internship">Terminar estágio</string>
+    <string name="cancel_internship_title">Cancelar estágio</string>
+    <string name="cancel_internship_message">Tem a certeza que pretende cancelar este estágio?</string>
+    <string name="end_internship_title">Terminar estágio</string>
+    <string name="end_internship_message">Tem a certeza que pretende terminar este estágio?</string>
+    <string name="confirm">Confirmar</string>
     <string name="no_tasks">Ainda não existem tarefas registadas.</string>
     <string name="no_documents">Ainda não existem documentos disponíveis.</string>
     <string name="evaluation_not_submitted">A avaliação ainda não foi submetida.</string>
@@ -500,6 +507,7 @@
 
     <string name="chat_title">Chat do estágio</string>
     <string name="message_advisor">Enviar mensagem ao orientador</string>
+    <string name="message_teacher">Enviar mensagem ao docente</string>
     <string name="type_message">Escreve uma mensagem...</string>
     <string name="send">Enviar</string>
     <string name="message_send_error">Não foi possível enviar a mensagem.</string>
@@ -572,6 +580,9 @@
     <string name="advisor_profile_update_error">Não foi possível atualizar o perfil do orientador.</string>
 
     <string name="language_options">Opções de idioma</string>
+    <string name="language_code_pt">PT</string>
+    <string name="language_code_en">EN</string>
+    <string name="separator_middle_dot"> · </string>
 
     <!-- Institution Home -->
     <string name="institution_home_greeting">Olá, %1$s</string>
@@ -747,4 +758,16 @@
 
     <!-- Institution Tab -->
     <string name="tab_teachers">Docentes</string>
+
+    <!-- Student Detail Screen -->
+    <string name="final_report">Relatório Final</string>
+    <string name="tasks_title">Tarefas</string>
+    <string name="add_task">Adicionar Tarefa</string>
+    <string name="advisor_evaluation">Avaliação Orientadores</string>
+    <string name="final_evaluation">Avaliação Final</string>
+    <string name="no_tasks_assigned">Sem tarefas atribuídas.</string>
+    <string name="search_label">Procurar</string>
+    <string name="institution_label">Instituição</string>
+    <string name="task_name">Tarefa</string>
+    <string name="save_task">Guardar</string>
 </resources>

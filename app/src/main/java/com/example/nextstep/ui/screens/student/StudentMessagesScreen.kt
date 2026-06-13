@@ -45,7 +45,7 @@ import com.example.nextstep.data.model.StudentChatConversationDto
 
 @Composable
 fun StudentMessagesScreen(
-    onConversationClick: (String) -> Unit,
+    onChatClick: (String, String, String?, String?) -> Unit = { _, _, _, _ -> },
     viewModel: StudentMessagesViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -96,7 +96,7 @@ fun StudentMessagesScreen(
         else -> {
             StudentMessagesContent(
                 conversations = state.conversations,
-                onConversationClick = onConversationClick
+                onChatClick = onChatClick
             )
         }
     }
@@ -105,7 +105,7 @@ fun StudentMessagesScreen(
 @Composable
 private fun StudentMessagesContent(
     conversations: List<StudentChatConversationDto>,
-    onConversationClick: (String) -> Unit
+    onChatClick: (String, String, String?, String?) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -140,10 +140,16 @@ private fun StudentMessagesContent(
                     conversation.id
                 }
             ) { conversation ->
-                StudentConversationCard(
+                StudentChatConversationCard(
                     conversation = conversation,
                     onClick = {
-                        onConversationClick(conversation.id)
+                        val chatLabel = conversation.chatLabel
+                        onChatClick(
+                            conversation.applicationId,
+                            conversation.participantType,
+                            conversation.participantName ?: chatLabel,
+                            conversation.offerTitle
+                        )
                     }
                 )
 
@@ -154,15 +160,19 @@ private fun StudentMessagesContent(
 }
 
 @Composable
-private fun StudentConversationCard(
+private fun StudentChatConversationCard(
     conversation: StudentChatConversationDto,
     onClick: () -> Unit
 ) {
-    val companyName = conversation.companyName.orEmpty()
-        .ifBlank { stringResource(R.string.company) }
-
+    val chatLabel = conversation.chatLabel ?: "Chat"
     val offerTitle = conversation.offerTitle.orEmpty()
         .ifBlank { stringResource(R.string.not_available) }
+    val participantName = conversation.participantName
+    val subtitle = if (!participantName.isNullOrBlank()) {
+        "$chatLabel · $participantName"
+    } else {
+        chatLabel
+    }
 
     Row(
         modifier = Modifier
@@ -180,17 +190,20 @@ private fun StudentConversationCard(
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val avatarColor = if (conversation.participantType == "teacher")
+            Color(0xFF2B2B2B) else Color(0xFFFDFA52)
+
         Box(
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFFDFA52)),
+                .background(avatarColor),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Outlined.ChatBubbleOutline,
                 contentDescription = null,
-                tint = Color.Black,
+                tint = if (conversation.participantType == "teacher") Color.White else Color.Black,
                 modifier = Modifier.size(26.dp)
             )
         }
@@ -201,7 +214,7 @@ private fun StudentConversationCard(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = companyName,
+                text = subtitle,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -219,13 +232,16 @@ private fun StudentConversationCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
-
-            Text(
-                text = statusLabel(conversation.status),
-                fontSize = 12.sp,
-                color = Color(0xFF8A8A8A)
-            )
+            if (!conversation.lastMessage.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = conversation.lastMessage,
+                    fontSize = 12.sp,
+                    color = Color(0xFF8A8A8A),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
@@ -264,17 +280,5 @@ private fun StudentMessagesEmptyState() {
             textAlign = TextAlign.Center,
             lineHeight = 20.sp
         )
-    }
-}
-
-@Composable
-private fun statusLabel(
-    status: String?
-): String {
-    return when (status?.lowercase()) {
-        "pending" -> stringResource(R.string.student_application_status_pending)
-        "accepted" -> stringResource(R.string.student_application_status_accepted)
-        "rejected" -> stringResource(R.string.student_application_status_rejected)
-        else -> status.orEmpty()
     }
 }

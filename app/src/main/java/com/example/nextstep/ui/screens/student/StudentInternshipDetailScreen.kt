@@ -39,7 +39,7 @@ import java.util.Locale
 fun StudentInternshipDetailScreen(
     internshipId: String,
     onBackClick: () -> Unit,
-    onChatClick: (String, String) -> Unit,
+    onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
     onAdvisorProfileClick: (String) -> Unit = {},
     onTeacherProfileClick: (String) -> Unit = {},
@@ -140,7 +140,7 @@ fun StudentInternshipDetailScreen(
 fun InternshipDetailContent(
     internship: StudentSubmittedApplicationDto,
     tasks: List<AdvisorTaskListItemDto>,
-    onChatClick: (String, String) -> Unit,
+    onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
     onAddTaskClick: () -> Unit,
     onTaskStatusChange: (String, String) -> Unit,
@@ -198,7 +198,7 @@ fun InternshipDetailContent(
             organization = internship.companyName,
             name = internship.advisorName ?: "A aguardar atribuição",
             onChatClick = if (internship.advisorProfileId != null) {
-                { onChatClick(internship.id, internship.advisorName ?: "") }
+                { onChatClick(internship.id, internship.advisorName ?: "", "advisor") }
             } else null,
             onProfileClick = if (internship.advisorProfileId != null) {
                 {
@@ -217,7 +217,7 @@ fun InternshipDetailContent(
             AdvisorItem(
                 organization = internship.institutionName ?: "Instituição",
                 name = internship.teacherName ?: "Orientador Académico",
-                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "") },
+                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "", "teacher") },
                 onProfileClick = if (internship.teacherProfileId != null) {
                     {
                         Log.d("ProfileDebug", "Teacher click teacherProfileId=${internship.teacherProfileId} applicationId=${internship.id}")

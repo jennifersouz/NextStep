@@ -203,7 +203,7 @@ private fun LoginLanguageSelector(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "PT",
+                        text = stringResource(R.string.language_code_pt),
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
@@ -221,7 +221,7 @@ private fun LoginLanguageSelector(
             DropdownMenuItem(
                 text = {
                     Text(
-                        text = "EN",
+                        text = stringResource(R.string.language_code_en),
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()

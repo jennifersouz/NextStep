@@ -54,7 +54,11 @@ class StudentInternshipDetailViewModel : ViewModel() {
                 val tasksResult = tasksRepository.getTasksByApplication(internshipId)
                 val tasks = tasksResult.getOrDefault(emptyList())
 
-                Log.d("TasksDebug", "Tarefas recebidas no ViewModel: ${tasks.size}")
+                Log.d("TeacherAssignment", "=== DADOS DOCENTE NO VIEWMODEL ===")
+                Log.d("TeacherAssignment", "teacherProfileId=${application?.teacherProfileId}")
+                Log.d("TeacherAssignment", "teacherStatus=${application?.teacherStatus}")
+                Log.d("TeacherAssignment", "teacherName=${application?.teacherName}")
+                Log.d("TeacherAssignment", "institutionName=${application?.institutionName}")
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

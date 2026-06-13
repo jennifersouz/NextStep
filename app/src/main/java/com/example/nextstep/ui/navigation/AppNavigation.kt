@@ -191,9 +191,9 @@ fun AppNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onChatClick = { applicationId ->
+                onChatClick = { applicationId, participantType, name, offerTitle ->
                     navController.navigate(
-                        Routes.applicationChat(applicationId)
+                        Routes.applicationChat(applicationId, name, offerTitle, chatType = participantType)
                     )
                 },
                 onInternshipClick = { internshipId ->
@@ -225,8 +225,8 @@ fun AppNavigation() {
             StudentInternshipDetailScreen(
                 internshipId = internshipId,
                 onBackClick = { navController.popBackStack() },
-                onChatClick = { applicationId, name ->
-                    navController.navigate(Routes.applicationChat(applicationId, name))
+                onChatClick = { applicationId, name, chatType ->
+                    navController.navigate(Routes.applicationChat(applicationId, name, chatType = chatType))
                 },
                 onSearchAdvisorClick = {
                     navController.navigate(Routes.studentSearchAdvisor(internshipId))
@@ -295,7 +295,7 @@ fun AppNavigation() {
                 },
                 onChatClick = { applicationId, name ->
                     navController.navigate(
-                        Routes.applicationChat(applicationId, name)
+                        Routes.applicationChat(applicationId, name, chatType = "advisor")
                     )
                 },
                 onEditProfileClick = {
@@ -323,7 +323,7 @@ fun AppNavigation() {
                             navController.navigate(Routes.advisorStudentDetail(applicationId))
                         }
                         "new_message" -> {
-                            navController.navigate(Routes.applicationChat(applicationId))
+                            navController.navigate(Routes.applicationChat(applicationId, chatType = "advisor"))
                         }
                     }
                 }
@@ -349,13 +349,19 @@ fun AppNavigation() {
                 },
                 onMessageClick = {
                     navController.navigate(
-                        Routes.applicationChat(applicationId)
+                        Routes.applicationChat(applicationId, chatType = "advisor")
                     )
                 },
                 onEvaluateClick = {
                     navController.navigate(
                         Routes.advisorEvaluateStudent(applicationId)
                     )
+                },
+                onCancelInternship = {
+                    // handled by screen ViewModel
+                },
+                onEndInternship = {
+                    // handled by screen ViewModel
                 }
             )
         }
@@ -509,7 +515,7 @@ fun AppNavigation() {
                 },
                 onChatClick = { studentProfileId, applicationId, name, offerTitle ->
                     navController.navigate(
-                        Routes.applicationChat(applicationId, name, offerTitle, studentProfileId)
+                        Routes.applicationChat(applicationId, name, offerTitle, studentProfileId, chatType = "teacher")
                     )
                 }
             )
@@ -544,7 +550,7 @@ fun AppNavigation() {
                     when (type) {
                         "new_message" -> {
                             if (applicationId.isNotBlank()) {
-                                navController.navigate(Routes.applicationChat(applicationId))
+                                navController.navigate(Routes.applicationChat(applicationId, chatType = "teacher"))
                             }
                         }
                         "advisor_assigned" -> {
@@ -597,8 +603,14 @@ fun AppNavigation() {
                 },
                 onMessageClick = {
                     navController.navigate(
-                        Routes.applicationChat(applicationId)
+                        Routes.applicationChat(applicationId, chatType = "teacher")
                     )
+                },
+                onCancelInternship = {
+                    // handled by screen ViewModel
+                },
+                onEndInternship = {
+                    // handled by screen ViewModel
                 }
             )
         }
@@ -641,10 +653,10 @@ fun AppNavigation() {
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onMessagesClick = { selectedApplicationId ->
-                    Log.d("ChatNavigation", "Navigate chat applicationId=$selectedApplicationId")
+                onMessagesClick = { selectedApplicationId, chatType ->
+                    Log.d("ChatNavigation", "Navigate chat applicationId=$selectedApplicationId chatType=$chatType")
                     navController.navigate(
-                        Routes.applicationChat(selectedApplicationId)
+                        Routes.applicationChat(selectedApplicationId, chatType = chatType)
                     )
                 }
             )
@@ -851,6 +863,11 @@ fun AppNavigation() {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
+                },
+                navArgument(Routes.APPLICATION_CHAT_TYPE_ARG) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
@@ -863,6 +880,8 @@ fun AppNavigation() {
                 ?.getString(Routes.APPLICATION_CHAT_OFFER_ARG)
             val studentProfileId = backStackEntry.arguments
                 ?.getString(Routes.APPLICATION_CHAT_STUDENT_ID_ARG)
+            val rawChatType = backStackEntry.arguments
+                ?.getString(Routes.APPLICATION_CHAT_TYPE_ARG)
             
             val name = rawName?.let { 
                 Uri.decode(it).replace("+", " ").trim()
@@ -870,14 +889,18 @@ fun AppNavigation() {
             val offerTitle = rawOffer?.let {
                 Uri.decode(it).replace("+", " ").trim()
             }
+            val chatType = rawChatType?.let {
+                Uri.decode(it).replace("+", " ").trim()
+            }.takeIf { it == "advisor" || it == "teacher" } ?: "advisor"
 
-            Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name, offer=$offerTitle")
+            Log.d("ChatDebug", "Route chat applicationId=$applicationId, name=$name, offer=$offerTitle, chatType=$chatType")
 
             ApplicationChatScreen(
                 applicationId = applicationId,
                 participantName = name,
                 offerTitle = offerTitle,
                 studentProfileId = studentProfileId,
+                chatType = chatType,
                 onBackClick = {
                     navController.popBackStack()
                 }

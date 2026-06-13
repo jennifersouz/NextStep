@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.advisor
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +22,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Grade
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,17 +37,21 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -66,12 +73,30 @@ fun AdvisorStudentDetailScreen(
     onMessageClick: () -> Unit = {},
     onEvaluateClick: () -> Unit = {},
     onTaskClick: (AdvisorTaskListItemDto) -> Unit = {},
+    onCancelInternship: () -> Unit = {},
+    onEndInternship: () -> Unit = {},
     viewModel: AdvisorStudentDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(applicationId) {
         viewModel.loadDetail(applicationId)
+    }
+
+    LaunchedEffect(state.internshipActionSuccess) {
+        state.internshipActionSuccess?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.clearInternshipActionMessages()
+            onBackClick()
+        }
+    }
+
+    LaunchedEffect(state.internshipActionError) {
+        state.internshipActionError?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.clearInternshipActionMessages()
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -79,13 +104,13 @@ fun AdvisorStudentDetailScreen(
         AdvisorDetailTopBar(onBackClick = onBackClick)
 
         when {
-            state.isLoading -> {
+            state.isLoading && state.detail == null -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Color.Black)
                 }
             }
 
-            state.errorMessage != null -> {
+            state.errorMessage != null && state.detail == null -> {
                 AdvisorDetailErrorContent(
                     message = state.errorMessage ?: "",
                     onRetry = { viewModel.refresh(applicationId) }
@@ -105,7 +130,9 @@ fun AdvisorStudentDetailScreen(
                     onQualitativeFeedbackChange = viewModel::onQualitativeFeedbackChange,
                     onStrengthsChange = viewModel::onStrengthsChange,
                     onImprovementsChange = viewModel::onImprovementsChange,
-                    onSaveEvaluation = { viewModel.saveEvaluation(applicationId) }
+                    onSaveEvaluation = { viewModel.saveEvaluation(applicationId) },
+                    onCancelInternship = { viewModel.cancelInternship(applicationId) },
+                    onEndInternship = { viewModel.finishInternship(applicationId) }
                 )
             }
         }
@@ -147,7 +174,9 @@ private fun AdvisorDetailContent(
     onQualitativeFeedbackChange: (String) -> Unit,
     onStrengthsChange: (String) -> Unit,
     onImprovementsChange: (String) -> Unit,
-    onSaveEvaluation: () -> Unit
+    onSaveEvaluation: () -> Unit,
+    onCancelInternship: () -> Unit,
+    onEndInternship: () -> Unit
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -205,7 +234,9 @@ private fun AdvisorDetailContent(
             0 -> AdvisorSummaryTab(
                 detail = detail,
                 onMessageClick = onMessageClick,
-                onEvaluateClick = { selectedTabIndex = 2 }
+                onEvaluateClick = { selectedTabIndex = 2 },
+                onCancelInternship = onCancelInternship,
+                onEndInternship = onEndInternship
             )
             1 -> AdvisorTasksList(
                 tasks = detail.tasks,
@@ -315,7 +346,9 @@ private fun AdvisorDetailStatusBadge(status: String?) {
 private fun AdvisorSummaryTab(
     detail: AdvisorStudentDetailDto,
     onMessageClick: () -> Unit,
-    onEvaluateClick: () -> Unit
+    onEvaluateClick: () -> Unit,
+    onCancelInternship: () -> Unit,
+    onEndInternship: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -408,6 +441,80 @@ private fun AdvisorSummaryTab(
                     color = Color(0xFF5D4037)
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        var showCancelDialog by remember { mutableStateOf(false) }
+        var showEndDialog by remember { mutableStateOf(false) }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = { showCancelDialog = true },
+                modifier = Modifier.weight(1f).height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+            ) {
+                Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.cancel_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            }
+
+            Button(
+                onClick = { showEndDialog = true },
+                modifier = Modifier.weight(1f).height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+            ) {
+                Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.end_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+
+        if (showCancelDialog) {
+            AlertDialog(
+                onDismissRequest = { showCancelDialog = false },
+                title = { Text(text = stringResource(R.string.cancel_internship_title)) },
+                text = { Text(text = stringResource(R.string.cancel_internship_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showCancelDialog = false
+                        onCancelInternship()
+                    }) {
+                        Text(text = stringResource(R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCancelDialog = false }) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                }
+            )
+        }
+
+        if (showEndDialog) {
+            AlertDialog(
+                onDismissRequest = { showEndDialog = false },
+                title = { Text(text = stringResource(R.string.end_internship_title)) },
+                text = { Text(text = stringResource(R.string.end_internship_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showEndDialog = false
+                        onEndInternship()
+                    }) {
+                        Text(text = stringResource(R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEndDialog = false }) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
