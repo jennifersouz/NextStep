@@ -1,6 +1,8 @@
 package com.example.nextstep.ui.screens.company
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +21,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -33,9 +38,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -50,6 +59,8 @@ fun CompanyEditOfferScreen(
     viewModel: CompanyEditOfferViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     LaunchedEffect(offerId) {
         viewModel.loadOffer(offerId)
@@ -108,156 +119,261 @@ fun CompanyEditOfferScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.title,
-                        onValueChange = viewModel::onTitleChange,
-                        label = "Título",
-                        isError = state.titleError != null,
-                        supportingText = state.titleError
-                    )
+                    if (isLandscape) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(24.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.title,
+                                    onValueChange = viewModel::onTitleChange,
+                                    label = "Título",
+                                    isError = state.titleError != null,
+                                    supportingText = state.titleError
+                                )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.description,
-                        onValueChange = viewModel::onDescriptionChange,
-                        label = "Descrição",
-                        isError = state.descriptionError != null,
-                        supportingText = state.descriptionError,
-                        minLines = 4,
-                        maxLines = 7
-                    )
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.area,
+                                    onValueChange = viewModel::onAreaChange,
+                                    label = "Área",
+                                    isError = state.areaError != null,
+                                    supportingText = state.areaError
+                                )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.area,
-                        onValueChange = viewModel::onAreaChange,
-                        label = "Área",
-                        isError = state.areaError != null,
-                        supportingText = state.areaError
-                    )
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.location,
+                                    onValueChange = viewModel::onLocationChange,
+                                    label = "Localização",
+                                    isError = state.locationError != null,
+                                    supportingText = state.locationError
+                                )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.location,
-                        onValueChange = viewModel::onLocationChange,
-                        label = "Localização",
-                        isError = state.locationError != null,
-                        supportingText = state.locationError
-                    )
+                                CompanyEditOfferDropdownField(
+                                    label = "Regime",
+                                    selectedValue = state.workMode,
+                                    onValueChange = viewModel::onWorkModeChange,
+                                    items = listOf("Presencial", "Remoto", "Híbrido"),
+                                    isError = state.workModeError != null,
+                                    supportingText = state.workModeError
+                                )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.workMode,
-                        onValueChange = viewModel::onWorkModeChange,
-                        label = "Regime",
-                        isError = state.workModeError != null,
-                        supportingText = state.workModeError
-                    )
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.duration,
+                                    onValueChange = viewModel::onDurationChange,
+                                    label = "Duração",
+                                    isError = state.durationError != null,
+                                    supportingText = state.durationError
+                                )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.duration,
-                        onValueChange = viewModel::onDurationChange,
-                        label = "Duração",
-                        isError = state.durationError != null,
-                        supportingText = state.durationError
-                    )
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.vacancies,
+                                    onValueChange = viewModel::onVacanciesChange,
+                                    label = "Vagas",
+                                    isError = state.vacanciesError != null,
+                                    supportingText = state.vacanciesError,
+                                    keyboardType = KeyboardType.Number
+                                )
+                            }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.description,
+                                    onValueChange = viewModel::onDescriptionChange,
+                                    label = "Descrição",
+                                    isError = state.descriptionError != null,
+                                    supportingText = state.descriptionError,
+                                    minLines = 4,
+                                    maxLines = 7
+                                )
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.vacancies,
-                        onValueChange = viewModel::onVacanciesChange,
-                        label = "Vagas",
-                        isError = state.vacanciesError != null,
-                        supportingText = state.vacanciesError,
-                        keyboardType = KeyboardType.Number
-                    )
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                                CompanyEditOfferOutlinedTextField(
+                                    value = state.requirements,
+                                    onValueChange = viewModel::onRequirementsChange,
+                                    label = "Requisitos",
+                                    minLines = 4,
+                                    maxLines = 7
+                                )
 
-                    CompanyEditOfferOutlinedTextField(
-                        value = state.requirements,
-                        onValueChange = viewModel::onRequirementsChange,
-                        label = "Requisitos",
-                        minLines = 4,
-                        maxLines = 7
-                    )
+                                Spacer(modifier = Modifier.height(14.dp))
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Checkbox(
-                            checked = state.isActive,
-                            onCheckedChange = viewModel::onActiveChange,
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = Color.Black,
-                                uncheckedColor = Color(0xFF8A8A8A),
-                                checkmarkColor = Color.White
-                            )
+                                CompanyEditOfferStatusAndButton(state = state, viewModel = viewModel)
+                            }
+                        }
+                    } else {
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.title,
+                            onValueChange = viewModel::onTitleChange,
+                            label = "Título",
+                            isError = state.titleError != null,
+                            supportingText = state.titleError
                         )
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Text(
-                            text = "Oferta ativa",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    if (state.errorMessage != null) {
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        Text(
-                            text = state.errorMessage!!,
-                            color = Color(0xFFB00020),
-                            fontSize = 14.sp
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.description,
+                            onValueChange = viewModel::onDescriptionChange,
+                            label = "Descrição",
+                            isError = state.descriptionError != null,
+                            supportingText = state.descriptionError,
+                            minLines = 4,
+                            maxLines = 7
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                    Button(
-                        onClick = { viewModel.saveOffer() },
-                        enabled = !state.isSaving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFDFA52),
-                            contentColor = Color.Black,
-                            disabledContainerColor = Color(0xFFEAEAEA),
-                            disabledContentColor = Color(0xFF8A8A8A)
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.area,
+                            onValueChange = viewModel::onAreaChange,
+                            label = "Área",
+                            isError = state.areaError != null,
+                            supportingText = state.areaError
                         )
-                    ) {
-                        if (state.isSaving) {
-                            CircularProgressIndicator(
-                                color = Color.Black,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "Guardar alterações",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.location,
+                            onValueChange = viewModel::onLocationChange,
+                            label = "Localização",
+                            isError = state.locationError != null,
+                            supportingText = state.locationError
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferDropdownField(
+                            label = "Regime",
+                            selectedValue = state.workMode,
+                            onValueChange = viewModel::onWorkModeChange,
+                            items = listOf("Presencial", "Remoto", "Híbrido"),
+                            isError = state.workModeError != null,
+                            supportingText = state.workModeError
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.duration,
+                            onValueChange = viewModel::onDurationChange,
+                            label = "Duração",
+                            isError = state.durationError != null,
+                            supportingText = state.durationError
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.vacancies,
+                            onValueChange = viewModel::onVacanciesChange,
+                            label = "Vagas",
+                            isError = state.vacanciesError != null,
+                            supportingText = state.vacanciesError,
+                            keyboardType = KeyboardType.Number
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferOutlinedTextField(
+                            value = state.requirements,
+                            onValueChange = viewModel::onRequirementsChange,
+                            label = "Requisitos",
+                            minLines = 4,
+                            maxLines = 7
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        CompanyEditOfferStatusAndButton(state = state, viewModel = viewModel)
                     }
 
                     Spacer(modifier = Modifier.height(42.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CompanyEditOfferStatusAndButton(
+    state: CompanyEditOfferUiState,
+    viewModel: CompanyEditOfferViewModel
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Checkbox(
+            checked = state.isActive,
+            onCheckedChange = viewModel::onActiveChange,
+            colors = CheckboxDefaults.colors(
+                checkedColor = Color.Black,
+                uncheckedColor = Color(0xFF8A8A8A),
+                checkmarkColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "Oferta ativa",
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+
+    if (state.errorMessage != null) {
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Text(
+            text = state.errorMessage!!,
+            color = Color(0xFFB00020),
+            fontSize = 14.sp
+        )
+    }
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    Button(
+        onClick = { viewModel.saveOffer() },
+        enabled = !state.isSaving,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFDFA52),
+            contentColor = Color.Black,
+            disabledContainerColor = Color(0xFFEAEAEA),
+            disabledContentColor = Color(0xFF8A8A8A)
+        )
+    ) {
+        if (state.isSaving) {
+            CircularProgressIndicator(
+                color = Color.Black,
+                strokeWidth = 2.dp,
+                modifier = Modifier.androidx.compose.foundation.layout.size(24.dp)
+            )
+        } else {
+            Text(
+                text = "Guardar alterações",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
         }
     }
 }
@@ -307,5 +423,86 @@ private fun CompanyEditOfferOutlinedTextField(
                 unfocusedTextColor = Color.Black
             )
         )
+    }
+}
+
+@Composable
+private fun CompanyEditOfferDropdownField(
+    label: String,
+    selectedValue: String,
+    onValueChange: (String) -> Unit,
+    items: List<String>,
+    isError: Boolean = false,
+    supportingText: String? = null
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            text = label,
+            color = Color(0xFF8A8A8A),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Box {
+            OutlinedTextField(
+                value = selectedValue,
+                onValueChange = {},
+                readOnly = true,
+                isError = isError,
+                supportingText = supportingText?.let { { Text(it, color = Color(0xFFB00020)) } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true },
+                shape = RoundedCornerShape(14.dp),
+                trailingIcon = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color(0xFFE1E1E1),
+                    errorBorderColor = Color(0xFFB00020),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    errorContainerColor = Color.White,
+                    cursorColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black
+                )
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .background(Color.White)
+            ) {
+                items.forEach { item ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = item,
+                                color = Color.Black,
+                                fontSize = 15.sp
+                            )
+                        },
+                        onClick = {
+                            onValueChange(item)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

@@ -1,10 +1,13 @@
 package com.example.nextstep.ui.screens.company
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -233,7 +237,8 @@ private fun CompanyOfferDetailContent(
     onArchiveClick: () -> Unit
 ) {
     val isArchived = offer.archivedAt != null
-    val isActive = offer.isActive && !isArchived
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Column(
         modifier = Modifier
@@ -253,155 +258,249 @@ private fun CompanyOfferDetailContent(
             )
         }
 
-        Column(
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 28.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                // Left Column: Main Info & Actions
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = offer.title,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Status badge
+                    CompanyOfferStatusBadge(offer = offer, isArchived = isArchived)
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
+                    CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
+                    CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
+                    CompanyOfferInfo(title = stringResource(R.string.work_mode), value = offer.workMode)
+                    CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
+                    CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    OfferActions(
+                        isArchived = isArchived,
+                        isActive = offer.isActive,
+                        isUpdating = isUpdating,
+                        onEditClick = onEditClick,
+                        onDeactivateClick = onDeactivateClick,
+                        onActivateClick = onActivateClick,
+                        onArchiveClick = onArchiveClick
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Right Column: Details (Description & Requirements)
+                Column(
+                    modifier = Modifier
+                        .weight(1.2f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    CompanyOfferInfo(
+                        title = stringResource(R.string.description),
+                        value = offer.description
+                    )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    CompanyOfferInfo(
+                        title = stringResource(R.string.requirements),
+                        value = offer.requirements
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 28.dp),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = offer.title,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                CompanyOfferStatusBadge(offer = offer, isArchived = isArchived)
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
+                CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
+                CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
+                CompanyOfferInfo(title = stringResource(R.string.work_mode), value = offer.workMode)
+                CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
+                CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                CompanyOfferInfo(
+                    title = stringResource(R.string.description),
+                    value = offer.description
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                CompanyOfferInfo(
+                    title = stringResource(R.string.requirements),
+                    value = offer.requirements
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                OfferActions(
+                    isArchived = isArchived,
+                    isActive = offer.isActive,
+                    isUpdating = isUpdating,
+                    onEditClick = onEditClick,
+                    onDeactivateClick = onDeactivateClick,
+                    onActivateClick = onActivateClick,
+                    onArchiveClick = onArchiveClick
+                )
+
+                Spacer(modifier = Modifier.height(42.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompanyOfferStatusBadge(offer: OfferDto, isArchived: Boolean) {
+    when {
+        isArchived -> {
+            OfferDetailBadge(
+                text = "Arquivada",
+                bgColor = Color(0xFFF3F3F3),
+                textColor = Color(0xFF8A8A8A)
+            )
+        }
+        offer.isActive -> {
+            OfferDetailBadge(
+                text = stringResource(R.string.offer_active),
+                bgColor = Color(0xFFE8F5E9),
+                textColor = Color(0xFF138A36)
+            )
+        }
+        else -> {
+            OfferDetailBadge(
+                text = stringResource(R.string.offer_inactive),
+                bgColor = Color(0xFFFBE9E7),
+                textColor = Color(0xFFB00020)
+            )
+        }
+    }
+}
+
+@Composable
+private fun OfferActions(
+    isArchived: Boolean,
+    isActive: Boolean,
+    isUpdating: Boolean,
+    onEditClick: () -> Unit,
+    onDeactivateClick: () -> Unit,
+    onActivateClick: () -> Unit,
+    onArchiveClick: () -> Unit
+) {
+    if (isArchived) {
+        Text(
+            text = "Esta oferta foi removida da lista principal. O histórico foi mantido.",
+            fontSize = 14.sp,
+            color = Color(0xFF8A8A8A),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    } else {
+        Button(
+            onClick = onEditClick,
+            enabled = !isUpdating,
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp),
-            verticalArrangement = Arrangement.Top
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFDFA52),
+                contentColor = Color.Black
+            )
         ) {
             Text(
-                text = offer.title,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+                text = stringResource(R.string.edit_offer),
+                fontWeight = FontWeight.Bold
             )
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-            // Status badge
-            when {
-                isArchived -> {
-                    OfferDetailBadge(
-                        text = "Arquivada",
-                        bgColor = Color(0xFFF3F3F3),
-                        textColor = Color(0xFF8A8A8A)
-                    )
-                }
-                offer.isActive -> {
-                    OfferDetailBadge(
-                        text = stringResource(R.string.offer_active),
-                        bgColor = Color(0xFFE8F5E9),
-                        textColor = Color(0xFF138A36)
-                    )
-                }
-                else -> {
-                    OfferDetailBadge(
-                        text = stringResource(R.string.offer_inactive),
-                        bgColor = Color(0xFFFBE9E7),
-                        textColor = Color(0xFFB00020)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
-            CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
-            CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
-            CompanyOfferInfo(title = stringResource(R.string.work_mode), value = offer.workMode)
-            CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
-            CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            CompanyOfferInfo(
-                title = stringResource(R.string.description),
-                value = offer.description
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            CompanyOfferInfo(
-                title = stringResource(R.string.requirements),
-                value = offer.requirements
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            if (isArchived) {
-                // Archived offer - show info text
+        if (isActive) {
+            OutlinedButton(
+                onClick = onDeactivateClick,
+                enabled = !isUpdating,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = RoundedCornerShape(18.dp)
+            ) {
                 Text(
-                    text = "Esta oferta foi removida da lista principal. O histórico foi mantido.",
-                    fontSize = 14.sp,
-                    color = Color(0xFF8A8A8A),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    text = stringResource(R.string.deactivate_offer),
+                    color = Color(0xFFB00020),
+                    fontWeight = FontWeight.Bold
                 )
-            } else {
-                // Non-archived offer - show action buttons
-                Button(
-                    onClick = onEditClick,
-                    enabled = !isUpdating,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFDFA52),
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.edit_offer),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                if (offer.isActive) {
-                    OutlinedButton(
-                        onClick = onDeactivateClick,
-                        enabled = !isUpdating,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp),
-                        shape = RoundedCornerShape(18.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.deactivate_offer),
-                            color = Color(0xFFB00020),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = onActivateClick,
-                        enabled = !isUpdating,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp),
-                        shape = RoundedCornerShape(18.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.activate_offer),
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Archive button (only for non-archived)
-                OutlinedButton(
-                    onClick = onArchiveClick,
-                    enabled = !isUpdating,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.archive_offer),
-                        color = Color(0xFF8A8A8A),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
+        } else {
+            OutlinedButton(
+                onClick = onActivateClick,
+                enabled = !isUpdating,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.activate_offer),
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
-            Spacer(modifier = Modifier.height(42.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onArchiveClick,
+            enabled = !isUpdating,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.archive_offer),
+                color = Color(0xFF8A8A8A),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

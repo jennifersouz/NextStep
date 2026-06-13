@@ -354,6 +354,20 @@
     <string name="company_intern_profile_internship">Internship</string>
     <string name="company_intern_profile_application_date">Application date</string>
 
+    <!-- RF24: Intern Student Status Update -->
+    <string name="company_intern_status_active">Active</string>
+    <string name="company_intern_status_inactive">Inactive</string>
+    <string name="company_intern_status_completed">Completed</string>
+    <string name="company_intern_mark_inactive">Mark as inactive</string>
+    <string name="company_intern_mark_active">Mark as active</string>
+    <string name="company_intern_confirm_inactive_title">Mark student as inactive?</string>
+    <string name="company_intern_confirm_inactive_message">This student will no longer appear as an active internship, but the history will be kept.</string>
+    <string name="company_intern_confirm_active_title">Mark student as active?</string>
+    <string name="company_intern_confirm_active_message">This student will appear as an active internship again.</string>
+    <string name="company_intern_status_updated_success">Status updated successfully.</string>
+    <string name="company_intern_status_updated_error">Could not update the student status.</string>
+    <string name="company_intern_status_completed_message">Internship completed.</string>
+
     <string name="edit_offer">Edit offer</string>
     <string name="deactivate_offer">Deactivate offer</string>
     <string name="activate_offer">Activate offer</string>
@@ -374,7 +388,7 @@
     <string name="logout_confirmation_title">Log out?</string>
     <string name="logout_confirmation_message">Are you sure you want to log out of your account?</string>
     <string name="logout_confirm">Log out</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">Cancelar</string>
     <string name="filter_offers_title">Filter offers</string>
     <string name="clear_filters">Clear filters</string>
     <string name="filter_all">All</string>
@@ -647,7 +661,6 @@
     <string name="new_assigned_student">New assigned student</string>
     <string name="new_assigned_student_message">A new student has been assigned to you.</string>
     <string name="new_message_from_student">New message from student</string>
-    <string name="requests">Requests</string>
 
     <!-- Teacher Requests -->
     <string name="search_requests_placeholder">Search student or internship</string>
@@ -767,4 +780,13 @@
 
     <!-- Institution Tab -->
     <string name="tab_teachers">Teachers</string>
+
+    <!-- RF25: Responsible Advisor -->
+    <string name="advisor">Advisor</string>
+    <string name="responsible_advisor">Responsible advisor</string>
+    <string name="not_assigned">Not assigned</string>
+    <string name="no_advisor_assigned">No advisor assigned.</string>
+    <string name="advisor_assigned_at">Assigned on</string>
+    <string name="advisor_empty_state_description">When an advisor is assigned, their details will appear here.</string>
+    <string name="view_advisor_profile">View advisor profile</string>
 </resources>

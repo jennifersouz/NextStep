@@ -1,10 +1,12 @@
 package com.example.nextstep.ui.screens.company
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -148,18 +151,18 @@ fun CompanyApplicationDetailContent(
 ) {
     val studentName = "${application.firstName} ${application.lastName}"
     val currentStatus = ApplicationDecisionStatus.fromDbValue(application.status)
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 26.dp, vertical = 22.dp)
     ) {
         IconButton(
             onClick = onBackClick,
-            modifier = Modifier.size(46.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp).size(46.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -169,235 +172,409 @@ fun CompanyApplicationDetailContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 26.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                // Left Column: Student info and status
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 24.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CompanyApplicationDetailAvatar(
+                            studentName = studentName
+                        )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CompanyApplicationDetailAvatar(
-                studentName = studentName
-            )
+                        Spacer(modifier = Modifier.width(14.dp))
 
-            Spacer(modifier = Modifier.width(14.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = studentName,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black
+                            )
 
-            Text(
-                text = studentName,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                modifier = Modifier.weight(1f)
-            )
+                            application.course?.takeIf { it.isNotBlank() }?.let { course ->
+                                Text(
+                                    text = course,
+                                    fontSize = 13.sp,
+                                    color = Color(0xFF8A8A8A)
+                                )
+                            }
+                        }
+                    }
 
-            CompanyApplicationStatusDropdown(
-                currentStatus = currentStatus,
-                enabled = !isUpdatingStatus,
-                onStatusSelected = onStatusSelected
-            )
-        }
+                    Spacer(modifier = Modifier.height(20.dp))
 
-        application.course
-            ?.takeIf { it.isNotBlank() }
-            ?.let { course ->
-                Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Estado da Candidatura",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF8A8A8A)
+                    )
 
-                Text(
-                    text = course,
-                    fontSize = 14.sp,
-                    color = Color(0xFF8A8A8A),
-                    modifier = Modifier.padding(start = 76.dp)
-                )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    CompanyApplicationStatusDropdown(
+                        currentStatus = currentStatus,
+                        enabled = !isUpdatingStatus,
+                        onStatusSelected = onStatusSelected
+                    )
+
+                    statusErrorRes?.let { errorRes ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(errorRes),
+                            color = Color(0xFFB00020),
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = { onStudentProfileClick(applicationId) },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFDFA52),
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.view_student_profile),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Right Column: Advisor and Documents
+                Column(
+                    modifier = Modifier
+                        .weight(1.2f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 24.dp)
+                ) {
+                    val isAcceptedStatus = application.status.lowercase().trim() in listOf("accepted", "aceite")
+
+                    if (isAcceptedStatus) {
+                        AdvisorSection(
+                            application = application,
+                            applicationId = applicationId,
+                            onAssignAdvisorClick = onAssignAdvisorClick
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+
+                    Text(
+                        text = stringResource(R.string.application_documents_title),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CompanyApplicationDocumentField(
+                        label = stringResource(R.string.motivation_letter),
+                        fileName = fileNameFromPath(
+                            path = application.motivationLetterPath,
+                            fallback = stringResource(R.string.motivation_letter_placeholder)
+                        ),
+                        enabled = !application.motivationLetterPath.isNullOrBlank() && !isOpeningDocument,
+                        onOpenClick = onOpenMotivationLetter
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CompanyApplicationDocumentField(
+                        label = stringResource(R.string.cv),
+                        fileName = fileNameFromPath(
+                            path = application.cvPath,
+                            fallback = stringResource(R.string.cv_placeholder)
+                        ),
+                        enabled = !application.cvPath.isNullOrBlank() && !isOpeningDocument,
+                        onOpenClick = onOpenCv
+                    )
+
+                    documentErrorRes?.let { errorRes ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(errorRes),
+                            color = Color(0xFFB00020),
+                            fontSize = 13.sp
+                        )
+                    }
+
+                    if (isOpeningDocument) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.company_application_opening_document),
+                            color = Color(0xFF8A8A8A),
+                            fontSize = 13.sp
+                        )
+                    }
+                }
             }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 26.dp, vertical = 22.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CompanyApplicationDetailAvatar(
+                        studentName = studentName
+                    )
 
-        statusErrorRes?.let { errorRes ->
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
 
-            Text(
-                text = stringResource(errorRes),
-                color = Color(0xFFB00020),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+                    Text(
+                        text = studentName,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1f)
+                    )
 
-        Spacer(modifier = Modifier.height(32.dp))
+                    CompanyApplicationStatusDropdown(
+                        currentStatus = currentStatus,
+                        enabled = !isUpdatingStatus,
+                        onStatusSelected = onStatusSelected
+                    )
+                }
 
-        Button(
-            onClick = {
-                onStudentProfileClick(applicationId)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFDFA52),
-                contentColor = Color.Black
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.view_student_profile),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-        }
+                application.course
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { course ->
+                        Spacer(modifier = Modifier.height(12.dp))
 
-        val isAcceptedStatus = application.status.lowercase().trim() in listOf("accepted", "aceite")
+                        Text(
+                            text = course,
+                            fontSize = 14.sp,
+                            color = Color(0xFF8A8A8A),
+                            modifier = Modifier.padding(start = 76.dp)
+                        )
+                    }
 
-        if (isAcceptedStatus) {
-            val canAssignAdvisor = isAcceptedStatus && application.studentPresenceConfirmed
+                statusErrorRes?.let { errorRes ->
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(errorRes),
+                        color = Color(0xFFB00020),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-            if (canAssignAdvisor) {
+                Spacer(modifier = Modifier.height(32.dp))
+
                 Button(
                     onClick = {
-                        onAssignAdvisorClick(applicationId)
+                        onStudentProfileClick(applicationId)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color(0xFFFDFA52),
                         contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+                    )
                 ) {
                     Text(
-                        text = if (application.advisorProfileId.isNullOrBlank()) {
-                            stringResource(R.string.assign_advisor)
-                        } else {
-                            stringResource(R.string.change_advisor)
-                        },
+                        text = stringResource(R.string.view_student_profile),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                 }
-            } else {
+
+                val isAcceptedStatus = application.status.lowercase().trim() in listOf("accepted", "aceite")
+
+                if (isAcceptedStatus) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    AdvisorSection(
+                        application = application,
+                        applicationId = applicationId,
+                        onAssignAdvisorClick = onAssignAdvisorClick
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
+
                 Text(
-                    text = stringResource(R.string.waiting_student_internship_acceptance),
-                    color = Color(0xFF777777),
-                    fontSize = 14.sp
+                    text = stringResource(R.string.application_documents_title),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                CompanyApplicationDocumentField(
+                    label = stringResource(R.string.motivation_letter),
+                    fileName = fileNameFromPath(
+                        path = application.motivationLetterPath,
+                        fallback = stringResource(R.string.motivation_letter_placeholder)
+                    ),
+                    enabled = !application.motivationLetterPath.isNullOrBlank() && !isOpeningDocument,
+                    onOpenClick = onOpenMotivationLetter
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CompanyApplicationDocumentField(
+                    label = stringResource(R.string.cv),
+                    fileName = fileNameFromPath(
+                        path = application.cvPath,
+                        fallback = stringResource(R.string.cv_placeholder)
+                    ),
+                    enabled = !application.cvPath.isNullOrBlank() && !isOpeningDocument,
+                    onOpenClick = onOpenCv
+                )
+
+                documentErrorRes?.let { errorRes ->
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(errorRes),
+                        color = Color(0xFFB00020),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                if (isOpeningDocument) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.company_application_opening_document),
+                        color = Color(0xFF8A8A8A),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(20.dp))
+@Composable
+private fun AdvisorSection(
+    application: CompanyApplicationDto,
+    applicationId: String,
+    onAssignAdvisorClick: (String) -> Unit
+) {
+    val canAssignAdvisor = application.studentPresenceConfirmed
 
+    if (canAssignAdvisor) {
+        Button(
+            onClick = {
+                onAssignAdvisorClick(applicationId)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
+            border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+        ) {
             Text(
-                text = stringResource(R.string.assigned_advisor),
-                fontSize = 20.sp,
+                text = if (application.advisorProfileId.isNullOrBlank()) {
+                    stringResource(R.string.assign_advisor)
+                } else {
+                    stringResource(R.string.change_advisor)
+                },
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
+    } else {
+        Text(
+            text = stringResource(R.string.waiting_student_internship_acceptance),
+            color = Color(0xFF777777),
+            fontSize = 14.sp
+        )
+    }
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(R.string.assigned_advisor),
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Black
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    if (!application.advisorName.isNullOrBlank()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color(0xFFF8F8F8),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(16.dp)
+        ) {
+            Text(
+                text = application.advisorName,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (!application.advisorName.isNullOrBlank()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color(0xFFF8F8F8),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = application.advisorName,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    if (!application.advisorDepartment.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = application.advisorDepartment,
-                            fontSize = 14.sp,
-                            color = Color(0xFF777777)
-                        )
-                    }
-
-                    if (!application.advisorEmail.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = application.advisorEmail,
-                            fontSize = 14.sp,
-                            color = Color(0xFF777777)
-                        )
-                    }
-                }
-            } else {
+            if (!application.advisorDepartment.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.no_assigned_advisor),
-                    color = Color(0xFF777777),
-                    fontSize = 14.sp
+                    text = application.advisorDepartment,
+                    fontSize = 14.sp,
+                    color = Color(0xFF777777)
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-        } else {
-            Spacer(modifier = Modifier.height(30.dp))
+            if (!application.advisorEmail.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = application.advisorEmail,
+                    fontSize = 14.sp,
+                    color = Color(0xFF777777)
+                )
+            }
         }
-
+    } else {
         Text(
-            text = stringResource(R.string.application_documents_title),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            text = stringResource(R.string.no_assigned_advisor),
+            color = Color(0xFF777777),
+            fontSize = 14.sp
         )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        CompanyApplicationDocumentField(
-            label = stringResource(R.string.motivation_letter),
-            fileName = fileNameFromPath(
-                path = application.motivationLetterPath,
-                fallback = stringResource(R.string.motivation_letter_placeholder)
-            ),
-            enabled = !application.motivationLetterPath.isNullOrBlank() && !isOpeningDocument,
-            onOpenClick = onOpenMotivationLetter
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CompanyApplicationDocumentField(
-            label = stringResource(R.string.cv),
-            fileName = fileNameFromPath(
-                path = application.cvPath,
-                fallback = stringResource(R.string.cv_placeholder)
-            ),
-            enabled = !application.cvPath.isNullOrBlank() && !isOpeningDocument,
-            onOpenClick = onOpenCv
-        )
-
-        documentErrorRes?.let { errorRes ->
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(errorRes),
-                color = Color(0xFFB00020),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        if (isOpeningDocument) {
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(R.string.company_application_opening_document),
-                color = Color(0xFF8A8A8A),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

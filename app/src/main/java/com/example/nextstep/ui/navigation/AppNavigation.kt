@@ -30,6 +30,7 @@ import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyInternStudentProfileScreen
+import com.example.nextstep.ui.screens.company.CompanyInternStudentsScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyProfileScreen
 import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
@@ -562,6 +563,41 @@ fun AppNavigation() {
             )
         }
 
+        composable(Routes.COMPANY_INTERN_STUDENTS) { backStackEntry ->
+            val internStatusChanged by backStackEntry.savedStateHandle
+                .getStateFlow("intern_status_changed", 0)
+                .collectAsState()
+
+            CompanyInternStudentsScreen(
+                onBackClick = { navController.popBackStack() },
+                onStudentClick = { applicationId ->
+                    navController.navigate(Routes.companyInternStudentProfile(applicationId))
+                },
+                onMessageClick = { applicationId ->
+                    navController.navigate(Routes.applicationChat(applicationId))
+                },
+                refreshKey = internStatusChanged
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_INTERN_STUDENT_PROFILE,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_INTERN_STUDENT_PROFILE_ARG) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val applicationId = backStackEntry.arguments?.getString(Routes.COMPANY_INTERN_STUDENT_PROFILE_ARG).orEmpty()
+            CompanyInternStudentProfileScreen(
+                applicationId = applicationId,
+                onBackClick = { navController.popBackStack() },
+                onStatusChanged = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("intern_status_changed", (System.currentTimeMillis() % Int.MAX_VALUE).toInt())
+                }
+            )
+        }
+
         composable(
             route = Routes.INSTITUTION_USER_DETAIL,
             arguments = listOf(
@@ -949,6 +985,16 @@ fun AppNavigation() {
                 onApplicationClick = { applicationId ->
                     navController.navigate(
                         Routes.companyApplicationDetail(applicationId)
+                    )
+                },
+                onInternStudentClick = { applicationId ->
+                    navController.navigate(
+                        Routes.companyInternStudentProfile(applicationId)
+                    )
+                },
+                onInternMessageClick = { applicationId ->
+                    navController.navigate(
+                        Routes.applicationChat(applicationId)
                     )
                 },
                 onLogoutSuccess = {

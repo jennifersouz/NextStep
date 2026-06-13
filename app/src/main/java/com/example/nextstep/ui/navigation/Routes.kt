@@ -52,6 +52,8 @@ object Routes {
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
 
+    const val COMPANY_INTERN_STUDENTS = "company_intern_students"
+
     const val COMPANY_INTERN_STUDENT_PROFILE = "company_intern_student_profile/{applicationId}"
     const val COMPANY_INTERN_STUDENT_PROFILE_ARG = "applicationId"
 

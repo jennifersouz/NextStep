@@ -1,7 +1,9 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.CompanyAdvisorEvaluationDto
 import com.example.nextstep.data.model.CompanyInternStudentProfileDto
+import com.example.nextstep.data.model.CompanyStudentActivityDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -14,18 +16,17 @@ class CompanyInternStudentRepository {
     private val auth = supabase.auth
 
     private val validInternshipStatuses = setOf(
-        "accepted", "active", "in_progress", "completed"
+        "accepted", "active", "in_progress", "inactive", "completed"
     )
 
     /**
      * RF26: Fetches the intern student profile for a given applicationId.
-     * Validates that:
-     *  1. The application belongs to the authenticated company.
-     *  2. The application status is a valid internship status (accepted/active/in_progress/completed).
+     * Uses the company_intern_students_view which filters by company ownership.
      */
     suspend fun getInternStudentProfile(
         applicationId: String
     ): Result<CompanyInternStudentProfileDto> {
+        Log.d("CompanyInternStudentRepo", "getInternStudentProfile applicationId=$applicationId")
         return try {
             val currentUserId = auth.currentUserOrNull()?.id
                 ?: return Result.failure(
@@ -53,7 +54,6 @@ class CompanyInternStudentRepository {
                     IllegalStateException("PERMISSION_DENIED")
                 )
 
-            // Validate that the application status is a valid internship status
             val status = profile.internshipStatus?.trim()?.lowercase()
             if (status == null || status !in validInternshipStatuses) {
                 return Result.failure(
@@ -64,6 +64,82 @@ class CompanyInternStudentRepository {
             Result.success(profile)
         } catch (exception: Exception) {
             Log.e("CompanyInternStudentRepo", "Erro ao carregar perfil do aluno em estágio", exception)
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * RF27: Fetches the list of activities for a given applicationId.
+     * Uses company_student_activities_view for company-scoped access.
+     */
+    suspend fun getStudentActivities(
+        applicationId: String
+    ): Result<List<CompanyStudentActivityDto>> {
+        val source = "company_student_activities_view"
+        Log.d("CompanyInternStudentRepo", "getStudentActivities applicationId=$applicationId source=$source using CompanyStudentActivityDto")
+        return try {
+            if (applicationId.isBlank()) {
+                Log.d("CompanyInternStudentRepo", "getStudentActivities empty applicationId -> emptyList")
+                return Result.success(emptyList())
+            }
+
+            // DO NOT use CompanyInternStudentProfileDto here for validation.
+            // It causes MissingFieldException because the table/view has different columns.
+            val activities = supabase
+                .from(source)
+                .select {
+                    filter {
+                        eq("application_id", applicationId)
+                    }
+                }
+                .decodeList<CompanyStudentActivityDto>()
+
+            Log.d("CompanyInternStudentRepo", "getStudentActivities found ${activities.size} results from $source")
+            Result.success(activities)
+        } catch (exception: Exception) {
+            Log.e(
+                "CompanyInternStudentRepo",
+                "Erro ao carregar atividades do aluno applicationId=$applicationId source=$source",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * RF28: Fetches the advisor evaluation for a given applicationId.
+     * Uses company_advisor_evaluations_view for company-scoped access.
+     */
+    suspend fun getAdvisorEvaluation(
+        applicationId: String
+    ): Result<CompanyAdvisorEvaluationDto?> {
+        val source = "company_advisor_evaluations_view"
+        Log.d("CompanyInternStudentRepo", "getAdvisorEvaluation applicationId=$applicationId source=$source using CompanyAdvisorEvaluationDto")
+        return try {
+            if (applicationId.isBlank()) {
+                Log.d("CompanyInternStudentRepo", "getAdvisorEvaluation empty applicationId -> null")
+                return Result.success(null)
+            }
+
+            // DO NOT use CompanyInternStudentProfileDto here for validation.
+            val evaluations = supabase
+                .from(source)
+                .select {
+                    filter {
+                        eq("application_id", applicationId)
+                    }
+                }
+                .decodeList<CompanyAdvisorEvaluationDto>()
+
+            val result = evaluations.firstOrNull()
+            Log.d("CompanyInternStudentRepo", "getAdvisorEvaluation found result=${result != null} from $source")
+            Result.success(result)
+        } catch (exception: Exception) {
+            Log.e(
+                "CompanyInternStudentRepo",
+                "Erro ao carregar avaliação do orientador applicationId=$applicationId source=$source",
+                exception
+            )
             Result.failure(exception)
         }
     }

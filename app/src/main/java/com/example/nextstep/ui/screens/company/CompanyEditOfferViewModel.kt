@@ -16,6 +16,24 @@ class CompanyEditOfferViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CompanyEditOfferUiState())
     val uiState: StateFlow<CompanyEditOfferUiState> = _uiState.asStateFlow()
 
+    private fun workModeToLabel(value: String?): String {
+        return when (value?.trim()?.lowercase()) {
+            "onsite", "presencial" -> "Presencial"
+            "remote", "remoto" -> "Remoto"
+            "hybrid", "híbrido", "hibrido" -> "Híbrido"
+            else -> ""
+        }
+    }
+
+    private fun labelToWorkMode(label: String): String {
+        return when (label.trim().lowercase()) {
+            "presencial" -> "onsite"
+            "remoto" -> "remote"
+            "híbrido", "hibrido" -> "hybrid"
+            else -> label
+        }
+    }
+
     fun loadOffer(offerId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -34,7 +52,7 @@ class CompanyEditOfferViewModel : ViewModel() {
                     description = offer?.description.orEmpty(),
                     area = offer?.area.orEmpty(),
                     location = offer?.location.orEmpty(),
-                    workMode = offer?.workMode.orEmpty(),
+                    workMode = workModeToLabel(offer?.workMode),
                     duration = offer?.duration.orEmpty(),
                     vacancies = offer?.vacancies?.toString().orEmpty(),
                     requirements = offer?.requirements.orEmpty(),
@@ -118,7 +136,7 @@ class CompanyEditOfferViewModel : ViewModel() {
 
         val workModeError = if (state.workMode.isBlank()) {
             hasError = true
-            "Regime obrigatório."
+            "Seleciona o regime da oferta."
         } else null
 
         val durationError = if (state.duration.isBlank()) {
@@ -167,7 +185,7 @@ class CompanyEditOfferViewModel : ViewModel() {
             description = state.description.trim(),
             area = state.area.trim(),
             location = state.location.trim(),
-            workMode = state.workMode.trim(),
+            workMode = labelToWorkMode(state.workMode),
             duration = state.duration.trim(),
             vacancies = validVacancies,
             requirements = state.requirements.trim(),
@@ -195,7 +213,7 @@ class CompanyEditOfferViewModel : ViewModel() {
                     description = updatedOffer?.description.orEmpty(),
                     area = updatedOffer?.area.orEmpty(),
                     location = updatedOffer?.location.orEmpty(),
-                    workMode = updatedOffer?.workMode.orEmpty(),
+                    workMode = workModeToLabel(updatedOffer?.workMode),
                     duration = updatedOffer?.duration.orEmpty(),
                     vacancies = updatedOffer?.vacancies?.toString().orEmpty(),
                     requirements = updatedOffer?.requirements.orEmpty(),

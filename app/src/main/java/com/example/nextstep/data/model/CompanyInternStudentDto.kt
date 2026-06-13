@@ -4,12 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CompanyInternStudentProfileDto(
+data class CompanyInternStudentDto(
     @SerialName("application_id")
     val applicationId: String,
-
-    @SerialName("company_profile_id")
-    val companyProfileId: String,
 
     @SerialName("student_profile_id")
     val studentProfileId: String,
@@ -46,9 +43,6 @@ data class CompanyInternStudentProfileDto(
     @SerialName("offer_location")
     val offerLocation: String? = null,
 
-    @SerialName("offer_work_mode")
-    val offerWorkMode: String? = null,
-
     @SerialName("internship_status")
     val internshipStatus: String? = null,
 
@@ -57,12 +51,6 @@ data class CompanyInternStudentProfileDto(
 
     @SerialName("status_updated_at")
     val statusUpdatedAt: String? = null,
-
-    @SerialName("cv_path")
-    val cvPath: String? = null,
-
-    @SerialName("motivation_letter_path")
-    val motivationLetterPath: String? = null,
 
     @SerialName("advisor_profile_id")
     val advisorProfileId: String? = null,

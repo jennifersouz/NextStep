@@ -1,7 +1,9 @@
 package com.example.nextstep.ui.screens.company
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -36,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,16 +58,18 @@ fun CreateOfferScreen(
     viewModel: CreateOfferViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
             .imePadding()
-            .padding(horizontal = 28.dp, vertical = 32.dp)
     ) {
         Row(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -82,92 +90,196 @@ fun CreateOfferScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(36.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(start = 28.dp, end = 28.dp, bottom = 32.dp)
+        ) {
+            if (isLandscape) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    // Left Column
+                    Column(modifier = Modifier.weight(1f)) {
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_position_required),
+                            value = state.title,
+                            onValueChange = viewModel::onTitleChange,
+                            placeholder = stringResource(R.string.offer_position_placeholder),
+                            errorMessageRes = state.titleError
+                        )
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_position_required),
-            value = state.title,
-            onValueChange = viewModel::onTitleChange,
-            placeholder = stringResource(R.string.offer_position_placeholder),
-            errorMessageRes = state.titleError
-        )
+                        CreateOfferDropdownField(
+                            label = stringResource(R.string.offer_area_required),
+                            placeholder = stringResource(R.string.select),
+                            selectedText = state.selectedArea?.let { stringResource(it.labelRes) },
+                            errorMessageRes = state.areaError,
+                            items = OfferArea.entries,
+                            itemLabel = { area -> stringResource(area.labelRes) },
+                            onItemSelected = viewModel::onAreaChange
+                        )
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_description_required),
-            value = state.description,
-            onValueChange = viewModel::onDescriptionChange,
-            placeholder = stringResource(R.string.offer_description_placeholder),
-            errorMessageRes = state.descriptionError,
-            minLines = 3
-        )
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_location_required),
+                            value = state.location,
+                            onValueChange = viewModel::onLocationChange,
+                            placeholder = stringResource(R.string.offer_location_placeholder),
+                            errorMessageRes = state.locationError
+                        )
 
-        CreateOfferDropdownField(
-            label = stringResource(R.string.offer_area_required),
-            placeholder = stringResource(R.string.select),
-            selectedText = state.selectedArea?.let { stringResource(it.labelRes) },
-            errorMessageRes = state.areaError,
-            items = OfferArea.entries,
-            itemLabel = { area -> stringResource(area.labelRes) },
-            onItemSelected = viewModel::onAreaChange
-        )
+                        CreateOfferDropdownField(
+                            label = stringResource(R.string.offer_work_mode_required),
+                            placeholder = stringResource(R.string.select),
+                            selectedText = state.selectedWorkMode?.let { stringResource(it.labelRes) },
+                            errorMessageRes = state.workModeError,
+                            items = WorkMode.entries,
+                            itemLabel = { workMode -> stringResource(workMode.labelRes) },
+                            onItemSelected = viewModel::onWorkModeChange
+                        )
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_location_required),
-            value = state.location,
-            onValueChange = viewModel::onLocationChange,
-            placeholder = stringResource(R.string.offer_location_placeholder),
-            errorMessageRes = state.locationError
-        )
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_duration_required),
+                            value = state.duration,
+                            onValueChange = viewModel::onDurationChange,
+                            placeholder = stringResource(R.string.offer_duration_placeholder),
+                            errorMessageRes = state.durationError
+                        )
 
-        CreateOfferDropdownField(
-            label = stringResource(R.string.offer_work_mode_required),
-            placeholder = stringResource(R.string.select),
-            selectedText = state.selectedWorkMode?.let { stringResource(it.labelRes) },
-            errorMessageRes = state.workModeError,
-            items = WorkMode.entries,
-            itemLabel = { workMode -> stringResource(workMode.labelRes) },
-            onItemSelected = viewModel::onWorkModeChange
-        )
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_vacancies_required),
+                            value = state.vacancies,
+                            onValueChange = viewModel::onVacanciesChange,
+                            placeholder = stringResource(R.string.offer_vacancies_placeholder),
+                            errorMessageRes = state.vacanciesError,
+                            keyboardType = KeyboardType.Number
+                        )
+                    }
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_duration_required),
-            value = state.duration,
-            onValueChange = viewModel::onDurationChange,
-            placeholder = stringResource(R.string.offer_duration_placeholder),
-            errorMessageRes = state.durationError
-        )
+                    // Right Column
+                    Column(modifier = Modifier.weight(1f)) {
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_description_required),
+                            value = state.description,
+                            onValueChange = viewModel::onDescriptionChange,
+                            placeholder = stringResource(R.string.offer_description_placeholder),
+                            errorMessageRes = state.descriptionError,
+                            minLines = 5
+                        )
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_vacancies_required),
-            value = state.vacancies,
-            onValueChange = viewModel::onVacanciesChange,
-            placeholder = stringResource(R.string.offer_vacancies_placeholder),
-            errorMessageRes = state.vacanciesError,
-            keyboardType = KeyboardType.Number
-        )
+                        CreateOfferTextField(
+                            label = stringResource(R.string.offer_requirements_required),
+                            value = state.requirements,
+                            onValueChange = viewModel::onRequirementsChange,
+                            placeholder = stringResource(R.string.offer_requirements_placeholder),
+                            errorMessageRes = state.requirementsError,
+                            minLines = 5
+                        )
 
-        CreateOfferTextField(
-            label = stringResource(R.string.offer_requirements_required),
-            value = state.requirements,
-            onValueChange = viewModel::onRequirementsChange,
-            placeholder = stringResource(R.string.offer_requirements_placeholder),
-            errorMessageRes = state.requirementsError,
-            minLines = 3
-        )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-        state.generalError?.let { errorRes ->
-            Text(
-                text = stringResource(errorRes),
-                color = Color(0xFFB00020),
-                fontSize = 14.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                textAlign = TextAlign.Center
-            )
+                        CreateOfferStatusAndButton(state = state, viewModel = viewModel, onOfferCreated = onOfferCreated)
+                    }
+                }
+            } else {
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_position_required),
+                    value = state.title,
+                    onValueChange = viewModel::onTitleChange,
+                    placeholder = stringResource(R.string.offer_position_placeholder),
+                    errorMessageRes = state.titleError
+                )
+
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_description_required),
+                    value = state.description,
+                    onValueChange = viewModel::onDescriptionChange,
+                    placeholder = stringResource(R.string.offer_description_placeholder),
+                    errorMessageRes = state.descriptionError,
+                    minLines = 3
+                )
+
+                CreateOfferDropdownField(
+                    label = stringResource(R.string.offer_area_required),
+                    placeholder = stringResource(R.string.select),
+                    selectedText = state.selectedArea?.let { stringResource(it.labelRes) },
+                    errorMessageRes = state.areaError,
+                    items = OfferArea.entries,
+                    itemLabel = { area -> stringResource(area.labelRes) },
+                    onItemSelected = viewModel::onAreaChange
+                )
+
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_location_required),
+                    value = state.location,
+                    onValueChange = viewModel::onLocationChange,
+                    placeholder = stringResource(R.string.offer_location_placeholder),
+                    errorMessageRes = state.locationError
+                )
+
+                CreateOfferDropdownField(
+                    label = stringResource(R.string.offer_work_mode_required),
+                    placeholder = stringResource(R.string.select),
+                    selectedText = state.selectedWorkMode?.let { stringResource(it.labelRes) },
+                    errorMessageRes = state.workModeError,
+                    items = WorkMode.entries,
+                    itemLabel = { workMode -> stringResource(workMode.labelRes) },
+                    onItemSelected = viewModel::onWorkModeChange
+                )
+
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_duration_required),
+                    value = state.duration,
+                    onValueChange = viewModel::onDurationChange,
+                    placeholder = stringResource(R.string.offer_duration_placeholder),
+                    errorMessageRes = state.durationError
+                )
+
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_vacancies_required),
+                    value = state.vacancies,
+                    onValueChange = viewModel::onVacanciesChange,
+                    placeholder = stringResource(R.string.offer_vacancies_placeholder),
+                    errorMessageRes = state.vacanciesError,
+                    keyboardType = KeyboardType.Number
+                )
+
+                CreateOfferTextField(
+                    label = stringResource(R.string.offer_requirements_required),
+                    value = state.requirements,
+                    onValueChange = viewModel::onRequirementsChange,
+                    placeholder = stringResource(R.string.offer_requirements_placeholder),
+                    errorMessageRes = state.requirementsError,
+                    minLines = 3
+                )
+
+                CreateOfferStatusAndButton(state = state, viewModel = viewModel, onOfferCreated = onOfferCreated)
+            }
         }
+    }
+}
 
-        state.successMessage?.let { successRes ->
+@Composable
+private fun CreateOfferStatusAndButton(
+    state: CreateOfferUiState,
+    viewModel: CreateOfferViewModel,
+    onOfferCreated: () -> Unit
+) {
+    state.generalError?.let { errorRes ->
+        Text(
+            text = stringResource(errorRes),
+            color = Color(0xFFB00020),
+            fontSize = 14.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+
+    state.successMessage?.let { successRes ->
+        run {
             Text(
                 text = stringResource(successRes),
                 color = Color(0xFF2E7D32),
@@ -178,33 +290,37 @@ fun CreateOfferScreen(
                 textAlign = TextAlign.Center
             )
         }
+    }
 
-        Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
-        Button(
-            onClick = {
-                viewModel.createOffer(
-                    onSuccess = onOfferCreated
-                )
-            },
-            enabled = !state.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFDFA52),
-                contentColor = Color.Black,
-                disabledContainerColor = Color(0xFFE5E5A0),
-                disabledContentColor = Color.Black
+    Button(
+        onClick = {
+            viewModel.createOffer(
+                onSuccess = onOfferCreated
             )
-        ) {
+        },
+        enabled = !state.isLoading,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFDFA52),
+            contentColor = Color.Black,
+            disabledContainerColor = Color(0xFFE5E5A0),
+            disabledContentColor = Color.Black
+        )
+    ) {
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                color = Color.Black,
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
             Text(
-                text = if (state.isLoading) {
-                    stringResource(R.string.creating)
-                } else {
-                    stringResource(R.string.create)
-                },
+                text = stringResource(R.string.create),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )

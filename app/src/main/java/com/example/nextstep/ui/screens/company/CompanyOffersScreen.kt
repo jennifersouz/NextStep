@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,13 +16,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -43,15 +49,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.data.model.CompanyOfferDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun CompanyOffersScreen(
     onOfferClick: (String) -> Unit,
+    onInternStudentsClick: () -> Unit = {},
     refreshKey: Int = 0,
     viewModel: CompanyOffersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     LaunchedEffect(refreshKey) {
         viewModel.refresh()
@@ -63,15 +73,20 @@ fun CompanyOffersScreen(
             .background(Color.White)
     ) {
         // Title
-        Text(
-            text = "As minhas ofertas",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp)
-        )
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "As minhas ofertas",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.weight(1f)
+            )
+        }
 
         // Search bar
         OutlinedTextField(
@@ -172,22 +187,45 @@ fun CompanyOffersScreen(
             }
 
             else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White)
-                        .padding(horizontal = 24.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    items(
-                        items = state.filteredOffers,
-                        key = { it.id }
-                    ) { offer ->
-                        CompanyOfferCard(
-                            offer = offer,
-                            onClick = { onOfferClick(offer.id) }
-                        )
+                if (isLandscape) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                            .padding(horizontal = 24.dp),
+                        contentPadding = PaddingValues(bottom = 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        items(
+                            items = state.filteredOffers,
+                            key = { it.id }
+                        ) { offer ->
+                            CompanyOfferCard(
+                                offer = offer,
+                                onClick = { onOfferClick(offer.id) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                            .padding(horizontal = 24.dp),
+                        contentPadding = PaddingValues(bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        items(
+                            items = state.filteredOffers,
+                            key = { it.id }
+                        ) { offer ->
+                            CompanyOfferCard(
+                                offer = offer,
+                                onClick = { onOfferClick(offer.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -278,7 +316,10 @@ fun CompanyOfferCard(
 
         CompanyOfferDetailRow(label = "Área", value = offer.area.orEmpty())
         CompanyOfferDetailRow(label = "Localização", value = offer.location.orEmpty())
-        CompanyOfferDetailRow(label = "Regime", value = offer.workMode.orEmpty())
+        CompanyOfferDetailRow(
+            label = "Regime",
+            value = Formatters.formatWorkMode(offer.workMode)
+        )
         CompanyOfferDetailRow(label = "Duração", value = offer.duration.orEmpty())
         CompanyOfferDetailRow(label = "Vagas", value = offer.vacancies?.toString().orEmpty())
     }
@@ -444,7 +485,7 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "As ofertas criadas pela empresa aparecerão aqui.",
+                    text = "Começa por criar uma nova oferta de estágio.",
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center

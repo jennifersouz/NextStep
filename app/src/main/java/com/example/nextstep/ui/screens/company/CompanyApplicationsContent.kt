@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +52,8 @@ fun CompanyApplicationsContent(
     viewModel: CompanyApplicationsViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     when {
         state.isLoading -> {
@@ -92,62 +100,123 @@ fun CompanyApplicationsContent(
                 selectedFilter = state.selectedFilter
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(
-                    top = 28.dp,
-                    bottom = 28.dp
-                )
-            ) {
-                item {
-                    Text(
-                        text = stringResource(R.string.company_applications_title),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+            if (isLandscape) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(
+                        top = 28.dp,
+                        bottom = 28.dp
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item(span = { GridItemSpan(2) }) {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.company_applications_title),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            CompanyApplicationsFilterChips(
+                                selectedFilter = state.selectedFilter,
+                                onFilterSelected = viewModel::selectFilter,
+                                applications = state.applications
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+
+                    if (filteredApplications.isEmpty()) {
+                        item(span = { GridItemSpan(2) }) {
+                            Text(
+                                text = stringResource(R.string.no_applications_for_filter),
+                                color = Color(0xFF777777),
+                                fontSize = 14.sp,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        items(
+                            items = filteredApplications,
+                            key = { it.id }
+                        ) { application ->
+                            CompanyApplicationCard(
+                                application = application,
+                                onClick = {
+                                    onApplicationClick(application.id)
+                                }
+                            )
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(
+                        top = 28.dp,
+                        bottom = 28.dp
                     )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
-                item {
-                    CompanyApplicationsFilterChips(
-                        selectedFilter = state.selectedFilter,
-                        onFilterSelected = viewModel::selectFilter,
-                        applications = state.applications
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                if (filteredApplications.isEmpty()) {
+                ) {
                     item {
                         Text(
-                            text = stringResource(R.string.no_applications_for_filter),
-                            color = Color(0xFF777777),
-                            fontSize = 14.sp,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                } else {
-                    items(
-                        items = filteredApplications,
-                        key = { it.id }
-                    ) { application ->
-                        CompanyApplicationCard(
-                            application = application,
-                            onClick = {
-                                onApplicationClick(application.id)
-                            }
+                            text = stringResource(R.string.company_applications_title),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+
+                    item {
+                        CompanyApplicationsFilterChips(
+                            selectedFilter = state.selectedFilter,
+                            onFilterSelected = viewModel::selectFilter,
+                            applications = state.applications
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    if (filteredApplications.isEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.no_applications_for_filter),
+                                color = Color(0xFF777777),
+                                fontSize = 14.sp,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        items(
+                            items = filteredApplications,
+                            key = { it.id }
+                        ) { application ->
+                            CompanyApplicationCard(
+                                application = application,
+                                onClick = {
+                                    onApplicationClick(application.id)
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
