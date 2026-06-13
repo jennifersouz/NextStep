@@ -16,5 +16,6 @@ data class AdminCompaniesUiState(
 enum class AdminCompaniesFilter(val label: String) {
     ALL("Todas"),
     ACTIVE("Ativas"),
-    INACTIVE("Inativas")
+    INACTIVE("Inativas"),
+    ARCHIVED("Arquivadas")
 }

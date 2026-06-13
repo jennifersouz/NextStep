@@ -262,19 +262,28 @@ fun AdminCompanyListItem(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                // Active/Inactive badge
-                val (statusLabel, statusColor) = if (company.isActive == true) {
-                    "Ativa" to Color(0xFF2E7D32)
+                // Status badge: Archived > Active > Inactive
+                val statusLabel: String
+                val statusColor: Color
+                val statusBg: Color
+                if (company.isArchived) {
+                    statusLabel = "Arquivada"
+                    statusColor = Color(0xFF6D4C41)
+                    statusBg = Color(0xFFEFEBE9)
+                } else if (company.isActive == true) {
+                    statusLabel = "Ativa"
+                    statusColor = Color(0xFF2E7D32)
+                    statusBg = Color(0xFFE8F5E9)
                 } else {
-                    "Inativa" to Color(0xFFC62828)
+                    statusLabel = "Inativa"
+                    statusColor = Color(0xFFC62828)
+                    statusBg = Color(0xFFFFEBEE)
                 }
 
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            if (company.isActive == true) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-                        )
+                        .background(statusBg)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(

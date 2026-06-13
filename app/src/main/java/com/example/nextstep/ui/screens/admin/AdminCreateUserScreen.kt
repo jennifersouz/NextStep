@@ -1,16 +1,47 @@
 package com.example.nextstep.ui.screens.admin
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,11 +59,14 @@ fun AdminCreateUserScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     var roleMenuExpanded by remember { mutableStateOf(false) }
+    var institutionMenuExpanded by remember { mutableStateOf(false) }
 
     val roleOptions = listOf(
         "student" to "Aluno",
         "teacher" to "Docente",
         "company" to "Empresa",
+        "advisor" to "Orientador",
+        "institution" to "Instituição",
         "admin" to "Administrador"
     )
 
@@ -54,34 +88,99 @@ fun AdminCreateUserScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
+        bottomBar = {
+            Surface(
+                color = Color.White,
+                shadowElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                ) {
+                    if (state.generalErrorMessage != null) {
+                        Text(
+                            text = state.generalErrorMessage!!,
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    if (state.successMessage != null) {
+                        Text(
+                            text = state.successMessage!!,
+                            color = Color(0xFF2E7D32),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    Button(
+                        onClick = viewModel::createUser,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        enabled = !state.isLoading
+                    ) {
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text(
+                                "Criar utilizador",
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+        },
         containerColor = Color.White
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Role Selection
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ── Tipo de utilizador ───────────────────────────────────────────
             Text("Tipo de utilizador *", fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Box {
                 OutlinedTextField(
                     value = roleOptions.find { it.first == state.selectedRole }?.second ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    modifier = Modifier.fillMaxWidth().clickable { roleMenuExpanded = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { roleMenuExpanded = true },
                     enabled = false,
                     trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
+                    isError = state.roleError != null,
+                    supportingText = state.roleError?.let {
+                        { Text(it, color = Color(0xFFB00020)) }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         disabledTextColor = Color.Black,
-                        disabledBorderColor = Color(0xFFEDEDED),
+                        disabledBorderColor = if (state.roleError != null)
+                            Color(0xFFB00020) else Color(0xFFEDEDED),
                         disabledTrailingIconColor = Color.Black
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                DropdownMenu(expanded = roleMenuExpanded, onDismissRequest = { roleMenuExpanded = false }) {
+                DropdownMenu(
+                    expanded = roleMenuExpanded,
+                    onDismissRequest = { roleMenuExpanded = false }
+                ) {
                     roleOptions.forEach { (value, label) ->
                         DropdownMenuItem(
                             text = { Text(label) },
@@ -94,91 +193,319 @@ fun AdminCreateUserScreen(
                 }
             }
 
-            // Common Fields
+            // ── Email ────────────────────────────────────────────────────────
             OutlinedTextField(
                 value = state.email,
                 onValueChange = viewModel::onEmailChange,
                 label = { Text("Email *") },
+                isError = state.emailError != null,
+                supportingText = state.emailError?.let {
+                    { Text(it, color = Color(0xFFB00020)) }
+                },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
             )
 
+            // ── Password ─────────────────────────────────────────────────────
             OutlinedTextField(
                 value = state.password,
                 onValueChange = viewModel::onPasswordChange,
                 label = { Text("Password temporária *") },
+                isError = state.passwordError != null,
+                supportingText = state.passwordError?.let {
+                    { Text(it, color = Color(0xFFB00020)) }
+                },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
             )
 
+            // ── Telefone (opcional para todos) ───────────────────────────────
             OutlinedTextField(
                 value = state.phone,
                 onValueChange = viewModel::onPhoneChange,
                 label = { Text("Telefone") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
             )
 
+            // ── Estado ativo ─────────────────────────────────────────────────
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = state.isActive, onCheckedChange = viewModel::onIsActiveChange)
+                Checkbox(
+                    checked = state.isActive,
+                    onCheckedChange = viewModel::onIsActiveChange
+                )
                 Text("Estado ativo")
             }
 
             HorizontalDivider()
 
-            // Role-specific fields
+            // ── Campos por tipo de utilizador ────────────────────────────────
             when (state.selectedRole) {
+
                 "student" -> {
-                    OutlinedTextField(value = state.firstName, onValueChange = viewModel::onFirstNameChange, label = { Text("Nome *") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.lastName, onValueChange = viewModel::onLastNameChange, label = { Text("Apelido") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.studentNumber, onValueChange = viewModel::onStudentNumberChange, label = { Text("Número de aluno") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.course, onValueChange = viewModel::onCourseChange, label = { Text("Curso") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.academicYear, onValueChange = viewModel::onAcademicYearChange, label = { Text("Ano académico") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.educationInstitution, onValueChange = viewModel::onEducationInstitutionChange, label = { Text("Instituição de ensino") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = viewModel::onFirstNameChange,
+                        label = { Text("Nome *") },
+                        isError = state.firstNameError != null,
+                        supportingText = state.firstNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = viewModel::onLastNameChange,
+                        label = { Text("Apelido *") },
+                        isError = state.lastNameError != null,
+                        supportingText = state.lastNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.studentNumber,
+                        onValueChange = viewModel::onStudentNumberChange,
+                        label = { Text("Número de aluno *") },
+                        isError = state.studentNumberError != null,
+                        supportingText = state.studentNumberError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.course,
+                        onValueChange = viewModel::onCourseChange,
+                        label = { Text("Curso *") },
+                        isError = state.courseError != null,
+                        supportingText = state.courseError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.academicYear,
+                        onValueChange = viewModel::onAcademicYearChange,
+                        label = { Text("Ano académico *") },
+                        isError = state.academicYearError != null,
+                        supportingText = state.academicYearError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.educationInstitution,
+                        onValueChange = viewModel::onEducationInstitutionChange,
+                        label = { Text("Instituição de ensino") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
                 }
+
                 "teacher" -> {
-                    OutlinedTextField(value = state.firstName, onValueChange = viewModel::onFirstNameChange, label = { Text("Nome *") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.lastName, onValueChange = viewModel::onLastNameChange, label = { Text("Apelido") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.department, onValueChange = viewModel::onDepartmentChange, label = { Text("Departamento") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.institutionProfileId, onValueChange = viewModel::onInstitutionProfileIdChange, label = { Text("ID Instituição associada") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = viewModel::onFirstNameChange,
+                        label = { Text("Nome *") },
+                        isError = state.firstNameError != null,
+                        supportingText = state.firstNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = viewModel::onLastNameChange,
+                        label = { Text("Apelido *") },
+                        isError = state.lastNameError != null,
+                        supportingText = state.lastNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.department,
+                        onValueChange = viewModel::onDepartmentChange,
+                        label = { Text("Departamento") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+
+                    // ── Instituição associada (dropdown) ─────────────────────
+                    Text(
+                        "Instituição associada *",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    if (state.isLoadingInstitutions) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(vertical = 8.dp),
+                            color = Color.Gray
+                        )
+                    } else if (state.availableInstitutions.isEmpty()) {
+                        Text(
+                            text = "Não existem instituições disponíveis. Cria uma instituição antes de adicionar um docente.",
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    } else {
+                        val selectedInstitution = state.availableInstitutions.find {
+                            it.id == state.institutionProfileId
+                        }
+                        val institutionLabel = selectedInstitution?.displayName ?: ""
+
+                        Box {
+                            OutlinedTextField(
+                                value = institutionLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { institutionMenuExpanded = true },
+                                enabled = false,
+                                trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
+                                isError = state.institutionError != null,
+                                supportingText = state.institutionError?.let {
+                                    { Text(it, color = Color(0xFFB00020)) }
+                                },
+                                placeholder = { Text("Seleciona uma instituição") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    disabledTextColor = Color.Black,
+                                    disabledBorderColor = if (state.institutionError != null)
+                                        Color(0xFFB00020) else Color(0xFFEDEDED),
+                                    disabledTrailingIconColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            DropdownMenu(
+                                expanded = institutionMenuExpanded,
+                                onDismissRequest = { institutionMenuExpanded = false }
+                            ) {
+                                state.availableInstitutions.forEach { institution ->
+                                    DropdownMenuItem(
+                                        text = { Text(institution.displayName) },
+                                        onClick = {
+                                            viewModel.onInstitutionChange(institution.id)
+                                            institutionMenuExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
+
                 "company" -> {
-                    OutlinedTextField(value = state.companyName, onValueChange = viewModel::onCompanyNameChange, label = { Text("Nome da empresa *") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.nif, onValueChange = viewModel::onNifChange, label = { Text("NIF *") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.businessArea, onValueChange = viewModel::onBusinessAreaChange, label = { Text("Área de negócio") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.location, onValueChange = viewModel::onLocationChange, label = { Text("Localização") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.description, onValueChange = viewModel::onDescriptionChange, label = { Text("Descrição") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), minLines = 3)
+                    OutlinedTextField(
+                        value = state.companyName,
+                        onValueChange = viewModel::onCompanyNameChange,
+                        label = { Text("Nome da empresa *") },
+                        isError = state.companyNameError != null,
+                        supportingText = state.companyNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.nif,
+                        onValueChange = viewModel::onNifChange,
+                        label = { Text("NIF *") },
+                        isError = state.nifError != null,
+                        supportingText = state.nifError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.businessArea,
+                        onValueChange = viewModel::onBusinessAreaChange,
+                        label = { Text("Área de negócio *") },
+                        isError = state.businessAreaError != null,
+                        supportingText = state.businessAreaError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.location,
+                        onValueChange = viewModel::onLocationChange,
+                        label = { Text("Localização *") },
+                        isError = state.locationError != null,
+                        supportingText = state.locationError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.description,
+                        onValueChange = viewModel::onDescriptionChange,
+                        label = { Text("Descrição") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        minLines = 3
+                    )
                 }
+
                 "admin" -> {
-                    OutlinedTextField(value = state.firstName, onValueChange = viewModel::onFirstNameChange, label = { Text("Nome *") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
-                    OutlinedTextField(value = state.lastName, onValueChange = viewModel::onLastNameChange, label = { Text("Apelido") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = viewModel::onFirstNameChange,
+                        label = { Text("Nome *") },
+                        isError = state.firstNameError != null,
+                        supportingText = state.firstNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = viewModel::onLastNameChange,
+                        label = { Text("Apelido *") },
+                        isError = state.lastNameError != null,
+                        supportingText = state.lastNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (state.errorMessage != null) {
-                Text(state.errorMessage!!, color = Color.Red, fontSize = 14.sp)
-            }
-            if (state.successMessage != null) {
-                Text(state.successMessage!!, color = Color(0xFF2E7D32), fontSize = 14.sp)
-            }
-
-            Button(
-                onClick = viewModel::createUser,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                enabled = !state.isLoading
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                } else {
-                    Text("Criar utilizador", fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
+            // Espaço extra para o conteúdo não ficar atrás da bottomBar
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }

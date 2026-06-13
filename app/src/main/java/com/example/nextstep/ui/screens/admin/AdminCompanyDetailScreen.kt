@@ -1,7 +1,6 @@
 package com.example.nextstep.ui.screens.admin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,18 +18,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,41 +51,87 @@ fun AdminCompanyDetailScreen(
     company: AdminCompanyDto,
     onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    onToggleActive: (companyId: String, isActive: Boolean) -> Unit = { _, _ -> },
-    onDeleteCompany: (companyId: String) -> Unit = {},
-    onViewOffers: (AdminCompanyDto) -> Unit = {}
+    onDeactivate: () -> Unit = {},
+    onReactivate: () -> Unit = {},
+    onArchive: (String?) -> Unit = {},
+    onViewOffers: (AdminCompanyDto) -> Unit = {},
+    isActionLoading: Boolean = false,
+    successMessage: String? = null,
+    errorMessage: String? = null,
+    onMessageDismiss: () -> Unit = {}
 ) {
-    var showDeleteConfirm by remember { mutableStateOf(false) }
+    val isActive = company.isActive == true
+    val isArchived = company.isArchived
 
-    if (showDeleteConfirm) {
+    var showDeactivateDialog by remember { mutableStateOf(false) }
+    var showReactivateDialog by remember { mutableStateOf(false) }
+    var showArchiveDialog by remember { mutableStateOf(false) }
+
+    fun dismissDialogs() {
+        showDeactivateDialog = false
+        showReactivateDialog = false
+        showArchiveDialog = false
+    }
+
+    // Deactivate dialog
+    if (showDeactivateDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteConfirm = false },
-            title = {
-                Text("Remover empresa", fontWeight = FontWeight.Bold)
-            },
-            text = {
-                Text("Tem a certeza que deseja remover a empresa \"${company.companyName ?: ""}\"? Esta ação não pode ser desfeita.")
-            },
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Desativar acesso") },
+            text = { Text("Esta ação bloqueia temporariamente o acesso da empresa, mas mantém os dados e o histórico na plataforma.") },
             confirmButton = {
-                Button(
-                    onClick = {
-                        company.id?.let { onDeleteCompany(it) }
-                        showDeleteConfirm = false
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFC62828)
-                    )
-                ) {
-                    Text("Remover", color = Color.White)
+                TextButton(onClick = { dismissDialogs(); onDeactivate() }) {
+                    Text("Desativar", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancelar")
-                }
-            }
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
         )
     }
+
+    // Reactivate dialog
+    if (showReactivateDialog) {
+        AlertDialog(
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Reativar acesso") },
+            text = { Text("Esta ação permite que a empresa volte a aceder à plataforma. As ofertas antigas não serão reativadas automaticamente.") },
+            confirmButton = {
+                TextButton(onClick = { dismissDialogs(); onReactivate() }) {
+                    Text("Reativar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
+        )
+    }
+
+    // Archive dialog
+    if (showArchiveDialog) {
+        var reason by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Remover da plataforma") },
+            text = {
+                Column {
+                    Text("Esta ação remove a empresa da lista principal, bloqueia o acesso e desativa as ofertas ativas. As candidaturas e o histórico serão mantidos.")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    TextField(
+                        value = reason,
+                        onValueChange = { reason = it },
+                        label = { Text("Motivo (opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { dismissDialogs(); onArchive(reason.ifBlank { null }) }) {
+                    Text("Remover", color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = { TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") } }
+        )
+    }
+
+    // NOTE: Permanent delete was intentionally removed. The app does not support permanent deletion.
 
     Column(
         modifier = Modifier
@@ -100,19 +147,39 @@ fun AdminCompanyDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
-                    tint = Color.Black
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
+            }
+            Text("Detalhes da Empresa", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            if (isActionLoading) {
+                Spacer(modifier = Modifier.width(12.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.Black
                 )
             }
+        }
 
-            Text(
-                text = "Detalhes da Empresa",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
+        // Feedback messages
+        if (successMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFE8F5E9))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(successMessage, color = Color(0xFF2E7D32), fontSize = 14.sp)
+            }
+        }
+        if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFEBEE))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(errorMessage, color = Color(0xFFB00020), fontSize = 14.sp)
+            }
         }
 
         Column(
@@ -122,9 +189,7 @@ fun AdminCompanyDetailScreen(
                 .padding(24.dp)
         ) {
             // Company avatar and name
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(60.dp)
@@ -133,7 +198,7 @@ fun AdminCompanyDetailScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Business,
+                        Icons.Filled.Business,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(30.dp)
@@ -150,22 +215,28 @@ fun AdminCompanyDetailScreen(
                         color = Color.Black
                     )
 
-                    // Status badge
                     val statusLabel: String
                     val statusColor: Color
                     val statusBg: Color
-                    if (company.isActive == true) {
-                        statusLabel = "Ativa"
-                        statusColor = Color(0xFF2E7D32)
-                        statusBg = Color(0xFFE8F5E9)
-                    } else {
-                        statusLabel = "Inativa"
-                        statusColor = Color(0xFFC62828)
-                        statusBg = Color(0xFFFFEBEE)
+                    when {
+                        isArchived -> {
+                            statusLabel = "Arquivada"
+                            statusColor = Color(0xFF6D4C41)
+                            statusBg = Color(0xFFEFEBE9)
+                        }
+                        isActive -> {
+                            statusLabel = "Ativa"
+                            statusColor = Color(0xFF2E7D32)
+                            statusBg = Color(0xFFE8F5E9)
+                        }
+                        else -> {
+                            statusLabel = "Inativa"
+                            statusColor = Color(0xFFC62828)
+                            statusBg = Color(0xFFFFEBEE)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
-
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -190,9 +261,7 @@ fun AdminCompanyDetailScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     DetailRow(label = "Nome", value = company.companyName ?: "")
                     company.nif?.let { DetailRow(label = "NIF", value = it) }
                     company.businessArea?.let { DetailRow(label = "Área de Negócio", value = it) }
@@ -205,78 +274,105 @@ fun AdminCompanyDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Action buttons
             // Edit button
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { onEditClick() }
+                onClick = { if (!isActionLoading) onEditClick() }
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Edit,
+                        Icons.Filled.Edit,
                         contentDescription = null,
                         tint = Color(0xFF8D6E00),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Editar empresa",
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFFCCCCCC)
-                    )
+                    Text("Editar empresa", fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Toggle active/inactive
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { onToggleActive(company.id, company.isActive != true) }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            // Deactivate / Reactivate — apenas para empresas não arquivadas
+            if (!isArchived) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    onClick = {
+                        if (!isActionLoading) {
+                            if (isActive) showDeactivateDialog = true
+                            else showReactivateDialog = true
+                        }
+                    }
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Business,
-                        contentDescription = null,
-                        tint = if (company.isActive == true) Color(0xFF2E7D32) else Color(0xFFC62828),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = if (company.isActive == true) "Desativar empresa" else "Ativar empresa",
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFFCCCCCC)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isActive) Icons.Filled.Block else Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            tint = when {
+                                isActionLoading -> Color(0xFFCCCCCC)
+                                isActive -> Color(0xFFE65100)
+                                else -> Color(0xFF2E7D32)
+                            },
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = when {
+                                isActionLoading -> "A atualizar..."
+                                isActive -> "Desativar acesso"
+                                else -> "Reativar acesso"
+                            },
+                            fontSize = 15.sp,
+                            color = if (isActionLoading) Color(0xFF999999) else Color.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Archive (Remove from platform)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    onClick = { if (!isActionLoading) showArchiveDialog = true }
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Filled.Archive,
+                            contentDescription = null,
+                            tint = if (isActionLoading) Color(0xFFCCCCCC) else Color(0xFFBF360C),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Remover da plataforma",
+                            fontSize = 15.sp,
+                            color = if (isActionLoading) Color(0xFF999999) else Color(0xFFBF360C),
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             // View offers
             Card(
@@ -286,67 +382,22 @@ fun AdminCompanyDetailScreen(
                 onClick = { onViewOffers(company) }
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Business,
+                        Icons.Filled.Business,
                         contentDescription = null,
                         tint = Color(0xFF555555),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Ver ofertas da empresa",
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFFCCCCCC)
-                    )
+                    Text("Ver ofertas da empresa", fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Delete button
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { showDeleteConfirm = true }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = null,
-                        tint = Color(0xFFC62828),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Remover empresa",
-                        fontSize = 15.sp,
-                        color = Color(0xFFC62828),
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFFCCCCCC)
-                    )
-                }
-            }
         }
     }
 }
@@ -354,17 +405,8 @@ fun AdminCompanyDetailScreen(
 @Composable
 private fun DetailRow(label: String, value: String) {
     Column(modifier = Modifier.padding(vertical = 6.dp)) {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = Color(0xFF777777),
-            fontWeight = FontWeight.Medium
-        )
+        Text(text = label, fontSize = 12.sp, color = Color(0xFF777777), fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = value,
-            fontSize = 15.sp,
-            color = Color.Black
-        )
+        Text(text = value, fontSize = 15.sp, color = Color.Black)
     }
 }

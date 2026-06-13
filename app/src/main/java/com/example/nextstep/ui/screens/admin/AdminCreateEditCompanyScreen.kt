@@ -1,7 +1,6 @@
 package com.example.nextstep.ui.screens.admin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,9 +24,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,19 +41,57 @@ import com.example.nextstep.data.model.AdminCompanyDto
 fun AdminCreateEditCompanyScreen(
     existingCompany: AdminCompanyDto? = null,
     onBackClick: () -> Unit = {},
-    onSave: (companyName: String, nif: String?, businessArea: String?, location: String?, phone: String?, description: String?, isActive: Boolean) -> Unit = { _, _, _, _, _, _, _ -> }
+    onSave: (
+        companyName: String,
+        nif: String?,
+        businessArea: String?,
+        location: String?,
+        phone: String?,
+        description: String?,
+        isActive: Boolean
+    ) -> Unit = { _, _, _, _, _, _, _ -> }
 ) {
     val isEditing = existingCompany != null
 
-    var companyName by remember { mutableStateOf(existingCompany?.companyName ?: "") }
-    var nif by remember { mutableStateOf(existingCompany?.nif ?: "") }
-    var businessArea by remember { mutableStateOf(existingCompany?.businessArea ?: "") }
-    var location by remember { mutableStateOf(existingCompany?.location ?: "") }
-    var phone by remember { mutableStateOf(existingCompany?.phone ?: "") }
-    var description by remember { mutableStateOf(existingCompany?.description ?: "") }
-    var isActive by remember { mutableStateOf(existingCompany?.isActive ?: true) }
+    // Usar rememberSaveable para sobreviver a recomposições.
+    // LaunchedEffect sincroniza com a empresa real quando ela muda.
+    var companyName by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.companyName ?: "")
+    }
+    var nif by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.nif ?: "")
+    }
+    var businessArea by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.businessArea ?: "")
+    }
+    var location by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.location ?: "")
+    }
+    var phone by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.phone ?: "")
+    }
+    var description by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.description ?: "")
+    }
+    // isActive: carregar o valor real da empresa — nunca false por defeito
+    var isActive by rememberSaveable(existingCompany?.id) {
+        mutableStateOf(existingCompany?.isActive == true)
+    }
 
-    var nameError by remember { mutableStateOf(false) }
+    // Garantir sincronização se a empresa vier depois do primeiro render
+    LaunchedEffect(existingCompany?.id, existingCompany?.isActive) {
+        if (existingCompany != null) {
+            companyName = existingCompany.companyName ?: ""
+            nif = existingCompany.nif ?: ""
+            businessArea = existingCompany.businessArea ?: ""
+            location = existingCompany.location ?: ""
+            phone = existingCompany.phone ?: ""
+            description = existingCompany.description ?: ""
+            isActive = existingCompany.isActive == true
+        }
+    }
+
+    var nameError by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -74,7 +113,6 @@ fun AdminCreateEditCompanyScreen(
                     tint = Color.Black
                 )
             }
-
             Text(
                 text = if (isEditing) "Editar Empresa" else "Nova Empresa",
                 fontSize = 20.sp,
@@ -118,7 +156,7 @@ fun AdminCreateEditCompanyScreen(
             )
             if (nameError) {
                 Text(
-                    text = "O nome da empresa é obrigatório.",
+                    text = "Nome da empresa obrigatório.",
                     color = Color(0xFFC62828),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp)
@@ -258,7 +296,7 @@ fun AdminCreateEditCompanyScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Active toggle (only for editing)
+            // Estado ativo — apenas em modo edição
             if (isEditing) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -272,12 +310,14 @@ fun AdminCreateEditCompanyScreen(
                             color = Color.Black
                         )
                         Text(
-                            text = if (isActive) "A empresa pode publicar ofertas" else "A empresa não pode publicar ofertas",
+                            text = if (isActive) "A empresa pode publicar ofertas"
+                                   else "A empresa não pode publicar ofertas",
                             fontSize = 12.sp,
                             color = Color(0xFF777777)
                         )
                     }
-
+                    Spacer(modifier = Modifier.width(12.dp))
+                    // Switch usa o valor real da empresa — não um estado local independente
                     Switch(
                         checked = isActive,
                         onCheckedChange = { isActive = it },
@@ -326,6 +366,8 @@ fun AdminCreateEditCompanyScreen(
                     color = Color.Black
                 )
             }
+
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }

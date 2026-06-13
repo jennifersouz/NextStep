@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorAssignedStudentDto
+import com.example.nextstep.ui.utils.applicationStatusToDisplay
 
 private val YellowBadge = Color(0xFFFFF9C4)
 private val YellowDark = Color(0xFF8D6E00)
@@ -319,9 +320,17 @@ private fun AdvisorStudentCardAvatar(studentName: String) {
 
 @Composable
 private fun AdvisorStudentStatusBadge(status: String?) {
-    val (label, bgColor, textColor) = AdvisorStudentStatusStyle(status)
+    val label = applicationStatusToDisplay(status)
+    if (label.isBlank() || label == "-") return
 
-    if (label.isBlank()) return
+    val (bgColor, textColor) = when (status?.trim()?.lowercase()) {
+        "accepted", "active", "ativo", "ativa", "aceite" -> Color(0xFFE8F5E9) to Color(0xFF2E7D32)
+        "to_complete", "por_concluir", "por concluir"    -> Color(0xFFFFF8E1) to Color(0xFFF57F17)
+        "completed", "concluido", "concluído"            -> Color(0xFFE3F2FD) to Color(0xFF1565C0)
+        "pending", "pendente"                            -> YellowBadge to YellowDark
+        "rejected", "recusada", "recusado"               -> Color(0xFFFFEBEE) to Color(0xFFC62828)
+        else                                             -> Color(0xFFF5F5F5) to AdvisorUiColors.TextGray
+    }
 
     Box(
         modifier = Modifier
@@ -334,30 +343,6 @@ private fun AdvisorStudentStatusBadge(status: String?) {
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = textColor
-        )
-    }
-}
-
-private fun AdvisorStudentStatusStyle(status: String?): Triple<String, Color, Color> {
-    return when {
-        status == "accepted" || status == "active" || status == "ativo" || status == "aceite" -> Triple(
-            "Ativo", Color(0xFFE8F5E9), Color(0xFF2E7D32)
-        )
-        status == "to_complete" || status == "por_concluir" || status == "por concluir" -> Triple(
-            "Por concluir", Color(0xFFFFF8E1), Color(0xFFF57F17)
-        )
-        status == "completed" || status == "concluido" || status == "concluído" -> Triple(
-            "Concluído", Color(0xFFE3F2FD), Color(0xFF1565C0)
-        )
-        status == "pending" || status == "pendente" -> Triple(
-            "Pendente", YellowBadge, YellowDark
-        )
-        status == "rejected" || status == "recusada" || status == "recusado" -> Triple(
-            "Recusado", Color(0xFFFFEBEE), Color(0xFFC62828)
-        )
-        else -> Triple(
-            status?.replaceFirstChar { it.uppercase() } ?: "",
-            Color(0xFFF5F5F5), AdvisorUiColors.TextGray
         )
     }
 }

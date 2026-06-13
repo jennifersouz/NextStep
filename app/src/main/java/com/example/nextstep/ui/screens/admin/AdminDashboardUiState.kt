@@ -11,6 +11,7 @@ data class AdminDashboardUiState(
     val completedEvaluationsCount: Int = 0,
     val usersCount: Int = 0,
     val adminName: String = "",
+    val adminEmail: String = "",
     val recentProfiles: List<ProfileDto> = emptyList(),
     val errorMessage: String? = null
 )

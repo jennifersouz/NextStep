@@ -91,7 +91,7 @@ class TeacherStudentsRepository {
                     evaluation = studentDetail.evaluation?.let { eval ->
                         TeacherEvaluationDto(
                             grade = eval.grade,
-                            qualitativeFeedback = eval.comments
+                            qualitativeFeedback = eval.qualitativeFeedback
                         )
                     }
                 )

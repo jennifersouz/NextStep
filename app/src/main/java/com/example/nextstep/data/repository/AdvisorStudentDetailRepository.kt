@@ -45,9 +45,7 @@ class AdvisorStudentDetailRepository {
             expectedEndDate = null,
             completedTasks = tasks.count { it.status == "completed" },
             totalTasks = tasks.size,
-            tasks = tasks,
-            documents = emptyList(),
-            evaluation = null
+            tasks = tasks
         )
     }
 }

@@ -76,6 +76,7 @@ import com.example.nextstep.R
 import com.example.nextstep.data.model.ApplicationTaskDto
 import com.example.nextstep.data.model.TeacherStudentDetailNonSerializable
 import com.example.nextstep.ui.utils.localizedPriority
+import com.example.nextstep.ui.utils.applicationStatusToDisplay
 
 @Composable
 fun TeacherStudentDetailScreen(
@@ -278,14 +279,19 @@ private fun TeacherDetailHeaderCard(
 
 @Composable
 private fun TeacherDetailStatusBadge(status: String?) {
-    val (labelRes, bgColor, textColor) = when {
-        status == "accepted" || status == "active" || status == "ativo" || status == "aceite" -> Triple(R.string.teacher_status_active, Color(0xFFE8F5E9), Color(0xFF2E7D32))
-        status == "pending" || status == "pendente" -> Triple(R.string.teacher_status_pending, Color(0xFFFFF9C4), Color(0xFF8D6E00))
-        status == "completed" || status == "concluido" || status == "concluído" -> Triple(R.string.teacher_status_completed, Color(0xFFE3F2FD), Color(0xFF1565C0))
-        else -> Triple(null, Color(0xFFF5F5F5), Color(0xFF777777))
+    val (bgColor, textColor) = when {
+        status == "accepted" || status == "active" || status == "ativo" || status == "aceite" ->
+            Color(0xFFE8F5E9) to Color(0xFF2E7D32)
+        status == "pending" || status == "pendente" ->
+            Color(0xFFFFF9C4) to Color(0xFF8D6E00)
+        status == "completed" || status == "concluido" || status == "concluído" ->
+            Color(0xFFE3F2FD) to Color(0xFF1565C0)
+        status == "in_progress" || status == "em_curso" || status == "em curso" ->
+            Color(0xFFE3F2FD) to Color(0xFF1565C0)
+        else -> Color(0xFFF5F5F5) to Color(0xFF777777)
     }
-    val label = if (labelRes != null) stringResource(labelRes) else (status?.replaceFirstChar { it.uppercase() } ?: "")
-    if (label.isBlank() || label == "na") return
+    val label = applicationStatusToDisplay(status)
+    if (label.isBlank() || label == "-" || label == "na") return
     Box(
         modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(bgColor)
             .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -314,7 +320,7 @@ private fun TeacherSummaryTab(detail: TeacherStudentDetailNonSerializable?, onMe
             TeacherDetailRow(label = stringResource(R.string.location), value = detail.location ?: "Não disponível")
             TeacherDetailRow(label = stringResource(R.string.work_mode), value = detail.workMode ?: "Não disponível")
             TeacherDetailRow(label = stringResource(R.string.duration), value = detail.duration ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.status), value = detail.status?.replaceFirstChar { it.uppercase() } ?: "Não disponível")
+            TeacherDetailRow(label = stringResource(R.string.status), value = applicationStatusToDisplay(detail.status))
             TeacherDetailRow(label = stringResource(R.string.start_date), value = detail.startDate?.substringBefore("T") ?: "Não disponível")
         }
         Spacer(modifier = Modifier.height(12.dp))

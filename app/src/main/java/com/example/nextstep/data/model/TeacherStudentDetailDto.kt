@@ -47,7 +47,7 @@ data class TeacherStudentDetailDto(
     val motivationLetterPath: String? = null,
     val tasks: List<AdvisorTaskListItemDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
-    val evaluation: AdvisorEvaluationDto? = null
+    val evaluation: TeacherEvaluationDto? = null
 )
 
 data class TeacherStudentDetailNonSerializable(

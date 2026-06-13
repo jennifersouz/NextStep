@@ -36,9 +36,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 import com.example.nextstep.data.model.ProfileDto
+import com.example.nextstep.ui.utils.roleToDisplayName
 
 @Composable
 fun AdminHomeScreen(
@@ -299,7 +302,7 @@ private fun AdminRecentProfileItem(profile: ProfileDto) {
                 color = Color.Black
             )
             Text(
-                text = "Role: ${profile.role}",
+                text = "${stringResource(R.string.function_label)}: ${roleToDisplayName(profile.role)}",
                 fontSize = 12.sp,
                 color = Color(0xFF777777)
             )
