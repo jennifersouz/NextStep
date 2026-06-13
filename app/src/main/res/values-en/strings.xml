@@ -98,6 +98,15 @@
     <string name="error_invalid_company_name">Use only letters, spaces, - or .</string>
     <string name="error_login_failed">Could not sign in. Please check your email and password.</string>
     <string name="error_register_failed">Could not create the account. Please check your details or try again.</string>
+    <string name="error_loading_sent_requests">Could not load sent requests.</string>
+    <string name="error_cancelling_request">Could not cancel the request.</string>
+    <string name="sent_requests_title">Sent requests</string>
+    <string name="cancel_request">Cancel Request</string>
+    <string name="request_status_accepted">Accepted</string>
+    <string name="request_status_rejected">Rejected</string>
+    <string name="request_status_pending">Pending</string>
+    <string name="request_status_active">Active</string>
+    <string name="request_status_completed">Completed</string>
     <string name="error_user_already_exists">This email is already registered. Try signing in.</string>
     <string name="error_invalid_credentials">Incorrect email or password.</string>
     <string name="error_password_invalid_supabase">The password does not meet the security requirements.</string>

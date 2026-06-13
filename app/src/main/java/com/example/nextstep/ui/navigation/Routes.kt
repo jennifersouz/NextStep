@@ -78,6 +78,8 @@ object Routes {
     const val COMPANY_ASSIGN_ADVISOR = "company_assign_advisor/{applicationId}"
     const val COMPANY_ASSIGN_ADVISOR_ARG = "applicationId"
 
+    const val STUDENT_SENT_ADVISOR_REQUESTS = "student_sent_advisor_requests"
+
     fun teacherRequestDetail(applicationId: String): String {
         return "teacher_request_detail/$applicationId"
     }

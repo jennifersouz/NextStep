@@ -40,6 +40,7 @@ import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentInternshipDetailScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSearchAdvisorScreen
+import com.example.nextstep.ui.screens.student.StudentSentAdvisorRequestsScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherDashboardScreen
@@ -151,6 +152,11 @@ fun AppNavigation() {
                 onSubmittedApplicationsClick = {
                     navController.navigate(
                         Routes.STUDENT_SUBMITTED_APPLICATIONS
+                    )
+                },
+                onSentRequestsClick = {
+                    navController.navigate(
+                        Routes.STUDENT_SENT_ADVISOR_REQUESTS
                     )
                 },
                 onApplicationNotificationClick = { applicationId ->
@@ -498,6 +504,14 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.studentSubmittedApplicationDetail(applicationId)
                     )
+                }
+            )
+        }
+
+        composable(Routes.STUDENT_SENT_ADVISOR_REQUESTS) {
+            StudentSentAdvisorRequestsScreen(
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }

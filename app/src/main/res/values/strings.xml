@@ -98,6 +98,15 @@
     <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
     <string name="error_login_failed">Não foi possível iniciar sessão. Verifique o email e a palavra-passe.</string>
     <string name="error_register_failed">Não foi possível criar a conta. Verifique os dados ou tente novamente.</string>
+    <string name="error_loading_sent_requests">Não foi possível carregar os pedidos enviados.</string>
+    <string name="error_cancelling_request">Não foi possível cancelar o pedido.</string>
+    <string name="sent_requests_title">Pedidos enviados</string>
+    <string name="cancel_request">Cancelar Pedido</string>
+    <string name="request_status_accepted">Aceite</string>
+    <string name="request_status_rejected">Rejeitado</string>
+    <string name="request_status_pending">Pendente</string>
+    <string name="request_status_active">Ativo</string>
+    <string name="request_status_completed">Concluído</string>
     <string name="error_user_already_exists">Este email já está registado. Tente iniciar sessão.</string>
     <string name="error_invalid_credentials">Email ou palavra-passe incorretos.</string>
     <string name="error_password_invalid_supabase">A palavra-passe não cumpre os requisitos de segurança.</string>
