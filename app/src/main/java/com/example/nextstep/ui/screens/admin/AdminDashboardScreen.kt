@@ -10,9 +10,9 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -20,9 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.AdminCompanyDto
 import com.example.nextstep.data.model.AdminCompanyUpdateDto
-import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.model.CreateCompanyDto
 import com.example.nextstep.ui.components.BottomBarItem
@@ -34,44 +32,50 @@ fun AdminDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     sessionViewModel: SessionViewModel = viewModel()
 ) {
-    var selectedTab by rememberSaveable {
-        mutableStateOf(AdminTab.HOME)
-    }
+    var selectedTab by rememberSaveable { mutableStateOf(AdminTab.HOME) }
 
-    var selectedUser by remember { mutableStateOf<AdminProfileDto?>(null) }
-    var showEditUser by remember { mutableStateOf(false) }
-
-    var selectedCompany by remember { mutableStateOf<AdminCompanyDto?>(null) }
-    var showCompanyDetail by remember { mutableStateOf(false) }
-    var showEditCompany by remember { mutableStateOf(false) }
-    var showCreateCompany by remember { mutableStateOf(false) }
+    // Navigation flags
+    var showUserDetail by rememberSaveable { mutableStateOf(false) }
+    var showEditUser by rememberSaveable { mutableStateOf(false) }
+    var showCompanyDetail by rememberSaveable { mutableStateOf(false) }
+    var showEditCompany by rememberSaveable { mutableStateOf(false) }
+    var showCreateCompany by rememberSaveable { mutableStateOf(false) }
+    var showCompanyOffers by rememberSaveable { mutableStateOf(false) }
 
     val usersViewModel: AdminUsersViewModel = viewModel()
     val companiesViewModel: AdminCompaniesViewModel = viewModel()
 
-    // Handle user detail screen
-    if (selectedUser != null && !showEditUser) {
+    // Always read from ViewModel state — never from local remember vars
+    val usersState by usersViewModel.uiState.collectAsState()
+    val companiesState by companiesViewModel.uiState.collectAsState()
+
+    val selectedUser = usersState.selectedUser
+    val selectedCompany = companiesState.selectedCompany
+
+    // ── User detail ──────────────────────────────────────────────────────────
+    if (showUserDetail && !showEditUser && selectedUser != null) {
         AdminUserDetailScreen(
-            profile = selectedUser!!,
-            onBackClick = { selectedUser = null },
-            onEditClick = { profile ->
-                selectedUser = profile
+            profile = selectedUser,
+            onBackClick = {
+                showUserDetail = false
+                usersViewModel.clearSelectedUser()
+            },
+            onEditClick = {
                 showEditUser = true
             },
             onToggleActive = { userId, isActive ->
                 usersViewModel.setUserActive(userId, isActive)
-                selectedUser = selectedUser?.copy(isActive = isActive)
             },
             onDeleteUser = { userId ->
                 usersViewModel.deleteUser(userId)
-                selectedUser = null
+                showUserDetail = false
             }
         )
         return
     }
 
-    // Handle edit user screen
-    if (selectedUser != null && showEditUser) {
+    // ── Edit user ────────────────────────────────────────────────────────────
+    if (showEditUser && selectedUser != null) {
         AdminCreateEditUserScreen(
             existingProfile = selectedUser,
             onBackClick = {
@@ -79,17 +83,14 @@ fun AdminDashboardScreen(
             },
             onSave = { firstName, lastName, phone, role, isActive ->
                 usersViewModel.updateUser(
-                    selectedUser!!.id,
+                    selectedUser.id,
                     AdminProfileUpdateDto(
-                        firstName = firstName,
-                        lastName = lastName,
-                        phone = phone
+                        firstName = firstName.ifBlank { null },
+                        lastName = lastName.ifBlank { null },
+                        phone = phone.ifBlank { null },
+                        role = role.ifBlank { null },
+                        isActive = isActive
                     )
-                )
-                selectedUser = selectedUser?.copy(
-                    firstName = firstName,
-                    lastName = lastName,
-                    phone = phone
                 )
                 showEditUser = false
             }
@@ -97,38 +98,44 @@ fun AdminDashboardScreen(
         return
     }
 
-    // Handle company detail screen
-    if (selectedCompany != null && showCompanyDetail && !showEditCompany && !showCreateCompany) {
+    // ── Company offers ───────────────────────────────────────────────────────
+    if (showCompanyOffers && selectedCompany != null) {
+        AdminCompanyOffersScreen(
+            companyProfileId = selectedCompany.profileId ?: "",
+            companyName = selectedCompany.companyName ?: "",
+            onBackClick = { showCompanyOffers = false }
+        )
+        return
+    }
+
+    // ── Company detail ───────────────────────────────────────────────────────
+    if (showCompanyDetail && !showEditCompany && !showCreateCompany && selectedCompany != null) {
         AdminCompanyDetailScreen(
-            company = selectedCompany!!,
+            company = selectedCompany,
             onBackClick = {
                 showCompanyDetail = false
-                selectedCompany = null
+                showCompanyOffers = false
+                companiesViewModel.clearSelectedCompany()
             },
-            onEditClick = { company ->
-                selectedCompany = company
+            onEditClick = {
                 showEditCompany = true
             },
             onToggleActive = { companyId, isActive ->
                 companiesViewModel.setCompanyActive(companyId, isActive)
-                selectedCompany = selectedCompany?.copy(isActive = isActive)
-                showCompanyDetail = false
-                selectedCompany = null
             },
             onDeleteCompany = { companyId ->
                 companiesViewModel.deleteCompany(companyId)
                 showCompanyDetail = false
-                selectedCompany = null
             },
-            onViewOffers = { company ->
-                // Placeholder for viewing offers - can be implemented when offers screen exists
+            onViewOffers = {
+                showCompanyOffers = true
             }
         )
         return
     }
 
-    // Handle edit company screen
-    if (selectedCompany != null && showEditCompany) {
+    // ── Edit company ─────────────────────────────────────────────────────────
+    if (showEditCompany && selectedCompany != null) {
         AdminCreateEditCompanyScreen(
             existingCompany = selectedCompany,
             onBackClick = {
@@ -136,26 +143,24 @@ fun AdminDashboardScreen(
             },
             onSave = { name, nif, area, loc, ph, desc, active ->
                 companiesViewModel.updateCompany(
-                    selectedCompany!!.id,
+                    selectedCompany.id,
                     AdminCompanyUpdateDto(
-                        companyName = name,
-                        nif = nif,
-                        businessArea = area,
-                        location = loc,
-                        phone = ph,
-                        description = desc,
+                        companyName = name.ifBlank { null },
+                        nif = nif?.ifBlank { null },
+                        businessArea = area?.ifBlank { null },
+                        location = loc?.ifBlank { null },
+                        phone = ph?.ifBlank { null },
+                        description = desc?.ifBlank { null },
                         isActive = active
                     )
                 )
                 showEditCompany = false
-                showCompanyDetail = false
-                selectedCompany = null
             }
         )
         return
     }
 
-    // Handle create company screen
+    // ── Create company ───────────────────────────────────────────────────────
     if (showCreateCompany) {
         AdminCreateEditCompanyScreen(
             existingCompany = null,
@@ -180,14 +185,13 @@ fun AdminDashboardScreen(
         return
     }
 
+    // ── Main scaffold ────────────────────────────────────────────────────────
     Scaffold(
         containerColor = Color.White,
         bottomBar = {
             AdminBottomBar(
                 selectedTab = selectedTab,
-                onTabSelected = { tab ->
-                    selectedTab = tab
-                }
+                onTabSelected = { tab -> selectedTab = tab }
             )
         }
     ) { innerPadding ->
@@ -197,15 +201,14 @@ fun AdminDashboardScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                AdminTab.HOME -> {
-                    AdminHomeScreen()
-                }
+                AdminTab.HOME -> AdminHomeScreen()
 
                 AdminTab.USERS -> {
                     AdminUsersScreen(
                         viewModel = usersViewModel,
                         onUserClick = { profile ->
-                            selectedUser = profile
+                            usersViewModel.selectUser(profile)
+                            showUserDetail = true
                         }
                     )
                 }
@@ -214,7 +217,7 @@ fun AdminDashboardScreen(
                     AdminCompaniesScreen(
                         viewModel = companiesViewModel,
                         onCompanyClick = { company ->
-                            selectedCompany = company
+                            companiesViewModel.selectCompany(company)
                             showCompanyDetail = true
                         }
                     )
@@ -223,9 +226,7 @@ fun AdminDashboardScreen(
                 AdminTab.PROFILE -> {
                     AdminProfileScreen(
                         onLogoutClick = {
-                            sessionViewModel.logout(
-                                onSuccess = onLogoutSuccess
-                            )
+                            sessionViewModel.logout(onSuccess = onLogoutSuccess)
                         }
                     )
                 }
@@ -268,3 +269,4 @@ fun AdminBottomBar(
         }
     )
 }
+

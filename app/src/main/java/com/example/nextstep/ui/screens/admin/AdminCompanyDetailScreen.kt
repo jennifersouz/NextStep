@@ -49,7 +49,7 @@ import com.example.nextstep.data.model.AdminCompanyDto
 fun AdminCompanyDetailScreen(
     company: AdminCompanyDto,
     onBackClick: () -> Unit = {},
-    onEditClick: (AdminCompanyDto) -> Unit = {},
+    onEditClick: () -> Unit = {},
     onToggleActive: (companyId: String, isActive: Boolean) -> Unit = { _, _ -> },
     onDeleteCompany: (companyId: String) -> Unit = {},
     onViewOffers: (AdminCompanyDto) -> Unit = {}
@@ -211,7 +211,7 @@ fun AdminCompanyDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { onEditClick(company) }
+                onClick = { onEditClick() }
             ) {
                 Row(
                     modifier = Modifier
@@ -278,7 +278,7 @@ fun AdminCompanyDetailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // View offers (if function provided)
+            // View offers
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -292,7 +292,7 @@ fun AdminCompanyDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        imageVector = Icons.Filled.Business,
                         contentDescription = null,
                         tint = Color(0xFF555555),
                         modifier = Modifier.size(24.dp)

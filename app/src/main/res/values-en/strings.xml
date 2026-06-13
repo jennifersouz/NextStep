@@ -105,6 +105,8 @@
     <string name="error_unknown_auth">An error occurred. Please try again later.</string>
     <string name="error_database_permission">Could not save profile data. Please check the database permissions.</string>
     <string name="search">Search</string>
+    <string name="search_user">Search user…</string>
+    <string name="search_company">Search company…</string>
     <string name="filter">Filter</string>
     <string name="results_count">%1$d results</string>
 

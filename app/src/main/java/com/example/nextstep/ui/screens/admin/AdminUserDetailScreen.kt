@@ -49,7 +49,7 @@ import com.example.nextstep.ui.utils.DateFormatUtils
 fun AdminUserDetailScreen(
     profile: AdminProfileDto,
     onBackClick: () -> Unit,
-    onEditClick: (AdminProfileDto) -> Unit,
+    onEditClick: () -> Unit,
     onToggleActive: (String, Boolean) -> Unit,
     onDeleteUser: (String) -> Unit,
     isLoading: Boolean = false
@@ -211,7 +211,7 @@ fun AdminUserDetailScreen(
                 // Action buttons
                 // Edit button
                 Button(
-                    onClick = { onEditClick(profile) },
+                    onClick = { onEditClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),

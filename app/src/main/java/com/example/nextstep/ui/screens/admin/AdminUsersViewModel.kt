@@ -29,10 +29,15 @@ class AdminUsersViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 val users = result.getOrDefault(emptyList())
+                // Refresh selectedUser if there's one selected
+                val refreshedSelected = _uiState.value.selectedUser?.let { current ->
+                    users.find { it.id == current.id }
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     users = users,
-                    filteredUsers = applyFilter(users)
+                    filteredUsers = applyFilter(users),
+                    selectedUser = refreshedSelected ?: _uiState.value.selectedUser
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
@@ -41,6 +46,14 @@ class AdminUsersViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    fun selectUser(profile: AdminProfileDto) {
+        _uiState.value = _uiState.value.copy(selectedUser = profile)
+    }
+
+    fun clearSelectedUser() {
+        _uiState.value = _uiState.value.copy(selectedUser = null)
     }
 
     fun onSearchQueryChange(query: String) {
@@ -55,6 +68,8 @@ class AdminUsersViewModel : ViewModel() {
 
     fun updateUser(userId: String, updateData: AdminProfileUpdateDto) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
             val result = repository.updateUser(userId, updateData)
 
             if (result.isSuccess) {
@@ -64,7 +79,9 @@ class AdminUsersViewModel : ViewModel() {
                 loadUsers()
             } else {
                 _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível atualizar o utilizador."
                 )
             }
         }
@@ -82,23 +99,27 @@ class AdminUsersViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível alterar o estado da conta."
                 )
             }
         }
     }
 
+    // Soft delete — desativa a conta em vez de apagar
     fun deleteUser(userId: String) {
         viewModelScope.launch {
-            val result = repository.deleteUserProfile(userId)
+            val result = repository.deactivateUser(userId)
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Utilizador removido com sucesso."
+                    successMessage = "Utilizador desativado com sucesso.",
+                    selectedUser = null
                 )
                 loadUsers()
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível remover o utilizador."
                 )
             }
         }

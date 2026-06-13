@@ -6,6 +6,7 @@ import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
+import java.time.Instant
 
 class AdminUsersRepository {
 
@@ -20,31 +21,25 @@ class AdminUsersRepository {
                 }
                 .decodeList<AdminProfileDto>()
 
+            Log.d("AdminUsersRepo", "Users loaded: ${profiles.size}")
             Result.success(profiles)
         } catch (exception: Exception) {
-            Log.e("AdminUsersRepo", "Erro ao carregar utilizadores", exception)
+            Log.e("AdminUsersRepo", "Error loading users", exception)
             Result.failure(exception)
         }
     }
 
-    suspend fun searchUsers(query: String): Result<List<AdminProfileDto>> {
+    suspend fun getUserById(userId: String): Result<AdminProfileDto?> {
         return try {
             val profiles = supabase
                 .from("profiles")
                 .select {
-                    order("created_at", Order.DESCENDING)
+                    filter { eq("id", userId) }
                 }
                 .decodeList<AdminProfileDto>()
-
-            val filtered = profiles.filter { profile ->
-                profile.email?.contains(query, ignoreCase = true) == true ||
-                        profile.firstName?.contains(query, ignoreCase = true) == true ||
-                        profile.lastName?.contains(query, ignoreCase = true) == true
-            }
-
-            Result.success(filtered)
+            Result.success(profiles.firstOrNull())
         } catch (exception: Exception) {
-            Log.e("AdminUsersRepo", "Erro ao pesquisar utilizadores", exception)
+            Log.e("AdminUsersRepo", "Error loading user id=$userId", exception)
             Result.failure(exception)
         }
     }
@@ -54,53 +49,89 @@ class AdminUsersRepository {
         updateData: AdminProfileUpdateDto
     ): Result<Unit> {
         return try {
+            Log.d("AdminUsersRepo", "Updating user id=$userId")
+            Log.d("AdminUsersRepo", "Payload user update = $updateData")
+
+            val payload = updateData.copy(
+                updatedAt = Instant.now().toString()
+            )
+
             supabase
                 .from("profiles")
-                .update(updateData) {
-                    filter {
-                        eq("id", userId)
-                    }
+                .update(payload) {
+                    filter { eq("id", userId) }
                 }
 
+            Log.d("AdminUsersRepo", "User updated successfully id=$userId")
             Result.success(Unit)
         } catch (exception: Exception) {
-            Log.e("AdminUsersRepo", "Erro ao atualizar utilizador", exception)
+            Log.e("AdminUsersRepo", "Error updating user id=$userId", exception)
             Result.failure(exception)
         }
     }
 
     suspend fun setUserActive(userId: String, isActive: Boolean): Result<Unit> {
         return try {
+            Log.d("AdminUsersRepo", "Setting user active=$isActive id=$userId")
+
             supabase
                 .from("profiles")
                 .update(
-                    AdminProfileUpdateDto(isActive = isActive)
+                    AdminProfileUpdateDto(
+                        isActive = isActive,
+                        updatedAt = Instant.now().toString()
+                    )
                 ) {
-                    filter {
-                        eq("id", userId)
-                    }
+                    filter { eq("id", userId) }
                 }
 
+            Log.d("AdminUsersRepo", "User active state updated: id=$userId active=$isActive")
             Result.success(Unit)
         } catch (exception: Exception) {
-            Log.e("AdminUsersRepo", "Erro ao alterar estado do utilizador", exception)
+            Log.e("AdminUsersRepo", "Error setting user active id=$userId", exception)
             Result.failure(exception)
         }
     }
 
+    // Soft delete: desativa a conta em vez de apagar para não quebrar foreign keys
+    suspend fun deactivateUser(userId: String): Result<Unit> {
+        return try {
+            Log.d("AdminUsersRepo", "Deactivating (soft delete) user id=$userId")
+
+            supabase
+                .from("profiles")
+                .update(
+                    AdminProfileUpdateDto(
+                        isActive = false,
+                        updatedAt = Instant.now().toString()
+                    )
+                ) {
+                    filter { eq("id", userId) }
+                }
+
+            Log.d("AdminUsersRepo", "User deactivated successfully id=$userId")
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error deactivating user id=$userId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    // Hard delete — apenas usado se explicitamente necessário
     suspend fun deleteUserProfile(userId: String): Result<Unit> {
         return try {
+            Log.d("AdminUsersRepo", "Deleting user id=$userId")
+
             supabase
                 .from("profiles")
                 .delete {
-                    filter {
-                        eq("id", userId)
-                    }
+                    filter { eq("id", userId) }
                 }
 
+            Log.d("AdminUsersRepo", "User deleted successfully id=$userId")
             Result.success(Unit)
         } catch (exception: Exception) {
-            Log.e("AdminUsersRepo", "Erro ao remover utilizador", exception)
+            Log.e("AdminUsersRepo", "Error deleting user id=$userId", exception)
             Result.failure(exception)
         }
     }

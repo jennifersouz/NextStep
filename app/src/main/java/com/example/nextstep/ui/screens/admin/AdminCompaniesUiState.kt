@@ -8,6 +8,7 @@ data class AdminCompaniesUiState(
     val filteredCompanies: List<AdminCompanyDto> = emptyList(),
     val searchQuery: String = "",
     val selectedFilter: AdminCompaniesFilter = AdminCompaniesFilter.ALL,
+    val selectedCompany: AdminCompanyDto? = null,
     val errorMessage: String? = null,
     val successMessage: String? = null
 )

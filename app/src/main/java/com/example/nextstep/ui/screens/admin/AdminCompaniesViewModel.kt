@@ -30,18 +30,32 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 val companies = result.getOrDefault(emptyList())
+                // Refresh selectedCompany if there's one selected
+                val refreshedSelected = _uiState.value.selectedCompany?.let { current ->
+                    companies.find { it.id == current.id }
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     companies = companies,
-                    filteredCompanies = applyFilter(companies)
+                    filteredCompanies = applyFilter(companies),
+                    selectedCompany = refreshedSelected ?: _uiState.value.selectedCompany
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível carregar as empresas."
                 )
             }
         }
+    }
+
+    fun selectCompany(company: AdminCompanyDto) {
+        _uiState.value = _uiState.value.copy(selectedCompany = company)
+    }
+
+    fun clearSelectedCompany() {
+        _uiState.value = _uiState.value.copy(selectedCompany = null)
     }
 
     fun onSearchQueryChange(query: String) {
@@ -62,7 +76,6 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
                     successMessage = "Empresa criada com sucesso."
                 )
                 loadCompanies()
@@ -70,6 +83,7 @@ class AdminCompaniesViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível criar a empresa."
                 )
             }
         }
@@ -83,7 +97,6 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
                     successMessage = "Empresa atualizada com sucesso."
                 )
                 loadCompanies()
@@ -91,6 +104,7 @@ class AdminCompaniesViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível atualizar a empresa."
                 )
             }
         }
@@ -108,23 +122,27 @@ class AdminCompaniesViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível alterar o estado da empresa."
                 )
             }
         }
     }
 
+    // Soft delete — desativa a empresa em vez de apagar
     fun deleteCompany(companyId: String) {
         viewModelScope.launch {
-            val result = repository.deleteCompany(companyId)
+            val result = repository.deactivateCompany(companyId)
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Empresa removida com sucesso."
+                    successMessage = "Empresa desativada com sucesso.",
+                    selectedCompany = null
                 )
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = result.exceptionOrNull()?.message
+                        ?: "Não foi possível remover a empresa."
                 )
             }
         }

@@ -87,7 +87,10 @@ data class AdminProfileUpdateDto(
     val role: String? = null,
 
     @SerialName("is_active")
-    val isActive: Boolean? = null
+    val isActive: Boolean? = null,
+
+    @SerialName("updated_at")
+    val updatedAt: String? = null
 )
 
 @Serializable
@@ -105,5 +108,38 @@ data class AdminCompanyUpdateDto(
     val phone: String? = null,
 
     @SerialName("is_active")
-    val isActive: Boolean? = null
+    val isActive: Boolean? = null,
+
+    @SerialName("updated_at")
+    val updatedAt: String? = null
+)
+
+@Serializable
+data class AdminCompanyOfferDto(
+    val id: String,
+
+    @SerialName("company_profile_id")
+    val companyProfileId: String? = null,
+
+    @SerialName("company_name")
+    val companyName: String? = null,
+
+    val title: String? = null,
+    val location: String? = null,
+
+    @SerialName("is_active")
+    val isActive: Boolean? = null,
+
+    val description: String? = null,
+    val area: String? = null,
+
+    @SerialName("work_mode")
+    val workMode: String? = null,
+
+    val duration: String? = null,
+    val vacancies: Int? = null,
+    val requirements: String? = null,
+
+    @SerialName("created_at")
+    val createdAt: String? = null
 )

@@ -105,6 +105,8 @@
     <string name="error_unknown_auth">Ocorreu um erro. Tente novamente mais tarde.</string>
     <string name="error_database_permission">Não foi possível guardar os dados do perfil. Verifique as permissões da base de dados.</string>
     <string name="search">Pesquisar</string>
+    <string name="search_user">Pesquisar utilizador…</string>
+    <string name="search_company">Pesquisar empresa…</string>
     <string name="filter">Filtrar</string>
     <string name="results_count">%1$d resultados</string>
 
