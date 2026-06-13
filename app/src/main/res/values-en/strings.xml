@@ -36,6 +36,8 @@
     <string name="role_teacher">Teacher</string>
     <string name="role_supervisor">Supervisor</string>
     <string name="role_institution">Institution</string>
+    <string name="role_admin">Administrator</string>
+    <string name="function_label">Role</string>
 
     <string name="account_validation_warning">This account type requires validation by the institution or administrator before full access to the platform is granted.</string>
 
@@ -103,6 +105,8 @@
     <string name="error_unknown_auth">An error occurred. Please try again later.</string>
     <string name="error_database_permission">Could not save profile data. Please check the database permissions.</string>
     <string name="search">Search</string>
+    <string name="search_user">Search user…</string>
+    <string name="search_company">Search company…</string>
     <string name="filter">Filter</string>
     <string name="results_count">%1$d results</string>
 
@@ -601,6 +605,11 @@
     <string name="no_tasks_description">When tasks are created for internships, they will appear here.</string>
     <string name="create_task">Create task</string>
     <string name="due_date">Due date</string>
+    <string name="no_notifications">No notifications yet.</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+    <string name="new_assigned_student">New assigned student</string>
+    <string name="new_assigned_student_message">A new student has been assigned to you.</string>
+    <string name="new_message_from_student">New message from student</string>
     <string name="requests">Requests</string>
 
     <!-- Teacher Requests -->
@@ -624,18 +633,30 @@
     <string name="request_accepted">Request accepted</string>
     <string name="request_rejected">Request rejected</string>
 
+    <!-- Teacher Students -->
+    <string name="search_student_placeholder">Search student</string>
+    <string name="to_evaluate">To evaluate</string>
+    <string name="no_students_yet">No students yet.</string>
+    <string name="pending_evaluation">Pending evaluation</string>
+    <string name="view_pdf">View PDF</string>
+    <string name="download">Download</string>
+    <string name="no_documents_submitted">No documents submitted.</string>
+
     <!-- Teacher Evaluation -->
     <string name="student_evaluation_form">Student evaluation form</string>
     <string name="grade_label">Grade</string>
     <string name="grade_placeholder">Enter grade (e.g.: 0-20)</string>
     <string name="qualitative_comment">Qualitative feedback</string>
     <string name="comment_placeholder">Describe student performance</string>
+    <string name="strengths">Strengths</string>
     <string name="strengths_placeholder">Indicate student strengths</string>
+    <string name="weaknesses">Weaknesses</string>
     <string name="weaknesses_placeholder">Indicate areas to improve</string>
     <string name="save_evaluation">Save evaluation</string>
     <string name="update_evaluation">Update evaluation</string>
     <string name="edit_evaluation">Edit evaluation</string>
     <string name="evaluation_saved">Evaluation saved successfully.</string>
+    <string name="last_activity">Last activity</string>
     <string name="evaluation_completed">Evaluation completed</string>
     <string name="improvements">Areas to improve</string>
     <string name="improvements_placeholder">Indicate areas to improve</string>
@@ -679,6 +700,15 @@
     <string name="teacher_status_in_progress">In progress</string>
     <string name="teacher_status_completed">Completed</string>
     <string name="teacher_status_pending">Pending</string>
+
+    <!-- Admin -->
+    <string name="account_disabled">Account disabled</string>
+    <string name="company_offers_title">Company offers</string>
+    <string name="admin_company_no_offers">This company has not published any offers yet.</string>
+    <string name="offer_no_title">No title</string>
+    <string name="badge_active">Active</string>
+    <string name="badge_inactive">Inactive</string>
+    <string name="duration_with_value">Duration: %1$s</string>
 
     <!-- Shared (from doc 1) -->
     <string name="error_loading_teachers">Error loading advisors.</string>

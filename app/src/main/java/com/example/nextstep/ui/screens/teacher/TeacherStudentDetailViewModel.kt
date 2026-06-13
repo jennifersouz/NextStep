@@ -7,6 +7,7 @@ import com.example.nextstep.data.model.ApplicationTaskDto
 import com.example.nextstep.data.model.TeacherEvaluationDto
 import com.example.nextstep.data.model.TeacherStudentDetailNonSerializable
 import com.example.nextstep.data.repository.TeacherEvaluationRepository
+import com.example.nextstep.data.repository.TeacherRequestsRepository
 import com.example.nextstep.data.repository.TeacherStudentsRepository
 import com.example.nextstep.data.repository.TeacherTasksRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +51,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
     private val repository = TeacherStudentsRepository()
     private val evaluationRepository = TeacherEvaluationRepository()
     private val tasksRepository = TeacherTasksRepository()
+    private val requestsRepository = TeacherRequestsRepository()
 
     private val _detailState = MutableStateFlow(TeacherStudentDetailState())
     val detailState: StateFlow<TeacherStudentDetailState> = _detailState.asStateFlow()
@@ -117,7 +119,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
                         _evaluationState.value = _evaluationState.value.copy(
                             isLoadingEvaluation = false,
                             evaluation = evaluation,
-                            grade = evaluation.grade ?: "",
+                            grade = evaluation.grade?.toString() ?: "",
                             qualitativeFeedback = evaluation.qualitativeFeedback ?: "",
                             strengths = evaluation.strengths ?: "",
                             improvements = evaluation.improvements ?: "",
@@ -174,7 +176,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
         val eval = _evaluationState.value.evaluation
         _evaluationState.value = _evaluationState.value.copy(
             isEditing = eval == null,
-            grade = eval?.grade ?: "",
+            grade = eval?.grade?.toString() ?: "",
             qualitativeFeedback = eval?.qualitativeFeedback ?: "",
             strengths = eval?.strengths ?: "",
             improvements = eval?.improvements ?: "",
@@ -197,7 +199,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
             gradeError = "Insere uma nota."
             hasError = true
         } else {
-            val parsedGrade = gradeValue.toDoubleOrNull()
+            val parsedGrade = gradeValue.replace(",", ".").toDoubleOrNull()
             if (parsedGrade == null) {
                 gradeError = "Insere uma nota válida entre 0 e 20."
                 hasError = true
@@ -220,7 +222,7 @@ class TeacherStudentDetailViewModel : ViewModel() {
             return
         }
 
-        val gradeValueParsed = state.grade.trim().toDoubleOrNull() ?: return
+        val gradeValueParsed = state.grade.trim().replace(",", ".").toDoubleOrNull() ?: return
 
         viewModelScope.launch {
             _evaluationState.value = state.copy(
@@ -255,9 +257,10 @@ class TeacherStudentDetailViewModel : ViewModel() {
         }
     }
 
-    fun openDocument(bucket: String, path: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun openDocument(path: String, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            repository.getSignedUrl(bucket, path)
+            Log.d("TeacherStudentDetailVM", "Opening document with exact path=$path")
+            requestsRepository.getDocumentUrl(path)
                 .onSuccess { url ->
                     onSuccess(url)
                 }

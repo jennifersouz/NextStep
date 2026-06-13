@@ -1,0 +1,134 @@
+package com.example.nextstep.data.repository
+
+import android.util.Log
+import com.example.nextstep.data.model.AdminApplicationDto
+import com.example.nextstep.data.model.AdminOfferDto
+import com.example.nextstep.data.model.AdminProfileDto
+import com.example.nextstep.data.model.AdminTeacherEvaluationDto
+import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.data.model.ProfileDto
+import com.example.nextstep.data.remote.SupabaseClientProvider
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
+
+class AdminDashboardRepository {
+
+    private val supabase = SupabaseClientProvider.client
+
+    suspend fun getActiveInternshipsCount(): Result<Int> {
+        return try {
+            val offers = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("is_active", true)
+                    }
+                }
+                .decodeList<AdminOfferDto>()
+            Result.success(offers.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar estágios ativos", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getApplicationsCount(): Result<Int> {
+        return try {
+            val applications = supabase
+                .from("applications")
+                .select()
+                .decodeList<AdminApplicationDto>()
+            Result.success(applications.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar candidaturas", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getCompletedEvaluationsCount(): Result<Int> {
+        return try {
+            val evaluations = supabase
+                .from("teacher_evaluations")
+                .select()
+                .decodeList<AdminTeacherEvaluationDto>()
+            Result.success(evaluations.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar avaliações concluídas", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getUsersCount(): Result<Int> {
+        return try {
+            val profiles = supabase
+                .from("profiles")
+                .select()
+                .decodeList<AdminProfileDto>()
+            Result.success(profiles.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar utilizadores", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getAdminProfileName(): Result<String> {
+        return try {
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+
+            val name = currentUser.email ?: "Administrador"
+            Result.success(name)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao obter perfil", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getTotalCompaniesCount(): Result<Int> {
+        return try {
+            val companies = supabase
+                .from("companies")
+                .select()
+                .decodeList<AdminCompanyDto>()
+            Result.success(companies.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar empresas", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getActiveCompaniesCount(): Result<Int> {
+        return try {
+            val companies = supabase
+                .from("companies")
+                .select {
+                    filter {
+                        eq("is_active", true)
+                    }
+                }
+                .decodeList<AdminCompanyDto>()
+            Result.success(companies.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar empresas ativas", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getRecentProfiles(): Result<List<ProfileDto>> {
+        return try {
+            val profiles = supabase
+                .from("profiles")
+                .select {
+                    order("created_at", Order.DESCENDING)
+                    limit(5)
+                }
+                .decodeList<ProfileDto>()
+
+            Result.success(profiles)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao carregar perfis recentes", exception)
+            Result.success(emptyList())
+        }
+    }
+}

@@ -22,7 +22,7 @@ data class TeacherEvaluationDto(
     val studentProfileId: String? = null,
 
     @SerialName("grade")
-    val grade: String? = null,
+    val grade: Double? = null,
 
     @SerialName("qualitative_feedback")
     val qualitativeFeedback: String? = null,
@@ -72,7 +72,7 @@ data class TeacherEvaluationInsertDto(
  */
 data class TeacherEvaluationUi(
     val id: String? = null,
-    val grade: String? = null,
+    val grade: Double? = null,
     val qualitativeFeedback: String? = null,
     val strengths: String? = null,
     val improvements: String? = null

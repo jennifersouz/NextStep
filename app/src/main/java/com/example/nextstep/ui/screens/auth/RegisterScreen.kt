@@ -79,6 +79,7 @@ fun RegisterScreen(
         UserRole.ADVISOR -> stringResource(R.string.role_advisor)
         UserRole.INSTITUTION -> stringResource(R.string.role_institution)
         UserRole.TEACHER -> stringResource(R.string.role_teacher)
+        UserRole.ADMIN -> "Administrador"
     }
 
     Scaffold(
@@ -429,6 +430,10 @@ private fun RegisterForm(
                 placeholder = stringResource(R.string.phone_placeholder),
                 errorMessageRes = state.teacherPhoneError
             )
+        }
+
+        UserRole.ADMIN -> {
+            // Admin registration is not allowed from the UI
         }
     }
 

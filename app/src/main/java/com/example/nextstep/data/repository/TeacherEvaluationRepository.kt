@@ -18,7 +18,7 @@ class TeacherEvaluationRepository {
      */
     suspend fun getEvaluation(applicationId: String): Result<TeacherEvaluationDto?> {
         return try {
-            auth.currentUserOrNull()
+            val user = auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
             val evaluations = supabase
@@ -26,6 +26,7 @@ class TeacherEvaluationRepository {
                 .select {
                     filter {
                         eq("application_id", applicationId)
+                        eq("teacher_profile_id", user.id)
                     }
                 }
                 .decodeList<TeacherEvaluationDto>()
@@ -46,43 +47,36 @@ class TeacherEvaluationRepository {
     }
 
     /**
-     * Gets the current authenticated teacher's profile ID.
+     * Validates that the current user exists in the teachers table using profile_id.
      */
-    suspend fun getCurrentTeacherProfileId(): Result<String> {
+    suspend fun validateTeacherProfile(): Result<String> {
         return try {
             val user = auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            // Query the teacher_profiles table for the current user
+            // Query the teachers table for the current user using profile_id
             val profiles = supabase
-                .from("teacher_profiles")
+                .from("teachers")
                 .select {
                     filter {
-                        eq("user_id", user.id)
+                        eq("profile_id", user.id)
                     }
                 }
                 .decodeList<TeacherProfileDto>()
 
-            val profile = profiles.firstOrNull()
-                ?: return Result.failure(IllegalStateException("Perfil de docente não encontrado."))
-
-            Result.success(profile.id)
-        } catch (exception: Exception) {
-            Log.e("TeacherEvaluationRepo", "Erro ao buscar perfil do docente", exception)
-            if (exception.message?.contains("relation") == true ||
-                exception.message?.contains("does not exist") == true
-            ) {
-                Result.failure(IllegalStateException("Perfil de docente não encontrado."))
-            } else {
-                Result.failure(exception)
+            if (profiles.isEmpty()) {
+                return Result.failure(IllegalStateException("Perfil de docente não encontrado."))
             }
+
+            Result.success(user.id)
+        } catch (exception: Exception) {
+            Log.e("TeacherEvaluationRepo", "Erro ao validar perfil do docente", exception)
+            Result.failure(exception)
         }
     }
 
     /**
      * Saves (inserts or updates) an evaluation for a given application.
-     * If an evaluation already exists for this application, it updates it.
-     * Otherwise, it inserts a new one.
      */
     suspend fun saveEvaluation(
         applicationId: String,
@@ -92,8 +86,15 @@ class TeacherEvaluationRepository {
         improvements: String?
     ): Result<TeacherEvaluationDto> {
         return try {
-            auth.currentUserOrNull()
-                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+            val user = auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador autenticado não encontrado"))
+
+            val teacherProfileId = user.id
+
+            // Validate that the user is a teacher
+            validateTeacherProfile().getOrElse {
+                return Result.failure(it)
+            }
 
             // Get the student_profile_id from the applications table
             val applications = supabase
@@ -132,18 +133,13 @@ class TeacherEvaluationRepository {
 
                 Result.success(
                     existing.copy(
-                        grade = grade.toString(),
+                        grade = grade,
                         qualitativeFeedback = qualitativeFeedback,
                         strengths = strengths,
                         improvements = improvements
                     )
                 )
             } else {
-                // Get the teacher profile ID
-                val teacherProfileId = getCurrentTeacherProfileId().getOrElse {
-                    return Result.failure(it)
-                }
-
                 // Insert new evaluation
                 val insertDto = TeacherEvaluationInsertDto(
                     applicationId = applicationId,
@@ -166,13 +162,7 @@ class TeacherEvaluationRepository {
             }
         } catch (exception: Exception) {
             Log.e("TeacherEvaluationRepo", "Erro ao guardar avaliação", exception)
-            if (exception.message?.contains("relation") == true ||
-                exception.message?.contains("does not exist") == true
-            ) {
-                Result.failure(IllegalStateException("A tabela de avaliações ainda não está disponível. Contacte o administrador."))
-            } else {
-                Result.failure(exception)
-            }
+            Result.failure(exception)
         }
     }
 }
@@ -189,14 +179,12 @@ data class ApplicationBasicDto(
 )
 
 /**
- * Minimal DTO for the teacher profile.
+ * Minimal DTO for the teacher profile using the real schema.
  */
 @kotlinx.serialization.Serializable
 data class TeacherProfileDto(
-    @kotlinx.serialization.SerialName("id")
-    val id: String,
-    @kotlinx.serialization.SerialName("user_id")
-    val userId: String? = null
+    @kotlinx.serialization.SerialName("profile_id")
+    val profileId: String
 )
 
 /**

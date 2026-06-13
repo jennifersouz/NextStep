@@ -53,6 +53,9 @@ class AuthViewModel : ViewModel() {
             "incomplete_account" in message ->
                 R.string.incomplete_account
 
+            "account_disabled" in message ->
+                R.string.account_disabled
+
             else -> R.string.error_unknown_auth
         }
     }
@@ -559,6 +562,7 @@ class AuthViewModel : ViewModel() {
                     "advisor" -> UserRole.ADVISOR
                     "institution" -> UserRole.INSTITUTION
                     "teacher" -> UserRole.TEACHER
+                    "admin" -> UserRole.ADMIN
                     else -> null
                 }
 
@@ -642,6 +646,10 @@ class AuthViewModel : ViewModel() {
                         department = state.teacherDepartment.ifBlank { null },
                         phone = state.teacherPhone.ifBlank { null }
                     )
+                }
+
+                UserRole.ADMIN -> {
+                    Result.failure(IllegalStateException("Admin registration is not allowed"))
                 }
             }
 
