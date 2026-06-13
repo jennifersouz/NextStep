@@ -1,6 +1,5 @@
 package com.example.nextstep.ui.screens.company
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -11,15 +10,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class CompanyProfileViewModel : ViewModel() {
+class CompanyOwnProfileViewModel : ViewModel() {
 
     private val repository = CompanyProfileRepository()
 
-    private val _uiState = MutableStateFlow(CompanyProfileUiState())
-    val uiState: StateFlow<CompanyProfileUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(CompanyOwnProfileUiState())
+    val uiState: StateFlow<CompanyOwnProfileUiState> = _uiState.asStateFlow()
 
-    fun loadCompanyProfile(profileId: String) {
-        Log.d("CompanyProfileDebug", "ID recebido pelo ViewModel: $profileId")
+    init {
+        loadCompanyProfile()
+    }
+
+    fun loadCompanyProfile() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
@@ -27,11 +29,11 @@ class CompanyProfileViewModel : ViewModel() {
             )
 
             val companyResultDeferred = async {
-                repository.getCompanyProfileById(profileId)
+                repository.getCurrentCompanyProfile()
             }
 
             val offersResultDeferred = async {
-                repository.getCompanyOffersById(profileId)
+                repository.getCurrentCompanyOffers()
             }
 
             val companyResult = companyResultDeferred.await()

@@ -71,6 +71,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
 import com.example.nextstep.ui.components.BottomBarItem
+import com.example.nextstep.ui.components.CompanyLogo
+import com.example.nextstep.ui.components.InternshipOfferCard
 import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
 
@@ -90,7 +92,8 @@ fun StudentDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel(),
     onChatClick: (String) -> Unit = {},
-    onInternshipClick: (String) -> Unit = {}
+    onInternshipClick: (String) -> Unit = {},
+    onCompanyClick: (String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val filteredOffers = state.filteredOffers
@@ -173,7 +176,8 @@ fun StudentDashboardScreen(
                         onFilterClick = {
                             showFiltersSheet = true
                         },
-                        onOfferClick = onOfferClick
+                        onOfferClick = onOfferClick,
+                        onCompanyClick = onCompanyClick
                     )
                 }
 
@@ -209,7 +213,11 @@ fun StudentDashboardScreen(
                                 onBackClick = {
                                     showStudentSavedOffers = false
                                 },
-                                onOfferClick = onOfferClick
+                                onOfferClick = onOfferClick,
+                                onCompanyClick = { companyId ->
+                                    Log.d("CompanyProfileDebug", "Navegando dos Salvos. ID enviado: $companyId")
+                                    onCompanyClick(companyId)
+                                }
                             )
                         }
 
@@ -315,7 +323,8 @@ fun StudentOffersContent(
     onSearchChange: (String) -> Unit,
     onRetryClick: () -> Unit,
     onFilterClick: () -> Unit,
-    onOfferClick: (String) -> Unit
+    onOfferClick: (String) -> Unit,
+    onCompanyClick: (String) -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -393,6 +402,9 @@ fun StudentOffersContent(
                         offer = offer,
                         onClick = {
                             onOfferClick(offer.id)
+                        },
+                        onCompanyClick = {
+                            offer.companyProfileId?.let { onCompanyClick(it) }
                         }
                     )
 
@@ -471,128 +483,6 @@ fun FilterButton(
             contentDescription = null,
             tint = Color(0xFF8A8A8A),
             modifier = Modifier.size(18.dp)
-        )
-    }
-}
-
-@Composable
-fun InternshipOfferCard(
-    offer: OfferDto,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp)
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE0E0E0),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CompanyLogo(
-                companyName = offer.companyName
-            )
-
-            Spacer(modifier = Modifier.width(20.dp))
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = offer.companyName,
-                    fontSize = 16.sp,
-                    color = Color(0xFF8A8A8A),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = offer.title,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(28.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    Text(
-                        text = offer.location,
-                        fontSize = 17.sp,
-                        color = Color.Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CompanyLogo(
-    companyName: String
-) {
-    val initials = companyName
-        .split(" ")
-        .filter { it.isNotBlank() }
-        .take(2)
-        .joinToString("") { part ->
-            part.first().uppercase()
-        }
-        .ifBlank {
-            "?"
-        }
-
-    Box(
-        modifier = Modifier
-            .size(76.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFFDFA52))
-            .border(
-                width = 1.dp,
-                color = Color(0xFFD9D9D9),
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initials,
-            color = Color.Black,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
         )
     }
 }

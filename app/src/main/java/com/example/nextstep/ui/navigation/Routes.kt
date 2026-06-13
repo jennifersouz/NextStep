@@ -23,6 +23,9 @@ object Routes {
     const val STUDENT_SEARCH_ADVISOR = "student_search_advisor/{internshipId}"
     const val STUDENT_SEARCH_ADVISOR_ARG = "internshipId"
 
+    const val COMPANY_PROFILE = "company_profile/{companyProfileId}"
+    const val COMPANY_PROFILE_ARG = "companyProfileId"
+
     const val COMPANY_OFFER_DETAIL = "company_offer_detail/{offerId}"
     const val COMPANY_EDIT_OFFER = "company_edit_offer/{offerId}"
     const val CHAT = "chat/{applicationId}"
@@ -157,5 +160,9 @@ object Routes {
 
     fun studentSearchAdvisor(internshipId: String): String {
         return "student_search_advisor/$internshipId"
+    }
+
+    fun companyProfile(companyProfileId: String): String {
+        return "company_profile/$companyProfileId"
     }
 }

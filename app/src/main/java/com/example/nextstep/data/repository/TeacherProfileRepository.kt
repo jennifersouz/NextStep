@@ -51,24 +51,13 @@ class TeacherProfileRepository {
 
             val userId = currentUser.id
 
-            // Part A: Update personal data in profiles table
+            // Update data in teachers table (first_name, last_name, phone, department are in teachers)
             supabase
-                .from("profiles")
+                .from("teachers")
                 .update({
                     set("first_name", firstName.trim())
                     set("last_name", lastName.trim())
                     set("phone", phone?.trim()?.takeIf { it.isNotBlank() })
-                }) {
-                    filter {
-                        eq("id", userId)
-                    }
-                }
-
-            // Part B: Update role-specific data in teachers table
-            // Only department belongs here; first_name, last_name, phone are in profiles
-            supabase
-                .from("teachers")
-                .update({
                     set("department", department?.trim()?.takeIf { it.isNotBlank() })
                 }) {
                     filter {

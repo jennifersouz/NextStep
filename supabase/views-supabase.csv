@@ -1,0 +1,372 @@
+table_name,view_definition
+student_assigned_advisors_view," SELECT app.id AS application_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.advisor_profile_id,
+    app.status AS application_status,
+    adv.name AS advisor_name,
+    adv.email AS advisor_email,
+    adv.phone AS advisor_phone,
+    adv.department AS advisor_department,
+    off.title AS offer_title
+   FROM ((applications app
+     LEFT JOIN advisors adv ON ((adv.profile_id = app.advisor_profile_id)))
+     LEFT JOIN offers off ON ((off.id = app.offer_id)))
+  WHERE (app.student_profile_id = ( SELECT auth.uid() AS uid));"
+student_application_notifications_view," SELECT app.id,
+    'application_status'::text AS type,
+    app.offer_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.status,
+    app.student_status_seen,
+    app.student_status_seen AS is_seen,
+    COALESCE(app.status_updated_at, app.created_at) AS status_updated_at,
+    COALESCE(app.status_updated_at, app.created_at) AS created_at,
+    off.title AS offer_title,
+    c.company_name,
+    NULL::text AS advisor_name
+   FROM ((applications app
+     LEFT JOIN offers off ON ((off.id = app.offer_id)))
+     LEFT JOIN companies c ON ((c.profile_id = app.company_profile_id)))
+  WHERE ((app.student_profile_id = ( SELECT auth.uid() AS uid)) AND (app.status = ANY (ARRAY['accepted'::text, 'rejected'::text])))
+UNION ALL
+ SELECT app.id,
+    'advisor_assigned'::text AS type,
+    app.offer_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.status,
+    app.advisor_assignment_seen AS student_status_seen,
+    app.advisor_assignment_seen AS is_seen,
+    COALESCE(app.advisor_assigned_at, app.created_at) AS status_updated_at,
+    COALESCE(app.advisor_assigned_at, app.created_at) AS created_at,
+    off.title AS offer_title,
+    c.company_name,
+    adv.name AS advisor_name
+   FROM (((applications app
+     LEFT JOIN offers off ON ((off.id = app.offer_id)))
+     LEFT JOIN companies c ON ((c.profile_id = app.company_profile_id)))
+     LEFT JOIN advisors adv ON ((adv.profile_id = app.advisor_profile_id)))
+  WHERE ((app.student_profile_id = ( SELECT auth.uid() AS uid)) AND (app.advisor_profile_id IS NOT NULL));"
+student_chat_conversations_view," SELECT a.id,
+    a.status,
+    a.created_at,
+    o.title AS offer_title,
+    o.company_name
+   FROM (applications a
+     JOIN offers o ON ((o.id = a.offer_id)))
+  WHERE (a.student_profile_id = ( SELECT auth.uid() AS uid))
+  ORDER BY a.created_at DESC;"
+institution_profile_view," SELECT i.profile_id,
+    p.email,
+    i.name,
+    i.nif,
+    i.locality,
+    i.address,
+    i.phone
+   FROM (institutions i
+     JOIN profiles p ON ((p.id = i.profile_id)))
+  WHERE (i.profile_id = auth.uid());"
+advisor_activities_view," SELECT (n.id)::text AS id,
+    n.receiver_profile_id AS advisor_profile_id,
+    n.application_id,
+    n.type,
+    n.title,
+    n.message AS description,
+    n.message,
+    n.created_at,
+    n.is_read,
+    TRIM(BOTH FROM ((COALESCE(s.first_name, ''::text) || ' '::text) || COALESCE(s.last_name, ''::text))) AS student_name,
+    o.title AS offer_title
+   FROM (((notifications n
+     LEFT JOIN applications app ON ((app.id = n.application_id)))
+     LEFT JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+  WHERE (n.receiver_profile_id = auth.uid())
+UNION ALL
+ SELECT ('task_created_'::text || (t.id)::text) AS id,
+    app.advisor_profile_id,
+    t.application_id,
+    'task_created'::text AS type,
+    'Nova tarefa criada'::text AS title,
+    t.title AS description,
+    COALESCE(t.description, t.title) AS message,
+    t.created_at,
+    false AS is_read,
+    TRIM(BOTH FROM ((COALESCE(s.first_name, ''::text) || ' '::text) || COALESCE(s.last_name, ''::text))) AS student_name,
+    o.title AS offer_title
+   FROM (((application_tasks t
+     JOIN applications app ON ((app.id = t.application_id)))
+     LEFT JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+  WHERE (app.advisor_profile_id = auth.uid())
+UNION ALL
+ SELECT ('task_completed_'::text || (t.id)::text) AS id,
+    app.advisor_profile_id,
+    t.application_id,
+    'task_completed'::text AS type,
+    'Tarefa concluída'::text AS title,
+    t.title AS description,
+    COALESCE(t.description, t.title) AS message,
+    t.completed_at AS created_at,
+    false AS is_read,
+    TRIM(BOTH FROM ((COALESCE(s.first_name, ''::text) || ' '::text) || COALESCE(s.last_name, ''::text))) AS student_name,
+    o.title AS offer_title
+   FROM (((application_tasks t
+     JOIN applications app ON ((app.id = t.application_id)))
+     LEFT JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+  WHERE ((app.advisor_profile_id = auth.uid()) AND (t.completed_at IS NOT NULL));"
+student_applications_view," SELECT app.id,
+    app.offer_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.status,
+    app.created_at,
+    app.motivation_letter_path,
+    app.cv_path,
+    app.student_presence_confirmed,
+    app.student_presence_confirmed_at,
+    off.title AS offer_title,
+    c.company_name,
+    s.first_name,
+    s.last_name,
+    app.advisor_profile_id,
+    adv.name AS advisor_name,
+    adv.email AS advisor_email,
+    adv.phone AS advisor_phone,
+    adv.department AS advisor_department
+   FROM ((((applications app
+     JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     LEFT JOIN offers off ON ((off.id = app.offer_id)))
+     LEFT JOIN companies c ON ((c.profile_id = app.company_profile_id)))
+     LEFT JOIN advisors adv ON ((adv.profile_id = app.advisor_profile_id)))
+  WHERE (app.student_profile_id = ( SELECT auth.uid() AS uid));"
+advisor_assigned_applications_view," SELECT app.id AS application_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.advisor_profile_id,
+    app.status,
+    app.student_presence_confirmed,
+    s.first_name,
+    s.last_name,
+    s.course,
+    s.student_number,
+    s.academic_year,
+    s.education_institution,
+    p.email AS student_email,
+    off.title AS offer_title,
+    ( SELECT msg.content
+           FROM application_messages msg
+          WHERE (msg.application_id = app.id)
+          ORDER BY msg.created_at DESC
+         LIMIT 1) AS last_message,
+    ( SELECT msg.created_at
+           FROM application_messages msg
+          WHERE (msg.application_id = app.id)
+          ORDER BY msg.created_at DESC
+         LIMIT 1) AS last_message_at,
+    ( SELECT count(*) AS count
+           FROM application_messages msg
+          WHERE ((msg.application_id = app.id) AND (msg.receiver_profile_id = auth.uid()) AND (msg.read_at IS NULL))) AS unread_count
+   FROM (((applications app
+     JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     JOIN profiles p ON ((p.id = app.student_profile_id)))
+     LEFT JOIN offers off ON ((off.id = app.offer_id)))
+  WHERE ((app.advisor_profile_id = auth.uid()) AND (app.status = 'accepted'::text) AND (app.student_presence_confirmed = true));"
+application_chat_messages_view," SELECT msg.id,
+    msg.application_id,
+    msg.sender_profile_id,
+    msg.receiver_profile_id,
+    msg.content,
+    msg.created_at,
+    msg.read_at,
+    sender.email AS sender_email,
+    receiver.email AS receiver_email,
+        CASE
+            WHEN (msg.sender_profile_id = auth.uid()) THEN true
+            ELSE false
+        END AS is_mine
+   FROM ((application_messages msg
+     LEFT JOIN profiles sender ON ((sender.id = msg.sender_profile_id)))
+     LEFT JOIN profiles receiver ON ((receiver.id = msg.receiver_profile_id)))
+  WHERE is_application_chat_participant(msg.application_id, auth.uid());"
+company_applications_view," SELECT app.id,
+    app.offer_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.status,
+    app.created_at,
+    app.viewed_by_company,
+    app.student_status_seen,
+    app.student_presence_confirmed,
+    app.student_presence_confirmed_at,
+    app.motivation_letter_path,
+    app.cv_path,
+    app.advisor_profile_id,
+    s.first_name,
+    s.last_name,
+    s.course,
+    s.student_number,
+    s.academic_year,
+    s.education_institution,
+    p.email AS student_email,
+    o.title AS offer_title,
+    adv.name AS advisor_name,
+    adv.email AS advisor_email,
+    adv.phone AS advisor_phone,
+    adv.department AS advisor_department
+   FROM ((((applications app
+     JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     JOIN profiles p ON ((p.id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+     LEFT JOIN advisors adv ON ((adv.profile_id = app.advisor_profile_id)))
+  WHERE (app.company_profile_id = ( SELECT auth.uid() AS uid));"
+teacher_orientation_requests_view," SELECT app.id,
+    app.id AS request_id,
+    app.id AS application_id,
+    app.offer_id,
+    app.teacher_profile_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.cv_path,
+    app.motivation_letter_path,
+    NULLIF(TRIM(BOTH FROM ((COALESCE(st.first_name, ''::text) || ' '::text) || COALESCE(st.last_name, ''::text))), ''::text) AS student_name,
+    p.email AS student_email,
+    st.course,
+    o.title AS offer_title,
+    COALESCE(c.company_name, o.company_name, 'Empresa'::text) AS company_name,
+    COALESCE(app.teacher_status, app.status, 'pending'::text) AS status,
+    app.created_at,
+    o.location,
+    o.work_mode,
+    o.duration,
+    o.description
+   FROM ((((applications app
+     LEFT JOIN students st ON ((st.profile_id = app.student_profile_id)))
+     LEFT JOIN profiles p ON ((p.id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+     LEFT JOIN companies c ON ((c.profile_id = app.company_profile_id)))
+  WHERE (app.teacher_profile_id = auth.uid());"
+company_student_profiles_view," SELECT a.id AS application_id,
+    a.company_profile_id,
+    a.student_profile_id,
+    a.status AS application_status,
+    a.created_at AS application_created_at,
+    p.email AS student_email,
+    s.first_name,
+    s.last_name,
+    s.student_number,
+    s.course,
+    s.academic_year,
+    s.education_institution,
+    o.title AS offer_title
+   FROM (((applications a
+     JOIN profiles p ON ((p.id = a.student_profile_id)))
+     JOIN students s ON ((s.profile_id = a.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = a.offer_id)));"
+institution_users_view," SELECT inv.id AS invite_id,
+    inv.institution_profile_id,
+    inv.target_role,
+    inv.email,
+    COALESCE(s.first_name, t.first_name, inv.first_name) AS first_name,
+    COALESCE(s.last_name, t.last_name, inv.last_name) AS last_name,
+    COALESCE(t.phone, inv.phone) AS phone,
+    s.student_number,
+    s.course,
+    s.academic_year,
+    t.department,
+    inv.accepted_at,
+    inv.created_at,
+        CASE
+            WHEN (inv.accepted_at IS NULL) THEN 'pending'::text
+            ELSE 'accepted'::text
+        END AS invite_status
+   FROM (((institution_invites inv
+     LEFT JOIN profiles p ON (((lower(p.email) = lower(inv.email)) AND (p.role = inv.target_role))))
+     LEFT JOIN students s ON (((s.profile_id = p.id) AND (inv.target_role = 'student'::text))))
+     LEFT JOIN teachers t ON (((t.profile_id = p.id) AND (inv.target_role = 'teacher'::text))))
+  WHERE (inv.institution_profile_id = auth.uid());"
+student_saved_offers_view," SELECT o.id,
+    o.company_profile_id,
+    o.company_name,
+    o.title,
+    o.description,
+    o.area,
+    o.location,
+    o.work_mode,
+    o.duration,
+    o.vacancies,
+    o.requirements,
+    o.is_active
+   FROM (saved_offers so
+     JOIN offers o ON ((o.id = so.offer_id)))
+  WHERE ((so.student_profile_id = ( SELECT auth.uid() AS uid)) AND (o.is_active = true));"
+company_active_advisors_view," SELECT profile_id,
+    company_profile_id,
+    name,
+    email,
+    phone,
+    department,
+    created_at
+   FROM advisors
+  WHERE (company_profile_id = ( SELECT auth.uid() AS uid));"
+advisor_tasks_view," SELECT t.id,
+    t.application_id,
+    t.title,
+    t.description,
+    t.status,
+    t.priority,
+    t.due_date,
+    t.created_by_profile_id,
+    t.assigned_to_profile_id,
+    t.completed_at,
+    t.created_at,
+    t.updated_at,
+    app.advisor_profile_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    TRIM(BOTH FROM ((COALESCE(s.first_name, ''::text) || ' '::text) || COALESCE(s.last_name, ''::text))) AS student_name,
+    p.email AS student_email,
+    o.title AS offer_title,
+    NULL::text AS company_name
+   FROM ((((application_tasks t
+     JOIN applications app ON ((app.id = t.application_id)))
+     LEFT JOIN students s ON ((s.profile_id = app.student_profile_id)))
+     LEFT JOIN profiles p ON ((p.id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+  WHERE (app.advisor_profile_id = auth.uid());"
+teacher_students_view," SELECT app.id,
+    app.id AS application_id,
+    app.teacher_profile_id,
+    app.student_profile_id,
+    app.company_profile_id,
+    app.offer_id,
+    app.cv_path,
+    app.motivation_letter_path,
+    NULLIF(TRIM(BOTH FROM ((COALESCE(st.first_name, ''::text) || ' '::text) || COALESCE(st.last_name, ''::text))), ''::text) AS student_name,
+    p.email AS student_email,
+    st.course,
+    o.title AS offer_title,
+    COALESCE(c.company_name, o.company_name, 'Empresa'::text) AS company_name,
+    COALESCE(app.teacher_status, app.status, 'active'::text) AS status,
+    app.created_at,
+    ( SELECT count(*) AS count
+           FROM application_tasks t
+          WHERE (t.application_id = app.id)) AS tasks_count,
+    ( SELECT count(*) AS count
+           FROM application_tasks t
+          WHERE ((t.application_id = app.id) AND (t.status = ANY (ARRAY['completed'::text, 'concluida'::text, 'concluída'::text])))) AS completed_tasks_count,
+    (EXISTS ( SELECT 1
+           FROM teacher_evaluations te
+          WHERE ((te.application_id = app.id) AND (te.teacher_profile_id = app.teacher_profile_id) AND (te.status = 'submitted'::text)))) AS has_evaluation,
+    (NOT (EXISTS ( SELECT 1
+           FROM teacher_evaluations te
+          WHERE ((te.application_id = app.id) AND (te.teacher_profile_id = app.teacher_profile_id) AND (te.status = 'submitted'::text))))) AS has_pending_evaluation
+   FROM ((((applications app
+     LEFT JOIN students st ON ((st.profile_id = app.student_profile_id)))
+     LEFT JOIN profiles p ON ((p.id = app.student_profile_id)))
+     LEFT JOIN offers o ON ((o.id = app.offer_id)))
+     LEFT JOIN companies c ON ((c.profile_id = app.company_profile_id)))
+  WHERE ((app.teacher_profile_id = auth.uid()) AND (COALESCE(app.teacher_status, app.status, 'accepted'::text) = ANY (ARRAY['pending'::text, 'accepted'::text, 'active'::text, 'in_progress'::text, 'completed'::text])));"

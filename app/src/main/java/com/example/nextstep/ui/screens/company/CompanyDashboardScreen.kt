@@ -186,7 +186,7 @@ fun CompanyDashboardScreen(
                             }
                         )
                     } else {
-                        CompanyProfileScreen(
+                        CompanyOwnProfileScreen(
                             refreshKey = companyProfileRefreshKey,
                             onEditProfileClick = {
                                 showCompanyEditProfile = true

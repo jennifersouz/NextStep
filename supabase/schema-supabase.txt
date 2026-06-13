@@ -4,12 +4,13 @@
 CREATE TABLE public.profiles (
   id uuid NOT NULL,
   email text NOT NULL UNIQUE,
-  role text NOT NULL CHECK (role = ANY (ARRAY['student'::text, 'company'::text, 'advisor'::text, 'institution'::text, 'teacher'::text])),
+  role text NOT NULL CHECK (role = ANY (ARRAY['student'::text, 'company'::text, 'teacher'::text, 'advisor'::text, 'institution'::text, 'admin'::text])),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   first_name text,
   last_name text,
   phone text,
+  is_active boolean NOT NULL DEFAULT true,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
@@ -38,6 +39,7 @@ CREATE TABLE public.companies (
   updated_at timestamp with time zone DEFAULT now(),
   description text,
   phone text,
+  is_active boolean NOT NULL DEFAULT true,
   CONSTRAINT companies_pkey PRIMARY KEY (id),
   CONSTRAINT companies_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
 );
@@ -231,4 +233,21 @@ CREATE TABLE public.notifications (
   CONSTRAINT notifications_sender_profile_id_fkey FOREIGN KEY (sender_profile_id) REFERENCES public.profiles(id),
   CONSTRAINT notifications_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
   CONSTRAINT notifications_receiver_profile_id_fkey FOREIGN KEY (receiver_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.teacher_evaluations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  application_id uuid NOT NULL,
+  teacher_profile_id uuid NOT NULL,
+  student_profile_id uuid NOT NULL,
+  grade numeric NOT NULL CHECK (grade >= 0::numeric AND grade <= 20::numeric),
+  qualitative_feedback text NOT NULL,
+  strengths text,
+  improvements text,
+  status text NOT NULL DEFAULT 'submitted'::text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT teacher_evaluations_pkey PRIMARY KEY (id),
+  CONSTRAINT teacher_evaluations_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
+  CONSTRAINT teacher_evaluations_teacher_profile_id_fkey FOREIGN KEY (teacher_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT teacher_evaluations_student_profile_id_fkey FOREIGN KEY (student_profile_id) REFERENCES public.profiles(id)
 );

@@ -101,8 +101,8 @@ fun StudentSearchAdvisorScreen(
                     items(uiState.filteredTeachers) { teacher ->
                         TeacherRow(
                             teacher = teacher,
-                            isSending = uiState.sendingTeacherId == teacher.profileId,
-                            onSendClick = { viewModel.sendRequest(internshipId, teacher.profileId) }
+                            isSending = uiState.sendingTeacherId == teacher.safeProfileId,
+                            onSendClick = { viewModel.sendRequest(internshipId, teacher.safeProfileId) }
                         )
                     }
                 }
@@ -122,24 +122,34 @@ fun TeacherRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         ProfileAvatar(
-            name = "${teacher.firstName} ${teacher.lastName}",
+            name = teacher.displayFullName,
             size = 48.dp
         )
         
         Spacer(modifier = Modifier.width(16.dp))
         
-        Text(
-            text = "${teacher.firstName} ${teacher.lastName}",
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            modifier = Modifier.weight(1f),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = teacher.displayFullName,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!teacher.department.isNullOrBlank()) {
+                Text(
+                    text = teacher.department,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
         
         Button(
             onClick = onSendClick,
-            enabled = !isSending,
+            enabled = !isSending && teacher.safeProfileId.isNotBlank(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFDFA52),
                 contentColor = Color.Black

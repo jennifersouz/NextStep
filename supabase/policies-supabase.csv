@@ -1,0 +1,134 @@
+schemaname,tablename,policyname,permissive,roles,cmd,qual,with_check
+public,advisor_invites,Invited advisor can accept own invite,PERMISSIVE,{authenticated},UPDATE,(lower(email) = lower((auth.jwt() ->> 'email'::text))),(lower(email) = lower((auth.jwt() ->> 'email'::text)))
+public,advisor_invites,Invited advisor can view own invite,PERMISSIVE,{authenticated},SELECT,(lower(email) = lower((auth.jwt() ->> 'email'::text))),null
+public,advisor_invites,Companies can manage own advisor invites,PERMISSIVE,{authenticated},ALL,(( SELECT auth.uid() AS uid) = company_profile_id),(( SELECT auth.uid() AS uid) = company_profile_id)
+public,advisors,Advisor can create own advisor profile from invite,PERMISSIVE,{authenticated},INSERT,null,(( SELECT auth.uid() AS uid) = profile_id)
+public,advisors,Companies can view own advisors,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = company_profile_id),null
+public,advisors,Advisor can view own advisor profile,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = profile_id),null
+public,application_messages,Chat participants can insert messages,PERMISSIVE,{authenticated},INSERT,null,"((sender_profile_id = auth.uid()) AND is_application_chat_participant(application_id, auth.uid()) AND is_application_chat_participant(application_id, receiver_profile_id))"
+public,application_messages,Users can view own application messages,PERMISSIVE,{authenticated},SELECT,((( SELECT auth.uid() AS uid) = sender_profile_id) OR (( SELECT auth.uid() AS uid) = receiver_profile_id)),null
+public,application_messages,Users can send messages in own applications,PERMISSIVE,{authenticated},INSERT,null,"((( SELECT auth.uid() AS uid) = sender_profile_id) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.id = application_messages.application_id) AND ((a.student_profile_id = ( SELECT auth.uid() AS uid)) OR (a.company_profile_id = ( SELECT auth.uid() AS uid))) AND (((( SELECT auth.uid() AS uid) = a.student_profile_id) AND (application_messages.receiver_profile_id = a.company_profile_id)) OR ((( SELECT auth.uid() AS uid) = a.company_profile_id) AND (application_messages.receiver_profile_id = a.student_profile_id)))))))"
+public,application_messages,Users can mark received messages as read,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = receiver_profile_id),(( SELECT auth.uid() AS uid) = receiver_profile_id)
+public,application_messages,Chat participants can read messages,PERMISSIVE,{authenticated},SELECT,"is_application_chat_participant(application_id, auth.uid())",null
+public,application_messages,Receiver can mark messages as read,PERMISSIVE,{authenticated},UPDATE,(receiver_profile_id = auth.uid()),(receiver_profile_id = auth.uid())
+public,application_tasks,Alunos podem ver suas tarefas,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM applications
+  WHERE ((applications.id = application_tasks.application_id) AND (applications.student_profile_id = auth.uid()))))",null
+public,application_tasks,Students can read own application tasks,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications app
+  WHERE ((app.id = application_tasks.application_id) AND (app.student_profile_id = auth.uid()))))",null
+public,application_tasks,Orientadores podem gerir tarefas das suas candidaturas,PERMISSIVE,{public},ALL,"(EXISTS ( SELECT 1
+   FROM applications
+  WHERE ((applications.id = application_tasks.application_id) AND (applications.advisor_profile_id = auth.uid()))))",null
+public,application_tasks,Teachers can read tasks from assigned applications,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.id = application_tasks.application_id) AND (a.teacher_profile_id = auth.uid()))))",null
+public,application_tasks,Advisors can manage tasks for assigned applications,PERMISSIVE,{authenticated},ALL,"(EXISTS ( SELECT 1
+   FROM applications app
+  WHERE ((app.id = application_tasks.application_id) AND (app.advisor_profile_id = auth.uid()))))","(EXISTS ( SELECT 1
+   FROM applications app
+  WHERE ((app.id = application_tasks.application_id) AND (app.advisor_profile_id = auth.uid()))))"
+public,applications,Admins can update all applications,PERMISSIVE,{authenticated},UPDATE,is_admin(),is_admin()
+public,applications,Students can read own applications,PERMISSIVE,{authenticated},SELECT,(student_profile_id = auth.uid()),null
+public,applications,Companies can read received applications,PERMISSIVE,{authenticated},SELECT,(company_profile_id = auth.uid()),null
+public,applications,Teachers can read assigned applications,PERMISSIVE,{authenticated},SELECT,(teacher_profile_id = auth.uid()),null
+public,applications,Advisors can read assigned applications,PERMISSIVE,{authenticated},SELECT,(advisor_profile_id = auth.uid()),null
+public,applications,Admins can read all applications,PERMISSIVE,{authenticated},SELECT,is_admin(),null
+public,applications,Students can create own applications,PERMISSIVE,{authenticated},INSERT,null,(student_profile_id = auth.uid())
+public,applications,Companies can update received applications,PERMISSIVE,{authenticated},UPDATE,(company_profile_id = auth.uid()),(company_profile_id = auth.uid())
+public,applications,Teachers can update assigned applications,PERMISSIVE,{authenticated},UPDATE,(teacher_profile_id = auth.uid()),(teacher_profile_id = auth.uid())
+public,applications,Advisors can update assigned applications,PERMISSIVE,{authenticated},UPDATE,(advisor_profile_id = auth.uid()),(advisor_profile_id = auth.uid())
+public,applications,Admins can delete applications,PERMISSIVE,{authenticated},DELETE,is_admin(),null
+public,companies,Companies can update own company data,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = profile_id),(( SELECT auth.uid() AS uid) = profile_id)
+public,companies,Companies can insert own company data,PERMISSIVE,{authenticated},INSERT,null,"((( SELECT auth.uid() AS uid) = profile_id) AND (EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = ( SELECT auth.uid() AS uid)) AND (profiles.role = 'company'::text)))))"
+public,companies,Admins can insert companies,PERMISSIVE,{authenticated},INSERT,null,is_admin()
+public,companies,Companies can view own company profile,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = profile_id),null
+public,companies,Teachers can read companies from assigned applications,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND (a.company_profile_id = companies.profile_id))))",null
+public,companies,Companies can update own company profile,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = profile_id),(( SELECT auth.uid() AS uid) = profile_id)
+public,companies,Admins can delete companies,PERMISSIVE,{authenticated},DELETE,is_admin(),null
+public,companies,Companies can view own company data,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = profile_id),null
+public,companies,Admins can update companies,PERMISSIVE,{authenticated},UPDATE,(is_admin() OR (profile_id = auth.uid())),(is_admin() OR (profile_id = auth.uid()))
+public,companies,Admins can read all companies,PERMISSIVE,{authenticated},SELECT,(is_admin() OR (profile_id = auth.uid())),null
+public,company_advisors,Companies can view own advisors,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = company_profile_id),null
+public,company_advisors,Companies can create own advisors,PERMISSIVE,{authenticated},INSERT,null,(( SELECT auth.uid() AS uid) = company_profile_id)
+public,company_advisors,Companies can update own advisors,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = company_profile_id),(( SELECT auth.uid() AS uid) = company_profile_id)
+public,company_advisors,Companies can delete own advisors,PERMISSIVE,{authenticated},DELETE,(( SELECT auth.uid() AS uid) = company_profile_id),null
+public,institution_invites,Invited user can read own invite,PERMISSIVE,{authenticated},SELECT,"(lower(email) = lower(COALESCE((auth.jwt() ->> 'email'::text), ''::text)))",null
+public,institution_invites,Institution can create own invites,PERMISSIVE,{authenticated},INSERT,null,(institution_profile_id = auth.uid())
+public,institution_invites,Institution can delete own pending invites,PERMISSIVE,{authenticated},DELETE,((institution_profile_id = auth.uid()) AND (accepted_at IS NULL)),null
+public,institution_invites,Institution can read own invites,PERMISSIVE,{authenticated},SELECT,(institution_profile_id = auth.uid()),null
+public,institution_invites,Institution can update own pending invites,PERMISSIVE,{authenticated},UPDATE,((institution_profile_id = auth.uid()) AND (accepted_at IS NULL)),((institution_profile_id = auth.uid()) AND (accepted_at IS NULL))
+public,institutions,Institutions can read own institution,PERMISSIVE,{authenticated},SELECT,(profile_id = auth.uid()),null
+public,institutions,Institutions can update own institution,PERMISSIVE,{authenticated},UPDATE,(profile_id = auth.uid()),(profile_id = auth.uid())
+public,institutions,Institutions can insert own institution,PERMISSIVE,{authenticated},INSERT,null,(profile_id = auth.uid())
+public,internships,Companies can update own internships,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = company_profile_id),(( SELECT auth.uid() AS uid) = company_profile_id)
+public,internships,Companies can view own internships,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = company_profile_id),null
+public,internships,Companies can insert own internships,PERMISSIVE,{authenticated},INSERT,null,(( SELECT auth.uid() AS uid) = company_profile_id)
+public,notifications,Users can update own notifications,PERMISSIVE,{authenticated},UPDATE,(receiver_profile_id = auth.uid()),(receiver_profile_id = auth.uid())
+public,notifications,Users can read own notifications,PERMISSIVE,{authenticated},SELECT,(receiver_profile_id = auth.uid()),null
+storage,objects,Companies can read application documents for own applications,PERMISSIVE,{authenticated},SELECT,"((bucket_id = 'application-documents'::text) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.company_profile_id = ( SELECT auth.uid() AS uid)) AND ((a.motivation_letter_path = objects.name) OR (a.cv_path = objects.name))))))",null
+storage,objects,Students can upload own application documents,PERMISSIVE,{authenticated},INSERT,null,((bucket_id = 'application-documents'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text))
+storage,objects,Students can read own application documents,PERMISSIVE,{authenticated},SELECT,((bucket_id = 'application-documents'::text) AND ((storage.foldername(name))[1] = (( SELECT auth.uid() AS uid))::text)),null
+storage,objects,Students can read own submitted application documents,PERMISSIVE,{authenticated},SELECT,"((bucket_id = 'application-documents'::text) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.student_profile_id = ( SELECT auth.uid() AS uid)) AND ((a.motivation_letter_path = objects.name) OR (a.cv_path = objects.name))))))",null
+storage,objects,Teachers can read assigned application documents,PERMISSIVE,{authenticated},SELECT,"((bucket_id = 'application-documents'::text) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND ((a.cv_path = objects.name) OR (a.motivation_letter_path = objects.name))))))",null
+public,offers,Companies can insert own offers,PERMISSIVE,{authenticated},INSERT,null,"((auth.uid() = company_profile_id) AND (EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = auth.uid()) AND (profiles.role = 'company'::text)))))"
+public,offers,Authenticated users can view active offers,PERMISSIVE,{authenticated},SELECT,(is_active = true),null
+public,offers,Companies can update own offers,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = company_profile_id),(( SELECT auth.uid() AS uid) = company_profile_id)
+public,offers,Companies can view own offers,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = company_profile_id),null
+public,offers,Teachers can read assigned offers,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND (a.offer_id = offers.id))))",null
+public,offers,Teachers can read offers from assigned applications,PERMISSIVE,{public},SELECT,"(EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND (a.offer_id = offers.id))))",null
+public,profiles,Users can view own profile,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = id),null
+public,profiles,Users can insert own profile,PERMISSIVE,{authenticated},INSERT,null,(( SELECT auth.uid() AS uid) = id)
+public,profiles,Teachers can read profiles from assigned applications,PERMISSIVE,{authenticated},SELECT,"((id = auth.uid()) OR (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND ((a.student_profile_id = profiles.id) OR (a.company_profile_id = profiles.id))))))",null
+public,profiles,Admins can insert profiles,PERMISSIVE,{authenticated},INSERT,null,is_admin()
+public,profiles,Admins can delete profiles,PERMISSIVE,{authenticated},DELETE,is_admin(),null
+public,profiles,Admins can read all profiles,PERMISSIVE,{authenticated},SELECT,(is_admin() OR (id = auth.uid())),null
+public,profiles,Admins can update all profiles,PERMISSIVE,{authenticated},UPDATE,(is_admin() OR (id = auth.uid())),(is_admin() OR (id = auth.uid()))
+public,saved_offers,Students can view own saved offers,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = student_profile_id),null
+public,saved_offers,Students can delete own saved offers,PERMISSIVE,{authenticated},DELETE,(( SELECT auth.uid() AS uid) = student_profile_id),null
+public,saved_offers,Students can save own offers,PERMISSIVE,{authenticated},INSERT,null,(( SELECT auth.uid() AS uid) = student_profile_id)
+public,students,Teachers can read students from assigned applications,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.teacher_profile_id = auth.uid()) AND (a.student_profile_id = students.profile_id))))",null
+public,students,Companies can view students who applied to their offers,PERMISSIVE,{authenticated},SELECT,"(EXISTS ( SELECT 1
+   FROM applications
+  WHERE ((applications.student_profile_id = students.profile_id) AND (applications.company_profile_id = ( SELECT auth.uid() AS uid)))))",null
+public,students,Students can update own profile,PERMISSIVE,{authenticated},UPDATE,(profile_id = auth.uid()),(profile_id = auth.uid())
+public,students,Admins can read all students,PERMISSIVE,{authenticated},SELECT,(is_admin() OR (profile_id = auth.uid())),null
+public,students,Students can update own student data,PERMISSIVE,{authenticated},UPDATE,(( SELECT auth.uid() AS uid) = profile_id),(( SELECT auth.uid() AS uid) = profile_id)
+public,students,Students can insert own student data,PERMISSIVE,{authenticated},INSERT,null,"((( SELECT auth.uid() AS uid) = profile_id) AND (EXISTS ( SELECT 1
+   FROM profiles
+  WHERE ((profiles.id = ( SELECT auth.uid() AS uid)) AND (profiles.role = 'student'::text)))))"
+public,students,Students can view own student data,PERMISSIVE,{authenticated},SELECT,(( SELECT auth.uid() AS uid) = profile_id),null
+public,students,Students can read own profile,PERMISSIVE,{authenticated},SELECT,(profile_id = auth.uid()),null
+public,teacher_evaluations,Students can read own evaluations,PERMISSIVE,{authenticated},SELECT,(student_profile_id = auth.uid()),null
+public,teacher_evaluations,Teachers can update own evaluations,PERMISSIVE,{authenticated},UPDATE,(teacher_profile_id = auth.uid()),"((teacher_profile_id = auth.uid()) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.id = teacher_evaluations.application_id) AND (a.teacher_profile_id = auth.uid()) AND (a.student_profile_id = teacher_evaluations.student_profile_id) AND (a.teacher_status = 'accepted'::text)))))"
+public,teacher_evaluations,Teachers can insert own evaluations,PERMISSIVE,{authenticated},INSERT,null,"((teacher_profile_id = auth.uid()) AND (EXISTS ( SELECT 1
+   FROM applications a
+  WHERE ((a.id = teacher_evaluations.application_id) AND (a.teacher_profile_id = auth.uid()) AND (a.student_profile_id = teacher_evaluations.student_profile_id) AND (a.teacher_status = 'accepted'::text)))))"
+public,teacher_evaluations,Teachers can read own evaluations,PERMISSIVE,{authenticated},SELECT,(teacher_profile_id = auth.uid()),null
+public,teachers,Admins can read all teachers,PERMISSIVE,{authenticated},SELECT,(is_admin() OR (profile_id = auth.uid())),null
+public,teachers,Institution can read own teachers,PERMISSIVE,{authenticated},SELECT,(institution_profile_id = auth.uid()),null
+public,teachers,Teachers can read own profile,PERMISSIVE,{authenticated},SELECT,(profile_id = auth.uid()),null

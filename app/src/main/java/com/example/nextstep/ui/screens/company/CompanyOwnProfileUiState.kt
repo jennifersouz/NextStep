@@ -4,9 +4,9 @@ import androidx.annotation.StringRes
 import com.example.nextstep.data.model.CompanyProfileDto
 import com.example.nextstep.data.model.OfferDto
 
-data class CompanyProfileUiState(
+data class CompanyOwnProfileUiState(
     val company: CompanyProfileDto? = null,
     val offers: List<OfferDto> = emptyList(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     @StringRes val errorMessageRes: Int? = null
 )

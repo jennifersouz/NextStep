@@ -1,0 +1,591 @@
+routine_name,routine_definition
+delete_pending_institution_invite,"
+BEGIN
+    DELETE FROM public.institution_invites
+    WHERE id = invite_uuid
+      AND institution_profile_id = auth.uid()
+      AND accepted_at IS NULL;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'invite_not_found_or_already_accepted';
+    END IF;
+END;
+"
+accept_institution_invite,"
+DECLARE
+    current_user_id uuid;
+    current_user_email text;
+    invite_record public.institution_invites%ROWTYPE;
+    institution_name text;
+BEGIN
+    current_user_id := auth.uid();
+
+    IF current_user_id IS NULL THEN
+        RAISE EXCEPTION 'not_authenticated';
+    END IF;
+
+    SELECT email
+    INTO current_user_email
+    FROM auth.users
+    WHERE id = current_user_id;
+
+    IF current_user_email IS NULL THEN
+        RAISE EXCEPTION 'email_not_found';
+    END IF;
+
+    SELECT *
+    INTO invite_record
+    FROM public.institution_invites
+    WHERE lower(email) = lower(current_user_email)
+      AND target_role = invite_role
+      AND accepted_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF invite_record.id IS NULL THEN
+        RAISE EXCEPTION 'invite_not_found';
+    END IF;
+
+    SELECT name
+    INTO institution_name
+    FROM public.institutions
+    WHERE profile_id = invite_record.institution_profile_id;
+
+    IF institution_name IS NULL THEN
+        RAISE EXCEPTION 'institution_not_found_for_invite';
+    END IF;
+
+    IF trim(coalesce(user_first_name, '')) = '' THEN
+        RAISE EXCEPTION 'first_name_required';
+    END IF;
+
+    IF trim(coalesce(user_last_name, '')) = '' THEN
+        RAISE EXCEPTION 'last_name_required';
+    END IF;
+
+    INSERT INTO public.profiles (
+        id,
+        email,
+        role
+    )
+    VALUES (
+        current_user_id,
+        current_user_email,
+        invite_record.target_role
+    )
+    ON CONFLICT (id) DO UPDATE
+    SET
+        email = excluded.email,
+        role = excluded.role,
+        updated_at = now();
+
+    IF invite_record.target_role = 'student' THEN
+
+        IF trim(coalesce(user_student_number, '')) = '' THEN
+            RAISE EXCEPTION 'student_number_required';
+        END IF;
+
+        IF trim(coalesce(user_course, '')) = '' THEN
+            RAISE EXCEPTION 'course_required';
+        END IF;
+
+        IF user_academic_year IS NULL THEN
+            RAISE EXCEPTION 'academic_year_required';
+        END IF;
+
+        INSERT INTO public.students (
+            profile_id,
+            first_name,
+            last_name,
+            student_number,
+            course,
+            academic_year,
+            education_institution
+        )
+        VALUES (
+            current_user_id,
+            trim(user_first_name),
+            trim(user_last_name),
+            trim(user_student_number),
+            trim(user_course),
+            user_academic_year,
+            institution_name
+        )
+        ON CONFLICT (profile_id) DO UPDATE
+        SET
+            first_name = excluded.first_name,
+            last_name = excluded.last_name,
+            student_number = excluded.student_number,
+            course = excluded.course,
+            academic_year = excluded.academic_year,
+            education_institution = excluded.education_institution;
+
+    ELSIF invite_record.target_role = 'teacher' THEN
+
+        IF trim(coalesce(user_department, '')) = '' THEN
+            RAISE EXCEPTION 'department_required';
+        END IF;
+
+        INSERT INTO public.teachers (
+            profile_id,
+            institution_profile_id,
+            first_name,
+            last_name,
+            email,
+            phone,
+            department
+        )
+        VALUES (
+            current_user_id,
+            invite_record.institution_profile_id,
+            trim(user_first_name),
+            trim(user_last_name),
+            current_user_email,
+            nullif(trim(coalesce(user_phone, '')), ''),
+            trim(user_department)
+        )
+        ON CONFLICT (profile_id) DO UPDATE
+        SET
+            first_name = excluded.first_name,
+            last_name = excluded.last_name,
+            email = excluded.email,
+            phone = excluded.phone,
+            department = excluded.department,
+            updated_at = now();
+
+    ELSE
+        RAISE EXCEPTION 'invalid_invite_role';
+    END IF;
+
+    UPDATE public.institution_invites
+    SET accepted_at = now()
+    WHERE id = invite_record.id;
+END;
+"
+notify_advisor_assigned,"
+declare
+    student_name text;
+    offer_title text;
+begin
+    if new.advisor_profile_id is not null
+       and (
+            old.advisor_profile_id is null
+            or old.advisor_profile_id <> new.advisor_profile_id
+       )
+    then
+        select
+            nullif(
+                trim(coalesce(s.first_name, '') || ' ' || coalesce(s.last_name, '')),
+                ''
+            )
+        into student_name
+        from public.students s
+        where s.profile_id = new.student_profile_id
+        limit 1;
+
+        select coalesce(o.title, 'estágio')
+        into offer_title
+        from public.offers o
+        where o.id = new.offer_id
+        limit 1;
+
+        insert into public.notifications (
+            receiver_profile_id,
+            sender_profile_id,
+            application_id,
+            title,
+            message,
+            type
+        )
+        values (
+            new.advisor_profile_id,
+            new.company_profile_id,
+            new.id,
+            'Novo aluno atribuído',
+            coalesce(student_name, 'Um aluno') || ' foi atribuído para orientação no estágio ' || coalesce(offer_title, '') || '.',
+            'advisor_assigned'
+        );
+    end if;
+
+    return new;
+end;
+"
+is_admin,"
+    select exists (
+        select 1
+        from public.profiles
+        where id = auth.uid()
+          and role in ('admin', 'administrador')
+          and coalesce(is_active, true) = true
+    );
+"
+notify_teacher_orientation_request,"
+declare
+    student_name text;
+    offer_title text;
+begin
+    if new.teacher_profile_id is null then
+        return new;
+    end if;
+
+    if coalesce(new.teacher_status, '') <> 'pending' then
+        return new;
+    end if;
+
+    if exists (
+        select 1
+        from public.notifications n
+        where n.receiver_profile_id = new.teacher_profile_id
+          and n.application_id = new.id
+          and n.type = 'teacher_orientation_request'
+    ) then
+        return new;
+    end if;
+
+    select nullif(trim(coalesce(s.first_name, '') || ' ' || coalesce(s.last_name, '')), '')
+    into student_name
+    from public.students s
+    where s.profile_id = new.student_profile_id;
+
+    select o.title
+    into offer_title
+    from public.offers o
+    where o.id = new.offer_id;
+
+    insert into public.notifications (
+        receiver_profile_id,
+        sender_profile_id,
+        application_id,
+        title,
+        message,
+        type,
+        is_read
+    )
+    values (
+        new.teacher_profile_id,
+        new.student_profile_id,
+        new.id,
+        'Novo pedido de orientação',
+        coalesce(student_name, 'Um aluno') || ' enviou um pedido para orientação' ||
+        case
+            when offer_title is not null then ' no estágio ""' || offer_title || '"".'
+            else '.'
+        end,
+        'teacher_orientation_request',
+        false
+    );
+
+    return new;
+end;
+"
+notify_teacher_message,"
+declare
+    sender_name text;
+    receiver_is_teacher boolean;
+    existing_notification_id uuid;
+begin
+    if new.sender_profile_id is null or new.receiver_profile_id is null then
+        return new;
+    end if;
+
+    if new.sender_profile_id = new.receiver_profile_id then
+        return new;
+    end if;
+
+    select exists (
+        select 1
+        from public.teachers t
+        where t.profile_id = new.receiver_profile_id
+    )
+    into receiver_is_teacher;
+
+    if not receiver_is_teacher then
+        return new;
+    end if;
+
+    select nullif(trim(coalesce(s.first_name, '') || ' ' || coalesce(s.last_name, '')), '')
+    into sender_name
+    from public.students s
+    where s.profile_id = new.sender_profile_id;
+
+    if sender_name is null then
+        select nullif(trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')), '')
+        into sender_name
+        from public.profiles p
+        where p.id = new.sender_profile_id;
+    end if;
+
+    select n.id
+    into existing_notification_id
+    from public.notifications n
+    where n.receiver_profile_id = new.receiver_profile_id
+      and n.sender_profile_id = new.sender_profile_id
+      and n.application_id = new.application_id
+      and n.type = 'teacher_message'
+      and n.is_read = false
+    order by n.created_at desc
+    limit 1;
+
+    if existing_notification_id is not null then
+        update public.notifications
+        set
+            title = 'Nova mensagem de aluno',
+            message = coalesce(sender_name, 'Um aluno') || ' enviou uma nova mensagem.',
+            created_at = now()
+        where id = existing_notification_id;
+    else
+        insert into public.notifications (
+            receiver_profile_id,
+            sender_profile_id,
+            application_id,
+            title,
+            message,
+            type,
+            is_read
+        )
+        values (
+            new.receiver_profile_id,
+            new.sender_profile_id,
+            new.application_id,
+            'Nova mensagem de aluno',
+            coalesce(sender_name, 'Um aluno') || ' enviou uma nova mensagem.',
+            'teacher_message',
+            false
+        );
+    end if;
+
+    return new;
+end;
+"
+set_teacher_evaluation_updated_at,"
+begin
+    new.updated_at = now();
+    return new;
+end;
+"
+handle_application_status_change,"
+begin
+    if new.status is distinct from old.status then
+        new.status_updated_at = now();
+
+        if new.status in ('accepted', 'rejected') then
+            new.student_status_seen = false;
+        end if;
+    end if;
+
+    return new;
+end;
+"
+can_apply_to_offer,"
+    select exists (
+        select 1
+        from public.offers o
+        where o.id = p_offer_id
+        and o.company_profile_id = p_company_profile_id
+        and o.is_active = true
+    );
+"
+accept_advisor_invite,"
+declare
+    v_user_id uuid;
+    v_email text;
+    v_invite public.advisor_invites%rowtype;
+begin
+    v_user_id := auth.uid();
+    v_email := lower(auth.jwt() ->> 'email');
+
+    if v_user_id is null then
+        raise exception 'AUTH_REQUIRED';
+    end if;
+
+    select *
+    into v_invite
+    from public.advisor_invites
+    where lower(email) = v_email
+      and status = 'pending'
+    order by created_at desc
+    limit 1;
+
+    if not found then
+        raise exception 'NO_PENDING_ADVISOR_INVITE';
+    end if;
+
+    insert into public.profiles (
+        id,
+        email,
+        role
+    )
+    values (
+        v_user_id,
+        v_email,
+        'advisor'
+    )
+    on conflict (id) do update
+    set
+        email = excluded.email,
+        role = 'advisor';
+
+    insert into public.advisors (
+        profile_id,
+        company_profile_id,
+        name,
+        email,
+        phone,
+        department
+    )
+    values (
+        v_user_id,
+        v_invite.company_profile_id,
+        v_invite.name,
+        v_invite.email,
+        v_invite.phone,
+        v_invite.department
+    )
+    on conflict (profile_id) do update
+    set
+        company_profile_id = excluded.company_profile_id,
+        name = excluded.name,
+        email = excluded.email,
+        phone = excluded.phone,
+        department = excluded.department;
+
+    update public.advisor_invites
+    set
+        status = 'accepted',
+        advisor_profile_id = v_user_id,
+        accepted_at = now()
+    where id = v_invite.id;
+end;
+"
+handle_advisor_assignment_notification,"
+BEGIN
+    IF NEW.advisor_profile_id IS DISTINCT FROM OLD.advisor_profile_id
+       AND NEW.advisor_profile_id IS NOT NULL THEN
+        NEW.advisor_assignment_seen := false;
+        NEW.advisor_assigned_at := now();
+    END IF;
+
+    RETURN NEW;
+END;
+"
+confirm_internship_acceptance,"
+BEGIN
+    UPDATE public.applications
+    SET
+        student_presence_confirmed = true,
+        student_presence_confirmed_at = COALESCE(student_presence_confirmed_at, now())
+    WHERE id = application_uuid
+      AND student_profile_id = auth.uid()
+      AND status = 'accepted';
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'not_allowed_or_application_not_accepted';
+    END IF;
+END;
+"
+prevent_advisor_assignment_before_student_acceptance,"
+BEGIN
+    IF NEW.advisor_profile_id IS DISTINCT FROM OLD.advisor_profile_id
+       AND NEW.advisor_profile_id IS NOT NULL
+       AND NEW.student_presence_confirmed IS NOT TRUE THEN
+        RAISE EXCEPTION 'student_acceptance_required_before_advisor_assignment';
+    END IF;
+
+    RETURN NEW;
+END;
+"
+is_application_chat_participant,"
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.applications app
+        WHERE app.id = application_uuid
+          AND app.status = 'accepted'
+          AND app.student_presence_confirmed = true
+          AND app.advisor_profile_id IS NOT NULL
+          AND (
+              app.student_profile_id = profile_uuid
+              OR app.advisor_profile_id = profile_uuid
+          )
+    );
+"
+get_application_chat_receiver,"
+declare
+    current_profile uuid;
+    student_profile uuid;
+    advisor_profile uuid;
+begin
+    current_profile := auth.uid();
+
+    select
+        app.student_profile_id,
+        app.advisor_profile_id
+    into
+        student_profile,
+        advisor_profile
+    from public.applications app
+    where app.id = application_uuid
+      and lower(trim(app.status)) in ('accepted', 'aceite')
+      and app.student_presence_confirmed is true
+      and app.advisor_profile_id is not null;
+
+    if student_profile is null or advisor_profile is null then
+        raise exception 'chat_not_available';
+    end if;
+
+    if current_profile = student_profile then
+        return advisor_profile;
+    elsif current_profile = advisor_profile then
+        return student_profile;
+    else
+        raise exception 'not_chat_participant';
+    end if;
+end;
+"
+send_application_message,"
+DECLARE
+    current_profile uuid;
+    receiver_profile uuid;
+    inserted_message public.application_messages;
+BEGIN
+    current_profile := auth.uid();
+
+    IF current_profile IS NULL THEN
+        RAISE EXCEPTION 'not_authenticated';
+    END IF;
+
+    IF length(trim(message_content)) = 0 THEN
+        RAISE EXCEPTION 'empty_message';
+    END IF;
+
+    IF length(message_content) > 2000 THEN
+        RAISE EXCEPTION 'message_too_long';
+    END IF;
+
+    receiver_profile := public.get_application_chat_receiver(application_uuid);
+
+    INSERT INTO public.application_messages (
+        application_id,
+        sender_profile_id,
+        receiver_profile_id,
+        content
+    )
+    VALUES (
+        application_uuid,
+        current_profile,
+        receiver_profile,
+        trim(message_content)
+    )
+    RETURNING * INTO inserted_message;
+
+    RETURN inserted_message;
+END;
+"
+has_pending_institution_invite,"
+    select exists (
+        select 1
+        from public.institution_invites inv
+        where lower(trim(inv.email)) = lower(trim(invite_email))
+          and lower(trim(inv.target_role)) = lower(trim(invite_role))
+          and inv.accepted_at is null
+    );
+"

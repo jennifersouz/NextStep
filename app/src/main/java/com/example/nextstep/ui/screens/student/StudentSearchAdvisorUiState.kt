@@ -17,9 +17,11 @@ data class StudentSearchAdvisorUiState(
             teachers
         } else {
             teachers.filter {
-                it.firstName.contains(searchQuery, ignoreCase = true) ||
-                it.lastName.contains(searchQuery, ignoreCase = true) ||
-                it.email.contains(searchQuery, ignoreCase = true)
+                (it.firstName ?: "").contains(searchQuery, ignoreCase = true) ||
+                (it.lastName ?: "").contains(searchQuery, ignoreCase = true) ||
+                (it.name ?: "").contains(searchQuery, ignoreCase = true) ||
+                (it.email ?: "").contains(searchQuery, ignoreCase = true) ||
+                (it.department ?: "").contains(searchQuery, ignoreCase = true)
             }
         }
 }

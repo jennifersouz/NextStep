@@ -1,0 +1,2 @@
+id,name,owner,created_at,updated_at,public,avif_autodetection,file_size_limit,allowed_mime_types,owner_id,type
+application-documents,application-documents,null,2026-05-25 09:57:51.249409+00,2026-05-25 09:57:51.249409+00,false,false,null,null,null,STANDARD

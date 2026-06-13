@@ -38,10 +38,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 
+import com.example.nextstep.ui.components.InternshipOfferCard
+
 @Composable
 fun StudentSavedOffersScreen(
     onBackClick: () -> Unit,
     onOfferClick: (String) -> Unit,
+    onCompanyClick: (String) -> Unit = {},
     viewModel: StudentSavedOffersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -133,6 +136,9 @@ fun StudentSavedOffersScreen(
                             offer = offer,
                             onClick = {
                                 onOfferClick(offer.id)
+                            },
+                            onCompanyClick = {
+                                offer.companyProfileId?.let { onCompanyClick(it) }
                             }
                         )
 

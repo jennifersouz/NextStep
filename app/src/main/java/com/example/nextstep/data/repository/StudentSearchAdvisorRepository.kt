@@ -11,19 +11,43 @@ class StudentSearchAdvisorRepository {
 
     suspend fun getAllTeachers(): Result<List<TeacherDto>> {
         return try {
-            val response = supabase
+            // 1. Tentativa na tabela 'teachers'
+            val teachersResponse = supabase
                 .from("teachers")
                 .select()
+            
+            val teachersList = teachersResponse.decodeList<TeacherDto>()
+            if (teachersList.isNotEmpty()) {
+                return Result.success(teachersList)
+            }
 
-            Log.d("SearchAdvisorRepo", "Resultado bruto: ${response.data}")
+            // 2. Fallback na view de orientadores (alguns sistemas tratam professores como orientadores)
+            try {
+                val advisorsResponse = supabase
+                    .from("student_available_advisors_view")
+                    .select()
+                val advisors = advisorsResponse.decodeList<TeacherDto>()
+                if (advisors.isNotEmpty()) {
+                    return Result.success(advisors)
+                }
+            } catch (e: Exception) {
+                Log.d("SearchAdvisorRepo", "View 'student_available_advisors_view' not found or empty")
+            }
 
-            val teachers = response.decodeList<TeacherDto>()
+            // 3. Fallback na tabela 'profiles' filtrando pela role 'teacher'
+            val profilesResponse = supabase
+                .from("profiles")
+                .select {
+                    filter {
+                        eq("role", "teacher")
+                    }
+                }
+            
+            val profilesList = profilesResponse.decodeList<TeacherDto>()
+            Result.success(profilesList)
 
-            Log.d("SearchAdvisorRepo", "Quantidade carregada: ${teachers.size}")
-
-            Result.success(teachers)
         } catch (exception: Exception) {
-            Log.e("SearchAdvisorRepo", "Erro ao carregar todos os professores", exception)
+            Log.e("SearchAdvisorRepo", "Erro ao carregar professores", exception)
             Result.failure(exception)
         }
     }

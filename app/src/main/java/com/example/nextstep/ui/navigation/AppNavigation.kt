@@ -27,6 +27,7 @@ import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyOfferDetailScreen
+import com.example.nextstep.ui.screens.company.CompanyProfileScreen
 import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
@@ -170,6 +171,12 @@ fun AppNavigation() {
                 onInternshipClick = { internshipId ->
                     navController.navigate(
                         Routes.studentInternshipDetail(internshipId)
+                    )
+                },
+                onCompanyClick = { companyId ->
+                    Log.d("CompanyProfileDebug", "Navegando do Detalhe da Oferta. ID enviado: $companyId")
+                    navController.navigate(
+                        Routes.companyProfile(companyId)
                     )
                 }
             )
@@ -516,6 +523,31 @@ fun AppNavigation() {
         }
 
         composable(
+            route = Routes.COMPANY_PROFILE,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_PROFILE_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val companyProfileId = backStackEntry.arguments
+                ?.getString(Routes.COMPANY_PROFILE_ARG)
+                .orEmpty()
+
+            CompanyProfileScreen(
+                companyProfileId = companyProfileId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onOfferClick = { offerId ->
+                    navController.navigate(
+                        Routes.studentOfferDetail(offerId)
+                    )
+                }
+            )
+        }
+
+        composable(
             route = "${Routes.STUDENT_OFFER_DETAIL}/{${Routes.STUDENT_OFFER_DETAIL_ARG}}",
             arguments = listOf(
                 navArgument(Routes.STUDENT_OFFER_DETAIL_ARG) {
@@ -535,6 +567,12 @@ fun AppNavigation() {
                 onApplyClick = { selectedOfferId ->
                     navController.navigate(
                         Routes.studentApplication(selectedOfferId)
+                    )
+                },
+                onCompanyClick = { companyId ->
+                    Log.d("CompanyProfileDebug", "Navegando do Detalhe da Oferta. ID enviado: $companyId")
+                    navController.navigate(
+                        Routes.companyProfile(companyId)
                     )
                 }
             )

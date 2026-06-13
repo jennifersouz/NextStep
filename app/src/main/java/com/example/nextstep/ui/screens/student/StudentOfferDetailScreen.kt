@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.student
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ fun StudentOfferDetailScreen(
     offerId: String,
     onBackClick: () -> Unit,
     onApplyClick: (String) -> Unit,
+    onCompanyClick: (String) -> Unit = {},
     viewModel: StudentOfferDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -97,7 +99,8 @@ fun StudentOfferDetailScreen(
                         saveOfferErrorRes = state.saveOfferErrorRes,
                         onToggleSavedOffer = viewModel::toggleSavedOffer,
                         onBackClick = onBackClick,
-                        onApplyClick = { onApplyClick(offer.id) }
+                        onApplyClick = { onApplyClick(offer.id) },
+                        onCompanyClick = { offer.companyProfileId?.let { onCompanyClick(it) } }
                     )
                 }
             }
@@ -116,7 +119,8 @@ fun OfferDetailContent(
     saveOfferErrorRes: Int?,
     onToggleSavedOffer: () -> Unit,
     onBackClick: () -> Unit,
-    onApplyClick: () -> Unit
+    onApplyClick: () -> Unit,
+    onCompanyClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -139,7 +143,9 @@ fun OfferDetailContent(
         Spacer(modifier = Modifier.height(48.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onCompanyClick() },
             verticalAlignment = Alignment.CenterVertically
         ) {
             OfferDetailCompanyLogo(

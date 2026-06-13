@@ -38,6 +38,77 @@ class CompanyProfileRepository {
         }
     }
 
+    suspend fun getCompanyProfileById(profileId: String): Result<CompanyProfileDto> {
+        Log.d("CompanyProfileDebug", "Buscando empresa pelo ID: $profileId")
+        return try {
+            val response = supabase
+                .from("companies")
+                .select {
+                    filter {
+                        or {
+                            eq("profile_id", profileId)
+                            eq("id", profileId)
+                        }
+                    }
+                }
+                .decodeList<CompanyProfileDto>()
+
+            Log.d("CompanyProfileDebug", "Empresas encontradas: ${response.size}")
+            Log.d("CompanyProfileDebug", "Resultado completo: $response")
+
+            val company = response.firstOrNull()
+            if (company != null) {
+                Result.success(company)
+            } else {
+                Result.failure(NoSuchElementException("Perfil da empresa não encontrado"))
+            }
+        } catch (exception: Exception) {
+            Log.e(
+                "CompanyProfileRepository",
+                "Erro ao carregar perfil da empresa com id: $profileId",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getCompanyOffersById(profileId: String): Result<List<OfferDto>> {
+        return try {
+            val companyResponse = supabase
+                .from("companies")
+                .select {
+                    filter {
+                        or {
+                            eq("profile_id", profileId)
+                            eq("id", profileId)
+                        }
+                    }
+                }
+                .decodeList<CompanyProfileDto>()
+
+            val company = companyResponse.firstOrNull()
+            val targetProfileId = company?.profileId ?: profileId
+
+            val offers = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("company_profile_id", targetProfileId)
+                    }
+                }
+                .decodeList<OfferDto>()
+
+            Result.success(offers)
+        } catch (exception: Exception) {
+            Log.e(
+                "CompanyProfileRepository",
+                "Erro ao carregar estágios da empresa com id: $profileId",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getCurrentCompanyOffers(): Result<List<OfferDto>> {
         return try {
             val companyProfileId = auth.currentUserOrNull()?.id
