@@ -33,6 +33,10 @@ import com.example.nextstep.ui.screens.company.CompanyProfileScreen
 import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
+import com.example.nextstep.ui.screens.institution.InstitutionTeachersScreen
+import com.example.nextstep.ui.screens.institution.InstitutionTeacherDetailScreen
+import com.example.nextstep.ui.screens.institution.InstitutionStudentsScreen
+import com.example.nextstep.ui.screens.institution.InstitutionStudentDetailScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
@@ -344,7 +348,65 @@ fun AppNavigation() {
                 },
                 onAddUserClick = {
                     navController.navigate(Routes.ADD_INSTITUTION_USER)
+                },
+                onTeacherClick = { teacherProfileId ->
+                    navController.navigate(Routes.INSTITUTION_TEACHER_DETAIL.replace("{teacherProfileId}", teacherProfileId))
+                },
+                onStudentClick = { studentProfileId ->
+                    navController.navigate(Routes.INSTITUTION_STUDENT_DETAIL.replace("{studentProfileId}", studentProfileId))
                 }
+            )
+        }
+
+        composable(Routes.INSTITUTION_TEACHERS) {
+            InstitutionTeachersScreen(
+                onTeacherClick = { teacherProfileId ->
+                    navController.navigate(Routes.INSTITUTION_TEACHER_DETAIL.replace("{teacherProfileId}", teacherProfileId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.INSTITUTION_TEACHER_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.INSTITUTION_TEACHER_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val teacherProfileId = backStackEntry.arguments
+                ?.getString(Routes.INSTITUTION_TEACHER_DETAIL_ARG)
+                .orEmpty()
+
+            InstitutionTeacherDetailScreen(
+                teacherProfileId = teacherProfileId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.INSTITUTION_STUDENTS) {
+            InstitutionStudentsScreen(
+                onStudentClick = { studentProfileId ->
+                    navController.navigate(Routes.INSTITUTION_STUDENT_DETAIL.replace("{studentProfileId}", studentProfileId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.INSTITUTION_STUDENT_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.INSTITUTION_STUDENT_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val studentProfileId = backStackEntry.arguments
+                ?.getString(Routes.INSTITUTION_STUDENT_DETAIL_ARG)
+                .orEmpty()
+
+            InstitutionStudentDetailScreen(
+                studentProfileId = studentProfileId,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

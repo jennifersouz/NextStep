@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,13 +36,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nextstep.R
 
 @Composable
 fun CompanyEditOfferScreen(
@@ -51,6 +53,12 @@ fun CompanyEditOfferScreen(
 
     LaunchedEffect(offerId) {
         viewModel.loadOffer(offerId)
+    }
+
+    LaunchedEffect(state.successMessage) {
+        if (state.successMessage != null) {
+            onOfferUpdated()
+        }
     }
 
     when {
@@ -79,7 +87,7 @@ fun CompanyEditOfferScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
+                        contentDescription = "Voltar",
                         tint = Color.Black
                     )
                 }
@@ -92,7 +100,7 @@ fun CompanyEditOfferScreen(
                     verticalArrangement = Arrangement.Top
                 ) {
                     Text(
-                        text = stringResource(R.string.edit_offer),
+                        text = "Editar oferta",
                         color = Color.Black,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold
@@ -100,80 +108,118 @@ fun CompanyEditOfferScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
                         value = state.title,
                         onValueChange = viewModel::onTitleChange,
-                        label = stringResource(R.string.offer_title),
-                        errorText = state.titleErrorRes?.let { stringResource(it) }
+                        label = "Título",
+                        isError = state.titleError != null,
+                        supportingText = state.titleError
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
+                        value = state.description,
+                        onValueChange = viewModel::onDescriptionChange,
+                        label = "Descrição",
+                        isError = state.descriptionError != null,
+                        supportingText = state.descriptionError,
+                        minLines = 4,
+                        maxLines = 7
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    CompanyEditOfferOutlinedTextField(
                         value = state.area,
                         onValueChange = viewModel::onAreaChange,
-                        label = stringResource(R.string.area)
+                        label = "Área",
+                        isError = state.areaError != null,
+                        supportingText = state.areaError
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
                         value = state.location,
                         onValueChange = viewModel::onLocationChange,
-                        label = stringResource(R.string.location)
+                        label = "Localização",
+                        isError = state.locationError != null,
+                        supportingText = state.locationError
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
                         value = state.workMode,
                         onValueChange = viewModel::onWorkModeChange,
-                        label = stringResource(R.string.work_mode)
+                        label = "Regime",
+                        isError = state.workModeError != null,
+                        supportingText = state.workModeError
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
                         value = state.duration,
                         onValueChange = viewModel::onDurationChange,
-                        label = stringResource(R.string.duration)
+                        label = "Duração",
+                        isError = state.durationError != null,
+                        supportingText = state.durationError
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
+                    CompanyEditOfferOutlinedTextField(
                         value = state.vacancies,
                         onValueChange = viewModel::onVacanciesChange,
-                        label = stringResource(R.string.vacancies),
-                        errorText = state.vacanciesErrorRes?.let { stringResource(it) },
+                        label = "Vagas",
+                        isError = state.vacanciesError != null,
+                        supportingText = state.vacanciesError,
                         keyboardType = KeyboardType.Number
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
-                        value = state.description,
-                        onValueChange = viewModel::onDescriptionChange,
-                        label = stringResource(R.string.description),
+                    CompanyEditOfferOutlinedTextField(
+                        value = state.requirements,
+                        onValueChange = viewModel::onRequirementsChange,
+                        label = "Requisitos",
                         minLines = 4,
                         maxLines = 7
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    CompanyEditOfferTextField(
-                        value = state.requirements,
-                        onValueChange = viewModel::onRequirementsChange,
-                        label = stringResource(R.string.requirements),
-                        minLines = 4,
-                        maxLines = 7
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = state.isActive,
+                            onCheckedChange = viewModel::onActiveChange,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color.Black,
+                                uncheckedColor = Color(0xFF8A8A8A),
+                                checkmarkColor = Color.White
+                            )
+                        )
 
-                    if (state.errorMessageRes != null) {
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = "Oferta ativa",
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    if (state.errorMessage != null) {
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Text(
-                            text = stringResource(state.errorMessageRes!!),
+                            text = state.errorMessage!!,
                             color = Color(0xFFB00020),
                             fontSize = 14.sp
                         )
@@ -182,12 +228,7 @@ fun CompanyEditOfferScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = {
-                            viewModel.saveOffer(
-                                offerId = offerId,
-                                onSuccess = onOfferUpdated
-                            )
-                        },
+                        onClick = { viewModel.saveOffer() },
                         enabled = !state.isSaving,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -207,7 +248,7 @@ fun CompanyEditOfferScreen(
                             )
                         } else {
                             Text(
-                                text = stringResource(R.string.save),
+                                text = "Guardar alterações",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -222,11 +263,12 @@ fun CompanyEditOfferScreen(
 }
 
 @Composable
-private fun CompanyEditOfferTextField(
+private fun CompanyEditOfferOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    errorText: String? = null,
+    isError: Boolean = false,
+    supportingText: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     minLines: Int = 1,
     maxLines: Int = 1
@@ -244,7 +286,8 @@ private fun CompanyEditOfferTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            isError = errorText != null,
+            isError = isError,
+            supportingText = supportingText?.let { { Text(it, color = Color(0xFFB00020)) } },
             modifier = Modifier.fillMaxWidth(),
             minLines = minLines,
             maxLines = maxLines,
@@ -257,18 +300,12 @@ private fun CompanyEditOfferTextField(
                 unfocusedBorderColor = Color(0xFFE1E1E1),
                 errorBorderColor = Color(0xFFB00020),
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+                errorContainerColor = Color.White,
+                cursorColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black
             )
         )
-
-        if (errorText != null) {
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = errorText,
-                color = Color(0xFFB00020),
-                fontSize = 12.sp
-            )
-        }
     }
 }

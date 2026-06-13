@@ -731,4 +731,20 @@
     <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>
     <string name="error_institution_not_found">Instituição de ensino não encontrada.</string>
     <string name="error_sending_request">Erro ao enviar o pedido de orientação.</string>
+
+    <!-- Institution Teachers -->
+    <string name="teachers_label">Docentes</string>
+    <string name="no_teachers">Ainda não existem docentes associados.</string>
+    <string name="no_teachers_description">Os docentes registados na instituição aparecerão aqui.</string>
+    <string name="account_status">Estado da conta</string>
+    <string name="active_status">Ativo</string>
+    <string name="inactive_status">Inativo</string>
+    <string name="registration_date">Data de registo</string>
+
+    <!-- Institution Students -->
+    <string name="no_students_label">Ainda não existem alunos associados.</string>
+    <string name="no_students_description">Os alunos registados na instituição aparecerão aqui.</string>
+
+    <!-- Institution Tab -->
+    <string name="tab_teachers">Docentes</string>
 </resources>

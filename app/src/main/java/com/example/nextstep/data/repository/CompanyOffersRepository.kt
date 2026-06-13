@@ -1,6 +1,8 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.CompanyOfferDto
+import com.example.nextstep.data.model.CompanyOfferUpdateDto
 import com.example.nextstep.data.model.OfferDto
 import com.example.nextstep.data.model.UpdateOfferActiveDto
 import com.example.nextstep.data.model.UpdateOfferDto
@@ -61,6 +63,30 @@ class CompanyOffersRepository {
         }
     }
 
+    suspend fun getOfferById(
+        offerId: String
+    ): Result<CompanyOfferDto> {
+        return try {
+            val companyProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            val offer = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", companyProfileId)
+                    }
+                }
+                .decodeSingle<CompanyOfferDto>()
+
+            Result.success(offer)
+        } catch (exception: Exception) {
+            Log.e("CompanyOffersRepository", "Erro ao carregar detalhe da oferta", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun updateOffer(
         offerId: String,
         title: String,
@@ -97,6 +123,40 @@ class CompanyOffersRepository {
                 }
 
             Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("CompanyOffersRepository", "Erro ao atualizar oferta", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun updateOffer(
+        offerId: String,
+        request: CompanyOfferUpdateDto
+    ): Result<CompanyOfferDto> {
+        return try {
+            val companyProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            supabase
+                .from("offers")
+                .update(request) {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", companyProfileId)
+                    }
+                }
+
+            val updatedOffer = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", companyProfileId)
+                    }
+                }
+                .decodeSingle<CompanyOfferDto>()
+
+            Result.success(updatedOffer)
         } catch (exception: Exception) {
             Log.e("CompanyOffersRepository", "Erro ao atualizar oferta", exception)
             Result.failure(exception)

@@ -1,8 +1,7 @@
 package com.example.nextstep.ui.screens.company
 
-import androidx.annotation.StringRes
-
 data class CompanyEditOfferUiState(
+    val offerId: String = "",
     val title: String = "",
     val description: String = "",
     val area: String = "",
@@ -11,11 +10,18 @@ data class CompanyEditOfferUiState(
     val duration: String = "",
     val vacancies: String = "",
     val requirements: String = "",
+    val isActive: Boolean = true,
 
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
 
-    @StringRes val titleErrorRes: Int? = null,
-    @StringRes val vacanciesErrorRes: Int? = null,
-    @StringRes val errorMessageRes: Int? = null
+    val titleError: String? = null,
+    val descriptionError: String? = null,
+    val areaError: String? = null,
+    val locationError: String? = null,
+    val workModeError: String? = null,
+    val durationError: String? = null,
+    val vacanciesError: String? = null,
+    val errorMessage: String? = null,
+    val successMessage: String? = null
 )
