@@ -1,0 +1,228 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  email text NOT NULL UNIQUE,
+  role text NOT NULL CHECK (role = ANY (ARRAY['student'::text, 'company'::text, 'advisor'::text, 'institution'::text, 'teacher'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.students (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL UNIQUE,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  student_number text NOT NULL UNIQUE,
+  course text NOT NULL,
+  academic_year integer NOT NULL CHECK (academic_year >= 1 AND academic_year <= 6),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  education_institution text,
+  CONSTRAINT students_pkey PRIMARY KEY (id),
+  CONSTRAINT students_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.companies (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL UNIQUE,
+  company_name text NOT NULL,
+  nif text NOT NULL UNIQUE CHECK (char_length(nif) = 9),
+  business_area text NOT NULL,
+  location text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  description text,
+  phone text,
+  CONSTRAINT companies_pkey PRIMARY KEY (id),
+  CONSTRAINT companies_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.offers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_name text NOT NULL,
+  title text NOT NULL,
+  location text NOT NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  company_profile_id uuid,
+  description text,
+  area text,
+  work_mode text CHECK (work_mode = ANY (ARRAY['remote'::text, 'onsite'::text, 'hybrid'::text])),
+  duration text,
+  vacancies integer DEFAULT 1,
+  requirements text,
+  CONSTRAINT offers_pkey PRIMARY KEY (id),
+  CONSTRAINT offers_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.internships (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_profile_id uuid NOT NULL,
+  title text NOT NULL,
+  student_name text NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'completed'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT internships_pkey PRIMARY KEY (id),
+  CONSTRAINT internships_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.applications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  offer_id uuid NOT NULL,
+  student_profile_id uuid NOT NULL,
+  company_profile_id uuid NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'accepted'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  motivation_letter_path text,
+  cv_path text,
+  viewed_by_company boolean NOT NULL DEFAULT false,
+  student_presence_confirmed boolean NOT NULL DEFAULT false,
+  student_status_seen boolean NOT NULL DEFAULT false,
+  status_updated_at timestamp with time zone DEFAULT now(),
+  advisor_profile_id uuid,
+  advisor_assignment_seen boolean NOT NULL DEFAULT false,
+  advisor_assigned_at timestamp with time zone,
+  student_presence_confirmed_at timestamp with time zone,
+  CONSTRAINT applications_pkey PRIMARY KEY (id),
+  CONSTRAINT applications_offer_id_fkey FOREIGN KEY (offer_id) REFERENCES public.offers(id),
+  CONSTRAINT applications_student_profile_id_fkey FOREIGN KEY (student_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT applications_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT applications_advisor_profile_id_fkey FOREIGN KEY (advisor_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.saved_offers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  student_profile_id uuid NOT NULL,
+  offer_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT saved_offers_pkey PRIMARY KEY (id),
+  CONSTRAINT saved_offers_student_profile_id_fkey FOREIGN KEY (student_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT saved_offers_offer_id_fkey FOREIGN KEY (offer_id) REFERENCES public.offers(id)
+);
+CREATE TABLE public.application_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  application_id uuid NOT NULL,
+  sender_profile_id uuid NOT NULL,
+  receiver_profile_id uuid NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  read_at timestamp with time zone,
+  CONSTRAINT application_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT application_messages_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
+  CONSTRAINT application_messages_sender_profile_id_fkey FOREIGN KEY (sender_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT application_messages_receiver_profile_id_fkey FOREIGN KEY (receiver_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.company_advisors (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_profile_id uuid NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  department text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT company_advisors_pkey PRIMARY KEY (id),
+  CONSTRAINT company_advisors_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.advisor_invites (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_profile_id uuid NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  department text,
+  status text NOT NULL DEFAULT 'pending'::text,
+  advisor_profile_id uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  accepted_at timestamp with time zone,
+  CONSTRAINT advisor_invites_pkey PRIMARY KEY (id),
+  CONSTRAINT advisor_invites_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT advisor_invites_advisor_profile_id_fkey FOREIGN KEY (advisor_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.advisors (
+  profile_id uuid NOT NULL,
+  company_profile_id uuid NOT NULL,
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  department text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT advisors_pkey PRIMARY KEY (profile_id),
+  CONSTRAINT advisors_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT advisors_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.institutions (
+  profile_id uuid NOT NULL,
+  name text NOT NULL,
+  nif text,
+  locality text,
+  address text,
+  phone text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT institutions_pkey PRIMARY KEY (profile_id),
+  CONSTRAINT institutions_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.teachers (
+  profile_id uuid NOT NULL,
+  institution_profile_id uuid NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  department text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT teachers_pkey PRIMARY KEY (profile_id),
+  CONSTRAINT teachers_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT teachers_institution_profile_id_fkey FOREIGN KEY (institution_profile_id) REFERENCES public.institutions(profile_id)
+);
+CREATE TABLE public.institution_invites (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  institution_profile_id uuid NOT NULL,
+  target_role text NOT NULL CHECK (target_role = ANY (ARRAY['student'::text, 'teacher'::text])),
+  email text NOT NULL,
+  first_name text,
+  last_name text,
+  student_number text,
+  course text,
+  academic_year integer,
+  department text,
+  phone text,
+  accepted_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT institution_invites_pkey PRIMARY KEY (id),
+  CONSTRAINT institution_invites_institution_profile_id_fkey FOREIGN KEY (institution_profile_id) REFERENCES public.institutions(profile_id)
+);
+CREATE TABLE public.application_tasks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  application_id uuid,
+  title text NOT NULL,
+  description text,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'in_progress'::text, 'completed'::text])),
+  priority text DEFAULT 'medium'::text CHECK (priority = ANY (ARRAY['low'::text, 'medium'::text, 'high'::text])),
+  due_date date,
+  created_by_profile_id uuid,
+  assigned_to_profile_id uuid,
+  completed_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT application_tasks_pkey PRIMARY KEY (id),
+  CONSTRAINT application_tasks_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
+  CONSTRAINT application_tasks_created_by_profile_id_fkey FOREIGN KEY (created_by_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT application_tasks_assigned_to_profile_id_fkey FOREIGN KEY (assigned_to_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  receiver_profile_id uuid NOT NULL,
+  sender_profile_id uuid,
+  application_id uuid,
+  title text NOT NULL,
+  message text NOT NULL,
+  type text NOT NULL,
+  is_read boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_sender_profile_id_fkey FOREIGN KEY (sender_profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT notifications_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
+  CONSTRAINT notifications_receiver_profile_id_fkey FOREIGN KEY (receiver_profile_id) REFERENCES public.profiles(id)
+);

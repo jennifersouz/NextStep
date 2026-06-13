@@ -89,7 +89,8 @@ fun StudentDashboardScreen(
     onApplicationNotificationClick: (String) -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel(),
-    onChatClick: (String) -> Unit = {}
+    onChatClick: (String) -> Unit = {},
+    onInternshipClick: (String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val filteredOffers = state.filteredOffers
@@ -162,8 +163,7 @@ fun StudentDashboardScreen(
                 .fillMaxWidth()
         ) {
             when (selectedBottomRoute) {
-                StudentBottomRoutes.HOME,
-                StudentBottomRoutes.INTERNSHIPS -> {
+                StudentBottomRoutes.HOME -> {
                     StudentOffersContent(
                         state = state,
                         filteredOffers = filteredOffers,
@@ -174,6 +174,12 @@ fun StudentDashboardScreen(
                             showFiltersSheet = true
                         },
                         onOfferClick = onOfferClick
+                    )
+                }
+
+                StudentBottomRoutes.INTERNSHIPS -> {
+                    StudentInternshipsScreen(
+                        onInternshipClick = onInternshipClick
                     )
                 }
 

@@ -34,6 +34,8 @@ import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
 import com.example.nextstep.ui.screens.student.StudentApplicationScreen
 import com.example.nextstep.ui.screens.student.StudentDashboardScreen
+import com.example.nextstep.ui.screens.student.StudentInternshipDetailScreen
+import com.example.nextstep.ui.screens.student.StudentSearchAdvisorScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
@@ -164,7 +166,54 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.applicationChat(applicationId)
                     )
+                },
+                onInternshipClick = { internshipId ->
+                    navController.navigate(
+                        Routes.studentInternshipDetail(internshipId)
+                    )
                 }
+            )
+        }
+
+        composable(
+            route = "${Routes.STUDENT_INTERNSHIP_DETAIL}/{${Routes.STUDENT_INTERNSHIP_DETAIL_ARG}}",
+            arguments = listOf(
+                navArgument(Routes.STUDENT_INTERNSHIP_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val internshipId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_INTERNSHIP_DETAIL_ARG)
+                .orEmpty()
+
+            StudentInternshipDetailScreen(
+                internshipId = internshipId,
+                onBackClick = { navController.popBackStack() },
+                onChatClick = { applicationId, name ->
+                    navController.navigate(Routes.applicationChat(applicationId, name))
+                },
+                onSearchAdvisorClick = {
+                    navController.navigate(Routes.studentSearchAdvisor(internshipId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.STUDENT_SEARCH_ADVISOR,
+            arguments = listOf(
+                navArgument(Routes.STUDENT_SEARCH_ADVISOR_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val internshipId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_SEARCH_ADVISOR_ARG)
+                .orEmpty()
+
+            StudentSearchAdvisorScreen(
+                internshipId = internshipId,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

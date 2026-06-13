@@ -25,7 +25,7 @@
     <string name="password_required">Password *</string>
     <string name="password_placeholder">Enter your password</string>
     <string name="toggle_password_visibility">Show or hide password</string>
-    <string name="no_account">Don’t have an account?</string>
+    <string name="no_account">Don\'t have an account?</string>
     <string name="create_account">Create account</string>
     <string name="create_account_title">Create account</string>
     <string name="create_account_subtitle">Choose your profile and fill in the required information.</string>
@@ -189,7 +189,8 @@
     <string name="company_application_status_update_error">Could not update the application status.</string>
     <string name="company_application_document_missing">This document is not available.</string>
     <string name="company_application_document_open_error">Could not open the document.</string>
-    <string name="company_application_opening_document">Opening document...</string>    <string name="work_mode_hybrid">Hybrid</string>
+    <string name="company_application_opening_document">Opening document...</string>
+    <string name="work_mode_hybrid">Hybrid</string>
 
     <string name="create_offer_success">Offer created successfully.</string>
     <string name="create_offer_error">Could not create the offer. Please try again.</string>
@@ -587,7 +588,7 @@
     <string name="no_messages_description">Send the first message about this internship.</string>
 
     <!-- Advisor Tasks -->
-    <string name="tasks_subtitle">Track your students\' activities.</string>
+    <string name="tasks_subtitle">Track your students\'  activities.</string>
     <string name="new_task">New task</string>
     <string name="in_progress">In progress</string>
     <string name="status_in_progress">In progress</string>
@@ -663,7 +664,7 @@
     <string name="teacher_department">Department / Area</string>
     <string name="teacher_last_name">Last name</string>
 
-    <!-- Teacher Home (Teacher Screen) -->
+    <!-- Teacher Home -->
     <string name="teacher_home_greeting">Hello, %1$s 👋</string>
     <string name="teacher_pending_requests">Pending requests</string>
     <string name="teacher_students_followed">Students followed</string>
@@ -678,4 +679,9 @@
     <string name="teacher_status_in_progress">In progress</string>
     <string name="teacher_status_completed">Completed</string>
     <string name="teacher_status_pending">Pending</string>
+
+    <!-- Shared (from doc 1) -->
+    <string name="error_loading_teachers">Error loading advisors.</string>
+    <string name="error_institution_not_found">Education institution not found.</string>
+    <string name="error_sending_request">Error sending orientation request.</string>
 </resources>

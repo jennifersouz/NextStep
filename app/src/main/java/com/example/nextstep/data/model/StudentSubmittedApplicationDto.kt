@@ -59,7 +59,22 @@ data class StudentSubmittedApplicationDto(
     val advisorPhone: String? = null,
 
     @SerialName("advisor_department")
-    val advisorDepartment: String? = null
+    val advisorDepartment: String? = null,
+
+    @SerialName("teacher_profile_id")
+    val teacherProfileId: String? = null,
+
+    @SerialName("teacher_name")
+    val teacherName: String? = null,
+
+    @SerialName("institution_name")
+    val institutionName: String? = null,
+
+    @SerialName("company_advisor_grade")
+    val companyAdvisorGrade: String? = null,
+
+    @SerialName("academic_advisor_grade")
+    val academicAdvisorGrade: String? = null
 ) {
     val studentFullName: String
         get() = "$firstName $lastName"
