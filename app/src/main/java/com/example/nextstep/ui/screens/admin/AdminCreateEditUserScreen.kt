@@ -34,9 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
 
 @Composable
@@ -69,12 +71,12 @@ fun AdminCreateEditUserScreen(
     var roleError by remember { mutableStateOf<String?>(null) }
 
     val roleOptions = listOf(
-        "student" to "Aluno",
-        "teacher" to "Docente",
-        "company" to "Empresa",
-        "advisor" to "Orientador",
-        "institution" to "Instituição",
-        "admin" to "Administrador"
+        "student" to stringResource(R.string.role_student),
+        "teacher" to stringResource(R.string.role_teacher),
+        "company" to stringResource(R.string.role_company),
+        "advisor" to stringResource(R.string.role_advisor),
+        "institution" to stringResource(R.string.role_institution),
+        "admin" to stringResource(R.string.role_admin)
     )
 
     Column(
@@ -93,13 +95,13 @@ fun AdminCreateEditUserScreen(
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = stringResource(R.string.back_label),
                     tint = Color.Black
                 )
             }
 
             Text(
-                text = if (isEditing) "Editar utilizador" else "Criar utilizador",
+                text = if (isEditing) stringResource(R.string.edit_user_title) else stringResource(R.string.create_user_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -108,7 +110,7 @@ fun AdminCreateEditUserScreen(
 
         if (!isEditing) {
             Text(
-                text = "Nota: A criação de contas com login real requer uma Edge Function segura no servidor. Aqui podes gerir apenas dados de perfis existentes.",
+                text = stringResource(R.string.note_account_creation),
                 fontSize = 13.sp,
                 color = Color(0xFFE65100),
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
@@ -130,8 +132,8 @@ fun AdminCreateEditUserScreen(
                     firstName = it
                     firstNameError = null
                 },
-                label = { Text("Nome *") },
-                placeholder = { Text("Insira o nome") },
+                label = { Text(stringResource(R.string.name_required)) },
+                placeholder = { Text(stringResource(R.string.name_placeholder_text)) },
                 isError = firstNameError != null,
                 supportingText = firstNameError?.let { { Text(it, color = Color(0xFFB00020)) } },
                 modifier = Modifier.fillMaxWidth(),
@@ -152,8 +154,8 @@ fun AdminCreateEditUserScreen(
                     lastName = it
                     lastNameError = null
                 },
-                label = { Text("Apelido *") },
-                placeholder = { Text("Insira o apelido") },
+                label = { Text(stringResource(R.string.last_name_required)) },
+                placeholder = { Text(stringResource(R.string.last_name_placeholder_text)) },
                 isError = lastNameError != null,
                 supportingText = lastNameError?.let { { Text(it, color = Color(0xFFB00020)) } },
                 modifier = Modifier.fillMaxWidth(),
@@ -172,7 +174,7 @@ fun AdminCreateEditUserScreen(
                 OutlinedTextField(
                     value = existingProfile.email ?: "",
                     onValueChange = {},
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.email_label)) },
                     enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -191,8 +193,8 @@ fun AdminCreateEditUserScreen(
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                label = { Text("Telefone") },
-                placeholder = { Text("Insira o telefone") },
+                label = { Text(stringResource(R.string.phone)) },
+                placeholder = { Text(stringResource(R.string.phone_placeholder_text)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -206,7 +208,7 @@ fun AdminCreateEditUserScreen(
 
             // Role dropdown
             Text(
-                text = "Função *",
+                text = stringResource(R.string.function_label),
                 fontSize = 14.sp,
                 color = Color(0xFF8A8A8A),
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -222,7 +224,7 @@ fun AdminCreateEditUserScreen(
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "Selecionar",
+                            contentDescription = stringResource(R.string.select),
                             tint = Color(0xFF333333)
                         )
                     },
@@ -261,7 +263,10 @@ fun AdminCreateEditUserScreen(
 
             // Active toggle info
             Text(
-                text = "Estado da conta: ${if (isActive) "Ativo" else "Inativo"}",
+                text = stringResource(
+                    R.string.account_status_format,
+                    stringResource(if (isActive) R.string.active_status_label else R.string.inactive_status_label)
+                ),
                 fontSize = 14.sp,
                 color = if (isActive) Color(0xFF2E7D32) else Color(0xFFC62828),
                 fontWeight = FontWeight.Medium
@@ -269,16 +274,19 @@ fun AdminCreateEditUserScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            val nameRequiredError = stringResource(R.string.name_required_error)
+            val lastNameRequiredError = stringResource(R.string.last_name_required_error)
+
             // Save button
             Button(
                 onClick = {
                     var hasError = false
                     if (firstName.isBlank()) {
-                        firstNameError = "O nome é obrigatório."
+                        firstNameError = nameRequiredError
                         hasError = true
                     }
                     if (lastName.isBlank() && selectedRole != "company") {
-                        lastNameError = "O apelido é obrigatório."
+                        lastNameError = lastNameRequiredError
                         hasError = true
                     }
                     if (!hasError) {
@@ -295,7 +303,7 @@ fun AdminCreateEditUserScreen(
                 )
             ) {
                 Text(
-                    text = if (isEditing) "Guardar alterações" else "Criar utilizador",
+                    text = if (isEditing) stringResource(R.string.save_changes) else stringResource(R.string.create_user_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )

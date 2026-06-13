@@ -756,4 +756,156 @@
     <string name="institution_label">Institution</string>
     <string name="task_name">Task</string>
     <string name="save_task">Save</string>
+
+    <!-- Admin Home -->
+    <string name="admin_management_panel">Management Panel</string>
+    <string name="active_internships_label">Active Internships</string>
+    <string name="applications_label">Applications</string>
+    <string name="total_companies_label">Total Companies</string>
+    <string name="active_companies_label">Active Companies</string>
+    <string name="completed_evaluations_label">Completed Evaluations</string>
+    <string name="registered_users_label">Registered Users</string>
+    <string name="recent_activities_label">Recent Activities</string>
+    <string name="no_recent_activities_label">No recent activities.</string>
+    <string name="retry_label">Try again</string>
+
+    <!-- Admin Companies -->
+    <string name="companies_label">Companies</string>
+    <string name="no_companies_found">No companies found.</string>
+    <string name="details_label">Details</string>
+
+    <!-- Admin Users -->
+    <string name="users_label">Users</string>
+    <string name="no_users_found_label">No users found.</string>
+
+    <!-- Admin Company Detail -->
+    <string name="deactivate_access">Deactivate Access</string>
+    <string name="deactivate_access_description">This action temporarily blocks the company\'s access but keeps data and history on the platform.</string>
+    <string name="deactivate_action">Deactivate</string>
+    <string name="reactivate_access">Reactivate Access</string>
+    <string name="reactivate_access_description">This action allows the company to access the platform again. Old offers will not be reactivated automatically.</string>
+    <string name="reactivate_action">Reactivate</string>
+    <string name="remove_from_platform">Remove from Platform</string>
+    <string name="remove_company_description">This action removes the company from the main list, blocks access and deactivates active offers. Applications and history will be kept.</string>
+    <string name="reason_optional">Reason (optional)</string>
+    <string name="remove_action">Remove</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="company_details_title">Company Details</string>
+    <string name="edit_company_action">Edit company</string>
+    <string name="view_company_offers">View company offers</string>
+    <string name="detail_name">Name</string>
+    <string name="detail_nif">Tax ID</string>
+    <string name="detail_business_area">Business Area</string>
+    <string name="detail_location">Location</string>
+    <string name="detail_phone">Phone</string>
+    <string name="detail_description">Description</string>
+    <string name="detail_published_offers">Published Offers</string>
+    <string name="back_label">Back</string>
+    <string name="updating_label">Updating...</string>
+    <string name="archived_feminine">Archived</string>
+    <string name="active_feminine">Active</string>
+    <string name="inactive_feminine">Inactive</string>
+
+    <!-- Admin User Detail -->
+    <string name="user_details_title">User Details</string>
+    <string name="detail_role">Role</string>
+    <string name="detail_registration_date">Registration Date</string>
+    <string name="unknown_label">Unknown</string>
+    <string name="archived_status">Archived</string>
+    <string name="active_status_label">Active</string>
+    <string name="inactive_status_label">Inactive</string>
+    <string name="user_removed_message">This user has been removed from the platform. The history has been kept.</string>
+    <string name="edit_user_action">Edit user</string>
+    <string name="archived_at_label">Archived at</string>
+    <string name="deactivate_user_description">This action temporarily blocks the user\'s access but keeps data and history on the platform.</string>
+    <string name="reactivate_user_description">This action allows the user to access the platform again.</string>
+    <string name="remove_user_description">This action removes the user from the main list and blocks access, but keeps the history of applications, messages, evaluations and documents.</string>
+
+    <!-- Admin Create/Edit User -->
+    <string name="new_user_title">New user</string>
+    <string name="create_user_button">Create user</string>
+    <string name="temporary_password_label">Temporary Password *</string>
+    <string name="active_checkbox_label">Active status</string>
+    <string name="student_number_label">Student number *</string>
+    <string name="academic_year_label">Academic year *</string>
+    <string name="select_institution_placeholder">Select an institution</string>
+    <string name="no_institutions_available">No institutions available. Create an institution before adding a teacher.</string>
+    <string name="edit_user_title">Edit user</string>
+    <string name="create_user_title">Create user</string>
+    <string name="note_account_creation">Note: Creating accounts with real login requires a secure Edge Function on the server. Here you can only manage existing profile data.</string>
+    <string name="name_placeholder_text">Enter name</string>
+    <string name="last_name_placeholder_text">Enter last name</string>
+    <string name="phone_placeholder_text">Enter phone</string>
+    <string name="role_label">Role *</string>
+    <string name="account_status_format">Account status: %1$s</string>
+    <string name="email_not_editable">Email cannot be changed on this screen.</string>
+    <string name="email_label">Email</string>
+
+    <!-- Admin Edit Company -->
+    <string name="editing_company_title">Edit Company</string>
+    <string name="new_company_title">New Company</string>
+    <string name="company_active_label">Active Company</string>
+    <string name="company_can_publish">Company can publish offers</string>
+    <string name="company_cannot_publish">Company cannot publish offers</string>
+    <string name="company_name_required_error">Company name is required.</string>
+    <string name="save_changes_button">Save Changes</string>
+    <string name="create_company_button">Create Company</string>
+    <string name="company_name_field">Company Name *</string>
+    <string name="nif_field">Tax ID</string>
+    <string name="business_area_field">Business Area</string>
+    <string name="business_area_placeholder">Ex: Technology</string>
+    <string name="location_field">Location</string>
+    <string name="phone_field">Phone</string>
+    <string name="phone_placeholder_example">Ex: 912345678</string>
+    <string name="description_field">Description</string>
+    <string name="description_placeholder">Company description...</string>
+
+    <!-- Admin inline validation -->
+    <string name="name_required_error">Name is required.</string>
+    <string name="last_name_required_error">Last name is required.</string>
+
+    <!-- Teacher Student Detail -->
+    <string name="student_detail">Student Details</string>
+    <string name="no_tasks_for_student">There are no tasks registered for this student yet.</string>
+    <string name="tasks_appear_here">When tasks are created, they will appear here.</string>
+    <string name="no_tasks_for_filter">No tasks found for this filter.</string>
+    <string name="total_label">Total</string>
+    <string name="completed_label">Completed</string>
+    <string name="pending_label">Pending</string>
+    <string name="in_progress_label">In Progress</string>
+    <string name="application_documents">Application Documents</string>
+    <string name="documents_description_student">These are the documents submitted by the student at the time of application.</string>
+    <string name="document_not_available">Document not available.</string>
+    <string name="view_document">View Document</string>
+    <string name="student_evaluation">Student Evaluation</string>
+    <string name="evaluate_only_followed">You can only evaluate accompanied students.</string>
+    <string name="evaluation_completed_label">Evaluation Completed</string>
+    <string name="edit_evaluation_label">Edit Evaluation</string>
+    <string name="final_grade_label">Final Grade</string>
+    <string name="qualitative_appreciation">Qualitative Appreciation</string>
+    <string name="strengths_label">Strengths</string>
+    <string name="improvements_label">Areas for Improvement</string>
+    <string name="final_grade_required">Final Grade (0-20) *</string>
+    <string name="grade_example">E.g.: 16</string>
+    <string name="qualitative_appreciation_required">Qualitative Appreciation *</string>
+    <string name="comment_placeholder_full">Write a comment about the student\'s performance...</string>
+    <string name="strengths_placeholder_full">Key demonstrated skills...</string>
+    <string name="improvements_placeholder_full">Areas where the student can improve...</string>
+
+    <!-- Teacher Messages -->
+    <string name="error_occurred">An error occurred</string>
+    <string name="no_conversation_found">No conversation found</string>
+    <string name="try_searching_other">Try searching by another name or internship.</string>
+    <string name="no_chats_yet_label">You don\'t have any conversations yet.</string>
+    <string name="chats_appear_here">When you follow students, they will appear here.</string>
+
+    <!-- Additional shared -->
+    <string name="error_opening_file">Error opening file.</string>
+    <string name="internship_prefix">Internship: </string>
+    <string name="company_prefix">Company: </string>
+    <string name="due_date_prefix">Due: </string>
+    <string name="completed_on_prefix">Completed on: </string>
+    <string name="progress_percentage">%1$d%% completed</string>
+    <string name="tab_evaluation">Evaluation</string>
+    <string name="no_messages_tap_to_start">No messages yet · Tap to start conversation</string>
 </resources>

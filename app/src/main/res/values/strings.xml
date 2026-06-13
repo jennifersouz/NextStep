@@ -770,4 +770,156 @@
     <string name="institution_label">Instituição</string>
     <string name="task_name">Tarefa</string>
     <string name="save_task">Guardar</string>
+
+    <!-- Admin Home -->
+    <string name="admin_management_panel">Painel de gestão</string>
+    <string name="active_internships_label">Estágios ativos</string>
+    <string name="applications_label">Candidaturas</string>
+    <string name="total_companies_label">Total de empresas</string>
+    <string name="active_companies_label">Empresas ativas</string>
+    <string name="completed_evaluations_label">Avaliações concluídas</string>
+    <string name="registered_users_label">Utilizadores registados</string>
+    <string name="recent_activities_label">Atividades recentes</string>
+    <string name="no_recent_activities_label">Sem atividades recentes.</string>
+    <string name="retry_label">Tentar novamente</string>
+
+    <!-- Admin Companies -->
+    <string name="companies_label">Empresas</string>
+    <string name="no_companies_found">Nenhuma empresa encontrada.</string>
+    <string name="details_label">Detalhes</string>
+
+    <!-- Admin Users -->
+    <string name="users_label">Utilizadores</string>
+    <string name="no_users_found_label">Nenhum utilizador encontrado.</string>
+
+    <!-- Admin Company Detail -->
+    <string name="deactivate_access">Desativar acesso</string>
+    <string name="deactivate_access_description">Esta ação bloqueia temporariamente o acesso da empresa, mas mantém os dados e o histórico na plataforma.</string>
+    <string name="deactivate_action">Desativar</string>
+    <string name="reactivate_access">Reativar acesso</string>
+    <string name="reactivate_access_description">Esta ação permite que a empresa volte a aceder à plataforma. As ofertas antigas não serão reativadas automaticamente.</string>
+    <string name="reactivate_action">Reativar</string>
+    <string name="remove_from_platform">Remover da plataforma</string>
+    <string name="remove_company_description">Esta ação remove a empresa da lista principal, bloqueia o acesso e desativa as ofertas ativas. As candidaturas e o histórico serão mantidos.</string>
+    <string name="reason_optional">Motivo (opcional)</string>
+    <string name="remove_action">Remover</string>
+    <string name="cancel_action">Cancelar</string>
+    <string name="company_details_title">Detalhes da Empresa</string>
+    <string name="edit_company_action">Editar empresa</string>
+    <string name="view_company_offers">Ver ofertas da empresa</string>
+    <string name="detail_name">Nome</string>
+    <string name="detail_nif">NIF</string>
+    <string name="detail_business_area">Área de Negócio</string>
+    <string name="detail_location">Localização</string>
+    <string name="detail_phone">Telefone</string>
+    <string name="detail_description">Descrição</string>
+    <string name="detail_published_offers">Ofertas Publicadas</string>
+    <string name="back_label">Voltar</string>
+    <string name="updating_label">A atualizar...</string>
+    <string name="archived_feminine">Arquivada</string>
+    <string name="active_feminine">Ativa</string>
+    <string name="inactive_feminine">Inativa</string>
+
+    <!-- Admin User Detail -->
+    <string name="user_details_title">Detalhes do utilizador</string>
+    <string name="detail_role">Função</string>
+    <string name="detail_registration_date">Data de registo</string>
+    <string name="unknown_label">Desconhecida</string>
+    <string name="archived_status">Arquivado</string>
+    <string name="active_status_label">Ativo</string>
+    <string name="inactive_status_label">Inativo</string>
+    <string name="user_removed_message">Este utilizador foi removido da plataforma. O histórico foi mantido.</string>
+    <string name="edit_user_action">Editar utilizador</string>
+    <string name="archived_at_label">Arquivado em</string>
+    <string name="deactivate_user_description">Esta ação bloqueia temporariamente o acesso do utilizador, mas mantém os dados e o histórico na plataforma.</string>
+    <string name="reactivate_user_description">Esta ação permite que o utilizador volte a aceder à plataforma.</string>
+    <string name="remove_user_description">Esta ação remove o utilizador da lista principal e bloqueia o acesso, mas mantém o histórico de candidaturas, mensagens, avaliações e documentos.</string>
+
+    <!-- Admin Create/Edit User -->
+    <string name="new_user_title">Novo utilizador</string>
+    <string name="create_user_button">Criar utilizador</string>
+    <string name="temporary_password_label">Password temporária *</string>
+    <string name="active_checkbox_label">Estado ativo</string>
+    <string name="student_number_label">Número de aluno *</string>
+    <string name="academic_year_label">Ano académico *</string>
+    <string name="select_institution_placeholder">Seleciona uma instituição</string>
+    <string name="no_institutions_available">Não existem instituições disponíveis. Cria uma instituição antes de adicionar um docente.</string>
+    <string name="edit_user_title">Editar utilizador</string>
+    <string name="create_user_title">Criar utilizador</string>
+    <string name="note_account_creation">Nota: A criação de contas com login real requer uma Edge Function segura no servidor. Aqui podes gerir apenas dados de perfis existentes.</string>
+    <string name="name_placeholder_text">Insira o nome</string>
+    <string name="last_name_placeholder_text">Insira o apelido</string>
+    <string name="phone_placeholder_text">Insira o telefone</string>
+    <string name="role_label">Função *</string>
+    <string name="account_status_format">Estado da conta: %1$s</string>
+    <string name="email_not_editable">O email não pode ser alterado nesta tela.</string>
+    <string name="email_label">Email</string>
+
+    <!-- Admin Edit Company -->
+    <string name="editing_company_title">Editar Empresa</string>
+    <string name="new_company_title">Nova Empresa</string>
+    <string name="company_active_label">Empresa Ativa</string>
+    <string name="company_can_publish">A empresa pode publicar ofertas</string>
+    <string name="company_cannot_publish">A empresa não pode publicar ofertas</string>
+    <string name="company_name_required_error">Nome da empresa obrigatório.</string>
+    <string name="save_changes_button">Guardar Alterações</string>
+    <string name="create_company_button">Criar Empresa</string>
+    <string name="company_name_field">Nome da Empresa *</string>
+    <string name="nif_field">NIF</string>
+    <string name="business_area_field">Área de Negócio</string>
+    <string name="business_area_placeholder">Ex: Tecnologia</string>
+    <string name="location_field">Localização</string>
+    <string name="phone_field">Telefone</string>
+    <string name="phone_placeholder_example">Ex: 912345678</string>
+    <string name="description_field">Descrição</string>
+    <string name="description_placeholder">Descrição da empresa...</string>
+
+    <!-- Admin inline validation -->
+    <string name="name_required_error">O nome é obrigatório.</string>
+    <string name="last_name_required_error">O apelido é obrigatório.</string>
+
+    <!-- Teacher Student Detail -->
+    <string name="student_detail">Detalhe do aluno</string>
+    <string name="no_tasks_for_student">Ainda não existem tarefas registadas para este aluno.</string>
+    <string name="tasks_appear_here">Quando forem criadas tarefas, elas aparecerão aqui.</string>
+    <string name="no_tasks_for_filter">Nenhuma tarefa encontrada para este filtro.</string>
+    <string name="total_label">Total</string>
+    <string name="completed_label">Concluídas</string>
+    <string name="pending_label">Pendentes</string>
+    <string name="in_progress_label">Em curso</string>
+    <string name="application_documents">Documentos da candidatura</string>
+    <string name="documents_description_student">Estes são os documentos submetidos pelo aluno no momento da candidatura.</string>
+    <string name="document_not_available">Documento não disponível.</string>
+    <string name="view_document">Visualizar Documento</string>
+    <string name="student_evaluation">Avaliação do Aluno</string>
+    <string name="evaluate_only_followed">Só é possível avaliar alunos acompanhados.</string>
+    <string name="evaluation_completed_label">Avaliação concluída</string>
+    <string name="edit_evaluation_label">Editar Avaliação</string>
+    <string name="final_grade_label">Nota Final</string>
+    <string name="qualitative_appreciation">Apreciação Qualitativa</string>
+    <string name="strengths_label">Pontos Fortes</string>
+    <string name="improvements_label">Pontos a Melhorar</string>
+    <string name="final_grade_required">Nota Final (0-20) *</string>
+    <string name="grade_example">Ex: 16</string>
+    <string name="qualitative_appreciation_required">Apreciação Qualitativa *</string>
+    <string name="comment_placeholder_full">Escreva um comentário sobre o desempenho do aluno...</string>
+    <string name="strengths_placeholder_full">Principais competências demonstradas...</string>
+    <string name="improvements_placeholder_full">Áreas onde o aluno pode evoluir...</string>
+
+    <!-- Teacher Messages -->
+    <string name="error_occurred">Ocorreu um erro</string>
+    <string name="no_conversation_found">Nenhuma conversa encontrada</string>
+    <string name="try_searching_other">Tenta pesquisar por outro nome ou estágio.</string>
+    <string name="no_chats_yet_label">Ainda não tens conversas.</string>
+    <string name="chats_appear_here">Quando acompanhares alunos, eles aparecerão aqui.</string>
+
+    <!-- Additional shared -->
+    <string name="error_opening_file">Erro ao abrir o ficheiro.</string>
+    <string name="internship_prefix">Estágio: </string>
+    <string name="company_prefix">Empresa: </string>
+    <string name="due_date_prefix">Prazo: </string>
+    <string name="completed_on_prefix">Concluída em: </string>
+    <string name="progress_percentage">%1$d%% concluído</string>
+    <string name="tab_evaluation">Avaliação</string>
+    <string name="no_messages_tap_to_start">Sem mensagens ainda · Toque para iniciar conversa</string>
 </resources>

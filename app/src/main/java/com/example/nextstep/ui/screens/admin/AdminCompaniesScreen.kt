@@ -60,7 +60,7 @@ fun AdminCompaniesScreen(
     ) {
         // Title
         Text(
-            text = "Empresas",
+            text = stringResource(R.string.companies_label),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -123,7 +123,7 @@ fun AdminCompaniesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhuma empresa encontrada.",
+                        text = stringResource(R.string.no_companies_found),
                         fontSize = 15.sp,
                         color = Color(0xFF777777)
                     )
@@ -219,7 +219,7 @@ fun AdminCompanyListItem(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = company.companyName ?: "Empresa",
+                text = company.companyName ?: stringResource(R.string.company),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black,
@@ -267,15 +267,15 @@ fun AdminCompanyListItem(
                 val statusColor: Color
                 val statusBg: Color
                 if (company.isArchived) {
-                    statusLabel = "Arquivada"
+                    statusLabel = stringResource(R.string.archived_feminine)
                     statusColor = Color(0xFF6D4C41)
                     statusBg = Color(0xFFEFEBE9)
                 } else if (company.isActive == true) {
-                    statusLabel = "Ativa"
+                    statusLabel = stringResource(R.string.active_feminine)
                     statusColor = Color(0xFF2E7D32)
                     statusBg = Color(0xFFE8F5E9)
                 } else {
-                    statusLabel = "Inativa"
+                    statusLabel = stringResource(R.string.inactive_feminine)
                     statusColor = Color(0xFFC62828)
                     statusBg = Color(0xFFFFEBEE)
                 }
@@ -300,7 +300,7 @@ fun AdminCompanyListItem(
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Detalhes",
+            contentDescription = stringResource(R.string.details_label),
             tint = Color(0xFFCCCCCC),
             modifier = Modifier.size(20.dp)
         )

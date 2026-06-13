@@ -104,7 +104,7 @@ fun AdminProfileScreen(
 
         else -> {
             AdminProfileContent(
-                name = state.adminName.ifBlank { "Administrador" },
+                name = state.adminName.ifBlank { stringResource(R.string.role_admin) },
                 email = state.adminEmail,
                 onLogoutRequest = { showLogoutDialog = true }
             )

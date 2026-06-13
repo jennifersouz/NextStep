@@ -38,9 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.ui.utils.DateFormatUtils
 import com.example.nextstep.ui.utils.roleToDisplayName
@@ -76,18 +78,18 @@ fun AdminUserDetailScreen(
     if (showDeactivateDialog) {
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Desativar acesso") },
-            text = { Text("Esta ação bloqueia temporariamente o acesso do utilizador, mas mantém os dados e o histórico na plataforma.") },
+            title = { Text(stringResource(R.string.deactivate_access)) },
+            text = { Text(stringResource(R.string.deactivate_user_description)) },
             confirmButton = {
                 TextButton(onClick = {
                     dismissDialogs()
                     onDeactivate()
                 }) {
-                    Text("Desativar", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.deactivate_action), color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
+                TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) }
             }
         )
     }
@@ -96,18 +98,18 @@ fun AdminUserDetailScreen(
     if (showReactivateDialog) {
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Reativar acesso") },
-            text = { Text("Esta ação permite que o utilizador volte a aceder à plataforma.") },
+            title = { Text(stringResource(R.string.reactivate_access)) },
+            text = { Text(stringResource(R.string.reactivate_user_description)) },
             confirmButton = {
                 TextButton(onClick = {
                     dismissDialogs()
                     onReactivate()
                 }) {
-                    Text("Reativar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.reactivate_action), color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
+                TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) }
             }
         )
     }
@@ -117,15 +119,15 @@ fun AdminUserDetailScreen(
         var reason by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { dismissDialogs() },
-            title = { Text("Remover da plataforma") },
+            title = { Text(stringResource(R.string.remove_from_platform)) },
             text = {
                 Column {
-                    Text("Esta ação remove o utilizador da lista principal e bloqueia o acesso, mas mantém o histórico de candidaturas, mensagens, avaliações e documentos.")
+                    Text(stringResource(R.string.remove_user_description))
                     Spacer(modifier = Modifier.height(12.dp))
                     TextField(
                         value = reason,
                         onValueChange = { reason = it },
-                        label = { Text("Motivo (opcional)") },
+                        label = { Text(stringResource(R.string.reason_optional)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -136,11 +138,11 @@ fun AdminUserDetailScreen(
                     dismissDialogs()
                     onArchive(reason.ifBlank { null })
                 }) {
-                    Text("Remover", color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.remove_action), color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
+                TextButton(onClick = { dismissDialogs() }) { Text(stringResource(R.string.cancel_action)) }
             }
         )
     }
@@ -160,12 +162,12 @@ fun AdminUserDetailScreen(
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = stringResource(R.string.back_label),
                     tint = Color.Black
                 )
             }
             Text(
-                text = "Detalhes do utilizador",
+                text = stringResource(R.string.user_details_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -247,17 +249,17 @@ fun AdminUserDetailScreen(
             val statusBg: Color
             when {
                 isArchived -> {
-                    statusLabel = "Arquivado"
+                    statusLabel = stringResource(R.string.archived_status)
                     statusColor = Color(0xFF6D4C41)
                     statusBg = Color(0xFFEFEBE9)
                 }
                 isActive -> {
-                    statusLabel = "Ativo"
+                    statusLabel = stringResource(R.string.active_status_label)
                     statusColor = Color(0xFF2E7D32)
                     statusBg = Color(0xFFE8F5E9)
                 }
                 else -> {
-                    statusLabel = "Inativo"
+                    statusLabel = stringResource(R.string.inactive_status_label)
                     statusColor = Color(0xFFC62828)
                     statusBg = Color(0xFFFFEBEE)
                 }
@@ -281,24 +283,24 @@ fun AdminUserDetailScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Fields
-            DetailField(label = "Nome", value = displayName)
+            DetailField(label = stringResource(R.string.detail_name), value = displayName)
             Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = "Email", value = profile.email ?: "")
+            DetailField(label = stringResource(R.string.email_label), value = profile.email ?: "")
             Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = "Função", value = roleToDisplayName(profile.role))
+            DetailField(label = stringResource(R.string.detail_role), value = roleToDisplayName(profile.role))
             Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = "Telefone", value = profile.phone ?: "Não disponível")
+            DetailField(label = stringResource(R.string.detail_phone), value = profile.phone ?: stringResource(R.string.not_available))
             Spacer(modifier = Modifier.height(16.dp))
 
             val createdAt = profile.createdAt
                 ?.let { DateFormatUtils.formatDateForUi(it) }
-                ?: "Desconhecida"
-            DetailField(label = "Data de registo", value = createdAt)
+                ?: stringResource(R.string.unknown_label)
+            DetailField(label = stringResource(R.string.detail_registration_date), value = createdAt)
 
             if (isArchived) {
                 Spacer(modifier = Modifier.height(16.dp))
                 if (profile.archivedAt != null) {
-                    DetailField(label = "Arquivado em", value = profile.archivedAt)
+                    DetailField(label = stringResource(R.string.archived_at_label), value = profile.archivedAt)
                     Spacer(modifier = Modifier.height(12.dp))
                 }
                 Box(
@@ -309,7 +311,7 @@ fun AdminUserDetailScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Este utilizador foi removido da plataforma. O histórico foi mantido.",
+                        text = stringResource(R.string.user_removed_message),
                         fontSize = 14.sp,
                         color = Color(0xFF6D4C41)
                     )
@@ -332,7 +334,7 @@ fun AdminUserDetailScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Editar utilizador", fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.edit_user_action), fontWeight = FontWeight.Medium)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -362,7 +364,7 @@ fun AdminUserDetailScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Desativar acesso", fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.deactivate_access), fontWeight = FontWeight.Medium)
                     }
                 } else {
                     Button(
@@ -383,7 +385,7 @@ fun AdminUserDetailScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Reativar acesso", fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.reactivate_access), fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -408,7 +410,7 @@ fun AdminUserDetailScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Remover da plataforma", fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.remove_from_platform), fontWeight = FontWeight.Medium)
                 }
             }
 

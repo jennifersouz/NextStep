@@ -134,24 +134,24 @@ fun TeacherMessagesScreen(
 
                 state.errorMessage != null -> {
                     TeacherMessagesEmptyState(
-                        title = "Ocorreu um erro",
-                        subtitle = state.errorMessage ?: "Não foi possível carregar as conversas.",
+                        title = stringResource(R.string.error_occurred),
+                        subtitle = state.errorMessage ?: stringResource(R.string.student_messages_load_error),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
                 filteredConversations.isEmpty() && state.searchQuery.isNotEmpty() -> {
                     TeacherMessagesEmptyState(
-                        title = "Nenhuma conversa encontrada",
-                        subtitle = "Tenta pesquisar por outro nome ou estágio.",
+                        title = stringResource(R.string.no_conversation_found),
+                        subtitle = stringResource(R.string.try_searching_other),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
                 state.conversations.isEmpty() -> {
                     TeacherMessagesEmptyState(
-                        title = "Ainda não tens conversas.",
-                        subtitle = "Quando acompanhares alunos, eles aparecerão aqui.",
+                        title = stringResource(R.string.no_chats_yet_label),
+                        subtitle = stringResource(R.string.chats_appear_here),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -226,7 +226,7 @@ private fun TeacherConversationCard(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Estágio: ${conversation.offerTitle ?: "N/A"}",
+                            text = stringResource(R.string.internship_prefix) + (conversation.offerTitle ?: stringResource(R.string.not_available)),
                             fontSize = 12.sp,
                             color = Color.Gray,
                             maxLines = 1,
@@ -251,7 +251,7 @@ private fun TeacherConversationCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     val messageText = conversation.lastMessage?.takeIf { it.isNotBlank() }
-                        ?: "Sem mensagens ainda · Toque para iniciar conversa"
+                        ?: stringResource(R.string.no_messages_tap_to_start)
                     
                     Text(
                         text = messageText,

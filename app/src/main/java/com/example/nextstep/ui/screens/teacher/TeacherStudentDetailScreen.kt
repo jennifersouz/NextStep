@@ -135,7 +135,7 @@ fun TeacherStudentDetailScreen(
                 )
             }
             Text(
-                text = "Detalhe do aluno",
+                text = stringResource(R.string.student_detail),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
@@ -173,7 +173,7 @@ private fun TeacherDetailContent(
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     // Fixed tabs labels to avoid wrapping
-    val tabs = listOf("Resumo", "Tarefas", "Docs", "Avaliação")
+    val tabs = listOf(stringResource(R.string.summary), stringResource(R.string.tasks), stringResource(R.string.documents), stringResource(R.string.tab_evaluation))
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Header with initial data or loaded data
@@ -287,7 +287,7 @@ private fun TeacherDetailHeaderCard(
                 fontSize = 16.sp, fontWeight = FontWeight.Bold,
                 color = Color.Black, maxLines = 1, overflow = TextOverflow.Ellipsis
             )
-            val displayOffer = if (offerTitle == "na" || offerTitle.isNullOrBlank()) "" else "Estágio: $offerTitle"
+            val displayOffer = if (offerTitle == "na" || offerTitle.isNullOrBlank()) "" else stringResource(R.string.internship_prefix) + offerTitle
             if (displayOffer.isNotBlank()) {
                 Text(
                     text = displayOffer, fontSize = 13.sp, color = Color(0xFF555555),
@@ -295,7 +295,7 @@ private fun TeacherDetailHeaderCard(
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
-            val displayCompany = if (companyName == "na" || companyName.isNullOrBlank()) "" else "Empresa: $companyName"
+            val displayCompany = if (companyName == "na" || companyName.isNullOrBlank()) "" else stringResource(R.string.company_prefix) + companyName
             if (displayCompany.isNotBlank()) {
                 Text(
                     text = displayCompany, fontSize = 12.sp, color = Color(0xFF777777),
@@ -346,18 +346,18 @@ private fun TeacherSummaryTab(
     ) {
         TeacherDetailSection(title = stringResource(R.string.section_student)) {
             TeacherDetailRow(label = stringResource(R.string.name_required).replace("*", "").trim(), value = detail.studentName)
-            TeacherDetailRow(label = stringResource(R.string.email), value = detail.studentEmail ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.course), value = detail.course ?: "Não disponível")
+            TeacherDetailRow(label = stringResource(R.string.email), value = detail.studentEmail ?: stringResource(R.string.not_available))
+            TeacherDetailRow(label = stringResource(R.string.course), value = detail.course ?: stringResource(R.string.not_available))
         }
         Spacer(modifier = Modifier.height(12.dp))
         TeacherDetailSection(title = stringResource(R.string.about_internship)) {
-            TeacherDetailRow(label = stringResource(R.string.offer_title), value = detail.offerTitle ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.company_name), value = detail.companyName ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.location), value = detail.location ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.work_mode), value = detail.workMode ?: "Não disponível")
-            TeacherDetailRow(label = stringResource(R.string.duration), value = detail.duration ?: "Não disponível")
+            TeacherDetailRow(label = stringResource(R.string.offer_title), value = detail.offerTitle ?: stringResource(R.string.not_available))
+            TeacherDetailRow(label = stringResource(R.string.company_name), value = detail.companyName ?: stringResource(R.string.not_available))
+            TeacherDetailRow(label = stringResource(R.string.location), value = detail.location ?: stringResource(R.string.not_available))
+            TeacherDetailRow(label = stringResource(R.string.work_mode), value = detail.workMode ?: stringResource(R.string.not_available))
+            TeacherDetailRow(label = stringResource(R.string.duration), value = detail.duration ?: stringResource(R.string.not_available))
             TeacherDetailRow(label = stringResource(R.string.status), value = applicationStatusToDisplay(detail.status))
-            TeacherDetailRow(label = stringResource(R.string.start_date), value = detail.startDate?.substringBefore("T") ?: "Não disponível")
+            TeacherDetailRow(label = stringResource(R.string.start_date), value = detail.startDate?.substringBefore("T") ?: stringResource(R.string.not_available))
         }
         Spacer(modifier = Modifier.height(12.dp))
         TeacherDetailSection(title = stringResource(R.string.task_progress)) {
@@ -521,13 +521,13 @@ private fun TeacherTasksTab(viewModel: TeacherStudentDetailViewModel) {
                 Box(modifier = Modifier.fillMaxSize().padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Ainda não existem tarefas registadas para este aluno.",
+                            text = stringResource(R.string.no_tasks_for_student),
                             fontSize = 15.sp, color = Color.Black, fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Quando forem criadas tarefas, elas aparecerão aqui.",
+                            text = stringResource(R.string.tasks_appear_here),
                             fontSize = 13.sp, color = Color(0xFF777777),
                             textAlign = TextAlign.Center
                         )
@@ -535,7 +535,7 @@ private fun TeacherTasksTab(viewModel: TeacherStudentDetailViewModel) {
                 }
             } else if (filteredTasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize().padding(horizontal = 40.dp), contentAlignment = Alignment.Center) {
-                    Text(text = "Nenhuma tarefa encontrada para este filtro.", fontSize = 14.sp, color = Color(0xFF777777))
+                    Text(text = stringResource(R.string.no_tasks_for_filter), fontSize = 14.sp, color = Color(0xFF777777))
                 }
             } else {
                 LazyColumn(
@@ -565,10 +565,10 @@ private fun TeacherTasksSummaryCard(state: TeacherTasksState) {
         Spacer(modifier = Modifier.height(12.dp))
         
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            SummaryStatItem(label = "Total", count = state.tasks.size)
-            SummaryStatItem(label = "Concluídas", count = state.completedTasksCount)
-            SummaryStatItem(label = "Pendentes", count = state.pendingTasksCount)
-            SummaryStatItem(label = "Em curso", count = state.inProgressTasksCount)
+            SummaryStatItem(label = stringResource(R.string.total_label), count = state.tasks.size)
+            SummaryStatItem(label = stringResource(R.string.completed_label), count = state.completedTasksCount)
+            SummaryStatItem(label = stringResource(R.string.pending_label), count = state.pendingTasksCount)
+            SummaryStatItem(label = stringResource(R.string.in_progress_label), count = state.inProgressTasksCount)
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -580,7 +580,7 @@ private fun TeacherTasksSummaryCard(state: TeacherTasksState) {
             trackColor = Color(0xFFEDEDED)
         )
         Spacer(modifier = Modifier.height(6.dp))
-        Text(text = "${state.progressPercentage}% concluído", fontSize = 12.sp, color = Color(0xFF555555), fontWeight = FontWeight.Medium)
+        Text(text = stringResource(R.string.progress_percentage, state.progressPercentage), fontSize = 12.sp, color = Color(0xFF555555), fontWeight = FontWeight.Medium)
     }
 }
 
@@ -599,9 +599,9 @@ private fun TeacherTaskItem(task: ApplicationTaskDto) {
     val isInProgress = status in listOf("in_progress", "em_progresso")
     
     val statusLabel = when {
-        isCompleted -> "Concluída"
-        isInProgress -> "Em progresso"
-        else -> "Pendente"
+        isCompleted -> stringResource(R.string.status_completed)
+        isInProgress -> stringResource(R.string.status_in_progress)
+        else -> stringResource(R.string.pending)
     }
     
     val statusColor = when {
@@ -652,7 +652,7 @@ private fun TeacherTaskItem(task: ApplicationTaskDto) {
                     modifier = Modifier.size(14.dp),
                     tint = Color(0xFF777777)
                 )
-                Text(text = "Prazo: ${date.substringBefore("T")}", fontSize = 12.sp, color = Color(0xFF777777), modifier = Modifier.padding(start = 4.dp))
+                Text(text = stringResource(R.string.due_date_prefix) + date.substringBefore("T"), fontSize = 12.sp, color = Color(0xFF777777), modifier = Modifier.padding(start = 4.dp))
             }
         }
         
@@ -665,7 +665,7 @@ private fun TeacherTaskItem(task: ApplicationTaskDto) {
                     modifier = Modifier.size(14.dp),
                     tint = Color(0xFF2E7D32)
                 )
-                Text(text = "Concluída em: ${task.completedAt.substringBefore("T")}", fontSize = 12.sp, color = Color(0xFF2E7D32), modifier = Modifier.padding(start = 4.dp))
+                Text(text = stringResource(R.string.completed_on_prefix) + task.completedAt.substringBefore("T"), fontSize = 12.sp, color = Color(0xFF2E7D32), modifier = Modifier.padding(start = 4.dp))
             }
         }
     }
@@ -687,7 +687,7 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
     ) {
         Text(
-            text = "Documentos da candidatura",
+            text = stringResource(R.string.application_documents),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -695,8 +695,9 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
         Spacer(modifier = Modifier.height(16.dp))
 
         // CV
+        val errorOpeningFile = context.getString(R.string.error_opening_file)
         TeacherDocumentItem(
-            name = "Curriculum Vitae (CV)",
+            name = stringResource(R.string.cv),
             path = detail?.cvPath,
             onOpen = { path -> 
                 viewModel.openDocument(
@@ -706,7 +707,7 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             context.startActivity(intent)
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Erro ao abrir o ficheiro.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, errorOpeningFile, Toast.LENGTH_SHORT).show()
                         }
                     },
                     onError = { msg ->
@@ -720,7 +721,7 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
 
         // Motivation Letter
         TeacherDocumentItem(
-            name = "Carta de Motivação",
+            name = stringResource(R.string.motivation_letter),
             path = detail?.motivationLetterPath,
             onOpen = { path -> 
                 viewModel.openDocument(
@@ -730,7 +731,7 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             context.startActivity(intent)
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Erro ao abrir o ficheiro.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, errorOpeningFile, Toast.LENGTH_SHORT).show()
                         }
                     },
                     onError = { msg ->
@@ -758,7 +759,7 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Estes são os documentos submetidos pelo aluno no momento da candidatura.",
+                    text = stringResource(R.string.documents_description_student),
                     fontSize = 13.sp,
                     color = Color(0xFF8D6E00)
                 )
@@ -799,7 +800,7 @@ private fun TeacherDocumentItem(
                 )
                 if (!isAvailable) {
                     Text(
-                        text = "Documento não disponível.",
+                        text = stringResource(R.string.document_not_available),
                         fontSize = 11.sp,
                         color = Color(0xFFB00020)
                     )
@@ -822,7 +823,7 @@ private fun TeacherDocumentItem(
                     tint = Color(0xFF2B2B2B)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Visualizar Documento", color = Color(0xFF2B2B2B), fontSize = 13.sp)
+                Text(text = stringResource(R.string.view_document), color = Color(0xFF2B2B2B), fontSize = 13.sp)
             }
         }
     }
@@ -850,7 +851,7 @@ private fun TeacherEvaluationTab(
     ) {
         // Title
         Text(
-            text = "Avaliação do Aluno",
+            text = stringResource(R.string.student_evaluation),
             fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -865,7 +866,7 @@ private fun TeacherEvaluationTab(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Só é possível avaliar alunos acompanhados.",
+                    text = stringResource(R.string.evaluate_only_followed),
                     fontSize = 15.sp,
                     color = Color(0xFF8D6E00),
                     textAlign = TextAlign.Center,
@@ -902,7 +903,7 @@ private fun TeacherEvaluationTab(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Avaliação concluída", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF2E7D32))
+                    Text(text = stringResource(R.string.evaluation_completed_label), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF2E7D32))
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -920,7 +921,7 @@ private fun TeacherEvaluationTab(
             ) {
                 Icon(imageVector = Icons.Filled.Grade, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Editar Avaliação", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                Text(text = stringResource(R.string.edit_evaluation_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
             }
         } else {
             // ── Evaluation form (new or editing) ──
@@ -944,22 +945,22 @@ private fun TeacherEvaluationReadOnly(evalState: TeacherEvaluationState) {
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFF5F5F5)).padding(16.dp)
     ) {
-        Text(text = "Nota Final", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
+        Text(text = stringResource(R.string.final_grade_label), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
         Text(text = evalState.grade.ifBlank { "-" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black, modifier = Modifier.padding(top = 2.dp))
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Apreciação Qualitativa", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
+        Text(text = stringResource(R.string.qualitative_appreciation), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
         Text(text = evalState.qualitativeFeedback.ifBlank { "-" }, fontSize = 14.sp, color = Color.Black, modifier = Modifier.padding(top = 2.dp))
         
         if (evalState.strengths.isNotBlank()) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Pontos Fortes", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
+            Text(text = stringResource(R.string.strengths_label), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
             Text(text = evalState.strengths, fontSize = 14.sp, color = Color.Black, modifier = Modifier.padding(top = 2.dp))
         }
         
         if (evalState.improvements.isNotBlank()) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Pontos a Melhorar", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
+            Text(text = stringResource(R.string.improvements_label), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF777777))
             Text(text = evalState.improvements, fontSize = 14.sp, color = Color.Black, modifier = Modifier.padding(top = 2.dp))
         }
     }
@@ -978,12 +979,12 @@ private fun TeacherEvaluationForm(
     val hasExistingEvaluation = evalState.evaluation != null
 
     // Grade
-    Text(text = "Nota Final (0-20) *", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+    Text(text = stringResource(R.string.final_grade_required), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
     Spacer(modifier = Modifier.height(6.dp))
     OutlinedTextField(
         value = evalState.grade,
         onValueChange = onGradeChange,
-        placeholder = { Text("Ex: 16") },
+        placeholder = { Text(stringResource(R.string.grade_example)) },
         singleLine = true,
         isError = evalState.gradeError != null,
         supportingText = evalState.gradeError?.let { err ->
@@ -1001,12 +1002,12 @@ private fun TeacherEvaluationForm(
     Spacer(modifier = Modifier.height(16.dp))
 
     // Qualitative feedback
-    Text(text = "Apreciação Qualitativa *", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+    Text(text = stringResource(R.string.qualitative_appreciation_required), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
     Spacer(modifier = Modifier.height(6.dp))
     OutlinedTextField(
         value = evalState.qualitativeFeedback,
         onValueChange = onFeedbackChange,
-        placeholder = { Text("Escreva um comentário sobre o desempenho do aluno...") },
+        placeholder = { Text(stringResource(R.string.comment_placeholder_full)) },
         minLines = 3, maxLines = 5,
         isError = evalState.feedbackError != null,
         supportingText = evalState.feedbackError?.let { err ->
@@ -1024,12 +1025,12 @@ private fun TeacherEvaluationForm(
     Spacer(modifier = Modifier.height(16.dp))
 
     // Strengths
-    Text(text = "Pontos Fortes", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+    Text(text = stringResource(R.string.strengths_label), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
     Spacer(modifier = Modifier.height(6.dp))
     OutlinedTextField(
         value = evalState.strengths,
         onValueChange = onStrengthsChange,
-        placeholder = { Text("Principais competências demonstradas...") },
+        placeholder = { Text(stringResource(R.string.strengths_placeholder_full)) },
         minLines = 2, maxLines = 4,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
@@ -1043,12 +1044,12 @@ private fun TeacherEvaluationForm(
     Spacer(modifier = Modifier.height(16.dp))
 
     // Improvements
-    Text(text = "Pontos a Melhorar", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+    Text(text = stringResource(R.string.improvements_label), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
     Spacer(modifier = Modifier.height(6.dp))
     OutlinedTextField(
         value = evalState.improvements,
         onValueChange = onImprovementsChange,
-        placeholder = { Text("Áreas onde o aluno pode evoluir...") },
+        placeholder = { Text(stringResource(R.string.improvements_placeholder_full)) },
         minLines = 2, maxLines = 4,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
@@ -1074,7 +1075,7 @@ private fun TeacherEvaluationForm(
         } else {
             Icon(imageVector = Icons.Filled.Grade, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
             Spacer(modifier = Modifier.width(8.dp))
-            val buttonLabel = if (hasExistingEvaluation) "Atualizar Avaliação" else "Guardar Avaliação"
+            val buttonLabel = if (hasExistingEvaluation) stringResource(R.string.update_evaluation) else stringResource(R.string.save_evaluation)
             Text(text = buttonLabel, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
         }
     }

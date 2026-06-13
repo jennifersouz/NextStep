@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.nextstep.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -88,7 +90,7 @@ fun StudentInternshipsContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Estágios",
+            text = stringResource(R.string.tab_internships),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -101,12 +103,12 @@ fun StudentInternshipsContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             TabButton(
-                text = "Por concluir",
+                text = stringResource(R.string.company_pending),
                 isSelected = selectedTab == 0,
                 onClick = { selectedTab = 0 }
             )
             TabButton(
-                text = "Concluído",
+                text = stringResource(R.string.completed),
                 isSelected = selectedTab == 1,
                 onClick = { selectedTab = 1 }
             )
@@ -226,7 +228,7 @@ private fun InternshipCard(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "Orientadores",
+                    text = stringResource(R.string.advisors),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black

@@ -45,10 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,12 +64,12 @@ fun AdminCreateUserScreen(
     var institutionMenuExpanded by remember { mutableStateOf(false) }
 
     val roleOptions = listOf(
-        "student" to "Aluno",
-        "teacher" to "Docente",
-        "company" to "Empresa",
-        "advisor" to "Orientador",
-        "institution" to "Instituição",
-        "admin" to "Administrador"
+        "student" to stringResource(R.string.role_student),
+        "teacher" to stringResource(R.string.role_teacher),
+        "company" to stringResource(R.string.role_company),
+        "advisor" to stringResource(R.string.role_advisor),
+        "institution" to stringResource(R.string.role_institution),
+        "admin" to stringResource(R.string.role_admin)
     )
 
     LaunchedEffect(state.isCreated) {
@@ -79,10 +81,10 @@ fun AdminCreateUserScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Novo utilizador", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.new_user_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_label))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -131,7 +133,7 @@ fun AdminCreateUserScreen(
                             )
                         } else {
                             Text(
-                                "Criar utilizador",
+                                stringResource(R.string.create_user_button),
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -154,7 +156,7 @@ fun AdminCreateUserScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             // ── Tipo de utilizador ───────────────────────────────────────────
-            Text("Tipo de utilizador *", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.user_type_required), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Box {
                 OutlinedTextField(
                     value = roleOptions.find { it.first == state.selectedRole }?.second ?: "",
@@ -197,7 +199,7 @@ fun AdminCreateUserScreen(
             OutlinedTextField(
                 value = state.email,
                 onValueChange = viewModel::onEmailChange,
-                label = { Text("Email *") },
+                label = { Text(stringResource(R.string.email_required)) },
                 isError = state.emailError != null,
                 supportingText = state.emailError?.let {
                     { Text(it, color = Color(0xFFB00020)) }
@@ -211,7 +213,7 @@ fun AdminCreateUserScreen(
             OutlinedTextField(
                 value = state.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = { Text("Password temporária *") },
+                label = { Text(stringResource(R.string.temporary_password_label)) },
                 isError = state.passwordError != null,
                 supportingText = state.passwordError?.let {
                     { Text(it, color = Color(0xFFB00020)) }
@@ -225,7 +227,7 @@ fun AdminCreateUserScreen(
             OutlinedTextField(
                 value = state.phone,
                 onValueChange = viewModel::onPhoneChange,
-                label = { Text("Telefone") },
+                label = { Text(stringResource(R.string.phone)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
@@ -237,7 +239,7 @@ fun AdminCreateUserScreen(
                     checked = state.isActive,
                     onCheckedChange = viewModel::onIsActiveChange
                 )
-                Text("Estado ativo")
+                Text(stringResource(R.string.active_checkbox_label))
             }
 
             HorizontalDivider()
@@ -249,7 +251,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.firstName,
                         onValueChange = viewModel::onFirstNameChange,
-                        label = { Text("Nome *") },
+                        label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -261,7 +263,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.lastName,
                         onValueChange = viewModel::onLastNameChange,
-                        label = { Text("Apelido *") },
+                        label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -273,7 +275,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.studentNumber,
                         onValueChange = viewModel::onStudentNumberChange,
-                        label = { Text("Número de aluno *") },
+                        label = { Text(stringResource(R.string.student_number_label)) },
                         isError = state.studentNumberError != null,
                         supportingText = state.studentNumberError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -285,7 +287,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.course,
                         onValueChange = viewModel::onCourseChange,
-                        label = { Text("Curso *") },
+                        label = { Text(stringResource(R.string.course_required)) },
                         isError = state.courseError != null,
                         supportingText = state.courseError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -297,7 +299,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.academicYear,
                         onValueChange = viewModel::onAcademicYearChange,
-                        label = { Text("Ano académico *") },
+                        label = { Text(stringResource(R.string.academic_year_label)) },
                         isError = state.academicYearError != null,
                         supportingText = state.academicYearError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -309,7 +311,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.educationInstitution,
                         onValueChange = viewModel::onEducationInstitutionChange,
-                        label = { Text("Instituição de ensino") },
+                        label = { Text(stringResource(R.string.education_institution)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
@@ -320,7 +322,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.firstName,
                         onValueChange = viewModel::onFirstNameChange,
-                        label = { Text("Nome *") },
+                        label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -332,7 +334,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.lastName,
                         onValueChange = viewModel::onLastNameChange,
-                        label = { Text("Apelido *") },
+                        label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -344,7 +346,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.department,
                         onValueChange = viewModel::onDepartmentChange,
-                        label = { Text("Departamento") },
+                        label = { Text(stringResource(R.string.department)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
@@ -352,7 +354,7 @@ fun AdminCreateUserScreen(
 
                     // ── Instituição associada (dropdown) ─────────────────────
                     Text(
-                        "Instituição associada *",
+                        stringResource(R.string.education_institution),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -365,7 +367,7 @@ fun AdminCreateUserScreen(
                         )
                     } else if (state.availableInstitutions.isEmpty()) {
                         Text(
-                            text = "Não existem instituições disponíveis. Cria uma instituição antes de adicionar um docente.",
+                            text = stringResource(R.string.no_institutions_available),
                             color = Color(0xFFB00020),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(vertical = 4.dp)
@@ -390,7 +392,7 @@ fun AdminCreateUserScreen(
                                 supportingText = state.institutionError?.let {
                                     { Text(it, color = Color(0xFFB00020)) }
                                 },
-                                placeholder = { Text("Seleciona uma instituição") },
+                                placeholder = { Text(stringResource(R.string.select_institution_placeholder)) },
                                 colors = OutlinedTextFieldDefaults.colors(
                                     disabledTextColor = Color.Black,
                                     disabledBorderColor = if (state.institutionError != null)
@@ -421,7 +423,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.companyName,
                         onValueChange = viewModel::onCompanyNameChange,
-                        label = { Text("Nome da empresa *") },
+                        label = { Text(stringResource(R.string.company_name_required)) },
                         isError = state.companyNameError != null,
                         supportingText = state.companyNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -433,7 +435,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.nif,
                         onValueChange = viewModel::onNifChange,
-                        label = { Text("NIF *") },
+                        label = { Text(stringResource(R.string.nif_required)) },
                         isError = state.nifError != null,
                         supportingText = state.nifError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -445,7 +447,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.businessArea,
                         onValueChange = viewModel::onBusinessAreaChange,
-                        label = { Text("Área de negócio *") },
+                        label = { Text(stringResource(R.string.business_area)) },
                         isError = state.businessAreaError != null,
                         supportingText = state.businessAreaError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -457,7 +459,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.location,
                         onValueChange = viewModel::onLocationChange,
-                        label = { Text("Localização *") },
+                        label = { Text(stringResource(R.string.location_required)) },
                         isError = state.locationError != null,
                         supportingText = state.locationError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -469,7 +471,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.description,
                         onValueChange = viewModel::onDescriptionChange,
-                        label = { Text("Descrição") },
+                        label = { Text(stringResource(R.string.description)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         minLines = 3
@@ -480,7 +482,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.firstName,
                         onValueChange = viewModel::onFirstNameChange,
-                        label = { Text("Nome *") },
+                        label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
@@ -492,7 +494,7 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.lastName,
                         onValueChange = viewModel::onLastNameChange,
-                        label = { Text("Apelido *") },
+                        label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
                             { Text(it, color = Color(0xFFB00020)) }
