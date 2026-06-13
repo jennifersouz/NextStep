@@ -23,6 +23,10 @@ object Routes {
     const val STUDENT_SEARCH_ADVISOR = "student_search_advisor/{internshipId}"
     const val STUDENT_SEARCH_ADVISOR_ARG = "internshipId"
 
+    const val PROFILE_DETAIL = "profile_detail/{profileId}/{type}"
+    const val PROFILE_DETAIL_PROFILE_ID_ARG = "profileId"
+    const val PROFILE_DETAIL_TYPE_ARG = "type"
+
     const val COMPANY_PROFILE = "company_profile/{companyProfileId}"
     const val COMPANY_PROFILE_ARG = "companyProfileId"
 
@@ -174,5 +178,9 @@ object Routes {
 
     fun companyProfile(companyProfileId: String): String {
         return "company_profile/$companyProfileId"
+    }
+
+    fun profileDetail(profileId: String, type: String): String {
+        return "profile_detail/$profileId/$type"
     }
 }

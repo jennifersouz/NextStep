@@ -3,6 +3,8 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.ApplicationDto
 import com.example.nextstep.data.model.CreateApplicationDto
+import com.example.nextstep.data.model.UpdateApplicationReportDto
+import com.example.nextstep.data.model.StudentSubmittedApplicationDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -101,6 +103,48 @@ class ApplicationsRepository {
             Result.success(applications.isNotEmpty())
         } catch (exception: Exception) {
             Log.e("ApplicationsRepository", "Erro ao verificar candidatura existente", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun uploadReport(
+        application: StudentSubmittedApplicationDto,
+        reportFileName: String,
+        reportBytes: ByteArray
+    ): Result<Unit> {
+        return try {
+            val studentProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Utilizador não autenticado.")
+
+            if (application.studentProfileId != studentProfileId) {
+                throw IllegalStateException("not_owner")
+            }
+
+            val timestamp = System.currentTimeMillis()
+            val reportPath =
+                "$studentProfileId/${application.offerId}/report_${timestamp}_${sanitizeFileName(reportFileName)}"
+
+            val bucket = supabase.storage.from("application-documents")
+
+            bucket.upload(
+                path = reportPath,
+                data = reportBytes
+            ) {
+                upsert = true
+            }
+
+            supabase.from("applications").update(
+                UpdateApplicationReportDto(reportPath = reportPath)
+            ) {
+                filter {
+                    eq("id", application.id)
+                    eq("student_profile_id", studentProfileId)
+                }
+            }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("ApplicationsRepository", "Erro ao anexar relatório", exception)
             Result.failure(exception)
         }
     }

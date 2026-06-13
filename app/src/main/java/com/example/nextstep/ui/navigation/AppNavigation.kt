@@ -18,6 +18,7 @@ import com.example.nextstep.ui.screens.admin.AdminCreateUserScreen
 import com.example.nextstep.ui.screens.admin.AdminDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
+import com.example.nextstep.ui.screens.advisor.ProfileDetailScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorNotificationsScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorStudentDetailScreen
 import com.example.nextstep.ui.screens.auth.LoginScreen
@@ -229,7 +230,38 @@ fun AppNavigation() {
                 },
                 onSearchAdvisorClick = {
                     navController.navigate(Routes.studentSearchAdvisor(internshipId))
+                },
+                onAdvisorProfileClick = { profileId ->
+                    Log.d("ProfileClick", "Navegando advisor profileId=$profileId type=advisor")
+                    navController.navigate(Routes.profileDetail(profileId, "advisor"))
+                },
+                onTeacherProfileClick = { profileId ->
+                    Log.d("ProfileClick", "Navegando teacher profileId=$profileId type=teacher")
+                    navController.navigate(Routes.profileDetail(profileId, "teacher"))
                 }
+            )
+        }
+
+        composable(
+            route = Routes.PROFILE_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.PROFILE_DETAIL_PROFILE_ID_ARG) { type = NavType.StringType },
+                navArgument(Routes.PROFILE_DETAIL_TYPE_ARG) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val profileId = backStackEntry.arguments
+                ?.getString(Routes.PROFILE_DETAIL_PROFILE_ID_ARG)
+                .orEmpty()
+            val type = backStackEntry.arguments
+                ?.getString(Routes.PROFILE_DETAIL_TYPE_ARG)
+                .orEmpty()
+
+            Log.d("ProfileClick", "Route aberta profileId=$profileId type=$type")
+
+            ProfileDetailScreen(
+                profileId = profileId,
+                type = type,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

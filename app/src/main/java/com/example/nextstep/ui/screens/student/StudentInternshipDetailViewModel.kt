@@ -1,9 +1,12 @@
 package com.example.nextstep.ui.screens.student
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.repository.AdvisorTasksRepository
+import com.example.nextstep.data.repository.ApplicationsRepository
 import com.example.nextstep.data.repository.StudentApplicationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,12 +16,31 @@ import kotlinx.coroutines.launch
 class StudentInternshipDetailViewModel : ViewModel() {
 
     private val applicationRepository = StudentApplicationsRepository()
+    private val applicationsRepository = ApplicationsRepository()
     private val tasksRepository = AdvisorTasksRepository()
 
     private val _uiState = MutableStateFlow(StudentInternshipDetailUiState())
     val uiState: StateFlow<StudentInternshipDetailUiState> = _uiState.asStateFlow()
 
     private var currentInternshipId: String = ""
+
+    private fun extractFileNameFromPath(path: String): String {
+        return path.substringAfterLast("/")
+            .substringAfter("_", path.substringAfterLast("/"))
+    }
+
+    private fun updateReportFileNameFromPath(path: String?) {
+        val name = if (path != null) {
+            val raw = extractFileNameFromPath(path)
+            val underscoreIndex = raw.indexOf("_")
+            if (underscoreIndex >= 0 && underscoreIndex < raw.length - 1) {
+                raw.substring(underscoreIndex + 1)
+            } else {
+                raw
+            }
+        } else null
+        _uiState.value = _uiState.value.copy(reportFileName = name)
+    }
 
     fun loadDetail(internshipId: String) {
         currentInternshipId = internshipId
@@ -39,6 +61,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
                     internship = application,
                     tasks = tasks
                 )
+                updateReportFileNameFromPath(application?.reportPath)
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -93,6 +116,57 @@ class StudentInternshipDetailViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    fun uploadReport(context: Context, uri: Uri, fileName: String) {
+        val application = _uiState.value.internship ?: return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isUploadingReport = true,
+                reportErrorMessage = null,
+                reportSuccessMessage = null
+            )
+
+            val reportBytes = context.contentResolver.openInputStream(uri)?.use {
+                it.readBytes()
+            }
+
+            if (reportBytes == null) {
+                _uiState.value = _uiState.value.copy(
+                    isUploadingReport = false,
+                    reportErrorMessage = "Não foi possível ler o ficheiro."
+                )
+                return@launch
+            }
+
+            val result = applicationsRepository.uploadReport(
+                application = application,
+                reportFileName = fileName,
+                reportBytes = reportBytes
+            )
+
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    isUploadingReport = false,
+                    reportFileName = fileName,
+                    reportSuccessMessage = "Relatório submetido com sucesso."
+                )
+                loadDetail(currentInternshipId)
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isUploadingReport = false,
+                    reportErrorMessage = "Não foi possível anexar o relatório."
+                )
+            }
+        }
+    }
+
+    fun clearReportMessages() {
+        _uiState.value = _uiState.value.copy(
+            reportErrorMessage = null,
+            reportSuccessMessage = null
+        )
     }
 
     fun updateTaskStatus(taskId: String, newStatus: String) {

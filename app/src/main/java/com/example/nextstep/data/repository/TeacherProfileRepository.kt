@@ -11,6 +11,35 @@ class TeacherProfileRepository {
     private val supabase = SupabaseClientProvider.client
     private val auth = supabase.auth
 
+    suspend fun getTeacherById(profileId: String): Result<TeacherProfileDto> {
+        return try {
+            Log.d("ProfileDebug", "Repository searching teacher profileId=$profileId")
+            val profiles = supabase
+                .from("teachers")
+                .select {
+                    filter {
+                        eq("profile_id", profileId)
+                    }
+                }
+                .decodeList<TeacherProfileDto>()
+
+            Log.d("ProfileDebug", "Teacher query returned rows=${profiles.size}")
+            if (profiles.isEmpty()) {
+                Log.d("ProfileDebug", "No rows found for profileId=$profileId in teachers table")
+            }
+
+            val profile = profiles.firstOrNull()
+                ?: return Result.failure(
+                    IllegalStateException("TEACHER_PROFILE_NOT_FOUND")
+                )
+
+            Result.success(profile)
+        } catch (exception: Exception) {
+            Log.e("TeacherProfileRepo", "Erro ao carregar perfil do docente por ID", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getTeacherProfile(): Result<TeacherProfileDto> {
         return try {
             val currentUser = auth.currentUserOrNull()

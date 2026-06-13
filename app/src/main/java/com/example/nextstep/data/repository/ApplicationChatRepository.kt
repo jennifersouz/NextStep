@@ -14,12 +14,9 @@ import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.time.Instant
@@ -31,10 +28,6 @@ class ApplicationChatRepository {
 
     private var currentChannel: RealtimeChannel? = null
     private var subscriptionJob: Job? = null
-
-    private val cleanupScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.IO
-    )
 
     suspend fun getMessages(
         applicationId: String
@@ -80,11 +73,13 @@ class ApplicationChatRepository {
             return Result.failure(IllegalArgumentException("MESSAGE_EMPTY"))
         }
 
-        Log.d("ApplicationChatRepo", "sendMessage applicationId=$applicationId")
-        Log.d("ApplicationChatRepo", "contentLength=${trimmedContent.length}")
+        val currentUser = auth.currentUserOrNull()
+        Log.d("ChatDebug", "sendMessage ApplicationId=$applicationId")
+        Log.d("ChatDebug", "sendMessage Sender=${currentUser?.id}")
+        Log.d("ChatDebug", "sendMessage contentLength=${trimmedContent.length}")
 
         return try {
-            auth.currentUserOrNull()
+            currentUser
                 ?: throw IllegalStateException("Utilizador não autenticado.")
 
             supabase.postgrest.rpc(
@@ -140,12 +135,14 @@ class ApplicationChatRepository {
         }
     }
 
-    fun subscribeToMessages(
+    suspend fun subscribeToMessages(
         applicationId: String,
         scope: CoroutineScope,
         onMessageReceived: () -> Unit
     ) {
         unsubscribeFromMessages()
+
+        Log.d("ChatDebug", "subscribeToMessages - Canal criado")
 
         val channel = supabase.channel(
             channelId = "application-chat-$applicationId"
@@ -164,26 +161,27 @@ class ApplicationChatRepository {
             )
         }
 
+        Log.d("ChatDebug", "subscribeToMessages - Flow criado")
+
         subscriptionJob = changeFlow
             .onEach {
                 onMessageReceived()
             }
             .launchIn(scope)
 
-        scope.launch {
-            runCatching {
-                channel.subscribe()
-            }.onFailure { exception ->
-                Log.e(
-                    "ApplicationChatRepo",
-                    "Erro ao subscrever canal realtime",
-                    exception
-                )
-            }
+        runCatching {
+            channel.subscribe()
+            Log.d("ChatDebug", "subscribeToMessages - Canal subscrito")
+        }.onFailure { exception ->
+            Log.e(
+                "ApplicationChatRepo",
+                "Erro ao subscrever canal realtime",
+                exception
+            )
         }
     }
 
-    fun unsubscribeFromMessages() {
+    suspend fun unsubscribeFromMessages() {
         subscriptionJob?.cancel()
         subscriptionJob = null
 
@@ -191,16 +189,14 @@ class ApplicationChatRepository {
         currentChannel = null
 
         if (channel != null) {
-            cleanupScope.launch {
-                runCatching {
-                    supabase.realtime.removeChannel(channel)
-                }.onFailure { exception ->
-                    Log.e(
-                        "ApplicationChatRepo",
-                        "Erro ao remover canal realtime",
-                        exception
-                    )
-                }
+            runCatching {
+                supabase.realtime.removeChannel(channel)
+            }.onFailure { exception ->
+                Log.e(
+                    "ApplicationChatRepo",
+                    "Erro ao remover canal realtime",
+                    exception
+                )
             }
         }
     }

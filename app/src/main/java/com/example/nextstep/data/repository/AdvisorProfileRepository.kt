@@ -12,6 +12,35 @@ class AdvisorProfileRepository {
     private val supabase = SupabaseClientProvider.client
     private val auth = supabase.auth
 
+    suspend fun getAdvisorById(profileId: String): Result<AdvisorProfileDto> {
+        return try {
+            Log.d("ProfileDebug", "Repository searching advisor profileId=$profileId")
+            val profiles = supabase
+                .from("advisors")
+                .select {
+                    filter {
+                        eq("profile_id", profileId)
+                    }
+                }
+                .decodeList<AdvisorProfileDto>()
+
+            Log.d("ProfileDebug", "Advisor query returned rows=${profiles.size}")
+            if (profiles.isEmpty()) {
+                Log.d("ProfileDebug", "No rows found for profileId=$profileId in advisors table")
+            }
+
+            val profile = profiles.firstOrNull()
+                ?: return Result.failure(
+                    IllegalStateException("ADVISOR_PROFILE_NOT_FOUND")
+                )
+
+            Result.success(profile)
+        } catch (exception: Exception) {
+            Log.e("AdvisorProfileRepo", "Erro ao carregar perfil do orientador por ID", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getAdvisorProfile(): Result<AdvisorProfileDto> {
         return try {
             val currentUser = auth.currentUserOrNull()

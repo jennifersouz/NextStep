@@ -83,16 +83,18 @@ class ApplicationChatViewModel : ViewModel() {
             repository.markMessagesAsRead(applicationId)
         }
         
-        repository.subscribeToMessages(
-            applicationId = applicationId,
-            scope = viewModelScope,
-            onMessageReceived = {
-                loadMessages(applicationId, showLoading = false)
-                viewModelScope.launch {
-                    repository.markMessagesAsRead(applicationId)
+        viewModelScope.launch {
+            repository.subscribeToMessages(
+                applicationId = applicationId,
+                scope = viewModelScope,
+                onMessageReceived = {
+                    loadMessages(applicationId, showLoading = false)
+                    viewModelScope.launch {
+                        repository.markMessagesAsRead(applicationId)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     private fun normalizeName(name: String?): String {
@@ -245,12 +247,16 @@ class ApplicationChatViewModel : ViewModel() {
     }
 
     fun stopRealtime() {
-        repository.unsubscribeFromMessages()
+        viewModelScope.launch {
+            repository.unsubscribeFromMessages()
+        }
         currentApplicationId = null
     }
 
     override fun onCleared() {
-        repository.unsubscribeFromMessages()
+        viewModelScope.launch {
+            repository.unsubscribeFromMessages()
+        }
         super.onCleared()
     }
 }

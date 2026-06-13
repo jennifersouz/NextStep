@@ -1,5 +1,9 @@
 package com.example.nextstep.ui.screens.student
 
+import android.content.Intent
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,9 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import android.util.Log
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
@@ -30,7 +34,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentInternshipDetailScreen(
@@ -38,9 +41,28 @@ fun StudentInternshipDetailScreen(
     onBackClick: () -> Unit,
     onChatClick: (String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
+    onAdvisorProfileClick: (String) -> Unit = {},
+    onTeacherProfileClick: (String) -> Unit = {},
     viewModel: StudentInternshipDetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val reportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: SecurityException) {
+            }
+            val fileName = getFileName(context, it)
+            viewModel.uploadReport(context, it, fileName)
+        }
+    }
 
     LaunchedEffect(internshipId) {
         viewModel.loadDetail(internshipId)
@@ -79,7 +101,23 @@ fun StudentInternshipDetailScreen(
                         onChatClick = onChatClick,
                         onSearchAdvisorClick = onSearchAdvisorClick,
                         onAddTaskClick = viewModel::showAddTaskDialog,
-                        onTaskStatusChange = viewModel::updateTaskStatus
+                        onTaskStatusChange = viewModel::updateTaskStatus,
+                        onAdvisorProfileClick = onAdvisorProfileClick,
+                        onTeacherProfileClick = onTeacherProfileClick,
+                        reportFileName = uiState.reportFileName,
+                        isUploadingReport = uiState.isUploadingReport,
+                        reportErrorMessage = uiState.reportErrorMessage,
+                        reportSuccessMessage = uiState.reportSuccessMessage,
+                        onAttachReportClick = {
+                            reportLauncher.launch(
+                                arrayOf(
+                                    "application/pdf",
+                                    "application/msword",
+                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                )
+                            )
+                        },
+                        onClearReportMessages = viewModel::clearReportMessages
                     )
                 }
             }
@@ -105,7 +143,15 @@ fun InternshipDetailContent(
     onChatClick: (String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
     onAddTaskClick: () -> Unit,
-    onTaskStatusChange: (String, String) -> Unit
+    onTaskStatusChange: (String, String) -> Unit,
+    onAdvisorProfileClick: (String) -> Unit = {},
+    onTeacherProfileClick: (String) -> Unit = {},
+    reportFileName: String? = null,
+    isUploadingReport: Boolean = false,
+    reportErrorMessage: String? = null,
+    reportSuccessMessage: String? = null,
+    onAttachReportClick: () -> Unit = {},
+    onClearReportMessages: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -115,7 +161,6 @@ fun InternshipDetailContent(
     ) {
         Log.d("TasksDebug", "Tarefas exibidas na UI: ${tasks.size}")
 
-        // Header
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -138,7 +183,6 @@ fun InternshipDetailContent(
             }
         }
 
-        // Teacher debug
         Log.d("TeacherDebug", "=== VALORES RECEBIDOS PELA SCREEN ===")
         Log.d("TeacherDebug", "teacherProfileId=${internship.teacherProfileId}")
         Log.d("TeacherDebug", "teacherStatus=${internship.teacherStatus}")
@@ -147,22 +191,25 @@ fun InternshipDetailContent(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Advisors Section
         Text("Orientadores", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Company Advisor
         AdvisorItem(
             organization = internship.companyName,
             name = internship.advisorName ?: "A aguardar atribuição",
             onChatClick = if (internship.advisorProfileId != null) {
                 { onChatClick(internship.id, internship.advisorName ?: "") }
+            } else null,
+            onProfileClick = if (internship.advisorProfileId != null) {
+                {
+                    Log.d("ProfileDebug", "Advisor click advisorProfileId=${internship.advisorProfileId} applicationId=${internship.id}")
+                    onAdvisorProfileClick(internship.advisorProfileId!!)
+                }
             } else null
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Academic Advisor (Teacher)
         val isTeacherAssigned = internship.teacherProfileId != null
                 && internship.teacherStatus == "accepted"
 
@@ -170,7 +217,13 @@ fun InternshipDetailContent(
             AdvisorItem(
                 organization = internship.institutionName ?: "Instituição",
                 name = internship.teacherName ?: "Orientador Académico",
-                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "") }
+                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "") },
+                onProfileClick = if (internship.teacherProfileId != null) {
+                    {
+                        Log.d("ProfileDebug", "Teacher click teacherProfileId=${internship.teacherProfileId} applicationId=${internship.id}")
+                        onTeacherProfileClick(internship.teacherProfileId!!)
+                    }
+                } else null
             )
         } else {
             Column {
@@ -194,6 +247,93 @@ fun InternshipDetailContent(
         } else {
             TasksSection(tasks, onAddTaskClick, onTaskStatusChange)
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        ReportSection(
+            fileName = reportFileName,
+            isUploading = isUploadingReport,
+            errorMessage = reportErrorMessage,
+            successMessage = reportSuccessMessage,
+            onAttachClick = onAttachReportClick,
+            onClearMessages = onClearReportMessages
+        )
+    }
+}
+
+@Composable
+fun ReportSection(
+    fileName: String?,
+    isUploading: Boolean,
+    errorMessage: String?,
+    successMessage: String?,
+    onAttachClick: () -> Unit,
+    onClearMessages: () -> Unit
+) {
+    Text("Relatório Final", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Spacer(modifier = Modifier.height(16.dp))
+
+    if (errorMessage != null) {
+        Text(
+            text = errorMessage,
+            color = Color(0xFFB00020),
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+    }
+    if (successMessage != null) {
+        Text(
+            text = successMessage,
+            color = Color(0xFF2E7D32),
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFD9D9D9),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = if (fileName != null) "\uD83D\uDCC4 $fileName" else "Nenhum relatório submetido",
+            color = if (fileName != null) Color.Black else Color(0xFF8A8A8A),
+            fontSize = 16.sp,
+            modifier = Modifier.weight(1f)
+        )
+
+        Button(
+            onClick = {
+                onClearMessages()
+                onAttachClick()
+            },
+            enabled = !isUploading,
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFDFA52),
+                contentColor = Color.Black
+            )
+        ) {
+            if (isUploading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.Black
+                )
+            } else {
+                Text(
+                    text = if (fileName != null) "Substituir Relatório" else "Anexar Relatório",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
 
@@ -201,12 +341,21 @@ fun InternshipDetailContent(
 fun AdvisorItem(
     organization: String,
     name: String,
-    onChatClick: (() -> Unit)?
+    onChatClick: (() -> Unit)?,
+    onProfileClick: (() -> Unit)? = null
 ) {
     Column {
         Text(organization, color = Color.Gray, fontSize = 13.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = onProfileClick != null) {
+                    Log.d("ProfileClick", "AdvisorItem clicado nome=$name")
+                    onProfileClick?.invoke()
+                }
+        ) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -326,7 +475,7 @@ fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
     Spacer(modifier = Modifier.height(32.dp))
     Text("Avaliação Final", fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
             modifier = Modifier.border(1.dp, Color(0xFFE5E5E5), RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 8.dp),
@@ -350,7 +499,7 @@ fun EvaluationRow(name: String, grade: String) {
         }
         Spacer(modifier = Modifier.width(12.dp))
         Text(name, modifier = Modifier.weight(1f))
-        
+
         Surface(
             modifier = Modifier.border(1.dp, Color(0xFFE5E5E5), RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 4.dp),
             shape = RoundedCornerShape(8.dp),
