@@ -23,7 +23,6 @@ class TeacherMessagesRepository {
             Log.d("TeacherMessagesRepo", "Loading message students from teacher_students_view")
 
             // Busca alunos do docente através da view que representa alunos acompanhados
-            // A view teacher_students_view já deve filtrar apenas os aceites (teacher_status = 'accepted')
             val students = try {
                 supabase
                     .from("teacher_students_view")
@@ -36,21 +35,35 @@ class TeacherMessagesRepository {
 
             Log.d("TeacherMessagesRepo", "Students loaded: ${students.size}")
 
-            // Para cada aluno/estágio, busca a última mensagem
-            val conversations = students.map { student ->
-                val appId = student.applicationId
-                val lastMessageData = getLastMessage(appId)
+            // Agrupar por studentProfileId para ter apenas uma conversa por aluno
+            val groupedByStudent = students.groupBy { it.studentProfileId }
+
+            val conversations = groupedByStudent.map { (studentId, studentApps) ->
+                // Escolher a candidatura principal
+                // 1. Preferir 'accepted'
+                // 2. Escolher a mais recente por createdAt
+                val primaryApp = studentApps.sortedWith(
+                    compareByDescending<TeacherStudentDto> { 
+                        it.status?.lowercase() == "accepted" || it.status?.lowercase() == "aceite" 
+                    }.thenByDescending { it.createdAt ?: "" }
+                ).first()
+
+                // Buscar a última mensagem considerando TODAS as candidaturas deste aluno com este docente
+                // Para simplificar, buscamos a última mensagem da candidatura principal
+                // ou tentamos buscar entre todas as IDs do grupo.
+                val appIds = studentApps.map { it.applicationId }
+                val lastMessageData = getLastMessageAcrossApps(appIds)
 
                 TeacherConversationDto(
-                    applicationId = appId,
-                    studentProfileId = student.studentProfileId,
-                    studentName = student.studentName,
-                    studentEmail = student.studentEmail,
-                    offerTitle = student.offerTitle,
-                    companyName = student.companyName,
+                    applicationId = primaryApp.applicationId,
+                    studentProfileId = primaryApp.studentProfileId,
+                    studentName = primaryApp.studentName,
+                    studentEmail = primaryApp.studentEmail,
+                    offerTitle = primaryApp.offerTitle,
+                    companyName = primaryApp.companyName,
                     lastMessage = lastMessageData?.content,
                     lastMessageAt = lastMessageData?.createdAt,
-                    unreadCount = 0
+                    unreadCount = 0 
                 )
             }
 
@@ -67,13 +80,14 @@ class TeacherMessagesRepository {
         }
     }
 
-    private suspend fun getLastMessage(applicationId: String): ApplicationMessageDto? {
+    private suspend fun getLastMessageAcrossApps(applicationIds: List<String>): ApplicationMessageDto? {
+        if (applicationIds.isEmpty()) return null
         return try {
             supabase
                 .from("application_chat_messages_view")
                 .select {
                     filter {
-                        eq("application_id", applicationId)
+                        isIn("application_id", applicationIds)
                     }
                     limit(1)
                     order("created_at", Order.DESCENDING)
@@ -81,7 +95,7 @@ class TeacherMessagesRepository {
                 .decodeList<ApplicationMessageDto>()
                 .firstOrNull()
         } catch (e: Exception) {
-            Log.e("TeacherMessagesRepo", "Erro ao buscar última mensagem para $applicationId", e)
+            Log.e("TeacherMessagesRepo", "Erro ao buscar última mensagem para apps $applicationIds", e)
             null
         }
     }

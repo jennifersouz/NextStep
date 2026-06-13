@@ -6,6 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,17 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import com.example.nextstep.R
+import com.example.nextstep.data.repository.TeacherProfileRepository
 import com.example.nextstep.ui.components.BottomBarItem
 import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
-import com.example.nextstep.data.repository.TeacherProfileRepository
 
 @Composable
 fun TeacherDashboardScreen(
@@ -70,14 +70,22 @@ fun TeacherDashboardScreen(
                 TeacherTab.HOME -> TeacherHomeScreen(
                     teacherName = teacherName,
                     onNotificationsClick = onNotificationsClick,
-                    unreadNotificationsCount = notificationsState.unreadCount
+                    unreadNotificationsCount = notificationsState.unreadCount,
+                    onRequestClick = onRequestClick,
+                    onSeeAllRequestsClick = { selectedTab = TeacherTab.REQUESTS },
+                    onSeeAllStudentsClick = { selectedTab = TeacherTab.STUDENTS }
                 )
 
                 TeacherTab.REQUESTS -> TeacherRequestsScreen(
                     onRequestClick = onRequestClick
                 )
 
-                TeacherTab.STUDENTS -> TeacherStudentsPlaceholder()
+                TeacherTab.STUDENTS -> TeacherStudentsScreen(
+                    onStudentClick = { applicationId ->
+                        // The parent AppNavigation handles this via Routes.teacherStudentDetail(applicationId)
+                        // but here we just show the list
+                    }
+                )
                 TeacherTab.MESSAGES -> TeacherMessagesScreen(
                     onChatClick = onChatClick
                 )
@@ -94,13 +102,6 @@ fun TeacherDashboardScreen(
             selectedTab = selectedTab,
             onTabSelected = { selectedTab = it }
         )
-    }
-}
-
-@Composable
-private fun TeacherStudentsPlaceholder() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // TODO: Implement TeacherStudentsScreen
     }
 }
 
