@@ -296,7 +296,12 @@ fun TaskCard(task: AdvisorTaskListItemDto, onStatusChange: (String, String) -> U
             Checkbox(
                 checked = isCompleted,
                 onCheckedChange = { checked ->
-                    onStatusChange(task.id, if (checked) "completed" else "pending")
+                    val currentStatus = task.status
+                    val newStatus = if (checked) "completed" else "pending"
+                    Log.d("TaskDebug", "Task ID: ${task.id}")
+                    Log.d("TaskDebug", "Status atual: $currentStatus")
+                    Log.d("TaskDebug", "Novo status: $newStatus")
+                    onStatusChange(task.id, newStatus)
                 }
             )
             Text(

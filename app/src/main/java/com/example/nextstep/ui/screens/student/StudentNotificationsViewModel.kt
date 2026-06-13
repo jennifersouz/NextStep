@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.model.StudentNotificationDto
+import com.example.nextstep.data.model.NotificationDto
+import com.example.nextstep.data.model.StudentNotificationItem
+import com.example.nextstep.data.repository.NotificationsRepository
 import com.example.nextstep.data.repository.StudentNotificationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,8 @@ import kotlinx.coroutines.launch
 
 class StudentNotificationsViewModel : ViewModel() {
 
-    private val repository = StudentNotificationsRepository()
+    private val viewRepository = StudentNotificationsRepository()
+    private val tableRepository = NotificationsRepository()
 
     private val _uiState = MutableStateFlow(StudentNotificationsUiState())
     val uiState: StateFlow<StudentNotificationsUiState> = _uiState.asStateFlow()
@@ -31,31 +34,42 @@ class StudentNotificationsViewModel : ViewModel() {
                 errorMessageRes = null
             )
 
-            val result = repository.getStudentNotifications()
+            val viewResult = viewRepository.getStudentNotifications()
+            val tableResult = tableRepository.getNotifications()
 
-            _uiState.value = if (result.isSuccess) {
-                val notifications = result.getOrDefault(emptyList())
-                Log.d(
-                    "NOTIF_DEBUG",
-                    "loadNotifications: ${notifications.size} notificações, não lidas = ${notifications.count { it.isUnread }}"
-                )
-                _uiState.value.copy(
-                    notifications = notifications,
-                    isLoading = false,
-                    errorMessageRes = null
-                )
-            } else {
-                _uiState.value.copy(
-                    notifications = emptyList(),
-                    isLoading = false,
-                    errorMessageRes = R.string.student_notifications_load_error
-                )
+            val merged = mutableListOf<StudentNotificationItem>()
+
+            if (viewResult.isSuccess) {
+                viewResult.getOrDefault(emptyList()).forEach { dto ->
+                    merged.add(StudentNotificationItem.ViewBased(dto))
+                }
             }
+
+            if (tableResult.isSuccess) {
+                tableResult.getOrDefault(emptyList()).forEach { dto ->
+                    if (dto.type in listOf("message", "evaluation", "teacher_assigned")) {
+                        merged.add(StudentNotificationItem.TableBased(dto))
+                    }
+                }
+            }
+
+            merged.sortByDescending { it.sortDate }
+
+            Log.d(
+                "NOTIF_DEBUG",
+                "loadNotifications: ${merged.size} notificações (view+table), não lidas = ${merged.count { it.isUnread }}"
+            )
+
+            _uiState.value = _uiState.value.copy(
+                notifications = merged,
+                isLoading = false,
+                errorMessageRes = null
+            )
         }
     }
 
     fun markAsSeen(
-        notification: StudentNotificationDto,
+        notification: StudentNotificationItem,
         onLocalStateChanged: (Int) -> Unit = {},
         onSuccess: () -> Unit = {}
     ) {
@@ -67,10 +81,17 @@ class StudentNotificationsViewModel : ViewModel() {
 
         val updatedNotifications = previousNotifications.map { item ->
             if (item.id == notification.id && item.type == notification.type) {
-                item.copy(
-                    isSeen = true,
-                    studentStatusSeen = true
-                )
+                when (item) {
+                    is StudentNotificationItem.ViewBased -> item.copy(
+                        notification = item.notification.copy(
+                            isSeen = true,
+                            studentStatusSeen = true
+                        )
+                    )
+                    is StudentNotificationItem.TableBased -> item.copy(
+                        notification = item.notification.copy(isRead = true)
+                    )
+                }
             } else {
                 item
             }
@@ -88,9 +109,16 @@ class StudentNotificationsViewModel : ViewModel() {
         onLocalStateChanged(newUnreadCount)
 
         viewModelScope.launch {
-            val result = when (notification.type) {
-                "advisor_assigned" -> repository.markAdvisorAssignmentAsSeen(notification.id)
-                else -> repository.markNotificationAsSeen(notification.id)
+            val result = when (notification) {
+                is StudentNotificationItem.ViewBased -> {
+                    when (notification.type) {
+                        "advisor_assigned" -> viewRepository.markAdvisorAssignmentAsSeen(notification.id)
+                        else -> viewRepository.markNotificationAsSeen(notification.id)
+                    }
+                }
+                is StudentNotificationItem.TableBased -> {
+                    tableRepository.markAsRead(notification.id)
+                }
             }
 
             if (result.isSuccess) {

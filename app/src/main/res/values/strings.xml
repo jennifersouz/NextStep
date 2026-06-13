@@ -490,6 +490,14 @@
     <string name="advisor_assigned_notification_title">Orientador atribuído</string>
     <string name="advisor_assigned_notification_message">Foi atribuído um orientador à tua candidatura.</string>
 
+    <!-- Notification Types (RF81 + RF82) -->
+    <string name="notification_type_message">Nova mensagem</string>
+    <string name="notification_type_evaluation">Nova avaliação disponível</string>
+    <string name="notification_type_teacher_assigned">Orientador atribuído</string>
+    <string name="notification_message_body">Recebeu uma nova mensagem sobre a sua candidatura/estágio.</string>
+    <string name="notification_evaluation_body">A sua avaliação foi publicada.</string>
+    <string name="notification_teacher_assigned_body">Foi atribuído um orientador ao seu estágio.</string>
+
     <string name="chat_title">Chat do estágio</string>
     <string name="message_advisor">Enviar mensagem ao orientador</string>
     <string name="type_message">Escreve uma mensagem...</string>

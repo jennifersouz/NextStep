@@ -99,10 +99,13 @@ class StudentInternshipDetailViewModel : ViewModel() {
         viewModelScope.launch {
             val result = tasksRepository.updateTaskStatus(taskId, newStatus)
             if (result.isSuccess) {
+                Log.d("TaskDebug", "Tarefa atualizada com sucesso")
                 val tasksResult = tasksRepository.getTasksByApplication(currentInternshipId)
                 _uiState.value = _uiState.value.copy(
                     tasks = tasksResult.getOrDefault(emptyList())
                 )
+            } else {
+                Log.e("TaskDebug", "Erro ao atualizar tarefa", result.exceptionOrNull())
             }
         }
     }

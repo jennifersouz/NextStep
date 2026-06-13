@@ -159,10 +159,24 @@ fun AppNavigation() {
                         Routes.STUDENT_SENT_ADVISOR_REQUESTS
                     )
                 },
-                onApplicationNotificationClick = { applicationId ->
-                    navController.navigate(
-                        Routes.studentSubmittedApplicationDetail(applicationId)
-                    )
+                onApplicationNotificationClick = { type, applicationId ->
+                    when (type) {
+                        "message" -> {
+                            navController.navigate(
+                                Routes.applicationChat(applicationId)
+                            )
+                        }
+                        "evaluation", "teacher_assigned", "advisor_assigned" -> {
+                            navController.navigate(
+                                Routes.studentSubmittedApplicationDetail(applicationId)
+                            )
+                        }
+                        else -> {
+                            navController.navigate(
+                                Routes.studentSubmittedApplicationDetail(applicationId)
+                            )
+                        }
+                    }
                 },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {

@@ -16,7 +16,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,13 +44,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.StudentNotificationDto
+import com.example.nextstep.data.model.StudentNotificationItem
 import java.time.Duration
 import java.time.OffsetDateTime
 
 @Composable
 fun StudentNotificationsScreen(
-    onNotificationClick: (String) -> Unit = {},
+    onNotificationClick: (type: String, applicationId: String) -> Unit = { _, _ -> },
     onUnreadCountChanged: (Int) -> Unit = {},
     viewModel: StudentNotificationsViewModel = viewModel()
 ) {
@@ -130,18 +137,20 @@ fun StudentNotificationsScreen(
 
                 items(
                     items = state.notifications,
-                    key = { notification ->
-                        "${notification.id}_${notification.type}"
+                    key = { item ->
+                        "${item.id}_${item.type}"
                     }
-                ) { notification ->
-                    StudentNotificationItem(
-                        notification = notification,
+                ) { item ->
+                    StudentNotificationItemRow(
+                        notification = item,
                         onClick = {
                             viewModel.markAsSeen(
-                                notification = notification,
+                                notification = item,
                                 onLocalStateChanged = onUnreadCountChanged,
                                 onSuccess = {
-                                    onNotificationClick(notification.id)
+                                    item.applicationId?.let { appId ->
+                                        onNotificationClick(item.type, appId)
+                                    }
                                 }
                             )
                         }
@@ -155,8 +164,29 @@ fun StudentNotificationsScreen(
 }
 
 @Composable
-fun StudentNotificationItem(
-    notification: StudentNotificationDto,
+fun StudentNotificationItemRow(
+    notification: StudentNotificationItem,
+    onClick: () -> Unit
+) {
+    when (notification) {
+        is StudentNotificationItem.ViewBased -> {
+            ViewBasedNotificationItem(
+                notification = notification.notification,
+                onClick = onClick
+            )
+        }
+        is StudentNotificationItem.TableBased -> {
+            TableBasedNotificationItem(
+                notification = notification.notification,
+                onClick = onClick
+            )
+        }
+    }
+}
+
+@Composable
+fun ViewBasedNotificationItem(
+    notification: com.example.nextstep.data.model.StudentNotificationDto,
     onClick: () -> Unit
 ) {
     Row(
@@ -222,6 +252,103 @@ fun StudentNotificationItem(
 }
 
 @Composable
+fun TableBasedNotificationItem(
+    notification: com.example.nextstep.data.model.NotificationDto,
+    onClick: () -> Unit
+) {
+    val icon = when (notification.type) {
+        "message" -> Icons.AutoMirrored.Filled.Chat
+        "evaluation" -> Icons.Default.Star
+        "teacher_assigned" -> Icons.Default.Person
+        else -> Icons.Default.Notifications
+    }
+
+    val iconBgColor = when (notification.type) {
+        "message" -> Color(0xFFFFF8E1)
+        "evaluation" -> Color(0xFFE3F2FD)
+        "teacher_assigned" -> Color(0xFFE8F5E9)
+        else -> Color(0xFFF4F4F4)
+    }
+
+    val iconColor = when (notification.type) {
+        "message" -> Color(0xFFF57F17)
+        "evaluation" -> Color(0xFF1976D2)
+        "teacher_assigned" -> Color(0xFF388E3C)
+        else -> Color(0xFF8A8A8A)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (!notification.isRead) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE8505B))
+            )
+        } else {
+            Spacer(modifier = Modifier.width(7.dp))
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Box(
+            modifier = Modifier
+                .size(54.dp)
+                .clip(CircleShape)
+                .background(iconBgColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = notification.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                Text(
+                    text = relativeNotificationTime(notification.createdAt.orEmpty()),
+                    fontSize = 14.sp,
+                    color = Color(0xFF8A8A8A)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = notification.message,
+                fontSize = 16.sp,
+                color = Color(0xFF8A8A8A)
+            )
+        }
+    }
+}
+
+@Composable
 fun StudentNotificationCompanyLogo(
     companyName: String
 ) {
@@ -275,7 +402,7 @@ fun StudentNotificationsEmptyState() {
 
 @Composable
 fun studentNotificationMessage(
-    notification: StudentNotificationDto
+    notification: com.example.nextstep.data.model.StudentNotificationDto
 ): String {
     return when (notification.type) {
         "advisor_assigned" -> stringResource(R.string.advisor_assigned_notification_message)

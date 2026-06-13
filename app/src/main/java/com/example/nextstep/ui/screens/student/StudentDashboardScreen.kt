@@ -89,7 +89,7 @@ fun StudentDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
     onSentRequestsClick: () -> Unit = {},
-    onApplicationNotificationClick: (String) -> Unit = {},
+    onApplicationNotificationClick: (type: String, applicationId: String) -> Unit = { _, _ -> },
     onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel(),
     onChatClick: (String) -> Unit = {},
