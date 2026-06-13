@@ -599,4 +599,7 @@
     <string name="no_tasks_description">When tasks are created for internships, they will appear here.</string>
     <string name="create_task">Create task</string>
     <string name="due_date">Due date</string>
+    <string name="error_loading_teachers">Error loading advisors.</string>
+    <string name="error_institution_not_found">Education institution not found.</string>
+    <string name="error_sending_request">Error sending orientation request.</string>
 </resources>

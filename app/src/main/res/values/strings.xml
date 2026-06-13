@@ -608,4 +608,7 @@
     <string name="new_assigned_student">Novo aluno atribuído</string>
     <string name="new_assigned_student_message">Foi-te atribuído um novo aluno para orientação.</string>
     <string name="new_message_from_student">O aluno enviou uma nova mensagem.</string>
+    <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>
+    <string name="error_institution_not_found">Instituição de ensino não encontrada.</string>
+    <string name="error_sending_request">Erro ao enviar o pedido de orientação.</string>
 </resources>
