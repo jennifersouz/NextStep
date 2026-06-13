@@ -202,12 +202,12 @@
     <string name="company_application_status_update_error">Could not update the application status.</string>
     <string name="company_application_document_missing">This document is not available.</string>
     <string name="company_application_document_open_error">Could not open the document.</string>
-    <string name="company_application_opening_document">Opening document...</string>
+    <string name="company_application_opening_document">Opening document…</string>
     <string name="work_mode_hybrid">Hybrid</string>
 
     <string name="create_offer_success">Offer created successfully.</string>
     <string name="create_offer_error">Could not create the offer. Please try again.</string>
-    <string name="creating">Creating...</string>
+    <string name="creating">Creating…</string>
     <string name="create">Create</string>
 
     <string name="create_offer_error_permission">You do not have permission to create offers. Check if this account is registered as a company.</string>
@@ -228,7 +228,7 @@
     <string name="offer_vacancies">Vacancies</string>
     <string name="offer_vacancies_value">%1$d vacancy/vacancies</string>
     <string name="offer_requirements">Requirements</string>
-    <string name="applying">Applying...</string>
+    <string name="applying">Applying…</string>
     <string name="applied_button">Application sent</string>
 
     <string name="application_success">Application sent successfully.</string>
@@ -244,11 +244,11 @@
     <string name="cv_placeholder">CV.pdf</string>
     <string name="upload">Upload</string>
     <string name="submit_application">Submit application</string>
-    <string name="submitting_application">Submitting...</string>
+    <string name="submitting_application">Submitting…</string>
 
     <string name="application_documents_required">Upload both the motivation letter and CV before submitting.</string>
     <string name="application_documents_read_error">Could not read the selected documents.</string>
-    <string name="checking_application">Checking...</string>
+    <string name="checking_application">Checking…</string>
     <string name="already_applied_button">Already applied</string>
 
     <string name="company_applications_unseen">Unseen</string>
@@ -279,16 +279,16 @@
 
     <string name="student_application_document_missing">This document is not available.</string>
     <string name="student_application_document_open_error">Could not open the document.</string>
-    <string name="student_application_opening_document">Opening document...</string>
+    <string name="student_application_opening_document">Opening document…</string>
 
     <string name="confirm_presence">Confirm attendance</string>
-    <string name="confirming_presence">Confirming...</string>
+    <string name="confirming_presence">Confirming…</string>
     <string name="presence_confirmed">Attendance confirmed</string>
     <string name="presence_only_after_acceptance">Available after acceptance</string>
     <string name="student_presence_only_accepted">You can only confirm attendance after the application is accepted.</string>
     <string name="student_presence_confirm_error">Could not confirm attendance.</string>
     <string name="accept_internship">Accept internship</string>
-    <string name="accepting_internship">Accepting internship...</string>
+    <string name="accepting_internship">Accepting internship…</string>
     <string name="internship_accepted">Internship accepted</string>
     <string name="internship_acceptance_only_after_application_acceptance">Available after the application is accepted</string>
     <string name="accept_internship_error">Could not accept the internship. Please try again.</string>
@@ -301,7 +301,7 @@
     <string name="student_application_status_rejected">Rejected</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
-    <string name="saving">Saving...</string>
+    <string name="saving">Saving…</string>
     <string name="student_profile_update_success">Profile updated successfully.</string>
     <string name="student_profile_update_error">Could not update the profile.</string>
     <string name="saved_offer_update_error">Could not update saved internships.</string>
@@ -334,6 +334,25 @@
     <string name="company_offer_update_error">Could not update the offer.</string>
     <string name="company_offer_deactivate_error">Could not deactivate the offer.</string>
     <string name="company_offer_activate_error">Could not activate the offer.</string>
+    <string name="company_offer_archive_error">Could not archive the offer.</string>
+
+    <string name="archive_offer">Archive offer</string>
+    <string name="archive_offer_confirmation">This action removes the offer from the main list, but keeps its history and related applications.</string>
+    <string name="archive">Archive</string>
+    <string name="activate">Activate</string>
+    <string name="activate_offer_confirmation">Do you want to activate this offer again?</string>
+
+    <string name="company_candidate_permission_denied">You do not have permission to view this candidate.</string>
+    <string name="company_candidate_cv_not_available">CV not available.</string>
+    <string name="company_candidate_letter_not_available">Motivation letter not available.</string>
+
+    <string name="company_intern_profile_permission_denied">You do not have permission to view this student.</string>
+    <string name="company_intern_profile_not_in_internship">This student is not currently in an internship.</string>
+    <string name="company_intern_profile_load_error">Could not load the student profile.</string>
+    <string name="company_intern_profile_personal_data">Personal data</string>
+    <string name="company_intern_profile_academic_data">Academic data</string>
+    <string name="company_intern_profile_internship">Internship</string>
+    <string name="company_intern_profile_application_date">Application date</string>
 
     <string name="edit_offer">Edit offer</string>
     <string name="deactivate_offer">Deactivate offer</string>
@@ -382,7 +401,7 @@
     <string name="area_it">IT</string>
     <string name="area_marketing">Marketing</string>
     <string name="area_other">Other</string>
-    <string name="write_message">Write a message...</string>
+    <string name="write_message">Write a message…</string>
     <string name="send_message">Send message</string>
     <string name="chat_empty">There are no messages in this application yet.</string>
     <string name="chat_load_error">Could not load the chat.</string>
@@ -451,7 +470,7 @@
     <string name="role_advisor">Advisor</string>
     <string name="advisor_register_title">Advisor registration</string>
     <string name="advisor_register_description">To create an advisor account, the company must have previously created an invite with this email.</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="send_advisor_invite">Send invite</string>
     <string name="advisor_invite_description">The advisor must use this email to create their own account in the app. The company does not set the password for the advisor.</string>
     <string name="view_student_profile">View student profile</string>
@@ -469,7 +488,7 @@
     <string name="status">Status</string>
     <string name="advisors">Advisors</string>
     <string name="send_request">Send Request</string>
-    <string name="sending">Sending...</string>
+    <string name="sending">Sending…</string>
     <string name="pending">Pending</string>
     <string name="accepted">Accepted</string>
     <string name="rejected">Rejected</string>
@@ -492,7 +511,7 @@
 
     <string name="chat_title">Internship chat</string>
     <string name="message_advisor">Message advisor</string>
-    <string name="type_message">Write a message...</string>
+    <string name="type_message">Write a message…</string>
     <string name="send">Send</string>
     <string name="message_send_error">Could not send the message.</string>
     <string name="assigned_students">Assigned students</string>
@@ -603,7 +622,6 @@
     <!-- Advisor Tasks -->
     <string name="tasks_subtitle">Track your students\'  activities.</string>
     <string name="new_task">New task</string>
-    <string name="in_progress">In progress</string>
     <string name="status_active">Active</string>
     <string name="status_in_progress">In progress</string>
     <string name="status_completed">Completed</string>
@@ -721,8 +739,24 @@
     <string name="badge_inactive">Inactive</string>
     <string name="duration_with_value">Duration: %1$s</string>
 
-    <!-- Shared (from doc 1) -->
+    <!-- Shared -->
     <string name="error_loading_teachers">Error loading advisors.</string>
     <string name="error_institution_not_found">Education institution not found.</string>
     <string name="error_sending_request">Error sending orientation request.</string>
+
+    <!-- Institution Teachers -->
+    <string name="teachers_label">Teachers</string>
+    <string name="no_teachers">No teachers found</string>
+    <string name="no_teachers_description">Teachers associated with this institution will appear here.</string>
+    <string name="account_status">Account status</string>
+    <string name="active_status">Active</string>
+    <string name="inactive_status">Inactive</string>
+    <string name="registration_date">Registration date</string>
+
+    <!-- Institution Students -->
+    <string name="no_students_label">No students found</string>
+    <string name="no_students_description">Students associated with this institution will appear here.</string>
+
+    <!-- Institution Tab -->
+    <string name="tab_teachers">Teachers</string>
 </resources>

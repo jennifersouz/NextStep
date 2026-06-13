@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -44,19 +43,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.CompanyStudentProfileDto
+import com.example.nextstep.data.model.CompanyInternStudentProfileDto
 
 @Composable
-fun CompanyStudentProfileScreen(
+fun CompanyInternStudentProfileScreen(
     applicationId: String,
     onBackClick: () -> Unit,
-    viewModel: CompanyStudentProfileViewModel = viewModel()
+    viewModel: CompanyInternStudentProfileViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(applicationId) {
-        viewModel.loadStudentProfile(applicationId)
+        viewModel.loadProfile(applicationId)
     }
 
     val documentUrl = state.documentUrlToOpen
@@ -106,7 +105,7 @@ fun CompanyStudentProfileScreen(
         }
 
         state.profile != null -> {
-            CompanyCandidateProfileContent(
+            CompanyInternStudentProfileContent(
                 profile = state.profile!!,
                 isOpeningDocument = state.isOpeningDocument,
                 documentErrorRes = state.documentErrorRes,
@@ -119,18 +118,15 @@ fun CompanyStudentProfileScreen(
 }
 
 @Composable
-private fun CompanyCandidateProfileContent(
-    profile: CompanyStudentProfileDto,
+private fun CompanyInternStudentProfileContent(
+    profile: CompanyInternStudentProfileDto,
     isOpeningDocument: Boolean,
     documentErrorRes: Int?,
     onBackClick: () -> Unit,
     onOpenCv: () -> Unit,
     onOpenMotivationLetter: () -> Unit
 ) {
-    val fullName = listOfNotNull(
-        profile.firstName,
-        profile.lastName
-    ).joinToString(" ").ifBlank {
+    val fullName = profile.studentName.orEmpty().ifBlank {
         stringResource(R.string.student)
     }
 
@@ -140,6 +136,22 @@ private fun CompanyCandidateProfileContent(
         .take(2)
         .joinToString("") { it.first().uppercase() }
         .ifBlank { "?" }
+
+    val statusText = translateInternshipStatus(profile.internshipStatus)
+    val statusColor = when (profile.internshipStatus?.trim()?.lowercase()) {
+        "accepted" -> Color(0xFF138A36)
+        "active" -> Color(0xFF1565C0)
+        "in_progress" -> Color(0xFFE65100)
+        "completed" -> Color(0xFF2E7D32)
+        else -> Color(0xFF777777)
+    }
+    val statusBg = when (profile.internshipStatus?.trim()?.lowercase()) {
+        "accepted" -> Color(0xFFE8F5E9)
+        "active" -> Color(0xFFE3F2FD)
+        "in_progress" -> Color(0xFFFFF3E0)
+        "completed" -> Color(0xFFE8F5E9)
+        else -> Color(0xFFF3F3F3)
+    }
 
     Column(
         modifier = Modifier
@@ -209,21 +221,7 @@ private fun CompanyCandidateProfileContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Application status badge
-            val statusText = displayApplicationStatus(profile.applicationStatus)
-            val statusColor = when (profile.applicationStatus?.lowercase()?.trim()) {
-                "pending", "pendente" -> Color(0xFF777777)
-                "accepted", "aceite" -> Color(0xFF138A36)
-                "rejected", "recusada", "rejeitada" -> Color(0xFFB00020)
-                else -> Color(0xFF777777)
-            }
-            val statusBg = when (profile.applicationStatus?.lowercase()?.trim()) {
-                "pending", "pendente" -> Color(0xFFF3F3F3)
-                "accepted", "aceite" -> Color(0xFFE8F5E9)
-                "rejected", "recusada", "rejeitada" -> Color(0xFFFBE9E7)
-                else -> Color(0xFFF3F3F3)
-            }
-
+            // Internship status badge
             Box(
                 modifier = Modifier
                     .background(statusBg, RoundedCornerShape(8.dp))
@@ -239,43 +237,21 @@ private fun CompanyCandidateProfileContent(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // Academic information card
-            ProfileSectionCard(
-                title = stringResource(R.string.academic_information)
+            // Personal data card
+            InternProfileSectionCard(
+                title = stringResource(R.string.company_intern_profile_personal_data)
             ) {
-                ProfileInfoRow(
-                    label = stringResource(R.string.student_number),
-                    value = profile.studentNumber
+                InternProfileInfoRow(
+                    label = stringResource(R.string.first_name),
+                    value = profile.studentName
                 )
 
-                ProfileInfoRow(
-                    label = stringResource(R.string.course),
-                    value = profile.course
-                )
-
-                ProfileInfoRow(
-                    label = stringResource(R.string.year),
-                    value = profile.academicYear?.toString()
-                )
-
-                ProfileInfoRow(
-                    label = stringResource(R.string.education_institution),
-                    value = profile.educationInstitution
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Contact card
-            ProfileSectionCard(
-                title = stringResource(R.string.contacts)
-            ) {
-                ProfileInfoRow(
+                InternProfileInfoRow(
                     label = stringResource(R.string.email),
                     value = profile.studentEmail
                 )
 
-                ProfileInfoRow(
+                InternProfileInfoRow(
                     label = stringResource(R.string.phone),
                     value = profile.studentPhone
                 )
@@ -283,25 +259,72 @@ private fun CompanyCandidateProfileContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Application card
-            ProfileSectionCard(
-                title = stringResource(R.string.application)
+            // Academic data card
+            InternProfileSectionCard(
+                title = stringResource(R.string.company_intern_profile_academic_data)
             ) {
-                ProfileInfoRow(
+                InternProfileInfoRow(
+                    label = stringResource(R.string.student_number),
+                    value = profile.studentNumber
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.course),
+                    value = profile.course
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.year),
+                    value = profile.academicYear?.toString()
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.education_institution),
+                    value = profile.educationInstitution
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Internship card
+            InternProfileSectionCard(
+                title = stringResource(R.string.company_intern_profile_internship)
+            ) {
+                InternProfileInfoRow(
                     label = stringResource(R.string.offer),
                     value = profile.offerTitle
                 )
 
-                ProfileInfoRow(
+                InternProfileInfoRow(
+                    label = stringResource(R.string.offer_area),
+                    value = profile.offerArea
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.location),
+                    value = profile.offerLocation
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.offer_work_mode),
+                    value = profile.offerWorkMode
+                )
+
+                InternProfileInfoRow(
                     label = stringResource(R.string.status),
                     value = statusText
+                )
+
+                InternProfileInfoRow(
+                    label = stringResource(R.string.company_intern_profile_application_date),
+                    value = profile.applicationCreatedAt
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Documents card
-            ProfileSectionCard(
+            InternProfileSectionCard(
                 title = stringResource(R.string.application_documents_title)
             ) {
                 // CV
@@ -407,7 +430,7 @@ private fun CompanyCandidateProfileContent(
 }
 
 @Composable
-private fun ProfileSectionCard(
+private fun InternProfileSectionCard(
     title: String,
     content: @Composable () -> Unit
 ) {
@@ -436,7 +459,7 @@ private fun ProfileSectionCard(
 }
 
 @Composable
-private fun ProfileInfoRow(
+private fun InternProfileInfoRow(
     label: String,
     value: String?
 ) {
@@ -464,15 +487,14 @@ private fun ProfileInfoRow(
     }
 }
 
-@Composable
-private fun displayApplicationStatus(
-    status: String?
-): String {
+private fun translateInternshipStatus(status: String?): String {
     return when (status?.trim()?.lowercase()) {
-        "pending", "pendente" -> "Pendente"
-        "accepted", "aceite" -> "Aceite"
-        "rejected", "recusada", "rejeitada" -> "Recusada"
-        "viewed" -> "Vista"
+        "accepted" -> "Aceite"
+        "active" -> "Ativo"
+        "in_progress" -> "Em progresso"
+        "completed" -> "Concluído"
+        "pending" -> "Pendente"
+        "rejected" -> "Recusada"
         else -> status.orEmpty()
     }
 }

@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.institution
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,19 +32,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +60,7 @@ fun InstitutionUsersScreen(
     onBackClick: (() -> Unit)? = null,
     showBackButton: Boolean = false,
     refreshTrigger: Int = 0,
+    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> },
     viewModel: InstitutionUsersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -79,7 +77,8 @@ fun InstitutionUsersScreen(
         onAddUserClick = onAddUserClick,
         onFilterSelected = viewModel::selectFilter,
         onSearchChange = viewModel::updateSearchQuery,
-        onDeleteInvite = { user -> selectedInviteToDelete = user }
+        onDeleteInvite = { user -> selectedInviteToDelete = user },
+        onUserClick = onUserClick
     )
 
     if (selectedInviteToDelete != null) {
@@ -113,12 +112,6 @@ fun InstitutionUsersScreen(
             }
         )
     }
-
-    state.errorMessageRes?.let { errorRes ->
-        LaunchedEffect(errorRes) {
-            selectedInviteToDelete = null
-        }
-    }
 }
 
 @Composable
@@ -129,7 +122,8 @@ internal fun InstitutionUsersContent(
     onAddUserClick: () -> Unit,
     onFilterSelected: (InstitutionUserFilter) -> Unit,
     onSearchChange: (String) -> Unit,
-    onDeleteInvite: (InstitutionUserDto) -> Unit = {}
+    onDeleteInvite: (InstitutionUserDto) -> Unit = {},
+    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> }
 ) {
     val filteredUsers = filterUsers(state.users, state.selectedFilter)
 
@@ -263,20 +257,38 @@ internal fun InstitutionUsersContent(
                     isFiltered = state.selectedFilter != InstitutionUserFilter.ALL || state.searchQuery.isNotBlank()
                 )
             } else {
-LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                        ) {
-                            items(sortedUsers) { user ->
-                                InstitutionUserCard(
-                                    user = user,
-                                    onDeleteInvite = onDeleteInvite
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    items(sortedUsers) { user ->
+                        InstitutionUserCard(
+                            user = user,
+                            onDeleteInvite = onDeleteInvite,
+                            onClick = {
+                                val accepted = isInviteAccepted(user)
+                                val role = user.targetRole
+                                val inviteId = user.inviteId
+                                val profileId = user.studentProfileId ?: user.teacherProfileId ?: user.profileId
+                                
+                                Log.d(
+                                    "InstitutionUsers",
+                                    "Open user inviteId=$inviteId profileId=$profileId role=$role acceptedAt=${user.acceptedAt} inviteStatus=${user.inviteStatus} isAccepted=$accepted"
                                 )
-                                Spacer(modifier = Modifier.height(12.dp))
+
+                                onUserClick(
+                                    profileId,
+                                    role,
+                                    inviteId,
+                                    accepted
+                                )
                             }
-                        }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
+                }
+            }
         }
     }
 }
@@ -284,16 +296,20 @@ LazyColumn(
 @Composable
 private fun InstitutionUserCard(
     user: InstitutionUserDto,
-    onDeleteInvite: (InstitutionUserDto) -> Unit = {}
+    onDeleteInvite: (InstitutionUserDto) -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
     val accepted = isInviteAccepted(user)
+    val archived = isArchived(user)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF9F9F9)
-        )
+        ),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -331,9 +347,9 @@ private fun InstitutionUserCard(
                     )
                 }
 
-                InviteStatusBadge(isAccepted = accepted)
+                InviteStatusBadge(user = user)
 
-                if (!accepted) {
+                if (!accepted && !archived) {
                     Spacer(modifier = Modifier.size(8.dp))
                     IconButton(
                         onClick = { onDeleteInvite(user) }
@@ -368,23 +384,26 @@ private fun InstitutionUserCard(
 }
 
 @Composable
-private fun InviteStatusBadge(isAccepted: Boolean) {
-    val label = if (isAccepted) {
-        stringResource(R.string.accepted)
-    } else {
-        stringResource(R.string.pending)
+private fun InviteStatusBadge(user: InstitutionUserDto) {
+    val accepted = isInviteAccepted(user)
+    val archived = isArchived(user)
+    
+    val label = when {
+        archived -> "Arquivado"
+        accepted -> stringResource(R.string.accepted)
+        else -> stringResource(R.string.pending)
     }
 
-    val containerColor = if (isAccepted) {
-        Color(0xFFE7F7EC)
-    } else {
-        Color(0xFFFFF8CC)
+    val containerColor = when {
+        archived -> Color(0xFFF3F4F6)
+        accepted -> Color(0xFFE7F7EC)
+        else -> Color(0xFFFFF8CC)
     }
 
-    val textColor = if (isAccepted) {
-        Color(0xFF1B7F3A)
-    } else {
-        Color(0xFF7A5D00)
+    val textColor = when {
+        archived -> Color(0xFF6B7280)
+        accepted -> Color(0xFF1B7F3A)
+        else -> Color(0xFF7A5D00)
     }
 
     Box(
@@ -441,7 +460,14 @@ private fun InstitutionUsersEmptyState(isFiltered: Boolean) {
 
 private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
     return !user.acceptedAt.isNullOrBlank() ||
-        user.inviteStatus.lowercase().trim() == "accepted"
+        user.inviteStatus?.lowercase()?.trim() == "accepted" ||
+        user.profileId != null ||
+        user.studentProfileId != null ||
+        user.teacherProfileId != null
+}
+
+private fun isArchived(user: InstitutionUserDto): Boolean {
+    return user.studentInstitutionArchivedAt != null || user.teacherInstitutionArchivedAt != null
 }
 
 private fun displayInstitutionUserName(user: InstitutionUserDto): String {
@@ -462,6 +488,11 @@ private fun institutionUserSubtitle(user: InstitutionUserDto): String {
     }
 
     val accepted = isInviteAccepted(user)
+    val archived = isArchived(user)
+
+    if (archived) {
+        return "$roleLabel · Arquivado"
+    }
 
     if (!accepted) {
         return "$roleLabel · ${stringResource(R.string.pending_invite)}"
@@ -504,8 +535,9 @@ private fun filterUsers(
         InstitutionUserFilter.TEACHERS -> users.filter {
             it.targetRole.lowercase().trim() == "teacher"
         }
-        InstitutionUserFilter.PENDING -> users.filter { !isInviteAccepted(it) }
-        InstitutionUserFilter.ACCEPTED -> users.filter { isInviteAccepted(it) }
+        InstitutionUserFilter.PENDING -> users.filter { !isInviteAccepted(it) && !isArchived(it) }
+        InstitutionUserFilter.ACCEPTED -> users.filter { isInviteAccepted(it) && !isArchived(it) }
+        InstitutionUserFilter.ARCHIVED -> users.filter { isArchived(it) }
     }
 }
 
@@ -517,5 +549,6 @@ private fun institutionUserFilterLabel(filter: InstitutionUserFilter): String {
         InstitutionUserFilter.TEACHERS -> stringResource(R.string.teacher)
         InstitutionUserFilter.PENDING -> stringResource(R.string.pending)
         InstitutionUserFilter.ACCEPTED -> stringResource(R.string.accepted)
+        InstitutionUserFilter.ARCHIVED -> "Arquivados"
     }
 }

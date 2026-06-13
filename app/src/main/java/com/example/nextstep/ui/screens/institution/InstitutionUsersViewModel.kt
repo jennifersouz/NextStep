@@ -47,7 +47,10 @@ class InstitutionUsersViewModel : ViewModel() {
 
     fun deleteInvite(invite: InstitutionUserDto) {
         val isAccepted = !invite.acceptedAt.isNullOrBlank() ||
-            invite.inviteStatus.lowercase().trim() == "accepted"
+            invite.inviteStatus?.lowercase()?.trim() == "accepted" ||
+            invite.profileId != null ||
+            invite.studentProfileId != null ||
+            invite.teacherProfileId != null
 
         if (isAccepted) {
             _uiState.value = _uiState.value.copy(
@@ -85,7 +88,8 @@ enum class InstitutionUserFilter {
     STUDENTS,
     TEACHERS,
     PENDING,
-    ACCEPTED
+    ACCEPTED,
+    ARCHIVED
 }
 
 data class InstitutionUsersUiState(

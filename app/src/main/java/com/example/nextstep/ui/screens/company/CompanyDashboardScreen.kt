@@ -109,12 +109,7 @@ fun CompanyDashboardScreen(
         ) {
             when (selectedBottomRoute) {
                 CompanyBottomRoutes.INTERNSHIPS -> {
-                    CompanyInternshipsContent(
-                        internships = state.filteredInternships,
-                        selectedStatus = state.selectedStatus,
-                        isLoading = state.isLoading,
-                        errorMessageRes = state.errorMessageRes,
-                        onStatusSelected = viewModel::onStatusSelected,
+                    CompanyOffersScreen(
                         onOfferClick = onOfferClick
                     )
                 }

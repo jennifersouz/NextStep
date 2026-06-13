@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -16,11 +17,16 @@ class CompanyOfferDetailViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CompanyOfferDetailUiState())
     val uiState: StateFlow<CompanyOfferDetailUiState> = _uiState.asStateFlow()
 
+    fun clearSuccessMessage() {
+        _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
     fun loadOffer(offerId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessageRes = null
+                errorMessageRes = null,
+                successMessage = null
             )
 
             val result = repository.getCompanyOfferById(offerId)
@@ -45,16 +51,26 @@ class CompanyOfferDetailViewModel : ViewModel() {
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isUpdating = true)
+            _uiState.value = _uiState.value.copy(
+                isActionLoading = true,
+                errorMessageRes = null,
+                successMessage = null
+            )
 
-            val result = repository.deactivateOffer(offerId)
+            val result = repository.changeOfferActiveStatus(
+                offerId = offerId,
+                isActive = false
+            )
 
-            if (result.isSuccess) {
-                _uiState.value = _uiState.value.copy(isUpdating = false)
-                onSuccess()
+            _uiState.value = if (result.isSuccess) {
+                _uiState.value.copy(
+                    offer = result.getOrNull(),
+                    isActionLoading = false,
+                    successMessage = "Oferta desativada com sucesso."
+                )
             } else {
-                _uiState.value = _uiState.value.copy(
-                    isUpdating = false,
+                _uiState.value.copy(
+                    isActionLoading = false,
                     errorMessageRes = R.string.company_offer_deactivate_error
                 )
             }
@@ -65,16 +81,58 @@ class CompanyOfferDetailViewModel : ViewModel() {
         offerId: String
     ) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isUpdating = true)
+            _uiState.value = _uiState.value.copy(
+                isActionLoading = true,
+                errorMessageRes = null,
+                successMessage = null
+            )
 
-            val result = repository.activateOffer(offerId)
+            val result = repository.changeOfferActiveStatus(
+                offerId = offerId,
+                isActive = true
+            )
 
-            if (result.isSuccess) {
-                loadOffer(offerId)
+            _uiState.value = if (result.isSuccess) {
+                _uiState.value.copy(
+                    offer = result.getOrNull(),
+                    isActionLoading = false,
+                    successMessage = "Oferta ativada com sucesso."
+                )
             } else {
-                _uiState.value = _uiState.value.copy(
-                    isUpdating = false,
+                _uiState.value.copy(
+                    isActionLoading = false,
                     errorMessageRes = R.string.company_offer_activate_error
+                )
+            }
+        }
+    }
+
+    fun archiveOffer(
+        offerId: String,
+        reason: String? = null
+    ) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isActionLoading = true,
+                errorMessageRes = null,
+                successMessage = null
+            )
+
+            val result = repository.archiveOffer(
+                offerId = offerId,
+                reason = reason
+            )
+
+            _uiState.value = if (result.isSuccess) {
+                _uiState.value.copy(
+                    offer = result.getOrNull(),
+                    isActionLoading = false,
+                    successMessage = "Oferta removida com sucesso."
+                )
+            } else {
+                _uiState.value.copy(
+                    isActionLoading = false,
+                    errorMessageRes = R.string.company_offer_archive_error
                 )
             }
         }

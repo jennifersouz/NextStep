@@ -29,5 +29,14 @@ data class CompanyOfferDto(
     val isActive: Boolean? = null,
 
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+
+    @SerialName("archived_at")
+    val archivedAt: String? = null,
+
+    @SerialName("archived_by")
+    val archivedBy: String? = null,
+
+    @SerialName("archive_reason")
+    val archiveReason: String? = null
 )

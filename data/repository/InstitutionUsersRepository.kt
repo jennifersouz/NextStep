@@ -92,7 +92,7 @@ class InstitutionUsersRepository {
                             phone = student.phone,
                             targetRole = "student",
                             inviteStatus = "accepted",
-                            acceptedAt = student.createdAt, 
+                            acceptedAt = student.createdAt,
                             isActive = student.isActive,
                             createdAt = student.createdAt,
                             institutionArchivedAt = student.institutionArchivedAt,
@@ -150,6 +150,7 @@ class InstitutionUsersRepository {
                 if (invite.acceptedAt != null) {
                     try {
                         val tableName = if (invite.targetRole == "student") "students" else "teachers"
+                        // Try to find the profile id by email in the target table
                         val profileIdFound = supabase.from(tableName)
                             .select {
                                 filter { eq("email", invite.email) }
@@ -158,9 +159,11 @@ class InstitutionUsersRepository {
                             .decodeAs<ProfileIdOnlyDto>()
                             .profileId
 
+                        // Recursive call with found profileId
                         return getInstitutionUserDetail(inviteId, profileIdFound, invite.targetRole)
                     } catch (e: Exception) {
                         Log.w("InstitutionUsersRepo", "Could not resolve profile for accepted invite ${invite.email}", e)
+                        // Return accepted but without profile data
                         return Result.success(InstitutionUserDetailDto(
                             email = invite.email,
                             firstName = invite.firstName,

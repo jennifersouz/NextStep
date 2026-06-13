@@ -3,29 +3,27 @@ package com.example.nextstep.ui.screens.company
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.repository.CompanyApplicationsRepository
-import com.example.nextstep.data.repository.CompanyStudentProfileRepository
+import com.example.nextstep.data.repository.CompanyInternStudentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class CompanyStudentProfileViewModel : ViewModel() {
+class CompanyInternStudentProfileViewModel : ViewModel() {
 
-    private val profileRepository = CompanyStudentProfileRepository()
-    private val applicationsRepository = CompanyApplicationsRepository()
+    private val repository = CompanyInternStudentRepository()
 
-    private val _uiState = MutableStateFlow(CompanyStudentProfileUiState())
-    val uiState: StateFlow<CompanyStudentProfileUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(CompanyInternStudentProfileUiState())
+    val uiState: StateFlow<CompanyInternStudentProfileUiState> = _uiState.asStateFlow()
 
-    fun loadStudentProfile(applicationId: String) {
+    fun loadProfile(applicationId: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
                 errorMessageRes = null
             )
 
-            val result = profileRepository.getStudentProfile(applicationId)
+            val result = repository.getInternStudentProfile(applicationId)
 
             _uiState.value = if (result.isSuccess) {
                 _uiState.value.copy(
@@ -35,10 +33,17 @@ class CompanyStudentProfileViewModel : ViewModel() {
                 )
             } else {
                 val errorMsg = result.exceptionOrNull()?.message.orEmpty()
-                val errorRes = if (errorMsg.contains("PERMISSION_DENIED", ignoreCase = true)) {
-                    R.string.company_candidate_permission_denied
-                } else {
-                    R.string.company_student_profile_load_error
+                val errorRes = when {
+                    errorMsg.contains("PERMISSION_DENIED", ignoreCase = true) ->
+                        R.string.company_intern_profile_permission_denied
+                    errorMsg.contains("NOT_IN_INTERNSHIP", ignoreCase = true) ->
+                        R.string.company_intern_profile_not_in_internship
+                    errorMsg.contains("APPLICATION_ID_EMPTY", ignoreCase = true) ->
+                        R.string.company_intern_profile_load_error
+                    errorMsg.contains("EMPLOYER_NOT_AUTHENTICATED", ignoreCase = true) ->
+                        R.string.company_intern_profile_load_error
+                    else ->
+                        R.string.company_intern_profile_load_error
                 }
                 _uiState.value.copy(
                     isLoading = false,
@@ -89,7 +94,7 @@ class CompanyStudentProfileViewModel : ViewModel() {
                 documentUrlToOpen = null
             )
 
-            val result = applicationsRepository.createSignedDocumentUrl(path)
+            val result = repository.createSignedDocumentUrl(path)
 
             _uiState.value = if (result.isSuccess) {
                 _uiState.value.copy(

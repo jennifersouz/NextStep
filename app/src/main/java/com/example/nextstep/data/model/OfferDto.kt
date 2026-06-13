@@ -31,5 +31,14 @@ data class OfferDto(
     val requirements: String? = null,
 
     @SerialName("is_active")
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+
+    @SerialName("archived_at")
+    val archivedAt: String? = null,
+
+    @SerialName("archived_by")
+    val archivedBy: String? = null,
+
+    @SerialName("archive_reason")
+    val archiveReason: String? = null
 )

@@ -29,6 +29,7 @@ fun InstitutionDashboardScreen(
     onAddUserClick: () -> Unit = {},
     onTeacherClick: (String) -> Unit = {},
     onStudentClick: (String) -> Unit = {},
+    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> },
     sessionViewModel: SessionViewModel = viewModel()
 ) {
     var selectedTab by rememberSaveable {
@@ -105,7 +106,8 @@ fun InstitutionDashboardScreen(
                         onAddUserClick = onAddUserClick,
                         onBackClick = null,
                         showBackButton = false,
-                        refreshTrigger = usersRefreshKey
+                        refreshTrigger = usersRefreshKey,
+                        onUserClick = onUserClick
                     )
                 }
 

@@ -47,6 +47,10 @@ object Routes {
     const val INSTITUTION_STUDENTS = "institution_students"
     const val INSTITUTION_STUDENT_DETAIL = "institution_student_detail/{studentProfileId}"
     const val INSTITUTION_STUDENT_DETAIL_ARG = "studentProfileId"
+    const val INSTITUTION_USER_DETAIL = "institution_user_detail/{profileId}/{role}/{inviteId}"
+    const val INSTITUTION_USER_DETAIL_PROFILE_ARG = "profileId"
+    const val INSTITUTION_USER_DETAIL_ROLE_ARG = "role"
+    const val INSTITUTION_USER_DETAIL_INVITE_ARG = "inviteId"
 
     const val ADMIN_DASHBOARD = "admin_dashboard"
     const val ADMIN_CREATE_USER = "admin_create_user"
@@ -71,6 +75,9 @@ object Routes {
 
     const val COMPANY_STUDENT_PROFILE = "company_student_profile/{applicationId}"
     const val COMPANY_STUDENT_PROFILE_ARG = "applicationId"
+
+    const val COMPANY_INTERN_STUDENT_PROFILE = "company_intern_student_profile/{applicationId}"
+    const val COMPANY_INTERN_STUDENT_PROFILE_ARG = "applicationId"
     const val ADVISOR_EDIT_PROFILE = "advisor_edit_profile"
     const val ADVISOR_STUDENT_DETAIL = "advisor_student_detail/{applicationId}"
     const val ADVISOR_STUDENT_DETAIL_ARG = "applicationId"
@@ -117,6 +124,10 @@ object Routes {
 
     fun companyStudentProfile(applicationId: String): String {
         return "company_student_profile/$applicationId"
+    }
+
+    fun companyInternStudentProfile(applicationId: String): String {
+        return "company_intern_student_profile/$applicationId"
     }
 
     fun chat(applicationId: String): String {
@@ -174,5 +185,11 @@ object Routes {
 
     fun companyProfile(companyProfileId: String): String {
         return "company_profile/$companyProfileId"
+    }
+
+    fun institutionUserDetail(profileId: String?, role: String, inviteId: String?): String {
+        val pid = profileId ?: "no_profile"
+        val iid = inviteId ?: "no_invite"
+        return "institution_user_detail/$pid/$role/$iid"
     }
 }

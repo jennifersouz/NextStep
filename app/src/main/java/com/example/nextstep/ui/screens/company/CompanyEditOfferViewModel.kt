@@ -38,7 +38,7 @@ class CompanyEditOfferViewModel : ViewModel() {
                     duration = offer?.duration.orEmpty(),
                     vacancies = offer?.vacancies?.toString().orEmpty(),
                     requirements = offer?.requirements.orEmpty(),
-                    isActive = offer?.isActive ?: true,
+                    isActive = offer?.isActive ?: false,
                     isLoading = false,
                     errorMessage = null
                 )

@@ -3,17 +3,42 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.CompanyOfferDto
 import com.example.nextstep.data.model.CompanyOfferUpdateDto
+import com.example.nextstep.data.model.OfferActiveStatusUpdateDto
+import com.example.nextstep.data.model.OfferArchiveUpdateDto
 import com.example.nextstep.data.model.OfferDto
-import com.example.nextstep.data.model.UpdateOfferActiveDto
 import com.example.nextstep.data.model.UpdateOfferDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
+import java.time.Instant
 
 class CompanyOffersRepository {
 
     private val supabase = SupabaseClientProvider.client
     private val auth = supabase.auth
+
+    suspend fun getMyOffers(): Result<List<CompanyOfferDto>> {
+        return try {
+            val companyProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            val offers = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("company_profile_id", companyProfileId)
+                    }
+                    order("created_at", Order.DESCENDING)
+                }
+                .decodeList<CompanyOfferDto>()
+
+            Result.success(offers)
+        } catch (exception: Exception) {
+            Log.e("CompanyOffersRepository", "Erro ao carregar ofertas da empresa", exception)
+            Result.failure(exception)
+        }
+    }
 
     suspend fun getCurrentCompanyOffers(): Result<List<OfferDto>> {
         return try {
@@ -163,6 +188,101 @@ class CompanyOffersRepository {
         }
     }
 
+    /**
+     * Altera apenas o estado is_active da oferta.
+     * Não mexe em archived_at, archived_by nem archive_reason.
+     */
+    suspend fun changeOfferActiveStatus(
+        offerId: String,
+        isActive: Boolean
+    ): Result<OfferDto> {
+        return try {
+            val currentUserId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            if (offerId.isBlank()) {
+                throw IllegalArgumentException("offerId não pode estar vazio.")
+            }
+
+            supabase
+                .from("offers")
+                .update(
+                    OfferActiveStatusUpdateDto(isActive = isActive)
+                ) {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", currentUserId)
+                    }
+                }
+
+            val updatedOffer = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", currentUserId)
+                    }
+                }
+                .decodeSingle<OfferDto>()
+
+            Result.success(updatedOffer)
+        } catch (exception: Exception) {
+            Log.e("CompanyOffersRepository", "Erro ao alterar estado da oferta", exception)
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * Arquiva a oferta: is_active = false, archived_at = now, archived_by = currentUser, archive_reason = motivo.
+     * Não apaga a oferta.
+     */
+    suspend fun archiveOffer(
+        offerId: String,
+        reason: String?
+    ): Result<OfferDto> {
+        return try {
+            val currentUserId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Empresa não autenticada.")
+
+            if (offerId.isBlank()) {
+                throw IllegalArgumentException("offerId não pode estar vazio.")
+            }
+
+            val now = Instant.now().toString()
+
+            supabase
+                .from("offers")
+                .update(
+                    OfferArchiveUpdateDto(
+                        isActive = false,
+                        archivedAt = now,
+                        archivedBy = currentUserId.takeIf { it.isNotBlank() },
+                        archiveReason = reason?.takeIf { it.isNotBlank() }
+                    )
+                ) {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", currentUserId)
+                    }
+                }
+
+            val updatedOffer = supabase
+                .from("offers")
+                .select {
+                    filter {
+                        eq("id", offerId)
+                        eq("company_profile_id", currentUserId)
+                    }
+                }
+                .decodeSingle<OfferDto>()
+
+            Result.success(updatedOffer)
+        } catch (exception: Exception) {
+            Log.e("CompanyOffersRepository", "Erro ao arquivar oferta", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun deactivateOffer(
         offerId: String
     ): Result<Unit> {
@@ -173,7 +293,7 @@ class CompanyOffersRepository {
             supabase
                 .from("offers")
                 .update(
-                    UpdateOfferActiveDto(
+                    OfferActiveStatusUpdateDto(
                         isActive = false
                     )
                 ) {
@@ -200,7 +320,7 @@ class CompanyOffersRepository {
             supabase
                 .from("offers")
                 .update(
-                    UpdateOfferActiveDto(
+                    OfferActiveStatusUpdateDto(
                         isActive = true
                     )
                 ) {
