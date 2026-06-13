@@ -481,7 +481,7 @@ private fun AdvisorEvaluationsTab(
         ) {
             DetailSectionCard(title = stringResource(R.string.evaluations)) {
                 evaluation.grade?.let { grade ->
-                    DetailRow(label = "Nota", value = grade)
+                    DetailRow(label = "Nota", value = grade.toString())
                 }
                 evaluation.comments?.takeIf { it.isNotBlank() }?.let { comments ->
                     Spacer(modifier = Modifier.height(8.dp))

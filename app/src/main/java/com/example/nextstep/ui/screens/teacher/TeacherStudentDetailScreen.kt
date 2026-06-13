@@ -92,7 +92,7 @@ fun TeacherStudentDetailScreen(
     val detailState by viewModel.detailState.collectAsState()
 
     LaunchedEffect(applicationId) {
-        Log.d("TeacherStudentDetail", "Loaded with applicationId=$applicationId")
+        Log.d("TeacherStudentDetail", "Received applicationId=$applicationId")
         viewModel.loadStudentDetail(applicationId)
     }
 
@@ -145,12 +145,8 @@ private fun TeacherDetailContent(
     viewModel: TeacherStudentDetailViewModel
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-    val tabs = listOf(
-        stringResource(R.string.summary),
-        stringResource(R.string.tasks),
-        "Docs",
-        "Avaliação"
-    )
+    // Fixed tabs labels to avoid wrapping
+    val tabs = listOf("Resumo", "Tarefas", "Docs", "Avaliação")
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Header with initial data or loaded data
@@ -348,7 +344,8 @@ private fun TeacherSummaryTab(detail: TeacherStudentDetailNonSerializable?, onMe
         ) {
             Icon(imageVector = Icons.AutoMirrored.Filled.Chat, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = stringResource(R.string.message), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            val messageLabel = stringResource(R.string.message)
+            Text(text = messageLabel, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
         Spacer(modifier = Modifier.height(32.dp))
     }
@@ -586,11 +583,14 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
             path = detail?.cvPath,
             onOpen = { path -> 
                 viewModel.openDocument(
-                    bucket = "applications",
                     path = path,
                     onSuccess = { url -> 
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        context.startActivity(intent)
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Erro ao abrir o ficheiro.", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     onError = { msg ->
                         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
@@ -607,11 +607,14 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
             path = detail?.motivationLetterPath,
             onOpen = { path -> 
                 viewModel.openDocument(
-                    bucket = "applications",
                     path = path,
                     onSuccess = { url -> 
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        context.startActivity(intent)
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Erro ao abrir o ficheiro.", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     onError = { msg ->
                         Toast.makeText(context, msg, Toast.LENGTH_LONG).show()

@@ -200,7 +200,7 @@ fun TeacherStudentsScreen(
                         TeacherStudentCard(
                             student = student,
                             onClick = {
-                                Log.d("TeacherStudentsScreen", "Opening student detail applicationId=${student.applicationId}, student=${student.studentName}, offer=${student.offerTitle}")
+                                Log.d("TeacherStudentsScreen", "Opening detail applicationId=${student.applicationId}, offer=${student.offerTitle}")
                                 onStudentClick(student)
                             }
                         )

@@ -57,7 +57,9 @@ class TeacherStudentsRepository {
                 }
                 .decodeSingle<TeacherStudentDetailDto>()
 
-            Log.d("TeacherStudentsRepo", "Fetched detail: cvPath=${studentDetail.cvPath}, motivationPath=${studentDetail.motivationLetterPath}")
+            Log.d("TeacherStudentDetailRepo", "Loaded applicationId=${studentDetail.applicationId}")
+            Log.d("TeacherStudentDetailRepo", "cvPath=${studentDetail.cvPath}")
+            Log.d("TeacherStudentDetailRepo", "motivationPath=${studentDetail.motivationLetterPath}")
 
             // Get tasks
             val tasks = tasksRepository.getTasksByApplication(applicationId)
@@ -101,19 +103,22 @@ class TeacherStudentsRepository {
     }
 
     suspend fun getSignedUrl(bucket: String, path: String): Result<String> {
+        if (path.isBlank()) {
+            return Result.failure(IllegalArgumentException("Caminho do documento vazio."))
+        }
         return try {
-            // First check if file exists to fulfill the "Object not found" requirement
-            try {
-                supabase.storage.from(bucket).info(path)
-            } catch (e: Exception) {
-                return Result.failure(Exception("Documento não encontrado no Storage."))
-            }
-
+            Log.d("TeacherStudentsRepo", "Generating signed URL for path: '$path' in bucket: '$bucket'")
             val url = supabase.storage.from(bucket).createSignedUrl(path, 60.minutes)
             Result.success(url)
         } catch (e: Exception) {
-            Log.e("TeacherStudentsRepo", "Error getting signed URL for $path", e)
-            Result.failure(e)
+            Log.e("TeacherStudentsRepo", "Error getting signed URL for $path in bucket $bucket", e)
+            val friendlyMessage = when {
+                e.message?.contains("Object not found", ignoreCase = true) == true || 
+                e.message?.contains("404") == true ->
+                    "Documento não encontrado no Storage."
+                else -> "Não foi possível aceder ao documento."
+            }
+            Result.failure(Exception(friendlyMessage))
         }
     }
 }

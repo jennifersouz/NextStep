@@ -30,7 +30,7 @@ data class AdvisorDocumentDto(
 
 @Serializable
 data class AdvisorEvaluationDto(
-    val grade: String? = null,
+    val grade: Double? = null,
     val comments: String? = null,
     val submittedAt: String? = null
 )
