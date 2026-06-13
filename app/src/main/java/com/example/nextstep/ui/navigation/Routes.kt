@@ -41,6 +41,12 @@ object Routes {
     const val INSTITUTION_DASHBOARD = "institution_dashboard"
     const val INSTITUTION_USERS = "institution_users"
     const val ADD_INSTITUTION_USER = "add_institution_user"
+    const val INSTITUTION_TEACHERS = "institution_teachers"
+    const val INSTITUTION_TEACHER_DETAIL = "institution_teacher_detail/{teacherProfileId}"
+    const val INSTITUTION_TEACHER_DETAIL_ARG = "teacherProfileId"
+    const val INSTITUTION_STUDENTS = "institution_students"
+    const val INSTITUTION_STUDENT_DETAIL = "institution_student_detail/{studentProfileId}"
+    const val INSTITUTION_STUDENT_DETAIL_ARG = "studentProfileId"
 
     const val ADMIN_DASHBOARD = "admin_dashboard"
     const val ADMIN_CREATE_USER = "admin_create_user"
