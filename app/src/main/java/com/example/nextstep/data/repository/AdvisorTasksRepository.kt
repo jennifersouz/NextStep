@@ -32,16 +32,22 @@ class AdvisorTasksRepository {
 
     suspend fun getTasksByApplication(applicationId: String): Result<List<AdvisorTaskListItemDto>> {
         return try {
-            // Tentamos ler da view primeiro para ter os dados completos (student_name, etc)
-            // Se falhar ou se quisermos apenas os dados da tabela, filtramos application_tasks
+            Log.d("TasksDebug", "ApplicationId recebido: $applicationId")
+
+            // Para alunos, usamos a tabela application_tasks diretamente em vez da view
+            // advisor_tasks_view, porque essa view filtra por advisor_profile_id = auth.uid()
             val tasks = supabase
-                .from("advisor_tasks_view")
+                .from("application_tasks")
                 .select {
                     filter {
                         eq("application_id", applicationId)
                     }
                 }
                 .decodeList<AdvisorTaskListItemDto>()
+
+            Log.d("TasksDebug", "Tarefas encontradas: ${tasks.size}")
+            Log.d("TasksDebug", "Resultado bruto: $tasks")
+
             Result.success(tasks)
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas da candidatura", exception)

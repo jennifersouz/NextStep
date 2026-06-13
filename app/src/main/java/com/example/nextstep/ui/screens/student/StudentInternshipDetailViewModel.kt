@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.student
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.repository.AdvisorTasksRepository
@@ -29,11 +30,14 @@ class StudentInternshipDetailViewModel : ViewModel() {
             if (applicationResult.isSuccess) {
                 val application = applicationResult.getOrNull()
                 val tasksResult = tasksRepository.getTasksByApplication(internshipId)
-                
+                val tasks = tasksResult.getOrDefault(emptyList())
+
+                Log.d("TasksDebug", "Tarefas recebidas no ViewModel: ${tasks.size}")
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     internship = application,
-                    tasks = tasksResult.getOrDefault(emptyList())
+                    tasks = tasks
                 )
             } else {
                 _uiState.value = _uiState.value.copy(

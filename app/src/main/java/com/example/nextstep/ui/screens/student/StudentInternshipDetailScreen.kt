@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import android.util.Log
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
@@ -28,6 +29,7 @@ import com.example.nextstep.data.model.StudentSubmittedApplicationDto
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,6 +113,8 @@ fun InternshipDetailContent(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
+        Log.d("TasksDebug", "Tarefas exibidas na UI: ${tasks.size}")
+
         // Header
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -133,6 +137,13 @@ fun InternshipDetailContent(
                 Text(internship.offerTitle, fontWeight = FontWeight.Bold, fontSize = 22.sp)
             }
         }
+
+        // Teacher debug
+        Log.d("TeacherDebug", "=== VALORES RECEBIDOS PELA SCREEN ===")
+        Log.d("TeacherDebug", "teacherProfileId=${internship.teacherProfileId}")
+        Log.d("TeacherDebug", "teacherStatus=${internship.teacherStatus}")
+        Log.d("TeacherDebug", "teacherName=${internship.teacherName}")
+        Log.d("TeacherDebug", "institutionName=${internship.institutionName}")
 
         Spacer(modifier = Modifier.height(32.dp))
 
