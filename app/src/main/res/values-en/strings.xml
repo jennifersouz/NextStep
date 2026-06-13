@@ -509,6 +509,14 @@
     <string name="advisor_assigned_notification_title">Advisor assigned</string>
     <string name="advisor_assigned_notification_message">An advisor has been assigned to your application.</string>
 
+    <!-- Notification Types (RF81 + RF82) -->
+    <string name="notification_type_message">New message</string>
+    <string name="notification_type_evaluation">New evaluation available</string>
+    <string name="notification_type_teacher_assigned">Teacher assigned</string>
+    <string name="notification_message_body">You have received a new message about your application/internship.</string>
+    <string name="notification_evaluation_body">Your evaluation has been published.</string>
+    <string name="notification_teacher_assigned_body">A teacher has been assigned to your internship.</string>
+
     <string name="chat_title">Internship chat</string>
     <string name="message_advisor">Message advisor</string>
     <string name="type_message">Write a message…</string>

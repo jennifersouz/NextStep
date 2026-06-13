@@ -11,5 +11,9 @@ data class StudentInternshipDetailUiState(
     val showAddTaskDialog: Boolean = false,
     val taskTitle: String = "",
     val isSavingTask: Boolean = false,
-    val taskError: String? = null
+    val taskError: String? = null,
+    val reportFileName: String? = null,
+    val isUploadingReport: Boolean = false,
+    val reportErrorMessage: String? = null,
+    val reportSuccessMessage: String? = null
 )

@@ -22,5 +22,8 @@ data class ApplicationDto(
     @SerialName("cv_path")
     val cvPath: String? = null,
 
+    @SerialName("report_path")
+    val reportPath: String? = null,
+
     val status: String
 )

@@ -28,6 +28,9 @@ data class StudentSubmittedApplicationDto(
     @SerialName("cv_path")
     val cvPath: String? = null,
 
+    @SerialName("report_path")
+    val reportPath: String? = null,
+
     @SerialName("student_presence_confirmed")
     val studentPresenceConfirmed: Boolean = false,
 
