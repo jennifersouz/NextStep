@@ -28,6 +28,7 @@ class AdminDashboardViewModel : ViewModel() {
             val evaluationsResult = repository.getCompletedEvaluationsCount()
             val usersResult = repository.getUsersCount()
             val nameResult = repository.getAdminProfileName()
+            val emailResult = repository.getAdminProfileEmail()
             val recentResult = repository.getRecentProfiles()
             val totalCompaniesResult = repository.getTotalCompaniesCount()
             val activeCompaniesResult = repository.getActiveCompaniesCount()
@@ -46,6 +47,7 @@ class AdminDashboardViewModel : ViewModel() {
                 completedEvaluationsCount = evaluationsResult.getOrDefault(0),
                 usersCount = usersResult.getOrDefault(0),
                 adminName = nameResult.getOrDefault(""),
+                adminEmail = emailResult.getOrDefault(""),
                 recentProfiles = recentResult.getOrDefault(emptyList()),
                 totalCompaniesCount = totalCompaniesResult.getOrDefault(0),
                 activeCompaniesCount = activeCompaniesResult.getOrDefault(0),

@@ -105,7 +105,7 @@ fun AdminProfileScreen(
         else -> {
             AdminProfileContent(
                 name = state.adminName.ifBlank { "Administrador" },
-                email = "",
+                email = state.adminEmail,
                 onLogoutRequest = { showLogoutDialog = true }
             )
         }
@@ -160,7 +160,7 @@ private fun AdminProfileContent(
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = if (email.isNotBlank()) email else "admin@nextstep.pt",
+            text = email.ifBlank { "-" },
             fontSize = 17.sp,
             color = Color.Black
         )

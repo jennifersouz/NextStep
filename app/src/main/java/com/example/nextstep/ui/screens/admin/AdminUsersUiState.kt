@@ -20,5 +20,6 @@ enum class AdminUsersFilter(val label: String) {
     COMPANIES("Empresas"),
     ADMINS("Admins"),
     ACTIVE("Ativos"),
-    INACTIVE("Inativos")
+    INACTIVE("Inativos"),
+    ARCHIVED("Arquivados")
 }

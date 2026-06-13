@@ -15,22 +15,18 @@ data class AdvisorStudentDetailDto(
     val expectedEndDate: String? = null,
     val completedTasks: Int = 0,
     val totalTasks: Int = 0,
-    val tasks: List<AdvisorTaskListItemDto> = emptyList(),
-    val documents: List<AdvisorDocumentDto> = emptyList(),
-    val evaluation: AdvisorEvaluationDto? = null
+    val tasks: List<AdvisorTaskListItemDto> = emptyList()
+    // A avaliação é gerida separadamente via AdvisorEvaluationDto em AdvisorStudentDetailUiState
 )
 
+/**
+ * DTO for documents used in TeacherStudentDetailDto.
+ * Kept here because Teacher screens still use it.
+ */
 @Serializable
 data class AdvisorDocumentDto(
     val id: String,
     val name: String,
     val type: String? = null,
     val url: String? = null
-)
-
-@Serializable
-data class AdvisorEvaluationDto(
-    val grade: Double? = null,
-    val comments: String? = null,
-    val submittedAt: String? = null
 )

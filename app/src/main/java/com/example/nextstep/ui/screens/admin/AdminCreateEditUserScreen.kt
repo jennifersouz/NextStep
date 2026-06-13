@@ -65,6 +65,7 @@ fun AdminCreateEditUserScreen(
     var roleMenuExpanded by remember { mutableStateOf(false) }
 
     var firstNameError by remember { mutableStateOf<String?>(null) }
+    var lastNameError by remember { mutableStateOf<String?>(null) }
     var roleError by remember { mutableStateOf<String?>(null) }
 
     val roleOptions = listOf(
@@ -145,9 +146,14 @@ fun AdminCreateEditUserScreen(
             // Last name
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Apelido") },
+                onValueChange = {
+                    lastName = it
+                    lastNameError = null
+                },
+                label = { Text("Apelido *") },
                 placeholder = { Text("Insira o apelido") },
+                isError = lastNameError != null,
+                supportingText = lastNameError?.let { { Text(it, color = Color(0xFFB00020)) } },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -267,6 +273,10 @@ fun AdminCreateEditUserScreen(
                     var hasError = false
                     if (firstName.isBlank()) {
                         firstNameError = "O nome é obrigatório."
+                        hasError = true
+                    }
+                    if (lastName.isBlank() && selectedRole != "company") {
+                        lastNameError = "O apelido é obrigatório."
                         hasError = true
                     }
                     if (!hasError) {

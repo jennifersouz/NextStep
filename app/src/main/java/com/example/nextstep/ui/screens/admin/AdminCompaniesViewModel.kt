@@ -2,7 +2,9 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
 import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.data.model.AdminCompanyEditRequest
 import com.example.nextstep.data.model.AdminCompanyUpdateDto
 import com.example.nextstep.data.model.CreateCompanyDto
 import com.example.nextstep.data.repository.AdminCompaniesRepository
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 class AdminCompaniesViewModel : ViewModel() {
 
@@ -30,7 +33,6 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 val companies = result.getOrDefault(emptyList())
-                // Refresh selectedCompany if there's one selected
                 val refreshedSelected = _uiState.value.selectedCompany?.let { current ->
                     companies.find { it.id == current.id }
                 }
@@ -92,27 +94,76 @@ class AdminCompaniesViewModel : ViewModel() {
     fun updateCompany(companyId: String, data: AdminCompanyUpdateDto) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-
             val result = repository.updateCompany(companyId, data)
-
             if (result.isSuccess) {
-                _uiState.value = _uiState.value.copy(
-                    successMessage = "Empresa atualizada com sucesso."
-                )
+                _uiState.value = _uiState.value.copy(successMessage = "Empresa atualizada com sucesso.")
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível atualizar a empresa."
+                    errorMessage = "Não foi possível atualizar a empresa."
                 )
+            }
+        }
+    }
+
+    /**
+     * Editar empresa: atualiza companies + profiles, confirma resultado.
+     * Retorna a empresa atualizada para o chamador via callback.
+     */
+    fun editCompany(
+        companyId: String,
+        companyProfileId: String,
+        name: String,
+        nif: String?,
+        businessArea: String?,
+        location: String?,
+        phone: String?,
+        description: String?,
+        isActive: Boolean,
+        onSuccess: (AdminCompanyDto) -> Unit,
+        onError: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+            val request = AdminCompanyEditRequest(
+                companyName = name,
+                nif = nif,
+                businessArea = businessArea,
+                location = location,
+                phone = phone,
+                description = description,
+                isActive = isActive,
+                updatedAt = Instant.now().toString()
+            )
+
+            val result = repository.editCompany(companyId, companyProfileId, request)
+
+            if (result.isSuccess) {
+                val updated = result.getOrThrow()
+                // Atualizar selectedCompany para que o detalhe reflita imediatamente
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    successMessage = "Empresa atualizada com sucesso.",
+                    selectedCompany = updated
+                )
+                loadCompanies()
+                onSuccess(updated)
+            } else {
+                Log.e("AdminCompaniesVM", "editCompany failed id=$companyId", result.exceptionOrNull())
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Não foi possível guardar as alterações da empresa."
+                )
+                onError()
             }
         }
     }
 
     fun setCompanyActive(companyId: String, isActive: Boolean) {
         viewModelScope.launch {
-            val result = repository.setCompanyActive(companyId, isActive)
+            val result = repository.deactivateCompany(companyId, "")
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
@@ -128,10 +179,9 @@ class AdminCompaniesViewModel : ViewModel() {
         }
     }
 
-    // Soft delete — desativa a empresa em vez de apagar
     fun deleteCompany(companyId: String) {
         viewModelScope.launch {
-            val result = repository.deactivateCompany(companyId)
+            val result = repository.deactivateCompany(companyId, "")
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
@@ -176,8 +226,9 @@ class AdminCompaniesViewModel : ViewModel() {
     private fun applyFilter(companies: List<AdminCompanyDto>): List<AdminCompanyDto> {
         return when (_uiState.value.selectedFilter) {
             AdminCompaniesFilter.ALL -> companies
-            AdminCompaniesFilter.ACTIVE -> companies.filter { it.isActive == true }
-            AdminCompaniesFilter.INACTIVE -> companies.filter { it.isActive == false }
+            AdminCompaniesFilter.ACTIVE -> companies.filter { it.isActive == true && !it.isArchived }
+            AdminCompaniesFilter.INACTIVE -> companies.filter { it.isActive == false && !it.isArchived }
+            AdminCompaniesFilter.ARCHIVED -> companies.filter { it.isArchived }
         }
     }
 }

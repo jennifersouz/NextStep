@@ -77,11 +77,56 @@ class AdminDashboardRepository {
             val currentUser = supabase.auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            val name = currentUser.email ?: "Administrador"
-            Result.success(name)
+            val userId = currentUser.id
+
+            val profile = supabase
+                .from("profiles")
+                .select {
+                    filter { eq("id", userId) }
+                }
+                .decodeList<AdminProfileDto>()
+                .firstOrNull()
+
+            if (profile != null) {
+                Log.d("AdminDashboardRepo", "Loaded admin profile: firstName=${profile.firstName}, lastName=${profile.lastName}, email=${profile.email}")
+
+                val fullName = listOfNotNull(
+                    profile.firstName?.takeIf { it.isNotBlank() },
+                    profile.lastName?.takeIf { it.isNotBlank() }
+                ).joinToString(" ")
+
+                Result.success(fullName.ifBlank { profile.email ?: "Administrador" })
+            } else {
+                Log.w("AdminDashboardRepo", "Profile not found for userId=$userId, falling back to Auth email")
+                Result.success(currentUser.email ?: "Administrador")
+            }
         } catch (exception: Exception) {
             Log.e("AdminDashboardRepo", "Erro ao obter perfil", exception)
             Result.failure(exception)
+        }
+    }
+
+    suspend fun getAdminProfileEmail(): Result<String> {
+        return try {
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+
+            val userId = currentUser.id
+
+            val profile = supabase
+                .from("profiles")
+                .select {
+                    filter { eq("id", userId) }
+                }
+                .decodeList<AdminProfileDto>()
+                .firstOrNull()
+
+            val email = profile?.email ?: currentUser.email ?: ""
+            Result.success(email)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao obter email do perfil", exception)
+            // Fallback to Auth email
+            Result.success(supabase.auth.currentUserOrNull()?.email ?: "")
         }
     }
 

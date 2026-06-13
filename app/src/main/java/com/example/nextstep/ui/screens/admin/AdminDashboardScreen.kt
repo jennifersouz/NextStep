@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.AdminCompanyUpdateDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.model.CreateCompanyDto
 import com.example.nextstep.ui.components.BottomBarItem
@@ -45,31 +44,51 @@ fun AdminDashboardScreen(
 
     val usersViewModel: AdminUsersViewModel = viewModel()
     val companiesViewModel: AdminCompaniesViewModel = viewModel()
+    val userDetailViewModel: AdminUserDetailViewModel = viewModel()
+    val companyDetailViewModel: AdminCompanyDetailViewModel = viewModel()
 
     // Always read from ViewModel state
     val usersState by usersViewModel.uiState.collectAsState()
     val companiesState by companiesViewModel.uiState.collectAsState()
+    val userDetailState by userDetailViewModel.uiState.collectAsState()
+    val companyDetailState by companyDetailViewModel.uiState.collectAsState()
 
     val selectedUser = usersState.selectedUser
     val selectedCompany = companiesState.selectedCompany
 
     // ── User detail ──────────────────────────────────────────────────────────
     if (showUserDetail && !showEditUser && selectedUser != null) {
+        // Na primeira entrada, inicializar o ViewModel com o utilizador selecionado.
+        // Depois disso, usar sempre o estado do ViewModel para refletir atualizações imediatas.
+        val displayUser = userDetailState.profile?.takeIf { it.id == selectedUser.id }
+            ?: selectedUser.also { userDetailViewModel.setProfile(it) }
+
         AdminUserDetailScreen(
-            profile = selectedUser,
+            profile = displayUser,
+            isActionLoading = userDetailState.isActionLoading,
+            successMessage = userDetailState.successMessage,
+            errorMessage = userDetailState.errorMessage,
+            onMessageDismiss = { userDetailViewModel.clearMessages() },
             onBackClick = {
                 showUserDetail = false
                 usersViewModel.clearSelectedUser()
+                userDetailViewModel.clearMessages()
             },
             onEditClick = {
                 showEditUser = true
             },
-            onToggleActive = { userId, isActive ->
-                usersViewModel.setUserActive(userId, isActive)
+            onDeactivate = {
+                userDetailViewModel.deactivate("")
+                usersViewModel.loadUsers()
             },
-            onDeleteUser = { userId ->
-                usersViewModel.deleteUser(userId)
-                showUserDetail = false
+            onReactivate = {
+                userDetailViewModel.reactivate("")
+                usersViewModel.loadUsers()
+            },
+            onArchive = { reason ->
+                // adminId é obtido internamente no Repository
+                userDetailViewModel.archive(reason)
+                usersViewModel.loadUsers()
             }
         )
         return
@@ -111,22 +130,34 @@ fun AdminDashboardScreen(
 
     // ── Company detail ───────────────────────────────────────────────────────
     if (showCompanyDetail && !showEditCompany && !showCreateCompany && selectedCompany != null) {
+        // Usar sempre o estado do ViewModel para refletir atualizações imediatas
+        val displayCompany = companyDetailState.company ?: selectedCompany
         AdminCompanyDetailScreen(
-            company = selectedCompany,
+            company = displayCompany,
+            isActionLoading = companyDetailState.isActionLoading,
+            successMessage = companyDetailState.successMessage,
+            errorMessage = companyDetailState.errorMessage,
+            onMessageDismiss = { companyDetailViewModel.clearMessages() },
             onBackClick = {
                 showCompanyDetail = false
                 showCompanyOffers = false
                 companiesViewModel.clearSelectedCompany()
+                companyDetailViewModel.clearMessages()
             },
             onEditClick = {
                 showEditCompany = true
             },
-            onToggleActive = { companyId, isActive ->
-                companiesViewModel.setCompanyActive(companyId, isActive)
+            onDeactivate = {
+                companyDetailViewModel.deactivate()
+                companiesViewModel.loadCompanies()
             },
-            onDeleteCompany = { companyId ->
-                companiesViewModel.deleteCompany(companyId)
-                showCompanyDetail = false
+            onReactivate = {
+                companyDetailViewModel.reactivate()
+                companiesViewModel.loadCompanies()
+            },
+            onArchive = { reason ->
+                companyDetailViewModel.archive(reason)
+                companiesViewModel.loadCompanies()
             },
             onViewOffers = {
                 showCompanyOffers = true
@@ -137,25 +168,34 @@ fun AdminDashboardScreen(
 
     // ── Edit company ─────────────────────────────────────────────────────────
     if (showEditCompany && selectedCompany != null) {
+        // Usar a empresa do detalhe se disponível (pode ter sido atualizada)
+        val companyToEdit = companyDetailState.company ?: selectedCompany
         AdminCreateEditCompanyScreen(
-            existingCompany = selectedCompany,
+            existingCompany = companyToEdit,
             onBackClick = {
                 showEditCompany = false
             },
             onSave = { name, nif, area, loc, ph, desc, active ->
-                companiesViewModel.updateCompany(
-                    selectedCompany.id,
-                    AdminCompanyUpdateDto(
-                        companyName = name.ifBlank { null },
-                        nif = nif?.ifBlank { null },
-                        businessArea = area?.ifBlank { null },
-                        location = loc?.ifBlank { null },
-                        phone = ph?.ifBlank { null },
-                        description = desc?.ifBlank { null },
-                        isActive = active
-                    )
+                val profileId = companyToEdit.profileId ?: ""
+                companiesViewModel.editCompany(
+                    companyId = companyToEdit.id,
+                    companyProfileId = profileId,
+                    name = name,
+                    nif = nif,
+                    businessArea = area,
+                    location = loc,
+                    phone = ph,
+                    description = desc,
+                    isActive = active,
+                    onSuccess = { updatedCompany ->
+                        // Atualizar o detalhe imediatamente com os dados guardados
+                        companyDetailViewModel.resetCompany(updatedCompany)
+                        showEditCompany = false
+                    },
+                    onError = {
+                        // Manter o ecrã de edição aberto para o utilizador ver o erro
+                    }
                 )
-                showEditCompany = false
             }
         )
         return
@@ -220,6 +260,7 @@ fun AdminDashboardScreen(
                         viewModel = companiesViewModel,
                         onCompanyClick = { company ->
                             companiesViewModel.selectCompany(company)
+                            companyDetailViewModel.resetCompany(company)
                             showCompanyDetail = true
                         }
                     )

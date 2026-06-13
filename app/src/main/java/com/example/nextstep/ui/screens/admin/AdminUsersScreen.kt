@@ -60,7 +60,7 @@ fun AdminUsersScreen(
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Novo utilizador")
+                Icon(Icons.Default.Add, contentDescription = "Adicionar utilizador")
             }
         },
         containerColor = Color.White
@@ -72,26 +72,13 @@ fun AdminUsersScreen(
                 .background(Color.White)
         ) {
             // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 24.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Utilizadores",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                
-                TextButton(onClick = onAddUserClick) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFF007AFF))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Novo", color = Color(0xFF007AFF), fontWeight = FontWeight.SemiBold)
-                }
-            }
+            Text(
+                text = "Utilizadores",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp)
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -290,19 +277,28 @@ fun AdminUserListItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Active/Inactive badge
-                val (statusLabel, statusColor) = if (profile.isActive == true) {
-                    "Ativo" to Color(0xFF2E7D32)
+                // Status badge: Archived > Active > Inactive
+                val statusLabel: String
+                val statusColor: Color
+                val statusBg: Color
+                if (profile.isArchived) {
+                    statusLabel = "Arquivado"
+                    statusColor = Color(0xFF6D4C41)
+                    statusBg = Color(0xFFEFEBE9)
+                } else if (profile.isActive == true) {
+                    statusLabel = "Ativo"
+                    statusColor = Color(0xFF2E7D32)
+                    statusBg = Color(0xFFE8F5E9)
                 } else {
-                    "Inativo" to Color(0xFFC62828)
+                    statusLabel = "Inativo"
+                    statusColor = Color(0xFFC62828)
+                    statusBg = Color(0xFFFFEBEE)
                 }
 
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            if (profile.isActive == true) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-                        )
+                        .background(statusBg)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
@@ -333,7 +329,7 @@ fun roleLabel(role: String): String {
         "company" -> "Empresa"
         "advisor" -> "Orientador"
         "institution" -> "Instituição"
-        "admin" -> "Admin"
-        else -> role
+        "admin" -> "Administrador"
+        else -> role.replaceFirstChar { it.uppercase() }
     }
 }

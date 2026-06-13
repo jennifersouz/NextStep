@@ -29,7 +29,6 @@ class AdminUsersViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 val users = result.getOrDefault(emptyList())
-                // Refresh selectedUser if there's one selected
                 val refreshedSelected = _uiState.value.selectedUser?.let { current ->
                     users.find { it.id == current.id }
                 }
@@ -89,7 +88,7 @@ class AdminUsersViewModel : ViewModel() {
 
     fun setUserActive(userId: String, isActive: Boolean) {
         viewModelScope.launch {
-            val result = repository.setUserActive(userId, isActive)
+            val result = repository.deactivateUser(userId) // deprecated in favor of detail VM, kept for backwards compat
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
@@ -105,7 +104,6 @@ class AdminUsersViewModel : ViewModel() {
         }
     }
 
-    // Soft delete — desativa a conta em vez de apagar
     fun deleteUser(userId: String) {
         viewModelScope.launch {
             val result = repository.deactivateUser(userId)
@@ -157,8 +155,9 @@ class AdminUsersViewModel : ViewModel() {
             AdminUsersFilter.TEACHERS -> users.filter { it.role == "teacher" }
             AdminUsersFilter.COMPANIES -> users.filter { it.role == "company" }
             AdminUsersFilter.ADMINS -> users.filter { it.role == "admin" }
-            AdminUsersFilter.ACTIVE -> users.filter { it.isActive == true }
-            AdminUsersFilter.INACTIVE -> users.filter { it.isActive == false }
+            AdminUsersFilter.ACTIVE -> users.filter { it.isActive == true && !it.isArchived }
+            AdminUsersFilter.INACTIVE -> users.filter { it.isActive == false && !it.isArchived }
+            AdminUsersFilter.ARCHIVED -> users.filter { it.isArchived }
         }
     }
 }

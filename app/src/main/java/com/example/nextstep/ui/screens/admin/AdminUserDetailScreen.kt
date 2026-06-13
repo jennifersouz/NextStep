@@ -1,7 +1,6 @@
 package com.example.nextstep.ui.screens.admin
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,10 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,66 +49,96 @@ fun AdminUserDetailScreen(
     profile: AdminProfileDto,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
-    onToggleActive: (String, Boolean) -> Unit,
-    onDeleteUser: (String) -> Unit,
-    isLoading: Boolean = false
+    onDeactivate: () -> Unit,
+    onReactivate: () -> Unit,
+    onArchive: (String?) -> Unit,
+    isActionLoading: Boolean = false,
+    successMessage: String? = null,
+    errorMessage: String? = null,
+    onMessageDismiss: () -> Unit = {}
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showToggleDialog by remember { mutableStateOf(false) }
+    val isActive = profile.isActive == true
+    val isArchived = profile.isArchived
 
-    if (showDeleteDialog) {
+    var showDeactivateDialog by remember { mutableStateOf(false) }
+    var showReactivateDialog by remember { mutableStateOf(false) }
+    var showArchiveDialog by remember { mutableStateOf(false) }
+
+    fun dismissDialogs() {
+        showDeactivateDialog = false
+        showReactivateDialog = false
+        showArchiveDialog = false
+    }
+
+    // Deactivate dialog
+    if (showDeactivateDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Remover utilizador") },
-            text = { Text("Tens a certeza que queres remover este utilizador? Esta ação pode afetar dados relacionados.") },
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Desativar acesso") },
+            text = { Text("Esta ação bloqueia temporariamente o acesso do utilizador, mas mantém os dados e o histórico na plataforma.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteUser(profile.id)
-                    }
-                ) {
-                    Text("Remover", color = Color(0xFFB00020), fontWeight = FontWeight.Bold)
+                TextButton(onClick = {
+                    dismissDialogs()
+                    onDeactivate()
+                }) {
+                    Text("Desativar", color = Color(0xFFE65100), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancelar")
-                }
+                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
             }
         )
     }
 
-    if (showToggleDialog) {
+    // Reactivate dialog
+    if (showReactivateDialog) {
         AlertDialog(
-            onDismissRequest = { showToggleDialog = false },
-            title = { Text(if (profile.isActive == true) "Desativar conta" else "Ativar conta") },
-            text = {
-                Text(
-                    if (profile.isActive == true)
-                        "Esta conta será desativada e o utilizador não poderá aceder à plataforma."
-                    else
-                        "Esta conta será ativada e o utilizador poderá aceder novamente à plataforma."
-                )
-            },
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Reativar acesso") },
+            text = { Text("Esta ação permite que o utilizador volte a aceder à plataforma.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showToggleDialog = false
-                        onToggleActive(profile.id, profile.isActive != true)
-                    }
-                ) {
-                    Text(
-                        if (profile.isActive == true) "Desativar" else "Ativar",
-                        color = if (profile.isActive == true) Color(0xFFB00020) else Color(0xFF2E7D32),
-                        fontWeight = FontWeight.Bold
-                    )
+                TextButton(onClick = {
+                    dismissDialogs()
+                    onReactivate()
+                }) {
+                    Text("Reativar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showToggleDialog = false }) {
-                    Text("Cancelar")
+                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
+            }
+        )
+    }
+
+    // Archive dialog
+    if (showArchiveDialog) {
+        var reason by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { dismissDialogs() },
+            title = { Text("Remover da plataforma") },
+            text = {
+                Column {
+                    Text("Esta ação remove o utilizador da lista principal e bloqueia o acesso, mas mantém o histórico de candidaturas, mensagens, avaliações e documentos.")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    TextField(
+                        value = reason,
+                        onValueChange = { reason = it },
+                        label = { Text("Motivo (opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
                 }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    dismissDialogs()
+                    onArchive(reason.ifBlank { null })
+                }) {
+                    Text("Remover", color = Color(0xFFC62828), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { dismissDialogs() }) { Text("Cancelar") }
             }
         )
     }
@@ -119,7 +148,7 @@ fun AdminUserDetailScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Header with back button
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,177 +162,244 @@ fun AdminUserDetailScreen(
                     tint = Color.Black
                 )
             }
-
             Text(
                 text = "Detalhes do utilizador",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+            if (isActionLoading) {
+                Spacer(modifier = Modifier.width(12.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.Black
+                )
+            }
         }
 
-        if (isLoading) {
+        // Feedback messages — amigáveis, sem detalhes técnicos
+        if (successMessage != null) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFE8F5E9))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(successMessage, color = Color(0xFF2E7D32), fontSize = 14.sp)
+            }
+        }
+        if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFEBEE))
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+            ) {
+                Text(errorMessage, color = Color(0xFFB00020), fontSize = 14.sp)
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Avatar
+            val displayName = listOfNotNull(profile.firstName, profile.lastName)
+                .filter { it.isNotBlank() }
+                .joinToString(" ")
+                .ifBlank { profile.email ?: profile.id }
+
+            val initials = displayName
+                .split(" ")
+                .filter { it.isNotBlank() }
+                .take(2)
+                .joinToString("") { it.first().uppercase() }
+                .ifBlank { "?" }
+
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF2B2B2B))
+                    .align(Alignment.CenterHorizontally),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.Black)
+                Text(
+                    text = initials,
+                    color = Color.White,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
-        } else {
-            Column(
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Status badge
+            val statusLabel: String
+            val statusColor: Color
+            val statusBg: Color
+            when {
+                isArchived -> {
+                    statusLabel = "Arquivado"
+                    statusColor = Color(0xFF6D4C41)
+                    statusBg = Color(0xFFEFEBE9)
+                }
+                isActive -> {
+                    statusLabel = "Ativo"
+                    statusColor = Color(0xFF2E7D32)
+                    statusBg = Color(0xFFE8F5E9)
+                }
+                else -> {
+                    statusLabel = "Inativo"
+                    statusColor = Color(0xFFC62828)
+                    statusBg = Color(0xFFFFEBEE)
+                }
+            }
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(statusBg)
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .align(Alignment.CenterHorizontally)
             ) {
-                // Avatar
-                val displayName = listOfNotNull(profile.firstName, profile.lastName)
-                    .filter { it.isNotBlank() }
-                    .joinToString(" ")
-                    .ifBlank { profile.email ?: profile.id }
+                Text(
+                    text = statusLabel,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = statusColor
+                )
+            }
 
-                val initials = displayName
-                    .split(" ")
-                    .filter { it.isNotBlank() }
-                    .take(2)
-                    .joinToString("") { it.first().uppercase() }
-                    .ifBlank { "?" }
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Fields
+            DetailField(label = "Nome", value = displayName)
+            Spacer(modifier = Modifier.height(16.dp))
+            DetailField(label = "Email", value = profile.email ?: "")
+            Spacer(modifier = Modifier.height(16.dp))
+            DetailField(label = "Função", value = roleLabel(profile.role ?: ""))
+            Spacer(modifier = Modifier.height(16.dp))
+            DetailField(label = "Telefone", value = profile.phone ?: "Não disponível")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val createdAt = profile.createdAt
+                ?.let { DateFormatUtils.formatDateForUi(it) }
+                ?: "Desconhecida"
+            DetailField(label = "Data de registo", value = createdAt)
+
+            if (isArchived) {
+                Spacer(modifier = Modifier.height(16.dp))
+                if (profile.archivedAt != null) {
+                    DetailField(label = "Arquivado em", value = profile.archivedAt)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF2B2B2B))
-                        .align(Alignment.CenterHorizontally),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFFBE9E7))
+                        .padding(16.dp)
                 ) {
                     Text(
-                        text = initials,
-                        color = Color.White,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "Este utilizador foi removido da plataforma. O histórico foi mantido.",
+                        fontSize = 14.sp,
+                        color = Color(0xFF6D4C41)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Fields
-                DetailField(label = "Nome", value = displayName)
-                Spacer(modifier = Modifier.height(16.dp))
-                DetailField(label = "Email", value = profile.email ?: "")
-                Spacer(modifier = Modifier.height(16.dp))
-                DetailField(label = "Função", value = roleLabel(profile.role ?: ""))
-                Spacer(modifier = Modifier.height(16.dp))
-                DetailField(label = "Telefone", value = profile.phone ?: "Não disponível")
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val createdAt = profile.createdAt?.let { DateFormatUtils.formatDateForUi(it) } ?: "Desconhecida"
-                DetailField(label = "Data de registo", value = createdAt)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Status
-                val statusText = if (profile.isActive == true) "Ativo" else "Inativo"
-                val statusColor = if (profile.isActive == true) Color(0xFF2E7D32) else Color(0xFFC62828)
-                DetailField(label = "Estado da conta", value = statusText, valueColor = statusColor)
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Action buttons
-                // Edit button
-                Button(
-                    onClick = { onEditClick() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD1D5DB))
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Editar utilizador", fontWeight = FontWeight.Medium)
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Activate/Deactivate button
-                Button(
-                    onClick = { showToggleDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (profile.isActive == true) Color(0xFFFFF3E0) else Color(0xFFE8F5E9),
-                        contentColor = if (profile.isActive == true) Color(0xFFE65100) else Color(0xFF2E7D32)
-                    )
-                ) {
-                    Icon(
-                        imageVector = if (profile.isActive == true) Icons.Filled.Block else Icons.Filled.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (profile.isActive == true) "Desativar conta" else "Ativar conta",
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Delete button
-                Button(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFEBEE),
-                        contentColor = Color(0xFFC62828)
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Remover utilizador", fontWeight = FontWeight.Medium)
-                }
-
-                Spacer(modifier = Modifier.height(96.dp))
             }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Action buttons — controlados exclusivamente por estado
+            // Arquivado → sem botões
+            // Ativo     → Desativar + Remover da plataforma
+            // Inativo   → Reativar  + Remover da plataforma
+            if (!isArchived) {
+                if (isActive) {
+                    Button(
+                        onClick = { showDeactivateDialog = true },
+                        enabled = !isActionLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFF3E0),
+                            contentColor = Color(0xFFE65100)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Block,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Desativar acesso", fontWeight = FontWeight.Medium)
+                    }
+                } else {
+                    Button(
+                        onClick = { showReactivateDialog = true },
+                        enabled = !isActionLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE8F5E9),
+                            contentColor = Color(0xFF2E7D32)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Reativar acesso", fontWeight = FontWeight.Medium)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Remover da plataforma — sempre visível para não-arquivados
+                Button(
+                    onClick = { showArchiveDialog = true },
+                    enabled = !isActionLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFBE9E7),
+                        contentColor = Color(0xFFBF360C)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Archive,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Remover da plataforma", fontWeight = FontWeight.Medium)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 }
 
 @Composable
-private fun DetailField(
-    label: String,
-    value: String,
-    valueColor: Color = Color.Black
-) {
+private fun DetailField(label: String, value: String, valueColor: Color = Color.Black) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = Color(0xFF8A8A8A)
-        )
+        Text(text = label, fontSize = 14.sp, color = Color(0xFF8A8A8A))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            color = valueColor,
-            fontWeight = FontWeight.Medium
-        )
+        Text(text = value, fontSize = 16.sp, color = valueColor, fontWeight = FontWeight.Medium)
     }
 }
