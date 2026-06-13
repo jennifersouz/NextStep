@@ -164,7 +164,7 @@ private fun StudentChatConversationCard(
     conversation: StudentChatConversationDto,
     onClick: () -> Unit
 ) {
-    val chatLabel = conversation.chatLabel ?: "Chat"
+    val chatLabel = conversation.chatLabel ?: stringResource(R.string.chat_label)
     val offerTitle = conversation.offerTitle.orEmpty()
         .ifBlank { stringResource(R.string.not_available) }
     val participantName = conversation.participantName

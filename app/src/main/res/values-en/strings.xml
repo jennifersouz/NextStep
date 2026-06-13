@@ -908,4 +908,17 @@
     <string name="progress_percentage">%1$d%% completed</string>
     <string name="tab_evaluation">Evaluation</string>
     <string name="no_messages_tap_to_start">No messages yet · Tap to start conversation</string>
+
+    <!-- Student Internship Detail -->
+    <string name="grade_max">/ 20</string>
+    <string name="default_not_available">—</string>
+    <string name="sending_label">Sending...</string>
+    <string name="request_sent_label">Request Sent</string>
+    <string name="accepted_label">Accepted</string>
+    <string name="chat_label">Chat</string>
+    <string name="advisor_default_name">Advisor</string>
+    <string name="today_label">Today</string>
+    <string name="yesterday_label">Yesterday</string>
+    <string name="greeting_format">Hello, %1$s 👋</string>
+    <string name="offer_count_format">%1$d offer(s)</string>
 </resources>

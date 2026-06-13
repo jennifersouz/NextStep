@@ -217,8 +217,8 @@ fun InternshipDetailContent(
 
         if (isTeacherAssigned) {
             AdvisorItem(
-                organization = internship.institutionName ?: "Instituição",
-                name = internship.teacherName ?: "Orientador Académico",
+                organization = internship.institutionName ?: stringResource(R.string.default_not_available),
+                name = internship.teacherName ?: stringResource(R.string.default_not_available),
                 onChatClick = { onChatClick(internship.id, internship.teacherName ?: "", "teacher") },
                 onProfileClick = if (internship.teacherProfileId != null) {
                     {
@@ -470,9 +470,9 @@ fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
     Text(stringResource(R.string.advisor_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
-    EvaluationRow(name = internship.advisorName ?: "Orientador Empresa", grade = internship.companyAdvisorGrade ?: "18")
+    EvaluationRow(name = internship.advisorName ?: stringResource(R.string.default_not_available), grade = internship.companyAdvisorGrade ?: stringResource(R.string.default_not_available))
     Spacer(modifier = Modifier.height(16.dp))
-    EvaluationRow(name = internship.teacherName ?: "Orientador Académico", grade = internship.academicAdvisorGrade ?: "18")
+    EvaluationRow(name = internship.teacherName ?: stringResource(R.string.default_not_available), grade = internship.academicAdvisorGrade ?: stringResource(R.string.default_not_available))
 
     Spacer(modifier = Modifier.height(32.dp))
     Text(stringResource(R.string.final_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -484,9 +484,9 @@ fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
             shape = RoundedCornerShape(8.dp),
             color = Color.White
         ) {
-            Text(text = "18", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = stringResource(R.string.default_not_available), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-        Text(text = " / 20", color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+        Text(text = stringResource(R.string.grade_max), color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -509,7 +509,7 @@ fun EvaluationRow(name: String, grade: String) {
         ) {
             Text(text = grade, fontWeight = FontWeight.Medium)
         }
-        Text(text = " / 20", color = Color.Gray, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
+        Text(text = stringResource(R.string.grade_max), color = Color.Gray, modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
     }
 }
 

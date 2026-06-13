@@ -118,10 +118,10 @@ fun TeacherRow(
             && currentStatus != "pending" && currentStatus != "accepted"
 
     val buttonText = when {
-        isSending -> "Enviando..."
-        currentStatus == "pending" -> "Pedido Enviado"
-        currentStatus == "accepted" -> "Aceite"
-        else -> "Enviar Pedido"
+        isSending -> stringResource(R.string.sending_label)
+        currentStatus == "pending" -> stringResource(R.string.request_sent_label)
+        currentStatus == "accepted" -> stringResource(R.string.accepted_label)
+        else -> stringResource(R.string.send_request)
     }
 
     Row(

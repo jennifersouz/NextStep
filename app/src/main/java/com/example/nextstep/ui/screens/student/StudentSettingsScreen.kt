@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,18 +41,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import com.example.nextstep.R
 
-enum class AppLanguage(
-    val tag: String,
-    val displayName: String
-) {
-    PORTUGUESE(
-        tag = "pt",
-        displayName = "Português"
-    ),
-    ENGLISH(
-        tag = "en",
-        displayName = "English"
-    )
+enum class AppLanguage(val tag: String) {
+    PORTUGUESE(tag = "pt"),
+    ENGLISH(tag = "en")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +63,7 @@ fun StudentSettingsScreen(
             .fillMaxSize()
             .background(Color.White)
             .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
     ) {
         StudentSettingsHeader(
             onBackClick = onBackClick
@@ -85,8 +79,8 @@ fun StudentSettingsScreen(
         StudentSettingsLanguageItem(
             title = stringResource(R.string.change_language),
             currentLanguage = when (currentLanguage) {
-                AppLanguage.PORTUGUESE -> "Português"
-                AppLanguage.ENGLISH -> "English"
+                AppLanguage.PORTUGUESE -> stringResource(R.string.language_portuguese)
+                AppLanguage.ENGLISH -> stringResource(R.string.language_english)
             },
             onClick = {
                 showLanguageSheet = true

@@ -123,7 +123,7 @@ fun SentRequestRow(
         modifier = Modifier.fillMaxWidth()
     ) {
         ProfileAvatar(
-            name = request.teacherName ?: "Orientador",
+            name = request.teacherName ?: stringResource(R.string.advisor_default_name),
             size = 48.dp
         )
         
@@ -131,7 +131,7 @@ fun SentRequestRow(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = request.teacherName ?: "Orientador",
+                text = request.teacherName ?: stringResource(R.string.advisor_default_name),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 maxLines = 1,
