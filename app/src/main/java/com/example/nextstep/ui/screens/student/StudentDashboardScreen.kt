@@ -88,6 +88,7 @@ object StudentBottomRoutes {
 fun StudentDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onSubmittedApplicationsClick: () -> Unit = {},
+    onSentRequestsClick: () -> Unit = {},
     onApplicationNotificationClick: (String) -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
     viewModel: StudentDashboardViewModel = viewModel(),
@@ -249,6 +250,7 @@ fun StudentDashboardScreen(
                 else -> {
                             StudentProfileScreen(
                                 refreshKey = profileRefreshKey,
+                                onSentRequestsClick = onSentRequestsClick,
                                 onSavedInternshipsClick = {
                                     showStudentSavedOffers = true
                                 },

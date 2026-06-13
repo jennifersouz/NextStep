@@ -7,7 +7,6 @@ import com.example.nextstep.data.model.UpdateApplicationTaskStatusDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
-import java.time.Instant
 
 class AdvisorTasksRepository {
 
@@ -33,16 +32,22 @@ class AdvisorTasksRepository {
 
     suspend fun getTasksByApplication(applicationId: String): Result<List<AdvisorTaskListItemDto>> {
         return try {
-            // Tentamos ler da view primeiro para ter os dados completos (student_name, etc)
-            // Se falhar ou se quisermos apenas os dados da tabela, filtramos application_tasks
+            Log.d("TasksDebug", "ApplicationId recebido: $applicationId")
+
+            // Para alunos, usamos a tabela application_tasks diretamente em vez da view
+            // advisor_tasks_view, porque essa view filtra por advisor_profile_id = auth.uid()
             val tasks = supabase
-                .from("advisor_tasks_view")
+                .from("application_tasks")
                 .select {
                     filter {
                         eq("application_id", applicationId)
                     }
                 }
                 .decodeList<AdvisorTaskListItemDto>()
+
+            Log.d("TasksDebug", "Tarefas encontradas: ${tasks.size}")
+            Log.d("TasksDebug", "Resultado bruto: $tasks")
+
             Result.success(tasks)
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas da candidatura", exception)
@@ -52,22 +57,13 @@ class AdvisorTasksRepository {
 
     suspend fun createTask(
         applicationId: String,
-        title: String,
-        description: String?,
-        dueDate: String?,
-        priority: String
+        title: String
     ): Result<Unit> {
         return try {
-            val userId = auth.currentUserOrNull()?.id ?: throw IllegalStateException("Não autenticado")
-            
             val taskDto = CreateApplicationTaskDto(
                 applicationId = applicationId,
                 title = title,
-                description = description,
-                dueDate = dueDate,
-                priority = priority,
-                status = "pending",
-                createdByProfileId = userId
+                status = "pending"
             )
             
             supabase.from("application_tasks").insert(taskDto)
@@ -80,13 +76,7 @@ class AdvisorTasksRepository {
 
     suspend fun updateTaskStatus(taskId: String, status: String): Result<Unit> {
         return try {
-            val completedAt = if (status == "completed") Instant.now().toString() else null
-            
-            val updateDto = UpdateApplicationTaskStatusDto(
-                status = status,
-                completedAt = completedAt,
-                updatedAt = Instant.now().toString()
-            )
+            val updateDto = UpdateApplicationTaskStatusDto(status = status)
             
             supabase.from("application_tasks")
                 .update(updateDto) {

@@ -24,19 +24,12 @@ data class AdvisorTaskListItemDto(
 data class CreateApplicationTaskDto(
     @SerialName("application_id") val applicationId: String,
     @SerialName("title") val title: String,
-    @SerialName("description") val description: String? = null,
-    @SerialName("status") val status: String = "pending",
-    @SerialName("priority") val priority: String = "medium",
-    @SerialName("due_date") val dueDate: String? = null,
-    @SerialName("created_by_profile_id") val createdByProfileId: String,
-    @SerialName("assigned_to_profile_id") val assignedToProfileId: String? = null
+    @SerialName("status") val status: String = "pending"
 )
 
 @Serializable
 data class UpdateApplicationTaskStatusDto(
-    @SerialName("status") val status: String,
-    @SerialName("completed_at") val completedAt: String? = null,
-    @SerialName("updated_at") val updatedAt: String
+    @SerialName("status") val status: String
 )
 
 @Serializable

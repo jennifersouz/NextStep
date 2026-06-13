@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.time.Instant
-import java.util.Objects.isNull
 
 class ApplicationChatRepository {
 
@@ -125,7 +124,7 @@ class ApplicationChatRepository {
                     filter {
                         eq("application_id", applicationId)
                         eq("receiver_profile_id", currentUserId)
-                        isNull("read_at")
+                        filter("read_at", FilterOperator.EQ, null)
                     }
                 }
 

@@ -20,29 +20,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.TeacherDto
+import com.example.nextstep.data.model.SentAdvisorRequestDto
 import com.example.nextstep.ui.components.ProfileAvatar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StudentSearchAdvisorScreen(
-    internshipId: String,
+fun StudentSentAdvisorRequestsScreen(
     onBackClick: () -> Unit,
-    viewModel: StudentSearchAdvisorViewModel = viewModel()
+    viewModel: StudentSentAdvisorRequestsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(internshipId) {
-        viewModel.loadTeachers(applicationId = internshipId)
+    LaunchedEffect(Unit) {
+        viewModel.loadRequests()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Orientadores", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Text(
+                        stringResource(R.string.sent_requests_title), 
+                        fontWeight = FontWeight.Bold 
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -62,7 +69,7 @@ fun StudentSearchAdvisorScreen(
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = viewModel::onSearchChange,
-                placeholder = { Text("Pesquisar", color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.search), color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -92,13 +99,11 @@ fun StudentSearchAdvisorScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
-                    items(uiState.filteredTeachers) { teacher ->
-                        val isThisTeacher = teacher.safeProfileId == uiState.currentTeacherProfileId
-                        TeacherRow(
-                            teacher = teacher,
-                            isSending = uiState.sendingTeacherId == teacher.safeProfileId,
-                            currentStatus = if (isThisTeacher) uiState.currentTeacherStatus else null,
-                            onSendClick = { viewModel.sendRequest(internshipId, teacher.safeProfileId) }
+                    items(uiState.filteredRequests) { request ->
+                        SentRequestRow(
+                            request = request,
+                            isCancelling = uiState.isCancellingId == request.id,
+                            onCancelClick = { viewModel.cancelRequest(request.id) }
                         )
                     }
                 }
@@ -108,28 +113,17 @@ fun StudentSearchAdvisorScreen(
 }
 
 @Composable
-fun TeacherRow(
-    teacher: TeacherDto,
-    isSending: Boolean,
-    currentStatus: String?,
-    onSendClick: () -> Unit
+fun SentRequestRow(
+    request: SentAdvisorRequestDto,
+    isCancelling: Boolean,
+    onCancelClick: () -> Unit
 ) {
-    val buttonEnabled = !isSending && teacher.safeProfileId.isNotBlank()
-            && currentStatus != "pending" && currentStatus != "accepted"
-
-    val buttonText = when {
-        isSending -> "Enviando..."
-        currentStatus == "pending" -> "Pedido Enviado"
-        currentStatus == "accepted" -> "Aceite"
-        else -> "Enviar Pedido"
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
         ProfileAvatar(
-            name = teacher.displayFullName,
+            name = request.teacherName ?: "Orientador",
             size = 48.dp
         )
         
@@ -137,40 +131,62 @@ fun TeacherRow(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = teacher.displayFullName,
+                text = request.teacherName ?: "Orientador",
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (!teacher.department.isNullOrBlank()) {
+        }
+
+        val status = request.teacherStatus?.lowercase() ?: "pending"
+        
+        if (status == "pending") {
+            Button(
+                onClick = onCancelClick,
+                enabled = !isCancelling,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFE0E0E0),
+                    contentColor = Color.Black
+                ),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            ) {
                 Text(
-                    text = teacher.department,
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = if (isCancelling) "..." else stringResource(R.string.cancel_request),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        }
-        
-        Button(
-            onClick = onSendClick,
-            enabled = buttonEnabled,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFDFA52),
-                contentColor = Color.Black,
-                disabledContainerColor = Color(0xFFEAEAEA),
-                disabledContentColor = Color(0xFF777777)
-            ),
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = buttonText,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+        } else {
+            // Display status text for other states
+            val statusText = when (status) {
+                "accepted", "aceite" -> stringResource(R.string.request_status_accepted)
+                "rejected", "rejeitado" -> stringResource(R.string.request_status_rejected)
+                "active", "ativo" -> stringResource(R.string.request_status_active)
+                "completed", "concluido", "concluído" -> stringResource(R.string.request_status_completed)
+                else -> status.replaceFirstChar { it.uppercase() }
+            }
+            
+            val statusColor = when (status) {
+                "accepted", "aceite", "active", "ativo", "completed" -> Color(0xFF2E7D32)
+                "rejected", "rejeitado" -> Color(0xFFB00020)
+                else -> Color.Gray
+            }
+
+            Surface(
+                color = statusColor.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.padding(horizontal = 4.dp)
+            ) {
+                Text(
+                    text = statusText,
+                    color = statusColor,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+            }
         }
     }
 }

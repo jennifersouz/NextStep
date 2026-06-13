@@ -47,6 +47,9 @@ class StudentApplicationsRepository {
             val currentStudentId = auth.currentUserOrNull()?.id
                 ?: throw IllegalStateException("Utilizador não autenticado.")
 
+            Log.d("TeacherDebug", "Fonte de dados utilizada: student_applications_view")
+            Log.d("TeacherDebug", "Query: .from(\"student_applications_view\").select() com eq(\"id\", \"$applicationId\") e eq(\"student_profile_id\", \"$currentStudentId\")")
+
             val applications = supabase
                 .from("student_applications_view")
                 .select {
@@ -56,6 +59,15 @@ class StudentApplicationsRepository {
                     }
                 }
                 .decodeList<StudentSubmittedApplicationDto>()
+
+            Log.d("TeacherDebug", "Resultado bruto: ${applications.size} registos retornados")
+            if (applications.isNotEmpty()) {
+                val app = applications.first()
+                Log.d("TeacherDebug", "teacherProfileId=${app.teacherProfileId}")
+                Log.d("TeacherDebug", "teacherStatus=${app.teacherStatus}")
+                Log.d("TeacherDebug", "teacherName=${app.teacherName}")
+                Log.d("TeacherDebug", "institutionName=${app.institutionName}")
+            }
 
             val application = applications.firstOrNull()
                 ?: return Result.failure(IllegalStateException("APPLICATION_NOT_FOUND"))

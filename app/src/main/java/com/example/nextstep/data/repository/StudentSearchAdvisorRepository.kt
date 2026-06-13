@@ -3,51 +3,89 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.TeacherDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 
 class StudentSearchAdvisorRepository {
 
     private val supabase = SupabaseClientProvider.client
+    private val auth = supabase.auth
 
     suspend fun getAllTeachers(): Result<List<TeacherDto>> {
         return try {
-            // 1. Tentativa na tabela 'teachers'
-            val teachersResponse = supabase
-                .from("teachers")
-                .select()
-            
-            val teachersList = teachersResponse.decodeList<TeacherDto>()
-            if (teachersList.isNotEmpty()) {
-                return Result.success(teachersList)
-            }
+            val currentUserId = auth.currentSessionOrNull()?.user?.id
+            Log.d("TeacherRequestDebug", "=================== ADVISOR SEARCH DIAGNOSTIC ===================")
+            Log.d("TeacherRequestDebug", "Auth User ID: ${currentUserId ?: "NULL - NOT AUTHENTICATED"}")
 
-            // 2. Fallback na view de orientadores (alguns sistemas tratam professores como orientadores)
-            try {
-                val advisorsResponse = supabase
-                    .from("student_available_advisors_view")
-                    .select()
-                val advisors = advisorsResponse.decodeList<TeacherDto>()
-                if (advisors.isNotEmpty()) {
-                    return Result.success(advisors)
-                }
-            } catch (e: Exception) {
-                Log.d("SearchAdvisorRepo", "View 'student_available_advisors_view' not found or empty")
-            }
-
-            // 3. Fallback na tabela 'profiles' filtrando pela role 'teacher'
-            val profilesResponse = supabase
-                .from("profiles")
+            val studentResponse = supabase
+                .from("students")
                 .select {
                     filter {
-                        eq("role", "teacher")
+                        eq("profile_id", currentUserId ?: "")
                     }
                 }
-            
-            val profilesList = profilesResponse.decodeList<TeacherDto>()
-            Result.success(profilesList)
+            val studentList = try {
+                studentResponse.decodeList<Map<String, Any?>>()
+            } catch (e: Exception) {
+                emptyList()
+            }
+            Log.d("TeacherRequestDebug", "Student Profile Raw Response: $studentList")
+            if (studentList.isNotEmpty()) {
+                val student = studentList[0]
+                val educationInstitution = student["education_institution"] as? String ?: "NULL"
+                Log.d("TeacherRequestDebug", "Student Profile Found - education_institution: '$educationInstitution'")
+            } else {
+                Log.d("TeacherRequestDebug", "Student Profile: NOT FOUND for profile_id = $currentUserId")
+            }
+
+            Log.d("TeacherRequestDebug", "Calling RPC: get_teachers_from_student_institution()")
+            val teachersResponse = supabase.postgrest.rpc(
+                function = "get_teachers_from_student_institution"
+            )
+            val rawResponse = teachersResponse.data
+            Log.d("TeacherRequestDebug", "RPC Raw Response: $rawResponse")
+            val teachersList = teachersResponse.decodeList<TeacherDto>()
+            Log.d("TeacherRequestDebug", "Teachers found via RPC: ${teachersList.size}")
+            teachersList.forEach { teacher ->
+                Log.d("TeacherRequestDebug", "  -> Teacher: ${teacher.displayFullName} (profile_id=${teacher.profileId})")
+            }
+
+            Log.d("TeacherRequestDebug", "=================== END DIAGNOSTIC ===================")
+            Result.success(teachersList)
 
         } catch (exception: Exception) {
+            Log.e("TeacherRequestDebug", "ERRO AO CARREGAR PROFESSORES", exception)
             Log.e("SearchAdvisorRepo", "Erro ao carregar professores", exception)
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun getApplicationTeacherStatus(
+        applicationId: String
+    ): Result<Pair<String?, String?>> {
+        return try {
+            val response = supabase
+                .from("applications")
+                .select {
+                    filter {
+                        eq("id", applicationId)
+                    }
+                }
+                .decodeList<Map<String, Any?>>()
+
+            val app = response.firstOrNull()
+            if (app != null) {
+                val teacherId = app["teacher_profile_id"] as? String
+                val teacherStatus = app["teacher_status"] as? String
+                Log.d("TeacherRequestDebug", "Application $applicationId - teacher_profile_id=$teacherId, teacher_status=$teacherStatus")
+                Result.success(Pair(teacherId, teacherStatus))
+            } else {
+                Log.e("TeacherRequestDebug", "Application $applicationId NOT FOUND")
+                Result.success(Pair(null, null))
+            }
+        } catch (exception: Exception) {
+            Log.e("TeacherRequestDebug", "Error loading application $applicationId", exception)
             Result.failure(exception)
         }
     }
@@ -57,7 +95,13 @@ class StudentSearchAdvisorRepository {
         teacherProfileId: String
     ): Result<Unit> {
         return try {
-            supabase
+            val currentUserId = auth.currentSessionOrNull()?.user?.id
+            Log.d("TeacherRequestDebug", "========== SEND ORIENTATION REQUEST ==========")
+            Log.d("TeacherRequestDebug", "Student (auth.uid): $currentUserId")
+            Log.d("TeacherRequestDebug", "Application ID (internshipId): $internshipId")
+            Log.d("TeacherRequestDebug", "Teacher Profile ID: $teacherProfileId")
+
+            val response = supabase
                 .from("applications")
                 .update(
                     mapOf(
@@ -68,10 +112,34 @@ class StudentSearchAdvisorRepository {
                     filter {
                         eq("id", internshipId)
                     }
+                    select()
                 }
 
+            val resultList = response.decodeList<Map<String, Any?>>()
+            Log.d("TeacherRequestDebug", "Rows affected: ${resultList.size}")
+            Log.d("TeacherRequestDebug", "Update result: $resultList")
+
+            if (resultList.isEmpty()) {
+                Log.e("TeacherRequestDebug", "UPDATE returned 0 rows — RLS likely blocked the operation!")
+                Log.e("TeacherRequestDebug", "Check RLS policy: missing 'Students can update own applications' on 'applications' table")
+                return Result.failure(Exception("Nenhuma linha foi atualizada. Possível bloqueio RLS."))
+            }
+
+            val updated = resultList.first()
+            val savedTeacherId = updated["teacher_profile_id"] as? String
+            val savedStatus = updated["teacher_status"] as? String
+            Log.d("TeacherRequestDebug", "Verified: teacher_profile_id=$savedTeacherId, teacher_status=$savedStatus")
+
+            if (savedTeacherId != teacherProfileId) {
+                Log.e("TeacherRequestDebug", "Mismatch: expected teacher_profile_id=$teacherProfileId, got=$savedTeacherId")
+                return Result.failure(Exception("O orientador não foi gravado corretamente."))
+            }
+
+            Log.d("TeacherRequestDebug", "Request successfully persisted!")
+            Log.d("TeacherRequestDebug", "================================================")
             Result.success(Unit)
         } catch (exception: Exception) {
+            Log.e("TeacherRequestDebug", "ERRO AO ENVIAR PEDIDO DE ORIENTAÇÃO", exception)
             Log.e("SearchAdvisorRepo", "Erro ao enviar pedido de orientação", exception)
             Result.failure(exception)
         }

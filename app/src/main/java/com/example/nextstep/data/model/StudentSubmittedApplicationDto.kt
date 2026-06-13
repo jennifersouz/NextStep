@@ -64,8 +64,17 @@ data class StudentSubmittedApplicationDto(
     @SerialName("teacher_profile_id")
     val teacherProfileId: String? = null,
 
+    @SerialName("teacher_status")
+    val teacherStatus: String? = null,
+
     @SerialName("teacher_name")
     val teacherName: String? = null,
+
+    @SerialName("teacher_email")
+    val teacherEmail: String? = null,
+
+    @SerialName("teacher_department")
+    val teacherDepartment: String? = null,
 
     @SerialName("institution_name")
     val institutionName: String? = null,
