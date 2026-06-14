@@ -49,12 +49,38 @@ class AdvisorTasksViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isUpdating = true)
             repository.updateTaskStatus(taskId, status)
                 .onSuccess {
-                    loadTasks() // Refresh list after update
+                    loadTasks()
                 }
                 .onFailure { exception ->
                     _uiState.value = _uiState.value.copy(
                         isUpdating = false,
                         errorMessage = "Erro ao atualizar tarefa: ${exception.message}"
+                    )
+                }
+        }
+    }
+
+    fun syncPendingTasks() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSyncing = true)
+            repository.syncPendingTasks()
+                .onSuccess { syncedCount ->
+                    if (syncedCount > 0) {
+                        loadTasks()
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncMessage = if (syncedCount > 0) {
+                            "$syncedCount tarefa(s) sincronizada(s)"
+                        } else {
+                            null
+                        }
+                    )
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        errorMessage = "Erro ao sincronizar: ${exception.message}"
                     )
                 }
         }
@@ -68,5 +94,9 @@ class AdvisorTasksViewModel : ViewModel() {
             AdvisorTaskFilter.IN_PROGRESS -> state.tasks.filter { it.status == "in_progress" }
             AdvisorTaskFilter.COMPLETED -> state.tasks.filter { it.status == "completed" }
         }
+    }
+
+    fun clearSyncMessage() {
+        _uiState.value = _uiState.value.copy(syncMessage = null)
     }
 }

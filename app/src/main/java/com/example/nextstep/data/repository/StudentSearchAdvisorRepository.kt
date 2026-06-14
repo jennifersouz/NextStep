@@ -1,6 +1,8 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.SentAdvisorRequestDto
+import com.example.nextstep.data.model.StudentProfileDto
 import com.example.nextstep.data.model.TeacherDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
@@ -25,15 +27,21 @@ class StudentSearchAdvisorRepository {
                         eq("profile_id", currentUserId ?: "")
                     }
                 }
+
+            Log.d("TeacherRequestDebug", "Student Profile raw response: ${studentResponse.data}")
+
             val studentList = try {
-                studentResponse.decodeList<Map<String, Any?>>()
+                studentResponse.decodeList<StudentProfileDto>()
             } catch (e: Exception) {
+                Log.e("TeacherRequestDebug", "Error decoding student profile", e)
                 emptyList()
             }
-            Log.d("TeacherRequestDebug", "Student Profile Raw Response: $studentList")
+
+            Log.d("TeacherRequestDebug", "Student Profile decoded: $studentList")
+
             if (studentList.isNotEmpty()) {
                 val student = studentList[0]
-                val educationInstitution = student["education_institution"] as? String ?: "NULL"
+                val educationInstitution = student.educationInstitution ?: "NULL"
                 Log.d("TeacherRequestDebug", "Student Profile Found - education_institution: '$educationInstitution'")
             } else {
                 Log.d("TeacherRequestDebug", "Student Profile: NOT FOUND for profile_id = $currentUserId")
@@ -72,14 +80,17 @@ class StudentSearchAdvisorRepository {
                         eq("id", applicationId)
                     }
                 }
-                .decodeList<Map<String, Any?>>()
 
-            val app = response.firstOrNull()
+            Log.d("TeacherRequestDebug", "getApplicationTeacherStatus raw response: ${response.data}")
+
+            val resultList = response.decodeList<SentAdvisorRequestDto>()
+
+            Log.d("TeacherRequestDebug", "getApplicationTeacherStatus decoded: $resultList")
+
+            val app = resultList.firstOrNull()
             if (app != null) {
-                val teacherId = app["teacher_profile_id"] as? String
-                val teacherStatus = app["teacher_status"] as? String
-                Log.d("TeacherRequestDebug", "Application $applicationId - teacher_profile_id=$teacherId, teacher_status=$teacherStatus")
-                Result.success(Pair(teacherId, teacherStatus))
+                Log.d("TeacherRequestDebug", "Application $applicationId - teacher_profile_id=${app.teacherProfileId}, teacher_status=${app.teacherStatus}")
+                Result.success(Pair(app.teacherProfileId, app.teacherStatus))
             } else {
                 Log.e("TeacherRequestDebug", "Application $applicationId NOT FOUND")
                 Result.success(Pair(null, null))
@@ -115,9 +126,12 @@ class StudentSearchAdvisorRepository {
                     select()
                 }
 
-            val resultList = response.decodeList<Map<String, Any?>>()
+            Log.d("TeacherRequestDebug", "sendOrientationRequest raw response: ${response.data}")
+
+            val resultList = response.decodeList<SentAdvisorRequestDto>()
+
             Log.d("TeacherRequestDebug", "Rows affected: ${resultList.size}")
-            Log.d("TeacherRequestDebug", "Update result: $resultList")
+            Log.d("TeacherRequestDebug", "sendOrientationRequest decoded: $resultList")
 
             if (resultList.isEmpty()) {
                 Log.e("TeacherRequestDebug", "UPDATE returned 0 rows — RLS likely blocked the operation!")
@@ -126,8 +140,8 @@ class StudentSearchAdvisorRepository {
             }
 
             val updated = resultList.first()
-            val savedTeacherId = updated["teacher_profile_id"] as? String
-            val savedStatus = updated["teacher_status"] as? String
+            val savedTeacherId = updated.teacherProfileId
+            val savedStatus = updated.teacherStatus
             Log.d("TeacherRequestDebug", "Verified: teacher_profile_id=$savedTeacherId, teacher_status=$savedStatus")
 
             if (savedTeacherId != teacherProfileId) {

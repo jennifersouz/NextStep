@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-
 }
 
 val localProperties = Properties()
@@ -89,6 +88,10 @@ dependencies {
     implementation(libs.supabase.functions)
     implementation("io.github.jan-tennert.supabase:realtime-kt")
     implementation("io.ktor:ktor-client-okhttp:3.0.0")
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    annotationProcessor(libs.room.compiler)
 
     testImplementation(libs.junit)
 
