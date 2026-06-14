@@ -757,7 +757,7 @@
     <string name="view_advisor_profile">Ver perfil do orientador</string>
     <string name="academic_year_label">Academic Year Label</string>
     <string name="academic_year_suffix">Academic Year Suffix</string>
-    <string name="accepted_label">Accepted Label</string>
+    <string name="accepted_label">Aceite</string>
     <string name="account_status_format">Account Status Format</string>
     <string name="activate">Activate</string>
     <string name="activate_offer_confirmation">Activate Offer Confirmation</string>
@@ -939,13 +939,13 @@
     <string name="remove_company_description">Remove Company Description</string>
     <string name="remove_from_platform">Remove From Platform</string>
     <string name="remove_user_description">Remove User Description</string>
-    <string name="request_sent_label">Request Sent Label</string>
+    <string name="request_sent_label">Pedido Enviado</string>
     <string name="retry_label">Retry Label</string>
     <string name="save_changes_button">Save Changes Button</string>
     <string name="save_task">Save Task</string>
     <string name="search_label">Search Label</string>
     <string name="select_institution_placeholder">Select Institution Placeholder</string>
-    <string name="sending_label">Sending Label</string>
+    <string name="sending_label">A Enviar</string>
     <string name="separator_bullet">Separator Bullet</string>
     <string name="separator_middle_dot">Separator Middle Dot</string>
     <string name="status_archived">Status Archived</string>

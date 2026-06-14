@@ -2,6 +2,7 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.SentAdvisorRequestDto
+import com.example.nextstep.data.model.TeacherRequestDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
 
@@ -11,24 +12,42 @@ class StudentSentAdvisorRequestsRepository {
 
     suspend fun getSentRequests(studentProfileId: String): Result<List<SentAdvisorRequestDto>> {
         return try {
-            val allApplications = supabase
+            val appResponse = supabase
                 .from("applications")
                 .select {
                     filter {
                         eq("student_profile_id", studentProfileId)
                     }
                 }
-                .decodeList<SentAdvisorRequestDto>()
+                .decodeList<Map<String, String>>()
 
-            val applications = allApplications.filter { !it.teacherProfileId.isNullOrBlank() }
+            val appIds = appResponse.mapNotNull { it["id"] }
 
-            val enriched = applications.map { app ->
-                if (app.teacherName.isNullOrBlank() && app.teacherProfileId != null) {
-                    val name = fetchTeacherName(app.teacherProfileId)
-                    app.copy(teacherName = name ?: "Orientador")
-                } else {
-                    app
+            if (appIds.isEmpty()) {
+                return Result.success(emptyList())
+            }
+
+            val teacherRequests = supabase
+                .from("teacher_requests")
+                .select {
+                    filter {
+                        isIn("application_id", appIds)
+                    }
                 }
+                .decodeList<TeacherRequestDto>()
+
+            val nonCancelled = teacherRequests.filter { it.status != "cancelled" }
+
+            val enriched = nonCancelled.map { req ->
+                val teacherName = fetchTeacherName(req.teacherProfileId) ?: "Orientador"
+                SentAdvisorRequestDto(
+                    id = req.id,
+                    studentProfileId = studentProfileId,
+                    teacherProfileId = req.teacherProfileId,
+                    teacherStatus = req.status,
+                    createdAt = req.createdAt,
+                    teacherName = teacherName
+                )
             }
 
             Result.success(enriched)
@@ -48,7 +67,7 @@ class StudentSentAdvisorRequestsRepository {
                     }
                 }
                 .decodeSingleOrNull<Map<String, String>>()
-            
+
             if (response != null) {
                 val first = response["first_name"] ?: ""
                 val last = response["last_name"] ?: ""
@@ -61,18 +80,15 @@ class StudentSentAdvisorRequestsRepository {
         }
     }
 
-    suspend fun cancelRequest(applicationId: String): Result<Unit> {
+    suspend fun cancelRequest(requestId: String): Result<Unit> {
         return try {
             supabase
-                .from("applications")
+                .from("teacher_requests")
                 .update(
-                    mapOf(
-                        "teacher_profile_id" to null,
-                        "teacher_status" to null
-                    )
+                    mapOf("status" to "cancelled")
                 ) {
                     filter {
-                        eq("id", applicationId)
+                        eq("id", requestId)
                     }
                 }
             Result.success(Unit)

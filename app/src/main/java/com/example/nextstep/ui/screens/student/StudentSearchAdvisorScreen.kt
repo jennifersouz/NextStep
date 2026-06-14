@@ -93,11 +93,11 @@ fun StudentSearchAdvisorScreen(
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     items(uiState.filteredTeachers) { teacher ->
-                        val isThisTeacher = teacher.safeProfileId == uiState.currentTeacherProfileId
+                        val teacherStatus = uiState.getTeacherStatus(teacher.safeProfileId)
                         TeacherRow(
                             teacher = teacher,
                             isSending = uiState.sendingTeacherId == teacher.safeProfileId,
-                            currentStatus = if (isThisTeacher) uiState.currentTeacherStatus else null,
+                            currentStatus = teacherStatus,
                             onSendClick = { viewModel.sendRequest(internshipId, teacher.safeProfileId) }
                         )
                     }

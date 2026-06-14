@@ -1,6 +1,5 @@
 package com.example.nextstep.ui.screens.student
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -23,7 +22,7 @@ class StudentSearchAdvisorViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true, errorMessageRes = null) }
 
             val teachersResult = repository.getAllTeachers()
-            
+
             if (teachersResult.isSuccess) {
                 _uiState.update { it.copy(
                     isLoading = false,
@@ -38,14 +37,10 @@ class StudentSearchAdvisorViewModel : ViewModel() {
             }
 
             if (applicationId != null) {
-                val appResult = repository.getApplicationTeacherStatus(applicationId)
-                if (appResult.isSuccess) {
-                    val (teacherId, teacherStatus) = appResult.getOrDefault(Pair(null, null))
-                    Log.d("TeacherRequestDebug", "Loaded application status: teacherId=$teacherId, teacherStatus=$teacherStatus")
-                    _uiState.update { it.copy(
-                        currentTeacherProfileId = teacherId,
-                        currentTeacherStatus = teacherStatus
-                    )}
+                val requestsResult = repository.getTeacherRequests(applicationId)
+                if (requestsResult.isSuccess) {
+                    val requestMap = requestsResult.getOrDefault(emptyMap())
+                    _uiState.update { it.copy(teacherRequestMap = requestMap) }
                 }
             }
         }
@@ -66,11 +61,11 @@ class StudentSearchAdvisorViewModel : ViewModel() {
             val result = repository.sendOrientationRequest(internshipId, teacherId)
 
             if (result.isSuccess) {
+                val updatedMap = _uiState.value.teacherRequestMap + (teacherId to "pending")
                 _uiState.update { it.copy(
                     isSendingRequest = false,
                     sendingTeacherId = null,
-                    currentTeacherProfileId = teacherId,
-                    currentTeacherStatus = "pending"
+                    teacherRequestMap = updatedMap
                 )}
             } else {
                 _uiState.update { it.copy(

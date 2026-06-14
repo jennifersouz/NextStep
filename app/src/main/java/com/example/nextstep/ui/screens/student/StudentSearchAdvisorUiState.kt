@@ -10,9 +10,7 @@ data class StudentSearchAdvisorUiState(
     val isSendingRequest: Boolean = false,
     val sendingTeacherId: String? = null,
     @StringRes val errorMessageRes: Int? = null,
-    val isRequestSent: Boolean = false,
-    val currentTeacherProfileId: String? = null,
-    val currentTeacherStatus: String? = null
+    val teacherRequestMap: Map<String, String> = emptyMap()
 ) {
     val filteredTeachers: List<TeacherDto>
         get() = if (searchQuery.isBlank()) {
@@ -26,4 +24,8 @@ data class StudentSearchAdvisorUiState(
                 (it.department ?: "").contains(searchQuery, ignoreCase = true)
             }
         }
+
+    fun getTeacherStatus(teacherProfileId: String): String? {
+        return teacherRequestMap[teacherProfileId]
+    }
 }

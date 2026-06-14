@@ -1,9 +1,9 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
-import com.example.nextstep.data.model.SentAdvisorRequestDto
 import com.example.nextstep.data.model.StudentProfileDto
 import com.example.nextstep.data.model.TeacherDto
+import com.example.nextstep.data.model.TeacherRequestDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -69,34 +69,25 @@ class StudentSearchAdvisorRepository {
         }
     }
 
-    suspend fun getApplicationTeacherStatus(
-        applicationId: String
-    ): Result<Pair<String?, String?>> {
+    suspend fun getTeacherRequests(applicationId: String): Result<Map<String, String>> {
         return try {
             val response = supabase
-                .from("applications")
+                .from("teacher_requests")
                 .select {
                     filter {
-                        eq("id", applicationId)
+                        eq("application_id", applicationId)
                     }
                 }
 
-            Log.d("TeacherRequestDebug", "getApplicationTeacherStatus raw response: ${response.data}")
+            val requests = response.decodeList<TeacherRequestDto>()
+            val statusMap = requests
+                .filter { it.status != "cancelled" }
+                .associate { it.teacherProfileId to it.status }
 
-            val resultList = response.decodeList<SentAdvisorRequestDto>()
-
-            Log.d("TeacherRequestDebug", "getApplicationTeacherStatus decoded: $resultList")
-
-            val app = resultList.firstOrNull()
-            if (app != null) {
-                Log.d("TeacherRequestDebug", "Application $applicationId - teacher_profile_id=${app.teacherProfileId}, teacher_status=${app.teacherStatus}")
-                Result.success(Pair(app.teacherProfileId, app.teacherStatus))
-            } else {
-                Log.e("TeacherRequestDebug", "Application $applicationId NOT FOUND")
-                Result.success(Pair(null, null))
-            }
+            Log.d("TeacherRequestDebug", "Teacher requests for $applicationId: $statusMap")
+            Result.success(statusMap)
         } catch (exception: Exception) {
-            Log.e("TeacherRequestDebug", "Error loading application $applicationId", exception)
+            Log.e("TeacherRequestDebug", "Error loading teacher requests", exception)
             Result.failure(exception)
         }
     }
@@ -106,50 +97,51 @@ class StudentSearchAdvisorRepository {
         teacherProfileId: String
     ): Result<Unit> {
         return try {
-            val currentUserId = auth.currentSessionOrNull()?.user?.id
             Log.d("TeacherRequestDebug", "========== SEND ORIENTATION REQUEST ==========")
-            Log.d("TeacherRequestDebug", "Student (auth.uid): $currentUserId")
             Log.d("TeacherRequestDebug", "Application ID (internshipId): $internshipId")
             Log.d("TeacherRequestDebug", "Teacher Profile ID: $teacherProfileId")
 
-            val response = supabase
-                .from("applications")
-                .update(
-                    mapOf(
-                        "teacher_profile_id" to teacherProfileId,
-                        "teacher_status" to "pending"
-                    )
-                ) {
+            // Check if there is already a pending/accepted request for this teacher
+            val existing = supabase
+                .from("teacher_requests")
+                .select {
                     filter {
-                        eq("id", internshipId)
+                        eq("application_id", internshipId)
+                        eq("teacher_profile_id", teacherProfileId)
                     }
-                    select()
                 }
+                .decodeList<TeacherRequestDto>()
 
-            Log.d("TeacherRequestDebug", "sendOrientationRequest raw response: ${response.data}")
-
-            val resultList = response.decodeList<SentAdvisorRequestDto>()
-
-            Log.d("TeacherRequestDebug", "Rows affected: ${resultList.size}")
-            Log.d("TeacherRequestDebug", "sendOrientationRequest decoded: $resultList")
-
-            if (resultList.isEmpty()) {
-                Log.e("TeacherRequestDebug", "UPDATE returned 0 rows — RLS likely blocked the operation!")
-                Log.e("TeacherRequestDebug", "Check RLS policy: missing 'Students can update own applications' on 'applications' table")
-                return Result.failure(Exception("Nenhuma linha foi atualizada. Possível bloqueio RLS."))
+            if (existing.isNotEmpty()) {
+                val currentStatus = existing.first().status
+                if (currentStatus == "pending" || currentStatus == "accepted") {
+                    Log.d("TeacherRequestDebug", "Request already exists with status=$currentStatus — skipping")
+                    return Result.success(Unit)
+                }
+                // Rejected/cancelled → update back to pending
+                supabase
+                    .from("teacher_requests")
+                    .update(mapOf("status" to "pending")) {
+                        filter {
+                            eq("application_id", internshipId)
+                            eq("teacher_profile_id", teacherProfileId)
+                        }
+                    }
+                Log.d("TeacherRequestDebug", "Existing request updated back to pending!")
+            } else {
+                // No existing request → insert new
+                supabase
+                    .from("teacher_requests")
+                    .insert(
+                        mapOf(
+                            "application_id" to internshipId,
+                            "teacher_profile_id" to teacherProfileId,
+                            "status" to "pending"
+                        )
+                    )
+                Log.d("TeacherRequestDebug", "New request inserted into teacher_requests!")
             }
 
-            val updated = resultList.first()
-            val savedTeacherId = updated.teacherProfileId
-            val savedStatus = updated.teacherStatus
-            Log.d("TeacherRequestDebug", "Verified: teacher_profile_id=$savedTeacherId, teacher_status=$savedStatus")
-
-            if (savedTeacherId != teacherProfileId) {
-                Log.e("TeacherRequestDebug", "Mismatch: expected teacher_profile_id=$teacherProfileId, got=$savedTeacherId")
-                return Result.failure(Exception("O orientador não foi gravado corretamente."))
-            }
-
-            Log.d("TeacherRequestDebug", "Request successfully persisted!")
             Log.d("TeacherRequestDebug", "================================================")
             Result.success(Unit)
         } catch (exception: Exception) {

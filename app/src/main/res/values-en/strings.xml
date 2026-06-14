@@ -756,4 +756,8 @@
     <string name="advisor_assigned_at">Assigned on</string>
     <string name="advisor_empty_state_description">When an advisor is assigned, their details will appear here.</string>
     <string name="view_advisor_profile">View advisor profile</string>
+    <string name="send_request">Send Request</string>
+    <string name="request_sent_label">Request Sent</string>
+    <string name="accepted_label">Accepted</string>
+    <string name="sending_label">Sending</string>
 </resources>

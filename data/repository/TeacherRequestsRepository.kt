@@ -2,7 +2,6 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.TeacherOrientationRequestDto
-import com.example.nextstep.data.model.TeacherUpdateApplicationStatusDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -64,13 +63,28 @@ class TeacherRequestsRepository {
                 ?: throw IllegalStateException("Utilizador autenticado não encontrado")
 
             supabase
-                .from("applications")
-                .update(TeacherUpdateApplicationStatusDto(teacherStatus = status)) {
+                .from("teacher_requests")
+                .update(mapOf("status" to status)) {
                     filter {
-                        eq("id", applicationId)
+                        eq("application_id", applicationId)
                         eq("teacher_profile_id", userId)
                     }
                 }
+
+            // Sync the applications table for backwards compatibility
+            if (status == "accepted") {
+                supabase
+                    .from("applications")
+                    .update(
+                        mapOf(
+                            "teacher_profile_id" to userId,
+                            "teacher_status" to "accepted"
+                        )
+                    ) {
+                        filter { eq("id", applicationId) }
+                    }
+            }
+
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e("TeacherRequestsRepo", "Error updating request status for applicationId=$applicationId", exception)
