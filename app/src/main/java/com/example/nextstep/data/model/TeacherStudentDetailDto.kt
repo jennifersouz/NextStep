@@ -45,6 +45,8 @@ data class TeacherStudentDetailDto(
     val cvPath: String? = null,
     @SerialName("motivation_letter_path")
     val motivationLetterPath: String? = null,
+    @SerialName("report_path")
+    val reportPath: String? = null,
     val tasks: List<AdvisorTaskListItemDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
     val evaluation: TeacherEvaluationDto? = null
@@ -70,6 +72,7 @@ data class TeacherStudentDetailNonSerializable(
     val totalTasks: Int = 0,
     val cvPath: String? = null,
     val motivationLetterPath: String? = null,
+    val reportPath: String? = null,
     val tasks: List<ApplicationTaskDto> = emptyList(),
     val documents: List<AdvisorDocumentDto> = emptyList(),
     val evaluation: TeacherEvaluationDto? = null

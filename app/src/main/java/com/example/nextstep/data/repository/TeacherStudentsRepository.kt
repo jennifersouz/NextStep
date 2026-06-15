@@ -87,6 +87,7 @@ class TeacherStudentsRepository {
                     tasks = tasks,
                     cvPath = studentDetail.cvPath,
                     motivationLetterPath = studentDetail.motivationLetterPath,
+                    reportPath = studentDetail.reportPath,
                     documents = studentDetail.documents,
                     evaluation = studentDetail.evaluation?.let { eval ->
                         TeacherEvaluationDto(

@@ -242,6 +242,7 @@
     <string name="motivation_letter_placeholder">MotivationLetter.pdf</string>
     <string name="cv">CV</string>
     <string name="cv_placeholder">CV.pdf</string>
+    <string name="final_report_placeholder">FinalReport.pdf</string>
     <string name="upload">Upload</string>
     <string name="submit_application">Submit application</string>
     <string name="submitting_application">Submitting…</string>
@@ -756,7 +757,6 @@
     <string name="advisor_assigned_at">Assigned on</string>
     <string name="advisor_empty_state_description">When an advisor is assigned, their details will appear here.</string>
     <string name="view_advisor_profile">View advisor profile</string>
-    <string name="send_request">Send Request</string>
     <string name="request_sent_label">Request Sent</string>
     <string name="accepted_label">Accepted</string>
     <string name="sending_label">Sending</string>

@@ -99,6 +99,19 @@ class StudentSubmittedApplicationDetailViewModel : ViewModel() {
         createSignedUrl(path)
     }
 
+    fun openFinalReport() {
+        val path = _uiState.value.application?.reportPath
+
+        if (path.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(
+                documentErrorRes = R.string.student_application_document_missing
+            )
+            return
+        }
+
+        createSignedUrl(path)
+    }
+
     fun consumeDocumentUrl() {
         _uiState.value = _uiState.value.copy(
             documentUrlToOpen = null

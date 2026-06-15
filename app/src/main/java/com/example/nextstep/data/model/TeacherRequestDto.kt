@@ -1,0 +1,18 @@
+package com.example.nextstep.data.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class TeacherRequestDto(
+    val id: String = "",
+    @SerialName("application_id")
+    val applicationId: String = "",
+    @SerialName("teacher_profile_id")
+    val teacherProfileId: String = "",
+    val status: String = "pending",
+    @SerialName("created_at")
+    val createdAt: String? = null,
+    @SerialName("updated_at")
+    val updatedAt: String? = null
+)
