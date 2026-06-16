@@ -59,6 +59,13 @@ import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.ui.components.AuthResponsiveLayout
 import com.example.nextstep.ui.components.isLandscape
 
+// Modelo para as opções de idioma
+data class LanguageOption(
+    val code: String,
+    val displayCode: String,
+    val flag: String
+)
+
 // Função auxiliar para encontrar a Activity de forma segura no Compose
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
@@ -82,14 +89,12 @@ fun LoginScreen(
     val landscape = isLandscape()
 
     if (landscape) {
-        // Landscape: Row com header à esquerda e formulário à direita
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
                 .statusBarsPadding()
         ) {
-            // Seletor de idioma no topo direito
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,7 +127,6 @@ fun LoginScreen(
             )
         }
     } else {
-        // Portrait: layout original em coluna com scroll
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -143,9 +147,7 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(70.dp))
-
             LoginHeader()
-
             Spacer(modifier = Modifier.height(76.dp))
 
             LoginForm(
@@ -167,74 +169,71 @@ private fun LoginLanguageSelector(
     onExpandChange: (Boolean) -> Unit,
     activity: Activity?
 ) {
+    val languages = listOf(
+        LanguageOption(code = "pt", displayCode = "PT", flag = "🇵🇹"),
+        LanguageOption(code = "en", displayCode = "EN", flag = "🇬🇧")
+    )
+
     Box {
         Row(
             modifier = Modifier
                 .clickable { onExpandChange(true) }
                 .background(
-                    color = Color.White,
+                    color = Color(0xFFF3F4F6),
                     shape = RoundedCornerShape(10.dp)
                 )
-                .padding(horizontal = 10.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.Language,
                 contentDescription = stringResource(R.string.change_language),
                 tint = Color.Black,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(20.dp)
             )
 
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandChange(false) },
-            modifier = Modifier.width(70.dp)
+            modifier = Modifier
+                .width(100.dp)
+                .background(Color.White)
         ) {
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text = stringResource(R.string.language_code_pt),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                onClick = {
-                    onExpandChange(false)
-                    LanguageManager.changeLanguage("pt")
-                    activity?.recreate()
-                },
-                modifier = Modifier.height(40.dp),
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
-            )
-
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text = stringResource(R.string.language_code_en),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                onClick = {
-                    onExpandChange(false)
-                    LanguageManager.changeLanguage("en")
-                    activity?.recreate()
-                },
-                modifier = Modifier.height(40.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
-            )
+            languages.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = option.flag, fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = option.displayCode,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black
+                            )
+                        }
+                    },
+                    onClick = {
+                        onExpandChange(false)
+                        LanguageManager.changeLanguage(option.code)
+                        activity?.recreate()
+                    },
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
         }
     }
 }

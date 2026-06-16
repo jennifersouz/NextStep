@@ -64,6 +64,26 @@ class AdvisorStudentDetailViewModel : ViewModel() {
         }
     }
 
+    fun createTask(applicationId: String, title: String) {
+        viewModelScope.launch {
+            tasksRepository.createTask(applicationId, title)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        taskCreationMessage = "Tarefa criada com sucesso."
+                    )
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        taskCreationMessage = "Erro ao criar tarefa: ${exception.message}"
+                    )
+                }
+        }
+    }
+
+    fun clearTaskCreationMessage() {
+        _uiState.value = _uiState.value.copy(taskCreationMessage = null)
+    }
+
     fun refresh(applicationId: String) {
         loadDetail(applicationId)
     }

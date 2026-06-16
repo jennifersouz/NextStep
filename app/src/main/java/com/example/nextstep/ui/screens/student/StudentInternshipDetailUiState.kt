@@ -15,5 +15,6 @@ data class StudentInternshipDetailUiState(
     val reportFileName: String? = null,
     val isUploadingReport: Boolean = false,
     val reportErrorMessage: String? = null,
-    val reportSuccessMessage: String? = null
+    val reportSuccessMessage: String? = null,
+    val companyEvaluationGrade: String? = null
 )

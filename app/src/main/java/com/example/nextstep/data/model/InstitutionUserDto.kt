@@ -28,12 +28,6 @@ data class InstitutionUserDto(
     @SerialName("invite_status")
     val inviteStatus: String? = null,
 
-    @SerialName("student_profile_id")
-    val studentProfileId: String? = null,
-
-    @SerialName("teacher_profile_id")
-    val teacherProfileId: String? = null,
-
     @SerialName("student_number")
     val studentNumber: String? = null,
 
@@ -45,11 +39,5 @@ data class InstitutionUserDto(
     val department: String? = null,
 
     @SerialName("created_at")
-    val createdAt: String? = null,
-
-    @SerialName("student_institution_archived_at")
-    val studentInstitutionArchivedAt: String? = null,
-
-    @SerialName("teacher_institution_archived_at")
-    val teacherInstitutionArchivedAt: String? = null
+    val createdAt: String? = null
 )

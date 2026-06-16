@@ -240,10 +240,7 @@ private fun InternshipCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        AdvisorAvatar(modifier = Modifier.size(28.dp))
-                        AdvisorAvatar(modifier = Modifier.size(28.dp).padding(start = 18.dp))
-                    }
+                    AdvisorAvatar(modifier = Modifier.size(28.dp))
 
                     Spacer(modifier = Modifier.width(12.dp))
 

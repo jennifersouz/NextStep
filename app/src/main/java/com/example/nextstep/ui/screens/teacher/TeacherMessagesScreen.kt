@@ -170,8 +170,8 @@ fun TeacherMessagesScreen(
                                 onClick = {
                                     // Pass raw strings; encoding is handled in Routes.applicationChat
                                     onChatClick(
-                                        conversation.studentProfileId,
                                         conversation.applicationId,
+                                        conversation.studentProfileId,
                                         conversation.studentName,
                                         conversation.offerTitle ?: ""
                                     )

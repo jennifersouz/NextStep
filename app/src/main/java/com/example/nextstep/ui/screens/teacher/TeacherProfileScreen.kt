@@ -133,7 +133,7 @@ private fun TeacherProfileContent(
         onLogoutClick = onLogoutRequest,
         accountOptions = {
             LanguageOptionsSection(
-                selectedLanguage = "pt",
+                selectedLanguage = LanguageManager.currentLanguage,
                 onLanguageSelected = { languageCode ->
                     LanguageManager.changeLanguage(languageCode)
                 }

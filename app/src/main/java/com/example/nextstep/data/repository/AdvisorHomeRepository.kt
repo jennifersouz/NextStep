@@ -6,6 +6,8 @@ import com.example.nextstep.data.model.AdvisorActivityDto
 import com.example.nextstep.data.model.AdvisorAssignedStudentDto
 import com.example.nextstep.data.model.AdvisorSummaryDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
+import com.example.nextstep.ui.utils.AppStatus
+import com.example.nextstep.ui.utils.TaskStatus
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -16,6 +18,7 @@ class AdvisorHomeRepository {
     private val auth = supabase.auth
     private val profileRepository = AdvisorProfileRepository()
     private val assignedAppsRepository = AdvisorAssignedApplicationsRepository()
+    private val tasksRepository = AdvisorTasksRepository()
 
     suspend fun getAdvisorName(): Result<String> {
         return profileRepository.getAdvisorProfile().map { profile ->
@@ -30,14 +33,19 @@ class AdvisorHomeRepository {
 
             val assignedStudentsCount = applications.size
             val activeInternshipsCount = applications.count { app ->
-                app.status == "accepted" || app.status == "active"
+                app.status == AppStatus.ACCEPTED || app.status == AppStatus.ACTIVE
+            }
+
+            val allTasks = tasksRepository.getAdvisorTasks().getOrDefault(emptyList())
+            val pendingTasksCount = allTasks.count { task ->
+                task.status.lowercase() == TaskStatus.PENDING
             }
 
             Result.success(
                 AdvisorSummaryDto(
                     assignedStudentsCount = assignedStudentsCount,
                     activeInternshipsCount = activeInternshipsCount,
-                    pendingTasksCount = 0
+                    pendingTasksCount = pendingTasksCount
                 )
             )
         } catch (exception: Exception) {

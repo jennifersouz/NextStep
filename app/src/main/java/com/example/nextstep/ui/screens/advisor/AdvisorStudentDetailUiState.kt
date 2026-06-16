@@ -28,6 +28,9 @@ data class AdvisorStudentDetailUiState(
     val evaluationSuccessMessage: String? = null,
     val evaluationErrorMessage: String? = null,
 
+    // ── Criação de tarefas ──────────────────────────
+    val taskCreationMessage: String? = null,
+
     // ── Acções de estágio ──────────────────────────────
     val isActingOnInternship: Boolean = false,
     val internshipActionSuccess: String? = null,

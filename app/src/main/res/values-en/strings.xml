@@ -43,6 +43,7 @@
 
     <string name="name_required">Name *</string>
     <string name="name_placeholder">Enter your name</string>
+    <string name="student_name_label">Name</string>
     <string name="last_name_required">Last Name *</string>
     <string name="last_name_placeholder">Enter your last name</string>
     <string name="student_number_required">Student number *</string>
@@ -355,7 +356,7 @@
     <string name="logout_confirmation_title">Log out?</string>
     <string name="logout_confirmation_message">Are you sure you want to log out of your account?</string>
     <string name="logout_confirm">Log out</string>
-    <string name="cancel">Cancelar</string>
+    <string name="cancel">Cancel</string>
     <string name="filter_offers_title">Filter offers</string>
     <string name="clear_filters">Clear filters</string>
     <string name="filter_all">All</string>
@@ -490,6 +491,9 @@
     <string name="advisor_assigned_notification_title">Advisor assigned</string>
     <string name="advisor_assigned_notification_message">An advisor has been assigned to your application.</string>
 
+    <string name="assigned_teacher">Assigned teacher</string>
+    <string name="teacher_not_assigned">Teacher not assigned.</string>
+
     <!-- Notification Types (RF81 + RF82) -->
     <string name="notification_type_message">New message</string>
     <string name="notification_type_evaluation">New evaluation available</string>
@@ -609,7 +613,7 @@
     <string name="no_messages_description">Send the first message about this internship.</string>
 
     <!-- Advisor Tasks -->
-    <string name="tasks_subtitle">Track your students\'  activities.</string>
+    <string name="tasks_subtitle">Track your students\' activities.</string>
     <string name="new_task">New task</string>
     <string name="status_active">Active</string>
     <string name="status_in_progress">In progress</string>
@@ -630,6 +634,7 @@
     <string name="new_message_from_student">New message from student</string>
 
     <!-- Teacher Requests -->
+    <string name="requests">Requests</string>
     <string name="search_requests_placeholder">Search student or internship</string>
     <string name="teacher_filter_all">All</string>
     <string name="teacher_filter_pending">Pending</string>
@@ -756,8 +761,84 @@
     <string name="advisor_assigned_at">Assigned on</string>
     <string name="advisor_empty_state_description">When an advisor is assigned, their details will appear here.</string>
     <string name="view_advisor_profile">View advisor profile</string>
-    <string name="send_request">Send Request</string>
     <string name="request_sent_label">Request Sent</string>
     <string name="accepted_label">Accepted</string>
     <string name="sending_label">Sending</string>
+
+    <!-- Missing PT strings translated to EN -->
+    <string name="academic_year_label">Academic year</string>
+    <string name="academic_year_suffix">th year</string>
+    <string name="active_checkbox_label">Active</string>
+    <string name="company_intern_filter_all">All</string>
+    <string name="company_intern_filter_completed">Completed</string>
+    <string name="company_intern_filter_in_progress">In progress</string>
+    <string name="company_intern_filter_pending">Pending</string>
+    <string name="company_intern_evaluation_empty">The advisor evaluation is not yet available.</string>
+    <string name="evaluation_not_available">Evaluation not yet available.</string>
+
+    <string name="company_intern_evaluation_empty_subtitle">The advisor has not yet submitted the evaluation.</string>
+    <string name="company_evaluation_title">Company evaluation</string>
+    <string name="company_evaluation_grade_label">Final grade (0-20)</string>
+    <string name="company_evaluation_feedback_label">Qualitative feedback</string>
+    <string name="company_evaluation_recommendation_label">Final recommendation</string>
+    <string name="company_evaluation_save_button">Save evaluation</string>
+    <string name="company_evaluation_update_button">Update evaluation</string>
+    <string name="company_evaluation_save_success">Evaluation saved successfully.</string>
+    <string name="company_evaluation_save_error">Error saving evaluation. Try again.</string>
+    <string name="company_evaluation_load_error">Error loading evaluation.</string>
+    <string name="company_evaluation_invalid_grade">Enter a valid grade between 0 and 20.</string>
+    <string name="company_evaluation_empty_feedback">Write a qualitative feedback.</string>
+    <string name="company_evaluation_submitted">Evaluation submitted</string>
+    <string name="company_evaluation_warning_active">This evaluation should be completed at the end of the internship.</string>
+    <string name="company_evaluation_no_permission">You do not have permission to evaluate this student.</string>
+    <string name="company_evaluation_not_in_internship">This student is not currently in an internship.</string>
+    <string name="company_intern_tab_summary">Summary</string>
+    <string name="company_intern_tab_activities">Activities</string>
+    <string name="company_intern_tab_evaluation">Evaluation</string>
+    <string name="company_intern_activities_title">Activities</string>
+    <string name="company_intern_activities_empty">No activities registered yet.</string>
+    <string name="company_intern_activities_empty_subtitle">Student activities will appear here.</string>
+    <string name="company_intern_activities_load_error">Error loading activities.</string>
+    <string name="company_intern_completed_at">Completed at</string>
+    <string name="company_intern_due_date">Due date</string>
+    <string name="company_intern_evaluation_date">Evaluation date</string>
+    <string name="company_intern_evaluation_feedback">Qualitative feedback</string>
+    <string name="company_intern_evaluation_grade">Grade</string>
+    <string name="company_intern_evaluation_improvements">Areas for improvement</string>
+    <string name="company_intern_evaluation_load_error">Error loading advisor evaluation.</string>
+    <string name="company_intern_evaluation_status">Evaluation status</string>
+    <string name="company_intern_evaluation_strengths">Strengths</string>
+    <string name="company_intern_evaluation_title">Advisor Evaluation</string>
+    <string name="company_intern_profile_academic_data">Academic Data</string>
+    <string name="company_intern_profile_application_date">Application date</string>
+    <string name="company_intern_profile_internship">Internship</string>
+    <string name="company_intern_profile_load_error">Error loading student profile.</string>
+    <string name="company_intern_profile_not_in_internship">Student is not in an internship.</string>
+    <string name="company_intern_profile_permission_denied">You do not have permission to view this profile.</string>
+    <string name="company_intern_profile_personal_data">Personal Data</string>
+    <string name="company_intern_status_updated_error">Error updating status.</string>
+    <string name="company_intern_status_updated_success">Status updated successfully.</string>
+    <string name="company_intern_status_toggle_title">Internship status</string>
+    <string name="mark_as_inactive">Mark as inactive</string>
+    <string name="mark_as_active">Mark as active</string>
+    <string name="internship_completed">Internship completed</string>
+    <string name="confirm_mark_inactive_title">Mark as inactive</string>
+    <string name="confirm_mark_inactive_message">Are you sure you want to mark this student as inactive?</string>
+    <string name="confirm_mark_active_title">Mark as active</string>
+    <string name="confirm_mark_active_message">Are you sure you want to mark this student as active?</string>
+
+    <!-- Missing strings for StudentInternshipDetailScreen -->
+    <string name="tasks_title">Tasks</string>
+    <string name="no_tasks_assigned">No tasks assigned</string>
+    <string name="add_task">Add task</string>
+    <string name="final_report">Final report</string>
+<string name="no_report_attached">No report attached</string>
+    <string name="attach_report">Attach Report</string>
+    <string name="replace_report">Replace Report</string>
+    <string name="supervision_section_title">Supervision</string>
+    <string name="supervisor_label">Advisor</string>
+    <string name="teacher_label">Teacher</string>
+    <string name="supervisor_not_assigned">Advisor not assigned.</string>
+    <string name="teacher_not_assigned_message">Teacher not assigned.</string>
+    <string name="search_advisor">Find advisor</string>
 </resources>

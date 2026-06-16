@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -200,6 +202,10 @@ fun StudentApplicationDetailContent(
             advisorDepartment = application.advisorDepartment
         )
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        TeacherSection(application = application)
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
@@ -361,6 +367,83 @@ fun StudentApplicationDetailContent(
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+fun TeacherSection(
+    application: StudentSubmittedApplicationDto
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.assigned_teacher),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        val isTeacherAssigned = !application.teacherProfileId.isNullOrBlank()
+                && application.teacherStatus == "accepted"
+
+        if (isTeacherAssigned) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F8F8)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = application.teacherName ?: stringResource(R.string.default_not_available),
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    if (!application.teacherDepartment.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = application.institutionName ?: "",
+                            color = Color(0xFF777777),
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    if (!application.teacherEmail.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = application.teacherEmail,
+                            color = Color(0xFF777777),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
+        } else {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F8F8)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.teacher_not_assigned),
+                    color = Color(0xFF777777),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     }
 }
 

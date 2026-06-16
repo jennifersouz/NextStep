@@ -25,5 +25,9 @@ data class TeacherStudentDto(
     @SerialName("has_pending_evaluation")
     val hasPendingEvaluation: Boolean = false,
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+    @SerialName("last_message")
+    val lastMessage: String? = null,
+    @SerialName("last_message_at")
+    val lastMessageAt: String? = null
 )

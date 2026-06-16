@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.repository.AdvisorTasksRepository
 import com.example.nextstep.data.repository.ApplicationsRepository
+import com.example.nextstep.data.repository.CompanyEvaluationRepository
 import com.example.nextstep.data.repository.StudentApplicationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +19,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
     private val applicationRepository = StudentApplicationsRepository()
     private val applicationsRepository = ApplicationsRepository()
     private val tasksRepository = AdvisorTasksRepository()
+    private val evaluationRepository = CompanyEvaluationRepository()
 
     private val _uiState = MutableStateFlow(StudentInternshipDetailUiState())
     val uiState: StateFlow<StudentInternshipDetailUiState> = _uiState.asStateFlow()

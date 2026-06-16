@@ -1,6 +1,5 @@
 package com.example.nextstep.ui.screens.chat
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.ApplicationMessageDto
-import com.example.nextstep.ui.utils.DateFormatUtils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -104,8 +102,6 @@ fun ApplicationChatScreen(
         ChatHeader(
             participantName = state.participantName.takeIf { it.isNotBlank() }
                 ?: stringResource(R.string.chat_title),
-            subtitle = state.internshipTitle.takeIf { it.isNotBlank() } 
-                ?: stringResource(R.string.internship_chat_subtitle),
             onBackClick = onBackClick
         )
 
@@ -254,17 +250,49 @@ private fun formatTime(timestamp: String): String {
     }
 }
 
+/**
+ * Formata um nome que pode vir concatenado (ex: "AnabelaCastro" -> "Anabela Castro").
+ *
+ * Regras:
+ * 1. Se o nome já contiver espaços, retorna normalizado.
+ * 2. Se tiver transições minúscula->maiúscula, divide pelas maiúsculas (CamelCase).
+ * 3. Se for composto apenas por letras e tiver mais de 8 caracteres sem espaços, tenta separar ao meio.
+ * 4. Fallback: retorna o nome original capitalizado.
+ */
+private fun formatName(name: String): String {
+    if (name.isBlank()) return name
+
+    val trimmed = name.trim()
+
+    // Se já tiver espaços, apenas normaliza espaços
+    if (trimmed.contains(" ")) {
+        return trimmed.replace(Regex("\\s+"), " ").trim()
+    }
+
+    // Tenta detetar padrão CamelCase: letra minúscula seguida de maiúscula
+    // Exemplo: "AnabelaCastro" -> "Anabela Castro"
+    val withSpaces = trimmed.replace(Regex("([a-záàâãéèêíïóôõöúç])([A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ])")) { match ->
+        "${match.groupValues[1]} ${match.groupValues[2]}"
+    }
+
+    if (withSpaces.contains(" ") && withSpaces.length > trimmed.length) {
+        return withSpaces
+    }
+
+    // Fallback: retorna o nome original capitalizado
+    return trimmed.replaceFirstChar { it.uppercase() }
+}
+
 @Composable
 private fun ChatHeader(
     participantName: String,
-    subtitle: String,
     onBackClick: () -> Unit
 ) {
-    // Normalizar nome para exibição (remover + e espaços duplos)
     val displayName = participantName
         .replace("+", " ")
         .replace(Regex("\\s+"), " ")
         .trim()
+        .let { formatName(it) }
 
     Column {
         Surface(
@@ -309,25 +337,15 @@ private fun ChatHeader(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Column(
+                Text(
+                    text = displayName,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = displayName,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = subtitle,
-                        fontSize = 13.sp,
-                        color = TextSecondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                )
             }
         }
 

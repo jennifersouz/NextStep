@@ -3,10 +3,11 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.ApplicationDto
 import com.example.nextstep.data.model.CreateApplicationDto
-import com.example.nextstep.data.model.UpdateApplicationReportDto
 import com.example.nextstep.data.model.StudentSubmittedApplicationDto
+import com.example.nextstep.data.model.UpdateApplicationReportDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
 
@@ -133,16 +134,19 @@ class ApplicationsRepository {
                 upsert = true
             }
 
+            // Update report_path in the database
             supabase.from("applications").update(
                 UpdateApplicationReportDto(reportPath = reportPath)
             ) {
                 filter {
                     eq("id", application.id)
-                    eq("student_profile_id", studentProfileId)
                 }
             }
 
             Result.success(Unit)
+        } catch (exception: RestException) {
+            Log.e("ApplicationsRepository", "Erro Rest ao anexar relatório", exception)
+            Result.failure(exception)
         } catch (exception: Exception) {
             Log.e("ApplicationsRepository", "Erro ao anexar relatório", exception)
             Result.failure(exception)

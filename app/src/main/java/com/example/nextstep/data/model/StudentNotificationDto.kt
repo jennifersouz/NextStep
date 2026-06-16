@@ -39,11 +39,25 @@ data class StudentNotificationDto(
     val companyName: String? = null,
 
     @SerialName("advisor_name")
-    val advisorName: String? = null
+    val advisorName: String? = null,
+
+    @SerialName("advisor_first_name")
+    val advisorFirstName: String? = null,
+
+    @SerialName("advisor_last_name")
+    val advisorLastName: String? = null
 ) {
     val isUnread: Boolean
         get() = !(isSeen ?: studentStatusSeen)
 
     val sortDate: String
         get() = createdAt ?: statusUpdatedAt.orEmpty()
+
+    val formattedAdvisorName: String
+        get() = listOfNotNull(advisorFirstName, advisorLastName)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+            .takeIf { it.isNotBlank() }
+            ?: advisorName.takeIf { !it.isNullOrBlank() }
+            ?: ""
 }

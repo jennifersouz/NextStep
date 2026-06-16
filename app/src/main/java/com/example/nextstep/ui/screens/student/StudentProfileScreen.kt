@@ -341,7 +341,9 @@ fun StudentProfileErrorState(
             color = Color.Black,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .clickable { onRetryClick() }
+                .padding(8.dp)
         )
     }
 }

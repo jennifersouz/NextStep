@@ -55,6 +55,12 @@ data class StudentSubmittedApplicationDto(
     @SerialName("advisor_name")
     val advisorName: String? = null,
 
+    @SerialName("advisor_first_name")
+    val advisorFirstName: String? = null,
+
+    @SerialName("advisor_last_name")
+    val advisorLastName: String? = null,
+
     @SerialName("advisor_email")
     val advisorEmail: String? = null,
 
@@ -79,6 +85,12 @@ data class StudentSubmittedApplicationDto(
     @SerialName("teacher_department")
     val teacherDepartment: String? = null,
 
+    @SerialName("teacher_first_name")
+    val teacherFirstName: String? = null,
+
+    @SerialName("teacher_last_name")
+    val teacherLastName: String? = null,
+
     @SerialName("institution_name")
     val institutionName: String? = null,
 
@@ -90,4 +102,20 @@ data class StudentSubmittedApplicationDto(
 ) {
     val studentFullName: String
         get() = "$firstName $lastName"
+
+    val formattedAdvisorName: String
+        get() = listOfNotNull(advisorFirstName, advisorLastName)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+            .takeIf { it.isNotBlank() }
+            ?: advisorName.takeIf { !it.isNullOrBlank() }
+            ?: "Orientador"
+
+    val formattedTeacherName: String
+        get() = listOfNotNull(teacherFirstName, teacherLastName)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+            .takeIf { it.isNotBlank() }
+            ?: teacherName.takeIf { !it.isNullOrBlank() }
+            ?: "Docente"
 }

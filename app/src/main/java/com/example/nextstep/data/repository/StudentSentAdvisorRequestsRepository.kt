@@ -1,8 +1,11 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.ApplicationIdDto
+import com.example.nextstep.data.model.ProfileNameDto
 import com.example.nextstep.data.model.SentAdvisorRequestDto
 import com.example.nextstep.data.model.TeacherRequestDto
+import com.example.nextstep.data.model.TeacherRequestStatusUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
 
@@ -19,9 +22,9 @@ class StudentSentAdvisorRequestsRepository {
                         eq("student_profile_id", studentProfileId)
                     }
                 }
-                .decodeList<Map<String, String>>()
+                .decodeList<ApplicationIdDto>()
 
-            val appIds = appResponse.mapNotNull { it["id"] }
+            val appIds = appResponse.map { it.id }
 
             if (appIds.isEmpty()) {
                 return Result.success(emptyList())
@@ -39,7 +42,10 @@ class StudentSentAdvisorRequestsRepository {
             val nonCancelled = teacherRequests.filter { it.status != "cancelled" }
 
             val enriched = nonCancelled.map { req ->
-                val teacherName = fetchTeacherName(req.teacherProfileId) ?: "Orientador"
+                val teacherName = req.teacherProfileId
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { fetchTeacherName(it) }
+                    ?: "Orientador não atribuído"
                 SentAdvisorRequestDto(
                     id = req.id,
                     studentProfileId = studentProfileId,
@@ -66,11 +72,11 @@ class StudentSentAdvisorRequestsRepository {
                         eq("id", profileId)
                     }
                 }
-                .decodeSingleOrNull<Map<String, String>>()
+                .decodeSingleOrNull<ProfileNameDto>()
 
             if (response != null) {
-                val first = response["first_name"] ?: ""
-                val last = response["last_name"] ?: ""
+                val first = response.firstName ?: ""
+                val last = response.lastName ?: ""
                 "$first $last".trim().ifBlank { null }
             } else {
                 null
@@ -85,7 +91,7 @@ class StudentSentAdvisorRequestsRepository {
             supabase
                 .from("teacher_requests")
                 .update(
-                    mapOf("status" to "cancelled")
+                    TeacherRequestStatusUpdateDto(status = "cancelled")
                 ) {
                     filter {
                         eq("id", requestId)

@@ -51,19 +51,6 @@ class TeacherEditProfileViewModel : ViewModel() {
         )
     }
     
-    fun onFirstNameChange(firstName: String) {
-        _uiState.value = _uiState.value.copy(
-            firstName = firstName,
-            nameError = null
-        )
-    }
-    
-    fun onLastNameChange(lastName: String) {
-        _uiState.value = _uiState.value.copy(
-            lastName = lastName,
-            nameError = null
-        )
-    }
 
     fun onPhoneChange(phone: String) {
         _uiState.value = _uiState.value.copy(phone = phone)

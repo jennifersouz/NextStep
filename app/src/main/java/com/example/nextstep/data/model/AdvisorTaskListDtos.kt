@@ -33,11 +33,6 @@ data class UpdateApplicationTaskStatusDto(
 )
 
 @Serializable
-data class UpdateApplicationReportDto(
-    @SerialName("report_path") val reportPath: String
-)
-
-@Serializable
 data class AdvisorConversationDto(
     @SerialName("application_id") val applicationId: String,
     @SerialName("student_name") val studentName: String,

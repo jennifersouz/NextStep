@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun CompanyOfferDetailScreen(
@@ -288,7 +289,7 @@ private fun CompanyOfferDetailContent(
                     CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
                     CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
                     CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
-                    CompanyOfferInfo(title = stringResource(R.string.work_mode), value = offer.workMode)
+                    CompanyOfferInfo(title = stringResource(R.string.work_mode), value = Formatters.formatWorkMode(offer.workMode))
                     CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
                     CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
 
@@ -352,7 +353,7 @@ private fun CompanyOfferDetailContent(
                 CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
                 CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
                 CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
-                CompanyOfferInfo(title = stringResource(R.string.work_mode), value = offer.workMode)
+                CompanyOfferInfo(title = stringResource(R.string.work_mode), value = Formatters.formatWorkMode(offer.workMode))
                 CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
                 CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
 

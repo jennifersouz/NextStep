@@ -22,6 +22,7 @@ fun AdvisorDashboardScreen(
     onChatClick: (String, String) -> Unit = { _, _ -> },
     onEditProfileClick: () -> Unit = {},
     onStudentClick: (String) -> Unit = {},
+    onNewTaskClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     notificationsViewModel: AdvisorNotificationsViewModel = viewModel()
 ) {
@@ -57,7 +58,8 @@ fun AdvisorDashboardScreen(
                 )
 
                 AdvisorTab.TASKS -> AdvisorTasksContent(
-                    onTaskClick = onStudentClick
+                    onTaskClick = onStudentClick,
+                    onNewTaskClick = onNewTaskClick
                 )
 
                 AdvisorTab.MESSAGES -> AdvisorMessagesContent(

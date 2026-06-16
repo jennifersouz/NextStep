@@ -3,7 +3,9 @@ package com.example.nextstep.data.repository
 import android.util.Log
 import com.example.nextstep.data.model.StudentProfileDto
 import com.example.nextstep.data.model.TeacherDto
+import com.example.nextstep.data.model.TeacherRequestCreateDto
 import com.example.nextstep.data.model.TeacherRequestDto
+import com.example.nextstep.data.model.TeacherRequestStatusUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -82,7 +84,17 @@ class StudentSearchAdvisorRepository {
             val requests = response.decodeList<TeacherRequestDto>()
             val statusMap = requests
                 .filter { it.status != "cancelled" }
-                .associate { it.teacherProfileId to it.status }
+                .mapNotNull { req ->
+                    val teacherId = req.teacherProfileId?.takeIf { it.isNotBlank() }
+                    val status = req.status?.takeIf { it.isNotBlank() } ?: "pending"
+
+                    if (teacherId == null) {
+                        null
+                    } else {
+                        teacherId to status
+                    }
+                }
+                .toMap()
 
             Log.d("TeacherRequestDebug", "Teacher requests for $applicationId: $statusMap")
             Result.success(statusMap)
@@ -121,7 +133,9 @@ class StudentSearchAdvisorRepository {
                 // Rejected/cancelled → update back to pending
                 supabase
                     .from("teacher_requests")
-                    .update(mapOf("status" to "pending")) {
+                    .update(
+                        TeacherRequestStatusUpdateDto(status = "pending")
+                    ) {
                         filter {
                             eq("application_id", internshipId)
                             eq("teacher_profile_id", teacherProfileId)
@@ -133,10 +147,10 @@ class StudentSearchAdvisorRepository {
                 supabase
                     .from("teacher_requests")
                     .insert(
-                        mapOf(
-                            "application_id" to internshipId,
-                            "teacher_profile_id" to teacherProfileId,
-                            "status" to "pending"
+                        TeacherRequestCreateDto(
+                            applicationId = internshipId,
+                            teacherProfileId = teacherProfileId,
+                            status = "pending"
                         )
                     )
                 Log.d("TeacherRequestDebug", "New request inserted into teacher_requests!")

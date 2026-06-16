@@ -6,6 +6,28 @@ import androidx.compose.ui.res.stringResource
 import com.example.nextstep.R
 
 /**
+ * Application/Internship status constants used throughout the UI.
+ * These match the values stored in the database (always English lowercase).
+ */
+object AppStatus {
+    const val PENDING = "pending"
+    const val ACCEPTED = "accepted"
+    const val REJECTED = "rejected"
+    const val ACTIVE = "active"
+    const val SUBMITTED = "submitted"
+    const val CANCELLED = "cancelled"
+}
+
+/**
+ * Task status constants used throughout the UI.
+ */
+object TaskStatus {
+    const val PENDING = "pending"
+    const val IN_PROGRESS = "in_progress"
+    const val COMPLETED = "completed"
+}
+
+/**
  * Translates a technical application/internship status value from the database
  * into a localized display string for the current locale.
  *

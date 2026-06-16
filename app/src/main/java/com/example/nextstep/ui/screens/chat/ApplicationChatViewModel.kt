@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
 import com.example.nextstep.data.repository.ApplicationChatRepository
 import com.example.nextstep.data.repository.AdvisorAssignedApplicationsRepository
+import com.example.nextstep.data.repository.StudentApplicationsRepository
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import com.example.nextstep.data.model.ApplicationMessageDto
 import io.github.jan.supabase.auth.auth
@@ -19,6 +20,7 @@ class ApplicationChatViewModel : ViewModel() {
 
     private val repository = ApplicationChatRepository()
     private val assignedAppsRepository = AdvisorAssignedApplicationsRepository()
+    private val studentAppsRepository = StudentApplicationsRepository()
     private val supabase = SupabaseClientProvider.client
     private val auth = supabase.auth
 
@@ -60,14 +62,14 @@ class ApplicationChatViewModel : ViewModel() {
             currentApplicationId = applicationId
             _uiState.value = _uiState.value.copy(
                 messages = emptyList(),
-                participantName = if (normalizedName == "Chat" || normalizedName == "Aluno") "" else normalizedName,
+                participantName = if (normalizedName == "Chat" || normalizedName == "Aluno" || normalizedName == "Participante") "" else normalizedName,
                 internshipTitle = normalizedOffer,
                 chatType = chatType,
                 isLoading = true,
                 errorMessageRes = null
             )
         } else {
-            if (normalizedName.isNotBlank() && normalizedName != "Chat" && normalizedName != "Aluno") {
+            if (normalizedName.isNotBlank() && normalizedName != "Chat" && normalizedName != "Aluno" && normalizedName != "Participante") {
                 if (_uiState.value.participantName != normalizedName) {
                     _uiState.value = _uiState.value.copy(participantName = normalizedName)
                 }
@@ -104,7 +106,7 @@ class ApplicationChatViewModel : ViewModel() {
 
     private fun normalizeName(name: String?): String {
         if (name.isNullOrBlank()) return ""
-        return try {
+        val decoded = try {
             URLDecoder.decode(name, "UTF-8")
                 .replace("+", " ")
                 .replace(Regex("\\s+"), " ")
@@ -112,22 +114,58 @@ class ApplicationChatViewModel : ViewModel() {
         } catch (e: Exception) {
             name.replace("+", " ").trim()
         }
+        return formatName(decoded)
+    }
+
+    /**
+     * Formata um nome que pode vir concatenado (ex: "AnabelaCastro" -> "Anabela Castro").
+     *
+     * Regras:
+     * 1. Se o nome já contiver espaços, retorna normalizado.
+     * 2. Se tiver transições minúscula->maiúscula, divide pelas maiúsculas (CamelCase).
+     * 3. Fallback: retorna o nome original capitalizado.
+     */
+    private fun formatName(name: String): String {
+        if (name.isBlank()) return name
+        // Se já tem espaços, retorna como está
+        if (name.contains(" ")) return name
+        // Deteta padrão CamelCase: letra minúscula seguida de maiúscula (ex: "AnabelaCastro")
+        val withSpaces = name.replace(Regex("([a-záàâãéèêíïóôõöúç])([A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ])")) { match ->
+            "${match.groupValues[1]} ${match.groupValues[2]}"
+        }
+        if (withSpaces.contains(" ") && withSpaces.length > name.length) {
+            return withSpaces
+        }
+        return name.replaceFirstChar { it.uppercase() }
     }
 
     private fun fetchParticipantDetails(applicationId: String, chatType: String = "advisor") {
         viewModelScope.launch {
             try {
-                if (chatType == "advisor") {
-                    assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
-                        val app = apps.find { it.applicationId == applicationId }
-                        if (app != null) {
-                            val studentName = app.studentFullName
-                            if (studentName.isNotBlank()) {
-                                _uiState.value = _uiState.value.copy(
-                                    participantName = normalizeName(studentName)
-                                )
-                            }
+                // Tenta carregar como orientador (vendo aluno)
+                assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
+                    val app = apps.find { it.applicationId == applicationId }
+                    if (app != null) {
+                        val studentName = app.studentFullName
+                        if (studentName.isNotBlank()) {
+                            _uiState.value = _uiState.value.copy(
+                                participantName = normalizeName(studentName)
+                            )
+                            return@launch
                         }
+                    }
+                }
+
+                // Tenta carregar como aluno (vendo orientador ou docente)
+                studentAppsRepository.getSubmittedApplicationById(applicationId).onSuccess { app ->
+                    val formattedName = when (chatType) {
+                        "teacher" -> app.formattedTeacherName
+                        else -> app.formattedAdvisorName
+                    }
+                    if (formattedName.isNotBlank() && formattedName != "Orientador" && formattedName != "Docente") {
+                        _uiState.value = _uiState.value.copy(
+                            participantName = formattedName
+                        )
                     }
                 }
             } catch (e: Exception) {
@@ -155,7 +193,7 @@ class ApplicationChatViewModel : ViewModel() {
                 val messages = result.getOrDefault(emptyList())
                 
                 val currentName = _uiState.value.participantName
-                val finalName = if (currentName.isBlank() || currentName == "Chat" || currentName == "Aluno") {
+                val finalName = if (currentName.isBlank() || currentName == "Chat" || currentName == "Aluno" || currentName == "Participante") {
                     extractParticipantName(messages)
                 } else {
                     currentName
@@ -184,7 +222,7 @@ class ApplicationChatViewModel : ViewModel() {
         val currentUserEmail = currentUser?.email
         
         if (currentUserId.isBlank() && (currentUserEmail == null || currentUserEmail.isBlank())) {
-            return "Chat"
+            return "Participante"
         }
 
         // Tenta encontrar a primeira mensagem enviada por OUTRA pessoa
@@ -205,7 +243,7 @@ class ApplicationChatViewModel : ViewModel() {
             }
         }
 
-        if (emailToParse.isNullOrBlank()) return "Aluno"
+        if (emailToParse.isNullOrBlank()) return "Participante"
 
         // Formata o email (ex: joana.silva@email.com -> Joana Silva)
         return emailToParse.substringBefore("@")
@@ -216,7 +254,7 @@ class ApplicationChatViewModel : ViewModel() {
             .filter { it.isNotBlank() }
             .joinToString(" ") { word -> word.replaceFirstChar { c -> c.uppercase() } }
             .takeIf { it.isNotBlank() }
-            ?: "Aluno"
+            ?: "Participante"
     }
 
     fun onMessageChanged(text: String) {

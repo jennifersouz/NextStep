@@ -49,10 +49,12 @@ fun AdvisorStudentsContent(
 
 @Composable
 fun AdvisorTasksContent(
-    onTaskClick: (String) -> Unit = {}
+    onTaskClick: (String) -> Unit = {},
+    onNewTaskClick: () -> Unit = {}
 ) {
     AdvisorTasksScreen(
-        onTaskClick = { task -> onTaskClick(task.applicationId) }
+        onTaskClick = { task -> onTaskClick(task.applicationId) },
+        onNewTaskClick = onNewTaskClick
     )
 }
 
@@ -61,31 +63,6 @@ fun AdvisorMessagesContent(
     onChatClick: (String, String) -> Unit = { _, _ -> }
 ) {
     AdvisorMessagesScreen(onChatClick = onChatClick)
-}
-
-@Composable
-fun AdvisorProfileContent() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.profile),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.advisor_profile_placeholder),
-            fontSize = 15.sp,
-            color = Color(0xFF777777)
-        )
-    }
 }
 
 @Composable

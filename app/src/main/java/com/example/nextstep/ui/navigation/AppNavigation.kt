@@ -53,9 +53,13 @@ import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetail
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherDashboardScreen
 import com.example.nextstep.ui.screens.teacher.TeacherEditProfileScreen
+import com.example.nextstep.ui.screens.teacher.TeacherMessagesScreen
 import com.example.nextstep.ui.screens.teacher.TeacherNotificationsScreen
+import com.example.nextstep.ui.screens.teacher.TeacherProfileScreen
 import com.example.nextstep.ui.screens.teacher.TeacherRequestDetailScreen
+import com.example.nextstep.ui.screens.teacher.TeacherRequestsScreen
 import com.example.nextstep.ui.screens.teacher.TeacherStudentDetailScreen
+import com.example.nextstep.ui.screens.teacher.TeacherStudentsScreen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -401,11 +405,12 @@ fun AppNavigation() {
                         Routes.applicationChat(applicationId, chatType = "advisor")
                     )
                 },
-                onEvaluateClick = {
-                    navController.navigate(
-                        Routes.advisorEvaluateStudent(applicationId)
-                    )
-                },
+                // TODO: Implementar AdvisorEvaluateStudentScreen e registar rota
+                // onEvaluateClick = {
+                //     navController.navigate(
+                //         Routes.advisorEvaluateStudent(applicationId)
+                //     )
+                // },
                 onCancelInternship = {
                     // handled by screen ViewModel
                 },
@@ -711,7 +716,7 @@ fun AppNavigation() {
                         )
                     )
                 },
-                onChatClick = { studentProfileId, applicationId, name, offerTitle ->
+                onChatClick = { applicationId, studentProfileId, name, offerTitle ->
                     navController.navigate(
                         Routes.applicationChat(
                             applicationId = applicationId,
@@ -776,6 +781,65 @@ fun AppNavigation() {
             TeacherEditProfileScreen(
                 onBackClick = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_REQUESTS) {
+            TeacherRequestsScreen(
+                onRequestClick = { applicationId ->
+                    navController.navigate(
+                        Routes.teacherRequestDetail(applicationId)
+                    )
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_STUDENTS) {
+            TeacherStudentsScreen(
+                onStudentClick = { student ->
+                    navController.navigate(
+                        Routes.teacherStudentDetail(
+                            applicationId = student.applicationId,
+                            studentProfileId = student.studentProfileId.orEmpty(),
+                            studentName = student.studentName.orEmpty(),
+                            offerTitle = student.offerTitle.orEmpty(),
+                            companyName = student.companyName.orEmpty(),
+                            status = student.status.orEmpty()
+                        )
+                    )
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_MESSAGES) {
+            TeacherMessagesScreen(
+                onChatClick = { applicationId, studentProfileId, name, offerTitle ->
+                    navController.navigate(
+                        Routes.applicationChat(
+                            applicationId = applicationId,
+                            participantName = name,
+                            offerTitle = offerTitle,
+                            studentProfileId = studentProfileId,
+                            chatType = "teacher"
+                        )
+                    )
+                }
+            )
+        }
+
+        composable(Routes.TEACHER_PROFILE) {
+            TeacherProfileScreen(
+                onEditProfileClick = {
+                    navController.navigate(Routes.TEACHER_EDIT_PROFILE)
+                },
+                onLogoutClick = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -868,14 +932,6 @@ fun AppNavigation() {
                     navController.navigate(
                         Routes.studentSubmittedApplicationDetail(applicationId)
                     )
-                }
-            )
-        }
-
-        composable(Routes.STUDENT_SENT_ADVISOR_REQUESTS) {
-            StudentSentAdvisorRequestsScreen(
-                onBackClick = {
-                    navController.popBackStack()
                 }
             )
         }

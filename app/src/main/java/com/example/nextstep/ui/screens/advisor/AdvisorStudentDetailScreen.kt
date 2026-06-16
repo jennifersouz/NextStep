@@ -2,10 +2,10 @@ package com.example.nextstep.ui.screens.advisor
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +22,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -60,11 +61,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
-import com.example.nextstep.data.model.AdvisorEvaluationDto
-import com.example.nextstep.ui.utils.applicationStatusToDisplay
-import com.example.nextstep.ui.utils.applicationStatusToColor
 import com.example.nextstep.data.model.AdvisorStudentDetailDto
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
+import com.example.nextstep.ui.utils.AppStatus
+import com.example.nextstep.ui.utils.applicationStatusToDisplay
 
 @Composable
 fun AdvisorStudentDetailScreen(
@@ -113,7 +113,8 @@ fun AdvisorStudentDetailScreen(
             state.errorMessage != null && state.detail == null -> {
                 AdvisorDetailErrorContent(
                     message = state.errorMessage ?: "",
-                    onRetry = { viewModel.refresh(applicationId) }
+                    onRetryClick = { viewModel.refresh(applicationId) },
+                    onBackClick = onBackClick
                 )
             }
 
@@ -121,6 +122,8 @@ fun AdvisorStudentDetailScreen(
                 AdvisorDetailContent(
                     detail = state.detail!!,
                     state = state,
+                    applicationId = applicationId,
+                    viewModel = viewModel,
                     onMessageClick = onMessageClick,
                     onTaskClick = onTaskClick,
                     onStatusChange = { taskId, status ->
@@ -167,6 +170,8 @@ private fun AdvisorDetailTopBar(onBackClick: () -> Unit) {
 private fun AdvisorDetailContent(
     detail: AdvisorStudentDetailDto,
     state: AdvisorStudentDetailUiState,
+    applicationId: String,
+    viewModel: AdvisorStudentDetailViewModel,
     onMessageClick: () -> Unit,
     onTaskClick: (AdvisorTaskListItemDto) -> Unit,
     onStatusChange: (String, String) -> Unit,
@@ -179,6 +184,10 @@ private fun AdvisorDetailContent(
     onEndInternship: () -> Unit
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var showNewTaskDialog by remember { mutableStateOf(false) }
+    var newTaskTitle by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
     val tabs = listOf(
         stringResource(R.string.summary),
         stringResource(R.string.tasks),
@@ -238,13 +247,38 @@ private fun AdvisorDetailContent(
                 onCancelInternship = onCancelInternship,
                 onEndInternship = onEndInternship
             )
-            1 -> AdvisorTasksList(
-                tasks = detail.tasks,
-                onTaskClick = onTaskClick,
-                onStatusChange = onStatusChange,
-                showStudentInfo = false,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            1 -> Box(modifier = Modifier.fillMaxSize()) {
+                AdvisorTasksList(
+                    tasks = detail.tasks,
+                    onTaskClick = onTaskClick,
+                    onStatusChange = onStatusChange,
+                    showStudentInfo = false,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                // FAB for new task
+                Button(
+                    onClick = { showNewTaskDialog = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(24.dp)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = AdvisorUiColors.YellowAccent)
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.add_task),
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
             2 -> AdvisorEvaluationTab(
                 state = state,
                 onGradeChange = onGradeChange,
@@ -253,6 +287,58 @@ private fun AdvisorDetailContent(
                 onImprovementsChange = onImprovementsChange,
                 onSaveEvaluation = onSaveEvaluation
             )
+        }
+    }
+
+    // New Task Dialog
+    if (showNewTaskDialog) {
+        AlertDialog(
+            onDismissRequest = { showNewTaskDialog = false },
+            title = {
+                Text(text = stringResource(R.string.new_task))
+            },
+            text = {
+                OutlinedTextField(
+                    value = newTaskTitle,
+                    onValueChange = { newTaskTitle = it },
+                    label = { Text(stringResource(R.string.task_title_label)) },
+                    placeholder = { Text(stringResource(R.string.task_title_placeholder)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (newTaskTitle.isNotBlank()) {
+                            viewModel.createTask(applicationId, newTaskTitle.trim())
+                            showNewTaskDialog = false
+                            newTaskTitle = ""
+                        }
+                    },
+                    enabled = newTaskTitle.isNotBlank()
+                ) {
+                    Text(text = stringResource(R.string.create))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showNewTaskDialog = false
+                    newTaskTitle = ""
+                }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Task creation success/failure toast
+    LaunchedEffect(state.taskCreationMessage) {
+        state.taskCreationMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.clearTaskCreationMessage()
+            viewModel.loadDetail(applicationId)
         }
     }
 }
@@ -314,7 +400,7 @@ private fun AdvisorDetailHeaderCard(detail: AdvisorStudentDetailDto) {
 @Composable
 private fun AdvisorDetailStatusBadge(status: String?) {
     val (bgColor, textColor) = when {
-        status == "accepted" || status == "active" || status == "ativo" || status == "aceite" ->
+        status == AppStatus.ACCEPTED || status == AppStatus.ACTIVE || status == "ativo" || status == "aceite" ->
             Color(0xFFE8F5E9) to Color(0xFF2E7D32)
         status == "pending" || status == "pendente" ->
             AdvisorUiColors.YellowLight to Color(0xFF8D6E00)
@@ -445,79 +531,83 @@ private fun AdvisorSummaryTab(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        var showCancelDialog by remember { mutableStateOf(false) }
-        var showEndDialog by remember { mutableStateOf(false) }
+        // Only show cancel/end buttons when internship is accepted or active
+        val status = detail.status?.lowercase() ?: ""
+        if (status == AppStatus.ACCEPTED || status == AppStatus.ACTIVE) {
+            var showCancelDialog by remember { mutableStateOf(false) }
+            var showEndDialog by remember { mutableStateOf(false) }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Button(
-                onClick = { showCancelDialog = true },
-                modifier = Modifier.weight(1f).height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(R.string.cancel_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Button(
+                    onClick = { showCancelDialog = true },
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+                ) {
+                    Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = stringResource(R.string.cancel_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                }
+
+                Button(
+                    onClick = { showEndDialog = true },
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+                ) {
+                    Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = stringResource(R.string.end_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                }
             }
 
-            Button(
-                onClick = { showEndDialog = true },
-                modifier = Modifier.weight(1f).height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
-            ) {
-                Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(R.string.end_internship), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            if (showCancelDialog) {
+                AlertDialog(
+                    onDismissRequest = { showCancelDialog = false },
+                    title = { Text(text = stringResource(R.string.cancel_internship_title)) },
+                    text = { Text(text = stringResource(R.string.cancel_internship_message)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showCancelDialog = false
+                            onCancelInternship()
+                        }) {
+                            Text(text = stringResource(R.string.confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showCancelDialog = false }) {
+                            Text(text = stringResource(R.string.cancel))
+                        }
+                    }
+                )
             }
-        }
 
-        if (showCancelDialog) {
-            AlertDialog(
-                onDismissRequest = { showCancelDialog = false },
-                title = { Text(text = stringResource(R.string.cancel_internship_title)) },
-                text = { Text(text = stringResource(R.string.cancel_internship_message)) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showCancelDialog = false
-                        onCancelInternship()
-                    }) {
-                        Text(text = stringResource(R.string.confirm))
+            if (showEndDialog) {
+                AlertDialog(
+                    onDismissRequest = { showEndDialog = false },
+                    title = { Text(text = stringResource(R.string.end_internship_title)) },
+                    text = { Text(text = stringResource(R.string.end_internship_message)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showEndDialog = false
+                            onEndInternship()
+                        }) {
+                            Text(text = stringResource(R.string.confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showEndDialog = false }) {
+                            Text(text = stringResource(R.string.cancel))
+                        }
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showCancelDialog = false }) {
-                        Text(text = stringResource(R.string.cancel))
-                    }
-                }
-            )
-        }
+                )
+            }
 
-        if (showEndDialog) {
-            AlertDialog(
-                onDismissRequest = { showEndDialog = false },
-                title = { Text(text = stringResource(R.string.end_internship_title)) },
-                text = { Text(text = stringResource(R.string.end_internship_message)) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showEndDialog = false
-                        onEndInternship()
-                    }) {
-                        Text(text = stringResource(R.string.confirm))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showEndDialog = false }) {
-                        Text(text = stringResource(R.string.cancel))
-                    }
-                }
-            )
+            Spacer(modifier = Modifier.height(32.dp))
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -718,7 +808,7 @@ private fun AdvisorEvaluationTab(
 @Composable
 private fun DetailSectionCard(
     title: String,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -733,7 +823,7 @@ private fun DetailSectionCard(
 }
 
 @Composable
-private fun DetailRow(label: String, value: String) {
+private fun DetailRow(label: String, value: String?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -741,7 +831,7 @@ private fun DetailRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = label, fontSize = 14.sp, color = AdvisorUiColors.TextGray)
-        Text(text = value, fontSize = 14.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+        Text(text = value.orEmpty().ifBlank { stringResource(R.string.not_available) }, fontSize = 14.sp, color = Color.Black, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -757,22 +847,28 @@ private fun EmptyState(text: String) {
 
 @Composable
 private fun AdvisorDetailErrorContent(
-    message: String,
-    onRetry: () -> Unit
+    message: String?,
+    onRetryClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = message, color = Color(0xFFB00020), fontSize = 15.sp)
+            Text(text = message.orEmpty(), color = Color(0xFFB00020), fontSize = 15.sp)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.try_again),
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { onRetry() }
-            )
+            Button(
+                onClick = onRetryClick,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B2B2B))
+            ) {
+                Text(text = stringResource(R.string.try_again), color = Color.White, fontWeight = FontWeight.Medium)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = onBackClick) {
+                Text(text = stringResource(R.string.back), color = Color.Black)
+            }
         }
     }
 }

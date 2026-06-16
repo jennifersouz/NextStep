@@ -1,7 +1,6 @@
 package com.example.nextstep.ui.screens.student
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -161,8 +160,6 @@ fun InternshipDetailContent(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Log.d("TasksDebug", "Tarefas exibidas na UI: ${tasks.size}")
-
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -185,62 +182,50 @@ fun InternshipDetailContent(
             }
         }
 
-        Log.d("TeacherDebug", "=== VALORES RECEBIDOS PELA SCREEN ===")
-        Log.d("TeacherDebug", "teacherProfileId=${internship.teacherProfileId}")
-        Log.d("TeacherDebug", "teacherStatus=${internship.teacherStatus}")
-        Log.d("TeacherDebug", "teacherName=${internship.teacherName}")
-        Log.d("TeacherDebug", "institutionName=${internship.institutionName}")
-
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(stringResource(R.string.advisors), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(stringResource(R.string.supervision_section_title), fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
-        AdvisorItem(
-            organization = internship.companyName,
-            name = internship.advisorName ?: "A aguardar atribuição",
-            onChatClick = if (internship.advisorProfileId != null) {
-                { onChatClick(internship.id, internship.advisorName ?: "", "advisor") }
-            } else null,
-            onProfileClick = if (internship.advisorProfileId != null) {
-                {
-                    Log.d("ProfileDebug", "Advisor click advisorProfileId=${internship.advisorProfileId} applicationId=${internship.id}")
-                    onAdvisorProfileClick(internship.advisorProfileId!!)
-                }
-            } else null
+        val isAdvisorAssigned = internship.advisorProfileId != null
+        val isTeacherAssigned = internship.teacherProfileId != null && internship.teacherStatus == "accepted"
+
+        FollowupItem(
+            label = stringResource(R.string.supervisor_label),
+            name = internship.formattedAdvisorName,
+            email = internship.advisorEmail,
+            profileId = internship.advisorProfileId,
+            chatType = "advisor",
+            onChatClick = { name, type -> onChatClick(internship.id, name, type) },
+            onProfileClick = onAdvisorProfileClick,
+            notAssignedText = stringResource(R.string.supervisor_not_assigned)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val isTeacherAssigned = internship.teacherProfileId != null
-                && internship.teacherStatus == "accepted"
-
-        if (isTeacherAssigned) {
-            AdvisorItem(
-                organization = internship.institutionName ?: stringResource(R.string.default_not_available),
-                name = internship.teacherName ?: stringResource(R.string.default_not_available),
-                onChatClick = { onChatClick(internship.id, internship.teacherName ?: "", "teacher") },
-                onProfileClick = if (internship.teacherProfileId != null) {
-                    {
-                        Log.d("ProfileDebug", "Teacher click teacherProfileId=${internship.teacherProfileId} applicationId=${internship.id}")
-                        onTeacherProfileClick(internship.teacherProfileId!!)
-                    }
-                } else null
-            )
-        } else {
-            Column {
-                Text(stringResource(R.string.institution_label), color = Color.Gray, fontSize = 13.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = onSearchAdvisorClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFDFA52), contentColor = Color.Black),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(stringResource(R.string.search_label), fontWeight = FontWeight.Bold)
-                }
+        if (!isAdvisorAssigned) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onSearchAdvisorClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFDFA52), contentColor = Color.Black),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(stringResource(R.string.search_advisor), fontWeight = FontWeight.Bold)
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FollowupItem(
+            label = stringResource(R.string.teacher_label),
+            name = internship.formattedTeacherName,
+            email = internship.teacherEmail,
+            profileId = internship.teacherProfileId,
+            chatType = "teacher",
+            onChatClick = { name, type -> onChatClick(internship.id, name, type) },
+            onProfileClick = onTeacherProfileClick,
+            isAssigned = isTeacherAssigned,
+            notAssignedText = stringResource(R.string.teacher_not_assigned_message)
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -305,7 +290,7 @@ fun ReportSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = if (fileName != null) "\uD83D\uDCC4 $fileName" else "Nenhum relatório submetido",
+            text = if (fileName != null) "\uD83D\uDCC4 $fileName" else stringResource(R.string.no_report_attached),
             color = if (fileName != null) Color.Black else Color(0xFF8A8A8A),
             fontSize = 16.sp,
             modifier = Modifier.weight(1f)
@@ -331,7 +316,7 @@ fun ReportSection(
                 )
             } else {
                 Text(
-                    text = if (fileName != null) "Substituir Relatório" else "Anexar Relatório",
+                    text = if (fileName != null) stringResource(R.string.replace_report) else stringResource(R.string.attach_report),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -340,43 +325,59 @@ fun ReportSection(
 }
 
 @Composable
-fun AdvisorItem(
-    organization: String,
-    name: String,
-    onChatClick: (() -> Unit)?,
-    onProfileClick: (() -> Unit)? = null
+fun FollowupItem(
+    label: String,
+    name: String?,
+    email: String?,
+    profileId: String?,
+    chatType: String,
+    onChatClick: (String, String) -> Unit,
+    onProfileClick: (String) -> Unit,
+    isAssigned: Boolean = true,
+    notAssignedText: String
 ) {
     Column {
-        Text(organization, color = Color.Gray, fontSize = 13.sp)
+        Text(label, color = Color.Gray, fontSize = 13.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(enabled = onProfileClick != null) {
-                    Log.d("ProfileClick", "AdvisorItem clicado nome=$name")
-                    onProfileClick?.invoke()
-                }
-        ) {
-            Box(
+        if (isAssigned && !name.isNullOrBlank()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFD9D9D9)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .clickable(enabled = profileId != null) {
+                        profileId?.let { onProfileClick(it) }
+                    }
             ) {
-                Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray)
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(name, fontWeight = FontWeight.Medium, fontSize = 16.sp, modifier = Modifier.weight(1f))
-            if (onChatClick != null) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFD9D9D9)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Filled.Person, contentDescription = null, tint = Color.Gray)
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(name!!, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    if (!email.isNullOrBlank()) {
+                        Text(email, color = Color.Gray, fontSize = 13.sp)
+                    }
+                }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
                     contentDescription = stringResource(R.string.chat),
                     tint = Color.Gray,
-                    modifier = Modifier.size(24.dp).clickable { onChatClick() }
+                    modifier = Modifier.size(24.dp).clickable { onChatClick(name, chatType) }
                 )
             }
+        } else {
+            Text(
+                notAssignedText,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
         }
     }
 }
@@ -447,11 +448,7 @@ fun TaskCard(task: AdvisorTaskListItemDto, onStatusChange: (String, String) -> U
             Checkbox(
                 checked = isCompleted,
                 onCheckedChange = { checked ->
-                    val currentStatus = task.status
                     val newStatus = if (checked) "completed" else "pending"
-                    Log.d("TaskDebug", "Task ID: ${task.id}")
-                    Log.d("TaskDebug", "Status atual: $currentStatus")
-                    Log.d("TaskDebug", "Novo status: $newStatus")
                     onStatusChange(task.id, newStatus)
                 }
             )
@@ -470,23 +467,50 @@ fun EvaluationsSection(internship: StudentSubmittedApplicationDto) {
     Text(stringResource(R.string.advisor_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
-    EvaluationRow(name = internship.advisorName ?: stringResource(R.string.default_not_available), grade = internship.companyAdvisorGrade ?: stringResource(R.string.default_not_available))
+    val companyGrade = internship.companyAdvisorGrade
+    val teacherGrade = internship.academicAdvisorGrade
+
+    EvaluationRow(name = internship.formattedAdvisorName, grade = companyGrade ?: stringResource(R.string.default_not_available))
     Spacer(modifier = Modifier.height(16.dp))
-    EvaluationRow(name = internship.teacherName ?: stringResource(R.string.default_not_available), grade = internship.academicAdvisorGrade ?: stringResource(R.string.default_not_available))
+    EvaluationRow(name = internship.formattedTeacherName, grade = teacherGrade ?: stringResource(R.string.default_not_available))
 
     Spacer(modifier = Modifier.height(32.dp))
     Text(stringResource(R.string.final_evaluation), fontWeight = FontWeight.Bold, fontSize = 18.sp)
     Spacer(modifier = Modifier.height(16.dp))
 
+    val finalGradeValue = computeFinalGrade(companyGrade, teacherGrade)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
             modifier = Modifier.border(1.dp, Color(0xFFE5E5E5), RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 8.dp),
             shape = RoundedCornerShape(8.dp),
             color = Color.White
         ) {
-            Text(text = stringResource(R.string.default_not_available), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = finalGradeValue, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
         Text(text = stringResource(R.string.grade_max), color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+    }
+}
+
+/**
+ * Computes the final grade string to display.
+ * - If both grades exist, returns the average.
+ * - If only one grade exists, returns that grade.
+ * - If no grades exist, returns user-friendly message.
+ */
+private fun computeFinalGrade(companyGrade: String?, teacherGrade: String?): String {
+    val grades = listOfNotNull(
+        companyGrade?.toDoubleOrNull(),
+        teacherGrade?.toDoubleOrNull()
+    )
+    return if (grades.isNotEmpty()) {
+        val average = grades.average()
+        if (average == average.toLong().toDouble()) {
+            average.toLong().toString()
+        } else {
+            String.format("%.1f", average)
+        }
+    } else {
+        "Avaliação ainda não disponível."
     }
 }
 

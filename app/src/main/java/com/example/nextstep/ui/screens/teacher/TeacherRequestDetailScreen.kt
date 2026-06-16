@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.ui.utils.AppStatus
+import com.example.nextstep.ui.utils.TaskStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,7 +106,7 @@ fun TeacherRequestDetailScreen(
                     ) {
                         // Aluno Section
                         SectionHeader(title = stringResource(R.string.section_student))
-                        DetailItem(label = stringResource(R.string.name_required).replace("*", "").trim(), value = request.studentName)
+                        DetailItem(label = stringResource(R.string.student_name_label), value = request.studentName)
                         DetailItem(label = stringResource(R.string.email), value = request.studentEmail)
                         request.course?.let { DetailItem(label = stringResource(R.string.course), value = it) }
                         val location = listOfNotNull(request.city, request.country).joinToString(", ")
@@ -168,7 +170,7 @@ fun TeacherRequestDetailScreen(
                         Spacer(modifier = Modifier.height(24.dp))
 
                         // Actions
-                        if (request.status.lowercase() == "pending") {
+                        if (request.status.lowercase() == AppStatus.PENDING) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -198,14 +200,14 @@ fun TeacherRequestDetailScreen(
                             }
                         } else {
                             Surface(
-                                color = if (request.status.lowercase() == "accepted") Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                                color = if (request.status.lowercase() == AppStatus.ACCEPTED) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = if (request.status.lowercase() == "accepted") stringResource(R.string.request_accepted) else stringResource(R.string.request_rejected),
+                                    text = if (request.status.lowercase() == AppStatus.ACCEPTED) stringResource(R.string.request_accepted) else stringResource(R.string.request_rejected),
                                     modifier = Modifier.padding(16.dp),
-                                    color = if (request.status.lowercase() == "accepted") Color(0xFF2E7D32) else Color(0xFFC62828),
+                                    color = if (request.status.lowercase() == AppStatus.ACCEPTED) Color(0xFF2E7D32) else Color(0xFFC62828),
                                     fontWeight = FontWeight.Bold,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )

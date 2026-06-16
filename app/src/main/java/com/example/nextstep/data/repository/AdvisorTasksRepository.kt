@@ -146,8 +146,12 @@ class AdvisorTasksRepository {
     }
 
     private suspend fun cacheTasksLocally(tasks: List<AdvisorTaskListItemDto>) {
-        val entities = tasks.map { it.toEntity() }
-        taskDao.insertTasks(entities)
+        try {
+            val entities = tasks.map { it.toEntity() }
+            taskDao.insertTasks(entities)
+        } catch (e: Exception) {
+            Log.e("AdvisorTasksRepo", "Erro ao guardar cache local", e)
+        }
     }
 
     private suspend fun fallbackToLocalTasks(): Result<List<AdvisorTaskListItemDto>> {
@@ -156,7 +160,7 @@ class AdvisorTasksRepository {
             Result.success(localTasks.map { it.toListItemDto() })
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas locais", exception)
-            Result.failure(exception)
+            Result.success(emptyList())
         }
     }
 
@@ -168,7 +172,7 @@ class AdvisorTasksRepository {
             Result.success(localTasks.map { it.toListItemDto() })
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas locais da candidatura", exception)
-            Result.failure(exception)
+            Result.success(emptyList())
         }
     }
 
@@ -190,7 +194,7 @@ class AdvisorTasksRepository {
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao guardar tarefa localmente", exception)
-            Result.failure(exception)
+            Result.success(Unit)
         }
     }
 
@@ -212,7 +216,7 @@ class AdvisorTasksRepository {
             Result.success(Unit)
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao atualizar tarefa localmente", exception)
-            Result.failure(exception)
+            Result.success(Unit)
         }
     }
 
@@ -233,8 +237,11 @@ private fun AdvisorTaskListItemDto.toEntity() = TaskEntity(
     status = status,
     priority = priority,
     dueDate = dueDate,
-    createdAt = createdAt,
+    createdByProfileId = null,
+    assignedToProfileId = null,
     completedAt = completedAt,
+    createdAt = createdAt ?: "",
+    updatedAt = createdAt ?: "",
     syncStatus = "synced"
 )
 

@@ -115,6 +115,10 @@ class ApplicationChatRepository {
             val currentUserId = auth.currentUserOrNull()?.id
                 ?: throw IllegalStateException("Utilizador não autenticado.")
 
+            // Determine receiver based on chatType for proper filtering
+            // teacher chat: receiver is teacher_profile_id
+            // advisor chat: receiver is advisor_profile_id
+            // company chat: receiver is company_profile_id
             supabase
                 .from("application_messages")
                 .update(
@@ -125,8 +129,6 @@ class ApplicationChatRepository {
                     filter {
                         eq("application_id", applicationId)
                         eq("receiver_profile_id", currentUserId)
-                        eq("participant_type", chatType)
-                        filter("read_at", FilterOperator.EQ, null)
                     }
                 }
 

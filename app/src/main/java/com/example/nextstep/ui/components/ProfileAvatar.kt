@@ -24,7 +24,8 @@ fun ProfileAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 124.dp
 ) {
-    val initials = name
+    val formattedName = formatNameForAvatar(name)
+    val initials = formattedName
         .split(" ")
         .filter { it.isNotBlank() }
         .take(2)
@@ -57,5 +58,21 @@ fun ProfileAvatar(
                 color = Color.Black
             )
         }
+    }
+}
+
+private fun formatNameForAvatar(name: String): String {
+    if (name.isBlank()) return name
+    if (name.contains(" ")) return name
+    
+    // Tenta detetar padrão CamelCase: letra minúscula seguida de maiúscula
+    val withSpaces = name.replace(Regex("([a-záàâãéèêíïóôõöúç])([A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ])")) { match ->
+        "${match.groupValues[1]} ${match.groupValues[2]}"
+    }
+    
+    return if (withSpaces.contains(" ") && withSpaces.length > name.length) {
+        withSpaces
+    } else {
+        name
     }
 }

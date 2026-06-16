@@ -1,7 +1,9 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.TeacherAssignmentUpdateDto
 import com.example.nextstep.data.model.TeacherOrientationRequestDto
+import com.example.nextstep.data.model.TeacherRequestStatusUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -64,7 +66,7 @@ class TeacherRequestsRepository {
 
             supabase
                 .from("teacher_requests")
-                .update(mapOf("status" to status)) {
+                .update(TeacherRequestStatusUpdateDto(status = status)) {
                     filter {
                         eq("application_id", applicationId)
                         eq("teacher_profile_id", userId)
@@ -76,9 +78,9 @@ class TeacherRequestsRepository {
                 supabase
                     .from("applications")
                     .update(
-                        mapOf(
-                            "teacher_profile_id" to userId,
-                            "teacher_status" to "accepted"
+                        TeacherAssignmentUpdateDto(
+                            teacherProfileId = userId,
+                            teacherStatus = "accepted"
                         )
                     ) {
                         filter { eq("id", applicationId) }

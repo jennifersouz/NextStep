@@ -21,11 +21,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,13 +37,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyAdvisorEvaluationDto
+import com.example.nextstep.data.model.CompanyEvaluationDto
 import com.example.nextstep.data.model.CompanyInternStudentProfileDto
 import com.example.nextstep.data.model.CompanyStudentActivityDto
 import com.example.nextstep.ui.utils.Formatters
@@ -129,7 +133,41 @@ fun CompanyInternStudentProfileScreen(
                 onActivityFilterChange = viewModel::onActivityFilterChange,
                 advisorEvaluation = state.advisorEvaluation,
                 isLoadingEvaluation = state.isLoadingEvaluation,
-                evaluationErrorRes = state.evaluationErrorRes
+                evaluationErrorRes = state.evaluationErrorRes,
+                companyEvaluation = state.companyEvaluation,
+                isLoadingCompanyEvaluation = state.isLoadingCompanyEvaluation,
+                companyEvaluationErrorRes = state.companyEvaluationErrorRes,
+                isSavingCompanyEvaluation = state.isSavingCompanyEvaluation,
+                companyEvaluationSaveSuccessRes = state.companyEvaluationSaveSuccessRes,
+                companyEvaluationSaveErrorRes = state.companyEvaluationSaveErrorRes,
+                internshipStatus = state.profile?.internshipStatus,
+                companyEvaluationGradeText = state.companyEvaluationGradeText,
+                companyEvaluationFeedbackText = state.companyEvaluationFeedbackText,
+                companyEvaluationStrengthsText = state.companyEvaluationStrengthsText,
+                companyEvaluationImprovementsText = state.companyEvaluationImprovementsText,
+                companyEvaluationRecommendationText = state.companyEvaluationRecommendationText,
+                companyEvaluationGradeErrorRes = state.companyEvaluationGradeErrorRes,
+                companyEvaluationFeedbackErrorRes = state.companyEvaluationFeedbackErrorRes,
+                onCompanyEvaluationGradeChange = viewModel::onCompanyEvaluationGradeChange,
+                onCompanyEvaluationFeedbackChange = viewModel::onCompanyEvaluationFeedbackChange,
+                onCompanyEvaluationStrengthsChange = viewModel::onCompanyEvaluationStrengthsChange,
+                onCompanyEvaluationImprovementsChange = viewModel::onCompanyEvaluationImprovementsChange,
+                onCompanyEvaluationRecommendationChange = viewModel::onCompanyEvaluationRecommendationChange,
+                onSaveCompanyEvaluation = viewModel::saveCompanyEvaluation,
+                onConsumeCompanyEvaluationMessages = viewModel::consumeCompanyEvaluationMessages,
+                // RF24: Status toggle
+                isUpdatingStatus = state.isUpdatingStatus,
+                statusUpdateErrorRes = state.statusUpdateErrorRes,
+                statusUpdateSuccessRes = state.statusUpdateSuccessRes,
+                showConfirmInactiveDialog = state.showConfirmInactiveDialog,
+                showConfirmActiveDialog = state.showConfirmActiveDialog,
+                onMarkInactiveClick = viewModel::onMarkInactiveClick,
+                onMarkActiveClick = viewModel::onMarkActiveClick,
+                dismissStatusDialog = viewModel::dismissStatusDialog,
+                confirmMarkInactive = viewModel::confirmMarkInactive,
+                confirmMarkActive = viewModel::confirmMarkActive,
+                consumeStatusMessages = viewModel::consumeStatusMessages,
+                onStatusChanged = onStatusChanged
             )
         }
     }
@@ -152,7 +190,41 @@ private fun CompanyInternStudentProfileContent(
     onActivityFilterChange: (CompanyActivityFilter) -> Unit,
     advisorEvaluation: CompanyAdvisorEvaluationDto?,
     isLoadingEvaluation: Boolean,
-    evaluationErrorRes: Int?
+    evaluationErrorRes: Int?,
+    companyEvaluation: CompanyEvaluationDto?,
+    isLoadingCompanyEvaluation: Boolean,
+    companyEvaluationErrorRes: Int?,
+    isSavingCompanyEvaluation: Boolean,
+    companyEvaluationSaveSuccessRes: Int?,
+    companyEvaluationSaveErrorRes: Int?,
+    internshipStatus: String?,
+    companyEvaluationGradeText: String,
+    companyEvaluationFeedbackText: String,
+    companyEvaluationStrengthsText: String,
+    companyEvaluationImprovementsText: String,
+    companyEvaluationRecommendationText: String,
+    companyEvaluationGradeErrorRes: Int?,
+    companyEvaluationFeedbackErrorRes: Int?,
+    onCompanyEvaluationGradeChange: (String) -> Unit,
+    onCompanyEvaluationFeedbackChange: (String) -> Unit,
+    onCompanyEvaluationStrengthsChange: (String) -> Unit,
+    onCompanyEvaluationImprovementsChange: (String) -> Unit,
+    onCompanyEvaluationRecommendationChange: (String) -> Unit,
+    onSaveCompanyEvaluation: () -> Unit,
+    onConsumeCompanyEvaluationMessages: () -> Unit,
+    // RF24: Status update
+    isUpdatingStatus: Boolean = false,
+    statusUpdateErrorRes: Int? = null,
+    statusUpdateSuccessRes: Int? = null,
+    showConfirmInactiveDialog: Boolean = false,
+    showConfirmActiveDialog: Boolean = false,
+    onMarkInactiveClick: () -> Unit = {},
+    onMarkActiveClick: () -> Unit = {},
+    dismissStatusDialog: () -> Unit = {},
+    confirmMarkInactive: () -> Unit = {},
+    confirmMarkActive: () -> Unit = {},
+    consumeStatusMessages: () -> Unit = {},
+    onStatusChanged: () -> Unit = {}
 ) {
     val fullName = profile.studentName.orEmpty().ifBlank { stringResource(R.string.student) }
     val initials = fullName.split(" ").filter { it.isNotBlank() }.take(2)
@@ -182,6 +254,51 @@ private fun CompanyInternStudentProfileContent(
         CompanyInternStudentTab.ACTIVITIES,
         CompanyInternStudentTab.EVALUATION
     )
+
+    // RF24: Notify parent when status changes
+    LaunchedEffect(statusUpdateSuccessRes) {
+        if (statusUpdateSuccessRes != null) {
+            onStatusChanged()
+        }
+    }
+
+    // RF24: Confirmation dialog — Mark inactive
+    if (showConfirmInactiveDialog) {
+        AlertDialog(
+            onDismissRequest = dismissStatusDialog,
+            title = { Text(text = stringResource(R.string.confirm_mark_inactive_title)) },
+            text = { Text(text = stringResource(R.string.confirm_mark_inactive_message)) },
+            confirmButton = {
+                TextButton(onClick = confirmMarkInactive) {
+                    Text(stringResource(R.string.confirm), color = Color(0xFFB00020), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = dismissStatusDialog) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // RF24: Confirmation dialog — Mark active
+    if (showConfirmActiveDialog) {
+        AlertDialog(
+            onDismissRequest = dismissStatusDialog,
+            title = { Text(text = stringResource(R.string.confirm_mark_active_title)) },
+            text = { Text(text = stringResource(R.string.confirm_mark_active_message)) },
+            confirmButton = {
+                TextButton(onClick = confirmMarkActive) {
+                    Text(stringResource(R.string.confirm), color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = dismissStatusDialog) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Color.White).statusBarsPadding().imePadding()
@@ -244,9 +361,48 @@ private fun CompanyInternStudentProfileContent(
                 // Right Column: Tab Content
                 Column(modifier = Modifier.weight(2f).fillMaxHeight()) {
                     when (selectedTab) {
-                        CompanyInternStudentTab.SUMMARY -> SummaryTab(profile, statusText, isOpeningDocument, documentErrorRes, onOpenCv, onOpenMotivationLetter)
+                        CompanyInternStudentTab.SUMMARY -> SummaryTab(
+                            profile = profile,
+                            statusText = statusText,
+                            isOpeningDocument = isOpeningDocument,
+                            documentErrorRes = documentErrorRes,
+                            onOpenCv = onOpenCv,
+                            onOpenMotivationLetter = onOpenMotivationLetter,
+                            internshipStatus = internshipStatus,
+                            isUpdatingStatus = isUpdatingStatus,
+                            statusUpdateSuccessRes = statusUpdateSuccessRes,
+                            statusUpdateErrorRes = statusUpdateErrorRes,
+                            onMarkInactiveClick = onMarkInactiveClick,
+                            onMarkActiveClick = onMarkActiveClick,
+                            consumeStatusMessages = consumeStatusMessages
+                        )
                         CompanyInternStudentTab.ACTIVITIES -> ActivitiesTab(activities, isLoadingActivities, activitiesErrorRes, selectedActivityFilter, onActivityFilterChange)
-                        CompanyInternStudentTab.EVALUATION -> EvaluationTab(advisorEvaluation, isLoadingEvaluation, evaluationErrorRes)
+                        CompanyInternStudentTab.EVALUATION -> EvaluationTab(
+                            advisorEvaluation = advisorEvaluation,
+                            isLoadingEvaluation = isLoadingEvaluation,
+                            evaluationErrorRes = evaluationErrorRes,
+                            companyEvaluation = companyEvaluation,
+                            isLoadingCompanyEvaluation = isLoadingCompanyEvaluation,
+                            companyEvaluationErrorRes = companyEvaluationErrorRes,
+                            isSavingCompanyEvaluation = isSavingCompanyEvaluation,
+                            companyEvaluationSaveSuccessRes = companyEvaluationSaveSuccessRes,
+                            companyEvaluationSaveErrorRes = companyEvaluationSaveErrorRes,
+                            internshipStatus = internshipStatus,
+                            companyEvaluationGradeText = companyEvaluationGradeText,
+                            companyEvaluationFeedbackText = companyEvaluationFeedbackText,
+                            companyEvaluationStrengthsText = companyEvaluationStrengthsText,
+                            companyEvaluationImprovementsText = companyEvaluationImprovementsText,
+                            companyEvaluationRecommendationText = companyEvaluationRecommendationText,
+                            companyEvaluationGradeErrorRes = companyEvaluationGradeErrorRes,
+                            companyEvaluationFeedbackErrorRes = companyEvaluationFeedbackErrorRes,
+                            onCompanyEvaluationGradeChange = onCompanyEvaluationGradeChange,
+                            onCompanyEvaluationFeedbackChange = onCompanyEvaluationFeedbackChange,
+                            onCompanyEvaluationStrengthsChange = onCompanyEvaluationStrengthsChange,
+                            onCompanyEvaluationImprovementsChange = onCompanyEvaluationImprovementsChange,
+                            onCompanyEvaluationRecommendationChange = onCompanyEvaluationRecommendationChange,
+                            onSaveCompanyEvaluation = onSaveCompanyEvaluation,
+                            onConsumeCompanyEvaluationMessages = onConsumeCompanyEvaluationMessages
+                        )
                     }
                 }
             }
@@ -296,9 +452,48 @@ private fun CompanyInternStudentProfileContent(
 
             // Tab Content
             when (selectedTab) {
-                CompanyInternStudentTab.SUMMARY -> SummaryTab(profile, statusText, isOpeningDocument, documentErrorRes, onOpenCv, onOpenMotivationLetter)
+                CompanyInternStudentTab.SUMMARY -> SummaryTab(
+                    profile = profile,
+                    statusText = statusText,
+                    isOpeningDocument = isOpeningDocument,
+                    documentErrorRes = documentErrorRes,
+                    onOpenCv = onOpenCv,
+                    onOpenMotivationLetter = onOpenMotivationLetter,
+                    internshipStatus = internshipStatus,
+                    isUpdatingStatus = isUpdatingStatus,
+                    statusUpdateSuccessRes = statusUpdateSuccessRes,
+                    statusUpdateErrorRes = statusUpdateErrorRes,
+                    onMarkInactiveClick = onMarkInactiveClick,
+                    onMarkActiveClick = onMarkActiveClick,
+                    consumeStatusMessages = consumeStatusMessages
+                )
                 CompanyInternStudentTab.ACTIVITIES -> ActivitiesTab(activities, isLoadingActivities, activitiesErrorRes, selectedActivityFilter, onActivityFilterChange)
-                CompanyInternStudentTab.EVALUATION -> EvaluationTab(advisorEvaluation, isLoadingEvaluation, evaluationErrorRes)
+                CompanyInternStudentTab.EVALUATION -> EvaluationTab(
+                    advisorEvaluation = advisorEvaluation,
+                    isLoadingEvaluation = isLoadingEvaluation,
+                    evaluationErrorRes = evaluationErrorRes,
+                    companyEvaluation = companyEvaluation,
+                    isLoadingCompanyEvaluation = isLoadingCompanyEvaluation,
+                    companyEvaluationErrorRes = companyEvaluationErrorRes,
+                    isSavingCompanyEvaluation = isSavingCompanyEvaluation,
+                    companyEvaluationSaveSuccessRes = companyEvaluationSaveSuccessRes,
+                    companyEvaluationSaveErrorRes = companyEvaluationSaveErrorRes,
+                    internshipStatus = internshipStatus,
+                    companyEvaluationGradeText = companyEvaluationGradeText,
+                    companyEvaluationFeedbackText = companyEvaluationFeedbackText,
+                    companyEvaluationStrengthsText = companyEvaluationStrengthsText,
+                    companyEvaluationImprovementsText = companyEvaluationImprovementsText,
+                    companyEvaluationRecommendationText = companyEvaluationRecommendationText,
+                    companyEvaluationGradeErrorRes = companyEvaluationGradeErrorRes,
+                    companyEvaluationFeedbackErrorRes = companyEvaluationFeedbackErrorRes,
+                    onCompanyEvaluationGradeChange = onCompanyEvaluationGradeChange,
+                    onCompanyEvaluationFeedbackChange = onCompanyEvaluationFeedbackChange,
+                    onCompanyEvaluationStrengthsChange = onCompanyEvaluationStrengthsChange,
+                    onCompanyEvaluationImprovementsChange = onCompanyEvaluationImprovementsChange,
+                    onCompanyEvaluationRecommendationChange = onCompanyEvaluationRecommendationChange,
+                    onSaveCompanyEvaluation = onSaveCompanyEvaluation,
+                    onConsumeCompanyEvaluationMessages = onConsumeCompanyEvaluationMessages
+                )
             }
         }
     }
@@ -313,7 +508,15 @@ private fun SummaryTab(
     isOpeningDocument: Boolean,
     documentErrorRes: Int?,
     onOpenCv: () -> Unit,
-    onOpenMotivationLetter: () -> Unit
+    onOpenMotivationLetter: () -> Unit,
+    // RF24: Status update
+    internshipStatus: String? = null,
+    isUpdatingStatus: Boolean = false,
+    statusUpdateSuccessRes: Int? = null,
+    statusUpdateErrorRes: Int? = null,
+    onMarkInactiveClick: () -> Unit = {},
+    onMarkActiveClick: () -> Unit = {},
+    consumeStatusMessages: () -> Unit = {}
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -330,7 +533,7 @@ private fun SummaryTab(
                 if (hasAdvisorInfo) {
                     InternProfileInfoRow(
                         label = stringResource(R.string.name_required).replace(" *", ""),
-                        value = profile.advisorName?.ifBlank { profile.advisorEmail }
+                        value = profile.formattedAdvisorName
                     )
                     InternProfileInfoRow(label = stringResource(R.string.email), value = profile.advisorEmail)
                     if (!profile.advisorPhone.isNullOrBlank()) {
@@ -384,6 +587,78 @@ private fun SummaryTab(
                 InternProfileInfoRow(label = stringResource(R.string.company_intern_profile_application_date), value = Formatters.formatDateTime(profile.applicationCreatedAt))
             }
         }
+
+        // RF24: Status Toggle Button
+        item {
+            val currentStatus = internshipStatus?.trim()?.lowercase()
+            val canToggle = currentStatus in setOf("accepted", "active", "in_progress", "inactive")
+            val isCompleted = currentStatus == "completed"
+
+            if (canToggle || isCompleted) {
+                InternProfileSectionCard(title = stringResource(R.string.company_intern_status_toggle_title)) {
+                    if (isUpdatingStatus) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))
+                        }
+                    } else if (isCompleted) {
+                        Text(
+                            text = stringResource(R.string.internship_completed),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        val isCurrentlyActive = currentStatus in setOf("accepted", "active", "in_progress")
+                        val buttonText = if (isCurrentlyActive) {
+                            stringResource(R.string.mark_as_inactive)
+                        } else {
+                            stringResource(R.string.mark_as_active)
+                        }
+                        val buttonColor = if (isCurrentlyActive) Color(0xFFB00020) else Color(0xFF2E7D32)
+
+                        Button(
+                            onClick = if (isCurrentlyActive) onMarkInactiveClick else onMarkActiveClick,
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = buttonColor,
+                                disabledContainerColor = Color(0xFFE0E0E0)
+                            )
+                        ) {
+                            Text(
+                                text = buttonText,
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    if (statusUpdateSuccessRes != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(statusUpdateSuccessRes),
+                            color = Color(0xFF2E7D32),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    if (statusUpdateErrorRes != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(statusUpdateErrorRes),
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+
         item {
             InternProfileSectionCard(title = stringResource(R.string.application_documents_title)) {
                 Text(text = stringResource(R.string.cv), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color.Black)
@@ -526,94 +801,326 @@ private fun ActivityCard(activity: CompanyStudentActivityDto) {
     }
 }
 
-// ==================== EVALUATION TAB (RF28) ====================
+// ==================== EVALUATION TAB (RF28 + RF91) ====================
 
 @Composable
 private fun EvaluationTab(
     advisorEvaluation: CompanyAdvisorEvaluationDto?,
     isLoadingEvaluation: Boolean,
-    evaluationErrorRes: Int?
+    evaluationErrorRes: Int?,
+    companyEvaluation: CompanyEvaluationDto?,
+    isLoadingCompanyEvaluation: Boolean,
+    companyEvaluationErrorRes: Int?,
+    isSavingCompanyEvaluation: Boolean,
+    companyEvaluationSaveSuccessRes: Int?,
+    companyEvaluationSaveErrorRes: Int?,
+    internshipStatus: String?,
+    companyEvaluationGradeText: String,
+    companyEvaluationFeedbackText: String,
+    companyEvaluationStrengthsText: String,
+    companyEvaluationImprovementsText: String,
+    companyEvaluationRecommendationText: String,
+    companyEvaluationGradeErrorRes: Int?,
+    companyEvaluationFeedbackErrorRes: Int?,
+    onCompanyEvaluationGradeChange: (String) -> Unit,
+    onCompanyEvaluationFeedbackChange: (String) -> Unit,
+    onCompanyEvaluationStrengthsChange: (String) -> Unit,
+    onCompanyEvaluationImprovementsChange: (String) -> Unit,
+    onCompanyEvaluationRecommendationChange: (String) -> Unit,
+    onSaveCompanyEvaluation: () -> Unit,
+    onConsumeCompanyEvaluationMessages: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp)) {
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(R.string.company_intern_evaluation_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-        Spacer(modifier = Modifier.height(12.dp))
+    val status = internshipStatus?.trim()?.lowercase()
+    val isBlockedStatus = status in setOf("pending", "rejected", "cancelled")
+    val isActiveStatus = status in setOf("accepted", "active", "in_progress")
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item { Spacer(modifier = Modifier.height(16.dp)) }
+
+        // ---- Section: Advisor Evaluation (RF28) ----
+        item {
+            Text(text = stringResource(R.string.company_intern_evaluation_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         when {
             isLoadingEvaluation -> {
-                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Color.Black) }
+                item { Box(modifier = Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Color.Black) } }
             }
             evaluationErrorRes != null -> {
-                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) { Text(text = stringResource(evaluationErrorRes), color = Color(0xFFB00020), fontSize = 15.sp, textAlign = TextAlign.Center) }
+                item { Text(text = stringResource(evaluationErrorRes), color = Color(0xFFB00020), fontSize = 15.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) }
             }
             advisorEvaluation == null -> {
-                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = stringResource(R.string.company_intern_evaluation_empty), fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black, textAlign = TextAlign.Center)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = stringResource(R.string.company_intern_evaluation_empty_subtitle), fontSize = 14.sp, color = Color(0xFF8A8A8A), textAlign = TextAlign.Center)
+                item {
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            Text(text = stringResource(R.string.company_intern_evaluation_empty), fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = stringResource(R.string.company_intern_evaluation_empty_subtitle), fontSize = 14.sp, color = Color(0xFF8A8A8A))
+                        }
                     }
                 }
             }
             else -> {
-                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    item { Spacer(modifier = Modifier.height(4.dp)) }
-                    // Grade
-                    item {
-                        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
-                            Column(modifier = Modifier.padding(18.dp)) {
-                                Text(text = stringResource(R.string.company_intern_evaluation_grade), fontSize = 13.sp, color = Color(0xFF8A8A8A))
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(text = advisorEvaluation.grade?.toString() ?: stringResource(R.string.not_available), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                            }
+                item { AdvisorEvaluationCard(advisorEvaluation) }
+            }
+        }
+
+        // ---- Section: Company Evaluation (RF91) ----
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = stringResource(R.string.company_evaluation_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        when {
+            isLoadingCompanyEvaluation -> {
+                item { Box(modifier = Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Color.Black) } }
+            }
+            companyEvaluationErrorRes != null -> {
+                item { Text(text = stringResource(companyEvaluationErrorRes), color = Color(0xFFB00020), fontSize = 15.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) }
+            }
+            isBlockedStatus -> {
+                item {
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            Text(
+                                text = stringResource(R.string.company_evaluation_not_in_internship),
+                                fontSize = 15.sp,
+                                color = Color(0xFF8A8A8A),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
-                    // Status + Date
-                    item {
-                        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
-                            Column(modifier = Modifier.padding(18.dp)) {
-                                InternProfileInfoRow(label = stringResource(R.string.company_intern_evaluation_status), value = translateEvaluationStatus(advisorEvaluation.status))
-                                InternProfileInfoRow(label = stringResource(R.string.company_intern_evaluation_date), value = Formatters.formatDateTime(advisorEvaluation.updatedAt ?: advisorEvaluation.createdAt))
-                            }
+                }
+            }
+            else -> {
+                item {
+                    if (isActiveStatus) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
+                        ) {
+                            Text(
+                                text = stringResource(R.string.company_evaluation_warning_active),
+                                fontSize = 14.sp,
+                                color = Color(0xFFE65100),
+                                modifier = Modifier.padding(16.dp)
+                            )
                         }
                     }
-                    // Feedback
-                    if (!advisorEvaluation.qualitativeFeedback.isNullOrBlank()) {
-                        item {
-                            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
-                                Column(modifier = Modifier.padding(18.dp)) {
-                                    Text(text = stringResource(R.string.company_intern_evaluation_feedback), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                    Text(text = advisorEvaluation.qualitativeFeedback, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
-                                }
-                            }
-                        }
-                    }
-                    // Strengths
-                    if (!advisorEvaluation.strengths.isNullOrBlank()) {
-                        item {
-                            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
-                                Column(modifier = Modifier.padding(18.dp)) {
-                                    Text(text = stringResource(R.string.company_intern_evaluation_strengths), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                    Text(text = advisorEvaluation.strengths, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
-                                }
-                            }
-                        }
-                    }
-                    // Improvements
-                    if (!advisorEvaluation.improvements.isNullOrBlank()) {
-                        item {
-                            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
-                                Column(modifier = Modifier.padding(18.dp)) {
-                                    Text(text = stringResource(R.string.company_intern_evaluation_improvements), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                    Text(text = advisorEvaluation.improvements, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
-                                }
-                            }
-                        }
-                    }
-                    item { Spacer(modifier = Modifier.height(42.dp)) }
+                }
+                // Company evaluation form
+                item {
+                    CompanyEvaluationSection(
+                        existingEvaluation = companyEvaluation,
+                        isSaving = isSavingCompanyEvaluation,
+                        saveSuccessRes = companyEvaluationSaveSuccessRes,
+                        saveErrorRes = companyEvaluationSaveErrorRes,
+                        gradeText = companyEvaluationGradeText,
+                        onGradeChange = onCompanyEvaluationGradeChange,
+                        feedbackText = companyEvaluationFeedbackText,
+                        onFeedbackChange = onCompanyEvaluationFeedbackChange,
+                        strengthsText = companyEvaluationStrengthsText,
+                        onStrengthsChange = onCompanyEvaluationStrengthsChange,
+                        improvementsText = companyEvaluationImprovementsText,
+                        onImprovementsChange = onCompanyEvaluationImprovementsChange,
+                        recommendationText = companyEvaluationRecommendationText,
+                        onRecommendationChange = onCompanyEvaluationRecommendationChange,
+                        gradeErrorRes = companyEvaluationGradeErrorRes,
+                        feedbackErrorRes = companyEvaluationFeedbackErrorRes,
+                        onSave = onSaveCompanyEvaluation,
+                        onConsumeMessages = onConsumeCompanyEvaluationMessages
+                    )
+                }
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(42.dp)) }
+    }
+}
+
+@Composable
+private fun AdvisorEvaluationCard(evaluation: CompanyAdvisorEvaluationDto) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(text = stringResource(R.string.company_intern_evaluation_grade), fontSize = 13.sp, color = Color(0xFF8A8A8A))
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = evaluation.grade?.toString() ?: stringResource(R.string.not_available), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        }
+    }
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            InternProfileInfoRow(label = stringResource(R.string.company_intern_evaluation_status), value = translateEvaluationStatus(evaluation.status))
+            InternProfileInfoRow(label = stringResource(R.string.company_intern_evaluation_date), value = Formatters.formatDateTime(evaluation.updatedAt ?: evaluation.createdAt))
+        }
+    }
+    if (!evaluation.qualitativeFeedback.isNullOrBlank()) {
+        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(text = stringResource(R.string.company_intern_evaluation_feedback), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = evaluation.qualitativeFeedback, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
+            }
+        }
+    }
+    if (!evaluation.strengths.isNullOrBlank()) {
+        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(text = stringResource(R.string.company_intern_evaluation_strengths), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = evaluation.strengths, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
+            }
+        }
+    }
+    if (!evaluation.improvements.isNullOrBlank()) {
+        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(text = stringResource(R.string.company_intern_evaluation_improvements), fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = evaluation.improvements, fontSize = 15.sp, color = Color(0xFF555555), lineHeight = 21.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompanyEvaluationSection(
+    existingEvaluation: com.example.nextstep.data.model.CompanyEvaluationDto?,
+    isSaving: Boolean,
+    saveSuccessRes: Int?,
+    saveErrorRes: Int?,
+    gradeText: String,
+    onGradeChange: (String) -> Unit,
+    feedbackText: String,
+    onFeedbackChange: (String) -> Unit,
+    strengthsText: String,
+    onStrengthsChange: (String) -> Unit,
+    improvementsText: String,
+    onImprovementsChange: (String) -> Unit,
+    recommendationText: String,
+    onRecommendationChange: (String) -> Unit,
+    gradeErrorRes: Int?,
+    feedbackErrorRes: Int?,
+    onSave: () -> Unit,
+    onConsumeMessages: () -> Unit
+) {
+    LaunchedEffect(saveSuccessRes, saveErrorRes) {
+        if (saveSuccessRes != null || saveErrorRes != null) {
+            kotlinx.coroutines.delay(3000)
+            onConsumeMessages()
+        }
+    }
+
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            // Submitted badge
+            if (existingEvaluation != null) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().background(Color(0xFFE8F5E9), RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.company_evaluation_submitted),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // Grade
+            OutlinedTextField(
+                value = gradeText,
+                onValueChange = onGradeChange,
+                label = { Text(stringResource(R.string.company_evaluation_grade_label)) },
+                placeholder = { Text("0 - 20") },
+                isError = gradeErrorRes != null,
+                supportingText = gradeErrorRes?.let { { Text(stringResource(it), color = Color(0xFFB00020)) } },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Qualitative Feedback
+            OutlinedTextField(
+                value = feedbackText,
+                onValueChange = onFeedbackChange,
+                label = { Text(stringResource(R.string.company_evaluation_feedback_label)) },
+                isError = feedbackErrorRes != null,
+                supportingText = feedbackErrorRes?.let { { Text(stringResource(it), color = Color(0xFFB00020)) } },
+                minLines = 3,
+                maxLines = 5,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Strengths
+            OutlinedTextField(
+                value = strengthsText,
+                onValueChange = onStrengthsChange,
+                label = { Text(stringResource(R.string.company_intern_evaluation_strengths)) },
+                minLines = 2,
+                maxLines = 4,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Improvements
+            OutlinedTextField(
+                value = improvementsText,
+                onValueChange = onImprovementsChange,
+                label = { Text(stringResource(R.string.company_intern_evaluation_improvements)) },
+                minLines = 2,
+                maxLines = 4,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Recommendation
+            OutlinedTextField(
+                value = recommendationText,
+                onValueChange = onRecommendationChange,
+                label = { Text(stringResource(R.string.company_evaluation_recommendation_label)) },
+                minLines = 2,
+                maxLines = 4,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Success feedback
+            if (saveSuccessRes != null) {
+                Text(text = stringResource(saveSuccessRes), color = Color(0xFF2E7D32), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Error feedback from server
+            if (saveErrorRes != null) {
+                Text(text = stringResource(saveErrorRes), color = Color(0xFFB00020), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Save button
+            Button(
+                onClick = onSave,
+                enabled = !isSaving,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                } else {
+                    Text(
+                        text = if (existingEvaluation != null) stringResource(R.string.company_evaluation_update_button) else stringResource(R.string.company_evaluation_save_button),
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

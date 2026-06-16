@@ -48,9 +48,7 @@ class InstitutionUsersViewModel : ViewModel() {
     fun deleteInvite(invite: InstitutionUserDto) {
         val isAccepted = !invite.acceptedAt.isNullOrBlank() ||
             invite.inviteStatus?.lowercase()?.trim() == "accepted" ||
-            invite.profileId != null ||
-            invite.studentProfileId != null ||
-            invite.teacherProfileId != null
+            invite.profileId != null
 
         if (isAccepted) {
             _uiState.value = _uiState.value.copy(

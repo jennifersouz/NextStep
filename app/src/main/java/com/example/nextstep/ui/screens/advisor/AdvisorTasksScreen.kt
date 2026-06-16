@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
+import com.example.nextstep.ui.utils.TaskStatus
 
 @Composable
 fun AdvisorTasksScreen(
@@ -136,9 +137,9 @@ fun AdvisorTasksScreen(
 @Composable
 private fun TaskSummarySection(tasks: List<AdvisorTaskListItemDto>) {
     val total = tasks.size
-    val pending = tasks.count { it.status == "pending" }
-    val inProgress = tasks.count { it.status == "in_progress" }
-    val completed = tasks.count { it.status == "completed" }
+    val pending = tasks.count { it.status == TaskStatus.PENDING }
+    val inProgress = tasks.count { it.status == TaskStatus.IN_PROGRESS }
+    val completed = tasks.count { it.status == TaskStatus.COMPLETED }
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),

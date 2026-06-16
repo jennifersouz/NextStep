@@ -7,7 +7,6 @@ import com.example.nextstep.data.model.TeacherStudentDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Order
 
 class TeacherMessagesRepository {
 
@@ -40,20 +39,13 @@ class TeacherMessagesRepository {
 
             val conversations = groupedByStudent.map { (studentId, studentApps) ->
                 // Escolher a candidatura principal
-                // 1. Preferir 'accepted'
-                // 2. Escolher a mais recente por createdAt
                 val primaryApp = studentApps.sortedWith(
                     compareByDescending<TeacherStudentDto> { 
                         it.status?.lowercase() == "accepted" || it.status?.lowercase() == "aceite" 
                     }.thenByDescending { it.createdAt ?: "" }
                 ).first()
 
-                // Buscar a última mensagem considerando TODAS as candidaturas deste aluno com este docente
-                // Para simplificar, buscamos a última mensagem da candidatura principal
-                // ou tentamos buscar entre todas as IDs do grupo.
-                val appIds = studentApps.map { it.applicationId }
-                val lastMessageData = getLastMessageAcrossApps(appIds)
-
+                // Usar last_message da view (já filtrado por participant_type = 'teacher')
                 TeacherConversationDto(
                     applicationId = primaryApp.applicationId,
                     studentProfileId = primaryApp.studentProfileId,
@@ -61,9 +53,9 @@ class TeacherMessagesRepository {
                     studentEmail = primaryApp.studentEmail,
                     offerTitle = primaryApp.offerTitle,
                     companyName = primaryApp.companyName,
-                    lastMessage = lastMessageData?.content,
-                    lastMessageAt = lastMessageData?.createdAt,
-                    unreadCount = 0 
+                    lastMessage = primaryApp.lastMessage,
+                    lastMessageAt = primaryApp.lastMessageAt,
+                    unreadCount = 0
                 )
             }
 
@@ -77,27 +69,6 @@ class TeacherMessagesRepository {
             } else {
                 Result.failure(exception)
             }
-        }
-    }
-
-    private suspend fun getLastMessageAcrossApps(applicationIds: List<String>): ApplicationMessageDto? {
-        if (applicationIds.isEmpty()) return null
-        return try {
-            supabase
-                .from("application_chat_messages_view")
-                .select {
-                    filter {
-                        isIn("application_id", applicationIds)
-                        eq("participant_type", "teacher")
-                    }
-                    limit(1)
-                    order("created_at", Order.DESCENDING)
-                }
-                .decodeList<ApplicationMessageDto>()
-                .firstOrNull()
-        } catch (e: Exception) {
-            Log.e("TeacherMessagesRepo", "Erro ao buscar última mensagem para apps $applicationIds", e)
-            null
         }
     }
 

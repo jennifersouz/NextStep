@@ -270,7 +270,7 @@ internal fun InstitutionUsersContent(
                                 val accepted = isInviteAccepted(user)
                                 val role = user.targetRole
                                 val inviteId = user.inviteId
-                                val profileId = user.studentProfileId ?: user.teacherProfileId ?: user.profileId
+                                val profileId = user.profileId
                                 
                                 Log.d(
                                     "InstitutionUsers",
@@ -461,13 +461,11 @@ private fun InstitutionUsersEmptyState(isFiltered: Boolean) {
 private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
     return !user.acceptedAt.isNullOrBlank() ||
         user.inviteStatus?.lowercase()?.trim() == "accepted" ||
-        user.profileId != null ||
-        user.studentProfileId != null ||
-        user.teacherProfileId != null
+        user.profileId != null
 }
 
 private fun isArchived(user: InstitutionUserDto): Boolean {
-    return user.studentInstitutionArchivedAt != null || user.teacherInstitutionArchivedAt != null
+    return false
 }
 
 private fun displayInstitutionUserName(user: InstitutionUserDto): String {
