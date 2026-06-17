@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TeacherRequestDto(
-    val id: String,
+    val id: String = "",
 
     @SerialName("application_id")
     val applicationId: String? = null,
@@ -13,8 +13,11 @@ data class TeacherRequestDto(
     @SerialName("teacher_profile_id")
     val teacherProfileId: String? = null,
 
-    val status: String? = null,
+    val status: String = "pending",
 
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+
+    @SerialName("updated_at")
+    val updatedAt: String? = null
 )

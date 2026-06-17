@@ -239,6 +239,7 @@
     <string name="motivation_letter_placeholder">CartaMotivacao.pdf</string>
     <string name="cv">CV</string>
     <string name="cv_placeholder">CV.pdf</string>
+    <string name="final_report_placeholder">RelatorioFinal.pdf</string>
     <string name="upload">Carregar</string>
     <string name="submit_application">Submeter candidatura</string>
     <string name="submitting_application">A submeter...</string>

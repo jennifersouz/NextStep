@@ -741,6 +741,30 @@ private fun TeacherDocumentsTab(applicationId: String, detail: TeacherStudentDet
             }
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Final Internship Report
+        TeacherDocumentItem(
+            name = stringResource(R.string.final_report),
+            path = detail?.reportPath,
+            onOpen = { path ->
+                viewModel.openDocument(
+                    path = path,
+                    onSuccess = { url ->
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, errorOpeningFile, Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    onError = { msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
         
         Box(

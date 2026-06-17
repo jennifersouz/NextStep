@@ -109,6 +109,7 @@ fun StudentSubmittedApplicationDetailScreen(
                 onBackClick = onBackClick,
                 onOpenMotivationLetter = viewModel::openMotivationLetter,
                 onOpenCv = viewModel::openCv,
+                onOpenFinalReport = viewModel::openFinalReport,
                 onConfirmPresence = viewModel::confirmPresence,
                 onMessagesClick = onMessagesClick
             )
@@ -127,6 +128,7 @@ fun StudentApplicationDetailContent(
     onBackClick: () -> Unit,
     onOpenMotivationLetter: () -> Unit,
     onOpenCv: () -> Unit,
+    onOpenFinalReport: () -> Unit,
     onConfirmPresence: () -> Unit,
     onMessagesClick: (String, String) -> Unit
 ) {
@@ -237,6 +239,18 @@ fun StudentApplicationDetailContent(
             ),
             enabled = !application.cvPath.isNullOrBlank() && !isOpeningDocument,
             onOpenClick = onOpenCv
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        StudentApplicationDetailDocumentField(
+            label = stringResource(R.string.final_report),
+            fileName = fileNameFromStudentApplicationPath(
+                path = application.reportPath,
+                fallback = stringResource(R.string.final_report_placeholder)
+            ),
+            enabled = !application.reportPath.isNullOrBlank() && !isOpeningDocument,
+            onOpenClick = onOpenFinalReport
         )
 
         documentErrorRes?.let { errorRes ->

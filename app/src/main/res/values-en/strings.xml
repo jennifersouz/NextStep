@@ -237,6 +237,7 @@
     <string name="motivation_letter_placeholder">MotivationLetter.pdf</string>
     <string name="cv">CV</string>
     <string name="cv_placeholder">CV.pdf</string>
+    <string name="final_report_placeholder">FinalReport.pdf</string>
     <string name="upload">Upload</string>
     <string name="submit_application">Submit application</string>
     <string name="submitting_application">Submitting…</string>
