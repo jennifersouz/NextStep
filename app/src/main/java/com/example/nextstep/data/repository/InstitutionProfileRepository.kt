@@ -18,14 +18,19 @@ class InstitutionProfileRepository {
                 ?: throw IllegalStateException("Instituição não autenticada.")
 
             val profile = supabase
-                .from("institution_profile_view")
+                .from("profiles")
                 .select {
                     filter {
-                        eq("profile_id", userId)
+                        eq("id", userId)
                     }
                 }
                 .decodeSingleOrNull<InstitutionProfileDto>()
                 ?: throw IllegalStateException("Perfil da instituição não encontrado.")
+
+            val validRoles = setOf("institution", "instituicao", "instituição")
+            if (profile.role !in validRoles) {
+                throw IllegalStateException("Este perfil não pertence a uma instituição.")
+            }
 
             Result.success(profile)
         } catch (exception: Exception) {

@@ -161,43 +161,65 @@ fun AdminEditUserScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Nome
-            OutlinedTextField(
-                value = state.firstName,
-                onValueChange = viewModel::onFirstNameChange,
-                label = { Text(stringResource(R.string.name_required)) },
-                placeholder = { Text(stringResource(R.string.name_placeholder_text)) },
-                isError = state.firstNameError != null,
-                supportingText = state.firstNameError?.let {
-                    { Text(it, color = Color(0xFFB00020)) }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color(0xFFEDEDED),
-                    focusedBorderColor = Color(0xFF333333)
-                ),
-                singleLine = true,
-                enabled = !state.isSaving
-            )
+            if (state.isCompany) {
+                // ── Empresa: mostrar apenas "Nome da empresa" ──
+                OutlinedTextField(
+                    value = state.companyName,
+                    onValueChange = viewModel::onCompanyNameChange,
+                    label = { Text(stringResource(R.string.company_name_required)) },
+                    placeholder = { Text(stringResource(R.string.company_name_placeholder)) },
+                    isError = state.companyNameError != null,
+                    supportingText = state.companyNameError?.let {
+                        { Text(it, color = Color(0xFFB00020)) }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color(0xFFEDEDED),
+                        focusedBorderColor = Color(0xFF333333)
+                    ),
+                    singleLine = true,
+                    enabled = !state.isSaving
+                )
+            } else {
+                // ── Pessoa: mostrar Nome e Apelido ──
+                OutlinedTextField(
+                    value = state.firstName,
+                    onValueChange = viewModel::onFirstNameChange,
+                    label = { Text(stringResource(R.string.name_required)) },
+                    placeholder = { Text(stringResource(R.string.name_placeholder_text)) },
+                    isError = state.firstNameError != null,
+                    supportingText = state.firstNameError?.let {
+                        { Text(it, color = Color(0xFFB00020)) }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color(0xFFEDEDED),
+                        focusedBorderColor = Color(0xFF333333)
+                    ),
+                    singleLine = true,
+                    enabled = !state.isSaving
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Apelido
-            OutlinedTextField(
-                value = state.lastName,
-                onValueChange = viewModel::onLastNameChange,
-                label = { Text(stringResource(R.string.last_name_required)) },
-                placeholder = { Text(stringResource(R.string.last_name_placeholder_text)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color(0xFFEDEDED),
-                    focusedBorderColor = Color(0xFF333333)
-                ),
-                singleLine = true,
-                enabled = !state.isSaving
-            )
+                // Apelido
+                OutlinedTextField(
+                    value = state.lastName,
+                    onValueChange = viewModel::onLastNameChange,
+                    label = { Text(stringResource(R.string.last_name_required)) },
+                    placeholder = { Text(stringResource(R.string.last_name_placeholder_text)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color(0xFFEDEDED),
+                        focusedBorderColor = Color(0xFF333333)
+                    ),
+                    singleLine = true,
+                    enabled = !state.isSaving
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

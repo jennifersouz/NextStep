@@ -34,9 +34,6 @@ class InstitutionEditProfileViewModel : ViewModel() {
 
                 _uiState.value.copy(
                     name = profile?.name.orEmpty(),
-                    nif = profile?.nif.orEmpty(),
-                    locality = profile?.locality.orEmpty(),
-                    address = profile?.address.orEmpty(),
                     phone = profile?.phone.orEmpty(),
                     isLoading = false,
                     errorMessageRes = null

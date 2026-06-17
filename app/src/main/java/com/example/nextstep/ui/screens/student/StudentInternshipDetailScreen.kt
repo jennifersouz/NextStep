@@ -42,6 +42,7 @@ fun StudentInternshipDetailScreen(
     onBackClick: () -> Unit,
     onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
+    onSearchTeacherClick: () -> Unit,
     onAdvisorProfileClick: (String) -> Unit = {},
     onTeacherProfileClick: (String) -> Unit = {},
     viewModel: StudentInternshipDetailViewModel = viewModel()
@@ -101,6 +102,7 @@ fun StudentInternshipDetailScreen(
                         tasks = uiState.tasks,
                         onChatClick = onChatClick,
                         onSearchAdvisorClick = onSearchAdvisorClick,
+                        onSearchTeacherClick = onSearchTeacherClick,
                         onAddTaskClick = viewModel::showAddTaskDialog,
                         onTaskStatusChange = viewModel::updateTaskStatus,
                         onAdvisorProfileClick = onAdvisorProfileClick,
@@ -143,6 +145,7 @@ fun InternshipDetailContent(
     tasks: List<AdvisorTaskListItemDto>,
     onChatClick: (String, String, String) -> Unit,
     onSearchAdvisorClick: () -> Unit,
+    onSearchTeacherClick: () -> Unit,
     onAddTaskClick: () -> Unit,
     onTaskStatusChange: (String, String) -> Unit,
     onAdvisorProfileClick: (String) -> Unit = {},
@@ -226,6 +229,18 @@ fun InternshipDetailContent(
             isAssigned = isTeacherAssigned,
             notAssignedText = stringResource(R.string.teacher_not_assigned_message)
         )
+
+        if (internship.teacherProfileId == null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onSearchTeacherClick,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFDFA52), contentColor = Color.Black),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(stringResource(R.string.request_teacher), fontWeight = FontWeight.Bold)
+            }
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 

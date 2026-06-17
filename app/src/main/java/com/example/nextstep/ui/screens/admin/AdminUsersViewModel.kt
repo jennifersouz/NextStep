@@ -60,8 +60,13 @@ class AdminUsersViewModel : ViewModel() {
         applyFiltersAndSearch()
     }
 
-    fun onFilterChange(filter: AdminUsersFilter) {
-        _uiState.value = _uiState.value.copy(selectedFilter = filter)
+    fun onTypeFilterChange(type: String) {
+        _uiState.value = _uiState.value.copy(selectedTypeFilter = type)
+        applyFiltersAndSearch()
+    }
+
+    fun onStatusFilterChange(status: String) {
+        _uiState.value = _uiState.value.copy(selectedStatusFilter = status)
         applyFiltersAndSearch()
     }
 
@@ -149,15 +154,30 @@ class AdminUsersViewModel : ViewModel() {
     }
 
     private fun applyFilter(users: List<AdminProfileDto>): List<AdminProfileDto> {
-        return when (_uiState.value.selectedFilter) {
-            AdminUsersFilter.ALL -> users
-            AdminUsersFilter.STUDENTS -> users.filter { it.role == "student" }
-            AdminUsersFilter.TEACHERS -> users.filter { it.role == "teacher" }
-            AdminUsersFilter.COMPANIES -> users.filter { it.role == "company" }
-            AdminUsersFilter.ADMINS -> users.filter { it.role == "admin" }
-            AdminUsersFilter.ACTIVE -> users.filter { it.isActive == true && !it.isArchived }
-            AdminUsersFilter.INACTIVE -> users.filter { it.isActive == false && !it.isArchived }
-            AdminUsersFilter.ARCHIVED -> users.filter { it.isArchived }
+        val state = _uiState.value
+        val typeFilter = state.selectedTypeFilter.trim().lowercase()
+        val statusFilter = state.selectedStatusFilter.trim().lowercase()
+
+        return users.filter { user ->
+            val matchesType = typeFilter == "todos" ||
+                when (typeFilter) {
+                    "alunos" -> user.role?.trim()?.lowercase() == "student"
+                    "docentes" -> user.role?.trim()?.lowercase() == "teacher"
+                    "empresas" -> user.role?.trim()?.lowercase() == "company"
+                    "orientadores" -> user.role?.trim()?.lowercase() == "advisor"
+                    "administradores" -> user.role?.trim()?.lowercase() == "admin"
+                    else -> true
+                }
+
+            val matchesStatus = statusFilter == "todos" ||
+                when (statusFilter) {
+                    "ativos" -> user.isActive == true && !user.isArchived
+                    "inativos" -> user.isActive == false && !user.isArchived
+                    "arquivados" -> user.isArchived
+                    else -> true
+                }
+
+            matchesType && matchesStatus
         }
     }
 }

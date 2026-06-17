@@ -12,5 +12,6 @@ data class ApplicationChatUiState(
     val participantName: String = "",
     val internshipTitle: String = "",
     val chatType: String = "advisor",
+    val showRoleTag: Boolean = true,
     val errorMessageRes: Int? = null
 )

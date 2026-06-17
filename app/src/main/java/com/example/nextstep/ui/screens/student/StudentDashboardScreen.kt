@@ -2,7 +2,6 @@ package com.example.nextstep.ui.screens.student
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,32 +19,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -55,14 +52,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -71,7 +65,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
 import com.example.nextstep.ui.components.BottomBarItem
-import com.example.nextstep.ui.components.CompanyLogo
 import com.example.nextstep.ui.components.InternshipOfferCard
 import com.example.nextstep.ui.components.NextStepBottomBar
 import com.example.nextstep.ui.screens.auth.SessionViewModel
@@ -106,6 +99,7 @@ fun StudentDashboardScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadOffers()
                 viewModel.loadUnreadNotificationsCount()
             }
         }
@@ -177,8 +171,13 @@ fun StudentDashboardScreen(
                         onFilterClick = {
                             showFiltersSheet = true
                         },
+                        onWorkModeSelected = viewModel::onWorkModeFilterSelected,
                         onOfferClick = onOfferClick,
-                        onCompanyClick = onCompanyClick
+                        onCompanyClick = onCompanyClick,
+                        onClearArea = { viewModel.onAreaFilterSelected(null) },
+                        onClearWorkMode = { viewModel.onWorkModeFilterSelected(null) },
+                        onClearLocation = { viewModel.onLocationFilterSelected(null) },
+                        onClearVacancies = { viewModel.onOnlyWithVacanciesChange(false) }
                     )
                 }
 
@@ -192,10 +191,7 @@ fun StudentDashboardScreen(
                     StudentNotificationsScreen(
                         onNotificationClick = onApplicationNotificationClick,
                         onUnreadCountChanged = { count ->
-                            Log.d(
-                                "NOTIF_DEBUG",
-                                "Dashboard recebeu novo contador = $count"
-                            )
+                            Log.d("NOTIF_DEBUG", "Dashboard recebeu novo contador = $count")
                             viewModel.setUnreadNotificationsCount(count)
                         }
                     )
@@ -247,7 +243,7 @@ fun StudentDashboardScreen(
                             )
                         }
 
-                else -> {
+                        else -> {
                             StudentProfileScreen(
                                 refreshKey = profileRefreshKey,
                                 onSentRequestsClick = onSentRequestsClick,
@@ -325,95 +321,113 @@ fun StudentOffersContent(
     onSearchChange: (String) -> Unit,
     onRetryClick: () -> Unit,
     onFilterClick: () -> Unit,
+    onWorkModeSelected: (String?) -> Unit,
     onOfferClick: (String) -> Unit,
-    onCompanyClick: (String) -> Unit = {}
+    onCompanyClick: (String) -> Unit = {},
+    onClearArea: () -> Unit = {},
+    onClearWorkMode: () -> Unit = {},
+    onClearLocation: () -> Unit = {},
+    onClearVacancies: () -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 22.dp,
-            end = 22.dp,
-            top = 22.dp,
-            bottom = 24.dp
+    Column(modifier = Modifier.fillMaxSize()) {
+        GreetingHeader(
+            studentName = state.studentName,
+            subtitle = stringResource(R.string.student_home_subtitle)
         )
-    ) {
-        item {
-            SearchBar(
-                value = state.searchQuery,
-                onValueChange = onSearchChange
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
+        SearchBar(
+            value = state.searchQuery,
+            onValueChange = onSearchChange
+        )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilterButton(
-                    activeFiltersCount = state.activeFiltersCount,
-                    onClick = onFilterClick
-                )
+        FilterChipsRow(
+            selectedWorkMode = state.selectedWorkMode,
+            onWorkModeSelected = onWorkModeSelected,
+            onAdvancedFilterClick = onFilterClick,
+            activeFiltersCount = state.activeFiltersCount
+        )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(
-                    text = stringResource(
-                        R.string.results_count,
-                        filteredOffers.size
-                    ),
-                    fontSize = 16.sp,
-                    color = Color.Black
-                )
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-        }
+        ActiveFiltersRow(
+            state = state,
+            onClearArea = onClearArea,
+            onClearWorkMode = onClearWorkMode,
+            onClearLocation = onClearLocation,
+            onClearVacancies = onClearVacancies
+        )
 
         when {
             state.isLoading -> {
-                item {
-                    LoadingState()
-                }
+                LoadingState(modifier = Modifier.weight(1f))
             }
 
             errorMessage != null -> {
-                item {
-                    ErrorState(
-                        message = errorMessage,
-                        onRetryClick = onRetryClick
-                    )
-                }
+                ErrorState(
+                    message = errorMessage,
+                    onRetryClick = onRetryClick,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             filteredOffers.isEmpty() -> {
-                item {
-                    EmptyOffersState(
-                        hasSearchQuery = state.searchQuery.isNotBlank()
-                    )
-                }
+                EmptyOffersState(
+                    hasSearchQuery = state.searchQuery.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             else -> {
-                items(
-                    items = filteredOffers,
-                    key = { offer ->
-                        offer.id
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(
+                        start = 20.dp,
+                        end = 20.dp,
+                        top = 4.dp,
+                        bottom = 16.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    items(
+                        items = filteredOffers,
+                        key = { it.id }
+                    ) { offer ->
+                        InternshipOfferCard(
+                            offer = offer,
+                            onClick = { onOfferClick(offer.id) },
+                            onCompanyClick = {
+                                offer.companyProfileId?.let { onCompanyClick(it) }
+                            }
+                        )
                     }
-                ) { offer ->
-                    InternshipOfferCard(
-                        offer = offer,
-                        onClick = {
-                            onOfferClick(offer.id)
-                        },
-                        onCompanyClick = {
-                            offer.companyProfileId?.let { onCompanyClick(it) }
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun GreetingHeader(
+    studentName: String,
+    subtitle: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.student_home_greeting, studentName.ifBlank { "Estudante" }),
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        Text(
+            text = subtitle,
+            fontSize = 15.sp,
+            color = Color(0xFF6B7280)
+        )
     }
 }
 
@@ -422,95 +436,238 @@ fun SearchBar(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = {
             Text(
-                text = stringResource(R.string.search),
-                color = Color(0xFF7A7A7A),
-                fontSize = 22.sp
+                text = stringResource(R.string.search_internship_hint),
+                color = Color(0xFF9CA3AF),
+                fontSize = 15.sp
             )
         },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = stringResource(R.string.search),
-                tint = Color(0xFF7A7A7A),
-                modifier = Modifier.size(32.dp)
+                tint = Color(0xFF9CA3AF),
+                modifier = Modifier.size(22.dp)
             )
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .clip(RoundedCornerShape(10.dp)),
+            .padding(horizontal = 20.dp)
+            .height(52.dp),
         singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFF4F4F4),
-            unfocusedContainerColor = Color(0xFFF4F4F4),
-            disabledContainerColor = Color(0xFFF4F4F4),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+        shape = RoundedCornerShape(14.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFF3F4F6),
+            unfocusedContainerColor = Color(0xFFF3F4F6),
+            focusedBorderColor = Color(0xFFE5E7EB),
+            unfocusedBorderColor = Color(0xFFE5E7EB),
+            cursorColor = Color.Black
+        ),
+        textStyle = androidx.compose.ui.text.TextStyle(
+            fontSize = 15.sp,
+            color = Color.Black
         )
     )
 }
 
 @Composable
-fun FilterButton(
-    activeFiltersCount: Int = 0,
-    onClick: () -> Unit
+private fun FilterChipsRow(
+    selectedWorkMode: String?,
+    onWorkModeSelected: (String?) -> Unit,
+    onAdvancedFilterClick: () -> Unit,
+    activeFiltersCount: Int
 ) {
-    val label = if (activeFiltersCount > 0) {
-        "${stringResource(R.string.filter)} ($activeFiltersCount)"
-    } else {
-        stringResource(R.string.filter)
-    }
-
-    OutlinedButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(6.dp),
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
+        val chips = listOf(
+            null to stringResource(R.string.filter_all),
+            "remoto" to stringResource(R.string.work_mode_remote),
+            "presencial" to stringResource(R.string.work_mode_onsite),
+            "hibrido" to stringResource(R.string.work_mode_hybrid)
         )
 
-        Spacer(modifier = Modifier.width(4.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(chips, key = { it.second }) { (value, label) ->
+                WorkModeChip(
+                    label = label,
+                    selected = if (value == null) selectedWorkMode == null
+                               else normalizeWorkMode(selectedWorkMode) == normalizeWorkMode(value),
+                    onClick = { onWorkModeSelected(value) }
+                )
+            }
+        }
 
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = null,
-            tint = Color(0xFF8A8A8A),
-            modifier = Modifier.size(18.dp)
-        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        IconButton(
+            onClick = onAdvancedFilterClick,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box {
+                Icon(
+                    imageVector = Icons.Default.Tune,
+                    contentDescription = stringResource(R.string.filter),
+                    tint = if (activeFiltersCount > 0) Color(0xFFFDFA52) else Color(0xFF6B7280),
+                    modifier = Modifier.size(22.dp)
+                )
+
+                if (activeFiltersCount > 0) {
+                    Text(
+                        text = "$activeFiltersCount",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .background(
+                                color = Color(0xFFFDFA52),
+                                shape = RoundedCornerShape(50)
+                            )
+                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun LoadingState() {
-    Box(
+private fun ActiveFiltersRow(
+    state: StudentDashboardUiState,
+    onClearArea: () -> Unit,
+    onClearWorkMode: () -> Unit,
+    onClearLocation: () -> Unit,
+    onClearVacancies: () -> Unit
+) {
+    val activeFilters = mutableListOf<Pair<String, () -> Unit>>()
+
+    if (!state.selectedArea.isNullOrBlank()) {
+        activeFilters.add(displayAreaLabel(state.selectedArea) to onClearArea)
+    }
+    if (!state.selectedWorkMode.isNullOrBlank()) {
+        activeFilters.add(displayWorkModeLabel(state.selectedWorkMode) to onClearWorkMode)
+    }
+    if (!state.selectedLocation.isNullOrBlank()) {
+        activeFilters.add(state.selectedLocation to onClearLocation)
+    }
+    if (state.onlyWithVacancies) {
+        activeFilters.add(stringResource(R.string.only_with_vacancies_short) to onClearVacancies)
+    }
+
+    if (activeFilters.isEmpty()) return
+
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 80.dp),
+            .padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        items(activeFilters) { (label, onClear) ->
+            ActiveFilterChip(
+                label = label,
+                onClear = onClear
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActiveFilterChip(
+    label: String,
+    onClear: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .background(
+                color = Color(0xFFF3F4F6),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(start = 10.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color(0xFF374151)
+        )
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Remover filtro",
+            tint = Color(0xFF9CA3AF),
+            modifier = Modifier
+                .size(14.dp)
+                .clickable(onClick = onClear)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WorkModeChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Text(
+                text = label,
+                fontSize = 13.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (selected) Color.Black else Color(0xFF6B7280)
+            )
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = Color(0xFFF3F4F6),
+            selectedContainerColor = Color(0xFFFDFA52)
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            borderColor = Color.Transparent,
+            selectedBorderColor = Color.Transparent,
+            enabled = true,
+            selected = selected
+        ),
+        shape = RoundedCornerShape(20.dp)
+    )
+}
+
+@Composable
+fun LoadingState(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = Color.Black
+            color = Color(0xFF6B7280),
+            modifier = Modifier.size(36.dp)
         )
     }
 }
 
 @Composable
 fun EmptyOffersState(
-    hasSearchQuery: Boolean
+    hasSearchQuery: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(top = 80.dp),
+            .padding(horizontal = 40.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -519,8 +676,8 @@ fun EmptyOffersState(
             } else {
                 stringResource(R.string.no_offers_title)
             },
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
@@ -533,7 +690,7 @@ fun EmptyOffersState(
             } else {
                 stringResource(R.string.no_offers_subtitle)
             },
-            fontSize = 16.sp,
+            fontSize = 15.sp,
             color = Color(0xFF6B7280),
             textAlign = TextAlign.Center
         )
@@ -543,17 +700,19 @@ fun EmptyOffersState(
 @Composable
 fun ErrorState(
     message: String,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(top = 80.dp),
+            .padding(horizontal = 40.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = message,
-            fontSize = 16.sp,
+            fontSize = 15.sp,
             color = Color(0xFFB00020),
             textAlign = TextAlign.Center
         )
@@ -565,10 +724,12 @@ fun ErrorState(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFDFA52),
                 contentColor = Color.Black
-            )
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.try_again)
+                text = stringResource(R.string.try_again),
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -643,10 +804,12 @@ fun StudentOffersFilterSheet(
                 Text(
                     text = stringResource(R.string.clear_filters),
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    fontWeight = if (state.activeFiltersCount > 0) FontWeight.Bold else FontWeight.Normal,
+                    color = if (state.activeFiltersCount > 0) Color.Black else Color(0xFF9CA3AF),
                     modifier = Modifier.clickable {
-                        onClearFilters()
+                        if (state.activeFiltersCount > 0) {
+                            onClearFilters()
+                        }
                     }
                 )
             }
@@ -768,29 +931,23 @@ fun StudentFilterSection(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Using LazyRow instead of FlowRow to avoid version mismatch crash
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             item {
                 StudentFilterChip(
                     text = stringResource(R.string.filter_all),
                     selected = selectedOption == null,
-                    onClick = {
-                        onOptionSelected(null)
-                    }
+                    onClick = { onOptionSelected(null) }
                 )
             }
 
-            items(
-                items = options,
-                key = { option -> option }
-            ) { option ->
+            items(options) { option ->
                 StudentFilterChip(
                     text = optionLabel(option),
                     selected = selectedOption == option,
-                    onClick = {
-                        onOptionSelected(option)
-                    }
+                    onClick = { onOptionSelected(option) }
                 )
             }
         }

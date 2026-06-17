@@ -42,13 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyOfferDto
+import com.example.nextstep.ui.components.AppFilterChipsRow
 import com.example.nextstep.ui.utils.Formatters
 
 @Composable
@@ -141,9 +144,11 @@ fun CompanyOffersScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Filter tabs
-        OfferFilterTabs(
+        // Filter chips
+        AppFilterChipsRow(
+            filters = OfferFilter.entries.toList(),
             selectedFilter = state.selectedFilter,
+            labelProvider = { it.label },
             onFilterSelected = { viewModel.onFilterChange(it) }
         )
 
@@ -234,43 +239,6 @@ fun CompanyOffersScreen(
 }
 
 @Composable
-fun OfferFilterTabs(
-    selectedFilter: OfferFilter,
-    onFilterSelected: (OfferFilter) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .height(40.dp)
-            .background(Color(0xFFF3F3F3), RoundedCornerShape(12.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        OfferFilter.entries.forEach { filter ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-                    .background(
-                        if (selectedFilter == filter) Color.White else Color.Transparent,
-                        RoundedCornerShape(10.dp)
-                    )
-                    .clickable { onFilterSelected(filter) },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = filter.label,
-                    fontSize = 13.sp,
-                    fontWeight = if (selectedFilter == filter) FontWeight.Bold else FontWeight.Normal,
-                    color = Color.Black
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun CompanyOfferCard(
     offer: CompanyOfferDto,
     onClick: () -> Unit
@@ -314,7 +282,7 @@ fun CompanyOfferCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CompanyOfferDetailRow(label = "Área", value = offer.area.orEmpty())
+        CompanyOfferDetailRow(label = "Área", value = Formatters.formatOfferArea(offer.area))
         CompanyOfferDetailRow(label = "Localização", value = offer.location.orEmpty())
         CompanyOfferDetailRow(
             label = "Regime",

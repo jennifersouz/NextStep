@@ -12,8 +12,8 @@ data class CompanyOffersUiState(
 )
 
 enum class OfferFilter(val label: String) {
+    ALL("Todas"),
     ACTIVE("Ativas"),
     INACTIVE("Inativas"),
-    ARCHIVED("Arquivadas"),
-    ALL("Todas")
+    ARCHIVED("Arquivadas")
 }

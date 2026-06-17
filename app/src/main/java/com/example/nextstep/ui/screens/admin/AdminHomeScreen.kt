@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.ProfileDto
-import com.example.nextstep.ui.utils.roleToDisplayName
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun AdminHomeScreen(
@@ -302,7 +302,7 @@ private fun AdminRecentProfileItem(profile: ProfileDto) {
                 color = Color.Black
             )
             Text(
-                text = "${stringResource(R.string.function_label)}: ${roleToDisplayName(profile.role)}",
+                text = "${stringResource(R.string.function_label)}: ${Formatters.formatRole(profile.role)}",
                 fontSize = 12.sp,
                 color = Color(0xFF777777)
             )

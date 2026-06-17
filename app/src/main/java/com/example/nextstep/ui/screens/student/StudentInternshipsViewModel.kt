@@ -34,7 +34,9 @@ class StudentInternshipsViewModel : ViewModel() {
                         id = dto.id,
                         title = dto.offerTitle,
                         companyName = dto.companyName,
-                        advisorName = dto.advisorName ?: "Orientador não atribuído",
+                        advisorName = dto.advisorName,
+                        teacherName = dto.teacherName,
+                        teacherStatus = dto.teacherStatus,
                         completed = dto.status == "completed"
                     )
                 }

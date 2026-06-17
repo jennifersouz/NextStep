@@ -9,8 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,7 +28,9 @@ data class InternshipCardUi(
     val id: String,
     val title: String,
     val companyName: String,
-    val advisorName: String,
+    val advisorName: String?,
+    val teacherName: String?,
+    val teacherStatus: String?,
     val completed: Boolean
 )
 
@@ -169,7 +169,6 @@ private fun InternshipCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(145.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(
@@ -184,11 +183,11 @@ private fun InternshipCard(
 
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            
+
             Box(
                 modifier = Modifier
                     .size(52.dp)
@@ -225,53 +224,49 @@ private fun InternshipCard(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = stringResource(R.string.advisors),
-                    fontSize = 14.sp,
+                    text = stringResource(R.string.supervision_section_title),
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    AdvisorAvatar(modifier = Modifier.size(28.dp))
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Text(
-                        text = internship.advisorName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF4A4A4A),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                val advisorDisplay = if (!internship.advisorName.isNullOrBlank()) {
+                    "Orientador: ${internship.advisorName}"
+                } else {
+                    stringResource(R.string.advisor_not_assigned_fallback)
                 }
+
+                Text(
+                    text = advisorDisplay,
+                    fontSize = 13.sp,
+                    color = Color(0xFF4A4A4A),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val isTeacherAccepted = internship.teacherStatus == "accepted"
+                val teacherDisplay = if (isTeacherAccepted && !internship.teacherName.isNullOrBlank()) {
+                    "Docente: ${internship.teacherName}"
+                } else {
+                    stringResource(R.string.teacher_not_assigned_fallback)
+                }
+
+                Text(
+                    text = teacherDisplay,
+                    fontSize = 13.sp,
+                    color = Color(0xFF4A4A4A),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
-    }
-}
-
-@Composable
-fun AdvisorAvatar(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Color(0xFFD9D9D9))
-            .border(1.5.dp, Color.White, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = Color.Gray
-        )
     }
 }
 
@@ -285,21 +280,27 @@ private fun PreviewStudentInternships() {
                 "1",
                 "Sistemas Interativos",
                 "Worten",
-                "Catarina Ferreira e Julia Santos",
+                "Catarina Ferreira",
+                "Prof. Ana Silva",
+                "accepted",
                 false
             ),
             InternshipCardUi(
                 "2",
                 "Sistemas Web",
                 "Tech World",
-                "Catarina Ferreira e Julia Santos",
+                "Catarina Ferreira",
+                null,
+                null,
                 false
             ),
             InternshipCardUi(
                 "3",
                 "Programação Móvel",
                 "Worten",
-                "Catarina Ferreira e Julia Santos",
+                null,
+                "Prof. Ana Silva",
+                "accepted",
                 true
             )
         ),

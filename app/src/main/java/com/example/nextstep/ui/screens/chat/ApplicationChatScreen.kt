@@ -102,6 +102,8 @@ fun ApplicationChatScreen(
         ChatHeader(
             participantName = state.participantName.takeIf { it.isNotBlank() }
                 ?: stringResource(R.string.chat_title),
+            chatType = state.chatType,
+            showRoleTag = state.showRoleTag,
             onBackClick = onBackClick
         )
 
@@ -286,6 +288,8 @@ private fun formatName(name: String): String {
 @Composable
 private fun ChatHeader(
     participantName: String,
+    chatType: String = "advisor",
+    showRoleTag: Boolean = true,
     onBackClick: () -> Unit
 ) {
     val displayName = participantName
@@ -293,6 +297,13 @@ private fun ChatHeader(
         .replace(Regex("\\s+"), " ")
         .trim()
         .let { formatName(it) }
+
+    val roleTag = when {
+        !showRoleTag -> null
+        chatType == "teacher" -> stringResource(R.string.teacher_role)
+        chatType == "advisor" -> stringResource(R.string.advisor_role)
+        else -> null
+    }
 
     Column {
         Surface(
@@ -337,15 +348,25 @@ private fun ChatHeader(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Text(
-                    text = displayName,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = displayName,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (roleTag != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = roleTag,
+                            fontSize = 12.sp,
+                            color = Color(0xFF8A8A8A),
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+                }
             }
         }
 

@@ -31,6 +31,9 @@ object Routes {
     const val STUDENT_SEARCH_ADVISOR = "student_search_advisor/{internshipId}"
     const val STUDENT_SEARCH_ADVISOR_ARG = "internshipId"
 
+    const val STUDENT_SEARCH_TEACHER = "student_search_teacher/{internshipId}"
+    const val STUDENT_SEARCH_TEACHER_ARG = "internshipId"
+
     const val STUDENT_SENT_ADVISOR_REQUESTS = "student_sent_advisor_requests"
 
     const val PROFILE_DETAIL = "profile_detail/{profileId}/{type}"
@@ -140,6 +143,10 @@ object Routes {
 
     fun studentSearchAdvisor(internshipId: String): String {
         return "student_search_advisor/${Uri.encode(internshipId)}"
+    }
+
+    fun studentSearchTeacher(internshipId: String): String {
+        return "student_search_teacher/${Uri.encode(internshipId)}"
     }
 
     fun companyProfile(companyProfileId: String): String {

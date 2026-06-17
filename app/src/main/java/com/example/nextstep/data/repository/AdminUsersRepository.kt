@@ -1,9 +1,13 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.data.model.AdminCompanyNameUpdateDto
+import com.example.nextstep.data.model.AdminCompanyOptionDto
 import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
+import com.example.nextstep.data.model.AdminTeacherSyncDto
 import com.example.nextstep.data.model.AdminUserEditRequest
 import com.example.nextstep.data.model.InstitutionOptionDto
 import com.example.nextstep.data.model.UserActiveStatusUpdateDto
@@ -90,6 +94,27 @@ class AdminUsersRepository {
         }
     }
 
+    /**
+     * Carrega empresas ativas da tabela companies.
+     * Usa is_active = true como filtro.
+     */
+    suspend fun getActiveCompanies(): Result<List<AdminCompanyOptionDto>> {
+        return try {
+            val companies = supabase
+                .from("companies")
+                .select {
+                    filter { eq("is_active", true) }
+                }
+                .decodeList<AdminCompanyOptionDto>()
+
+            Log.d("AdminUsersRepo", "Active companies loaded: ${companies.size}")
+            Result.success(companies)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error loading active companies", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun createUser(request: AdminCreateUserRequest): Result<Unit> {
         return try {
             Log.d("AdminUsersRepo", "Calling edge function admin-create-user for ${request.email}")
@@ -161,6 +186,7 @@ class AdminUsersRepository {
 
     /**
      * Atualiza um utilizador na tabela profiles e retorna os dados atualizados.
+     * Se o role for teacher/docente, sincroniza também a tabela teachers.
      * Não altera email — o DTO AdminUserEditRequest não contém campo email.
      */
     suspend fun updateUser(
@@ -172,13 +198,30 @@ class AdminUsersRepository {
 
             Log.d("AdminUsersRepo", "Updating user id=$userId role=${request.role}")
 
+            // 1) Atualizar profiles
             supabase
                 .from("profiles")
                 .update(request) {
                     filter { eq("id", userId) }
                 }
 
-            // Select pós-update para confirmar persistência
+            // 2) Se for teacher, sincronizar também a tabela teachers
+            val normalizedRole = request.role.trim().lowercase()
+            if (normalizedRole == "teacher" || normalizedRole == "docente") {
+                val syncDto = AdminTeacherSyncDto(
+                    firstName = request.firstName,
+                    lastName = request.lastName,
+                    phone = request.phone
+                )
+                Log.d("AdminUsersRepo", "Syncing teacher table for userId=$userId")
+                supabase
+                    .from("teachers")
+                    .update(syncDto) {
+                        filter { eq("profile_id", userId) }
+                    }
+            }
+
+            // 3) Select pós-update para confirmar persistência
             val profiles = supabase
                 .from("profiles")
                 .select { filter { eq("id", userId) } }
@@ -373,6 +416,54 @@ class AdminUsersRepository {
             Result.success(updated)
         } catch (exception: Exception) {
             Log.e("AdminUsersRepo", "Error archiving user id=$userId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    // ===== Company-specific methods =====
+
+    /**
+     * Obtém os dados da empresa (tabela companies) pelo profile_id.
+     * Retorna o primeiro registo encontrado ou null.
+     */
+    suspend fun getCompanyByProfileId(profileId: String): Result<AdminCompanyDto?> {
+        return try {
+            val companies = supabase
+                .from("companies")
+                .select {
+                    filter { eq("profile_id", profileId) }
+                }
+                .decodeList<AdminCompanyDto>()
+            Result.success(companies.firstOrNull())
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error loading company for profileId=$profileId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * Atualiza o nome da empresa na tabela companies, usando profile_id como filtro.
+     * A tabela companies usa profile_id (não user_id) para referenciar o perfil.
+     */
+    suspend fun updateCompanyName(
+        profileId: String,
+        companyName: String
+    ): Result<Unit> {
+        return try {
+            val now = Instant.now().toString()
+            val dto = AdminCompanyNameUpdateDto(
+                companyName = companyName,
+                updatedAt = now
+            )
+            Log.d("AdminUsersRepo", "Updating company name for profileId=$profileId: $companyName")
+            supabase
+                .from("companies")
+                .update(dto) {
+                    filter { eq("profile_id", profileId) }
+                }
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error updating company name for profileId=$profileId", exception)
             Result.failure(exception)
         }
     }

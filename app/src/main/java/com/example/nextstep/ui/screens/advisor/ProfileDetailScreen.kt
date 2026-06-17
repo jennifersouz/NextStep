@@ -108,13 +108,30 @@ private fun ProfileDetailContent(profile: ProfileDetailData) {
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                InfoRow(label = stringResource(R.string.email), value = profile.email)
-                if (!profile.phone.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = Color(0xFFE5E5E5))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    InfoRow(label = stringResource(R.string.contact), value = profile.phone!!)
+                InfoRow(label = stringResource(R.string.email), value = profile.email.ifBlank { stringResource(R.string.not_specified) })
+
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = Color(0xFFE5E5E5))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                InfoRow(label = stringResource(R.string.phone), value = profile.phone?.ifBlank { null } ?: stringResource(R.string.not_specified))
+
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = Color(0xFFE5E5E5))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                InfoRow(label = stringResource(R.string.department), value = profile.department?.ifBlank { null } ?: stringResource(R.string.not_specified))
+
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = Color(0xFFE5E5E5))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val roleLabel = when (profile.roleType) {
+                    "advisor" -> stringResource(R.string.role_advisor)
+                    "teacher" -> stringResource(R.string.role_teacher)
+                    else -> ""
                 }
+                InfoRow(label = stringResource(R.string.function_label), value = roleLabel)
             }
         }
     }

@@ -48,6 +48,7 @@ import com.example.nextstep.ui.screens.student.StudentDashboardScreen
 import com.example.nextstep.ui.screens.student.StudentInternshipDetailScreen
 import com.example.nextstep.ui.screens.student.StudentOfferDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSearchAdvisorScreen
+import com.example.nextstep.ui.screens.student.StudentSearchTeacherScreen
 import com.example.nextstep.ui.screens.student.StudentSentAdvisorRequestsScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationDetailScreen
 import com.example.nextstep.ui.screens.student.StudentSubmittedApplicationsScreen
@@ -249,6 +250,11 @@ fun AppNavigation() {
                         Routes.studentSearchAdvisor(internshipId)
                     )
                 },
+                onSearchTeacherClick = {
+                    navController.navigate(
+                        Routes.studentSearchTeacher(internshipId)
+                    )
+                },
                 onAdvisorProfileClick = { profileId ->
                     Log.d(
                         "ProfileClick",
@@ -316,6 +322,26 @@ fun AppNavigation() {
                 .orEmpty()
 
             StudentSearchAdvisorScreen(
+                internshipId = internshipId,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = Routes.STUDENT_SEARCH_TEACHER,
+            arguments = listOf(
+                navArgument(Routes.STUDENT_SEARCH_TEACHER_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val internshipId = backStackEntry.arguments
+                ?.getString(Routes.STUDENT_SEARCH_TEACHER_ARG)
+                .orEmpty()
+
+            StudentSearchTeacherScreen(
                 internshipId = internshipId,
                 onBackClick = {
                     navController.popBackStack()

@@ -2,7 +2,11 @@ package com.example.nextstep.ui.screens.institution
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +36,7 @@ import com.example.nextstep.R
 import com.example.nextstep.data.local.LanguageManager
 import com.example.nextstep.data.model.InstitutionProfileDto
 import com.example.nextstep.ui.components.LanguageOptionsSection
+import com.example.nextstep.ui.components.ProfileFieldItem
 import com.example.nextstep.ui.components.ProfileScreenLayout
 
 @Composable
@@ -158,20 +163,40 @@ private fun InstitutionProfileContent(
     onEditProfileClick: () -> Unit,
     onLogoutRequest: () -> Unit
 ) {
-    val subtitle = buildString {
-        append(stringResource(R.string.institution_role))
-        if (!profile.locality.isNullOrBlank()) {
-            append(" · ")
-            append(profile.locality)
-        }
-    }
-
     ProfileScreenLayout(
         title = stringResource(R.string.profile),
         name = profile.name.orEmpty(),
-        subtitle = subtitle,
+        subtitle = stringResource(R.string.institution_role),
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
+        extraContent = {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ProfileFieldItem(
+                    label = stringResource(R.string.email),
+                    value = profile.email.orEmpty()
+                )
+
+                if (!profile.phone.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ProfileFieldItem(
+                        label = stringResource(R.string.phone),
+                        value = profile.phone
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                ProfileFieldItem(
+                    label = stringResource(R.string.status),
+                    value = if (profile.isActive != false) {
+                        stringResource(R.string.active_status)
+                    } else {
+                        stringResource(R.string.inactive_status)
+                    }
+                )
+            }
+        },
         accountOptions = {
             LanguageOptionsSection(
                 selectedLanguage = "pt",

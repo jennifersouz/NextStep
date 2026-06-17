@@ -110,6 +110,48 @@ class StudentNotificationsRepository {
         }
     }
 
+    suspend fun markAllNotificationsAsSeen(): Result<Unit> {
+        return try {
+            val studentProfileId = auth.currentUserOrNull()?.id
+                ?: throw IllegalStateException("Utilizador não autenticado.")
+
+            supabase
+                .from("applications")
+                .update(
+                    UpdateStudentNotificationSeenDto(
+                        studentStatusSeen = true
+                    )
+                ) {
+                    filter {
+                        eq("student_profile_id", studentProfileId)
+                        eq("student_status_seen", false)
+                    }
+                }
+
+            supabase
+                .from("applications")
+                .update(
+                    UpdateAdvisorAssignmentSeenDto(
+                        advisorAssignmentSeen = true
+                    )
+                ) {
+                    filter {
+                        eq("student_profile_id", studentProfileId)
+                        eq("advisor_assignment_seen", false)
+                    }
+                }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e(
+                "StudentNotificationsRepo",
+                "Erro ao marcar todas como lidas",
+                exception
+            )
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getUnreadNotificationsCount(): Result<Int> {
         return try {
             auth.currentUserOrNull()

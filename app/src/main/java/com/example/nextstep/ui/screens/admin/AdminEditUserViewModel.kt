@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.admin
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.data.model.AdminCompanyDto
 import com.example.nextstep.data.model.AdminUserEditRequest
 import com.example.nextstep.data.repository.AdminUsersRepository
 import kotlinx.coroutines.channels.Channel
@@ -17,16 +18,20 @@ data class AdminEditUserUiState(
     val userId: String = "",
     val firstName: String = "",
     val lastName: String = "",
+    val companyName: String = "",
     val email: String = "",
     val phone: String = "",
     val role: String = "student",
     val isActive: Boolean = true,
     val firstNameError: String? = null,
+    val companyNameError: String? = null,
     val roleError: String? = null,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    // Flag que indica se o role atual é "company" (usado na UI para renderização condicional)
+    val isCompany: Boolean = false
 )
 
 sealed class AdminEditUserEvent {
@@ -47,7 +52,7 @@ class AdminEditUserViewModel : ViewModel() {
         Log.d("AdminEditUserVM", "loadUser called with userId=$userId current=${_uiState.value.userId}")
 
         // Se for o mesmo userId que já está carregado, não recarregar
-        if (_uiState.value.userId == userId && !_uiState.value.isLoading && _uiState.value.firstName.isNotBlank()) {
+        if (_uiState.value.userId == userId && !_uiState.value.isLoading && (_uiState.value.firstName.isNotBlank() || _uiState.value.companyName.isNotBlank())) {
             Log.d("AdminEditUserVM", "loadUser skipped: same userId=$userId already loaded")
             return
         }
@@ -63,16 +68,31 @@ class AdminEditUserViewModel : ViewModel() {
             if (result.isSuccess) {
                 val user = result.getOrNull()
                 if (user != null) {
+                    val normalizedRole = user.role?.trim()?.lowercase() ?: "student"
+                    val isCompany = normalizedRole == "company" || normalizedRole == "empresa"
+
+                    var companyName = ""
+
+                    // Se for empresa, carregar company_name da tabela companies
+                    if (isCompany) {
+                        val companyResult = repository.getCompanyByProfileId(userId)
+                        if (companyResult.isSuccess) {
+                            companyName = companyResult.getOrNull()?.companyName ?: ""
+                        }
+                    }
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         firstName = user.firstName ?: "",
                         lastName = user.lastName ?: "",
+                        companyName = companyName,
                         email = user.email ?: "",
                         phone = user.phone ?: "",
                         role = user.role ?: "student",
-                        isActive = user.isActive ?: true
+                        isActive = user.isActive ?: true,
+                        isCompany = isCompany
                     )
-                    Log.d("AdminEditUserVM", "User loaded: id=${user.id}, email=${user.email}, role=${user.role}")
+                    Log.d("AdminEditUserVM", "User loaded: id=${user.id}, email=${user.email}, role=${user.role}, isCompany=$isCompany")
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -104,6 +124,14 @@ class AdminEditUserViewModel : ViewModel() {
         )
     }
 
+    fun onCompanyNameChange(value: String) {
+        _uiState.value = _uiState.value.copy(
+            companyName = value,
+            companyNameError = null,
+            errorMessage = null
+        )
+    }
+
     fun onPhoneChange(value: String) {
         _uiState.value = _uiState.value.copy(
             phone = value,
@@ -112,9 +140,12 @@ class AdminEditUserViewModel : ViewModel() {
     }
 
     fun onRoleChange(value: String) {
+        val normalizedRole = value.trim().lowercase()
+        val isCompany = normalizedRole == "company" || normalizedRole == "empresa"
         _uiState.value = _uiState.value.copy(
             role = value,
             roleError = null,
+            isCompany = isCompany,
             errorMessage = null
         )
     }
@@ -131,10 +162,21 @@ class AdminEditUserViewModel : ViewModel() {
 
         // Validações
         var hasError = false
-        if (state.firstName.isBlank()) {
-            _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
-            hasError = true
+
+        if (state.isCompany) {
+            // Empresa: validar nome da empresa
+            if (state.companyName.isBlank()) {
+                _uiState.value = _uiState.value.copy(companyNameError = "Insere o nome da empresa.")
+                hasError = true
+            }
+        } else {
+            // Pessoa: validar nome
+            if (state.firstName.isBlank()) {
+                _uiState.value = _uiState.value.copy(firstNameError = "Insere o nome.")
+                hasError = true
+            }
         }
+
         if (state.role.isBlank()) {
             _uiState.value = _uiState.value.copy(roleError = "Seleciona a função.")
             hasError = true
@@ -145,20 +187,50 @@ class AdminEditUserViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null, successMessage = null)
 
-            val request = AdminUserEditRequest(
-                firstName = state.firstName.trim(),
-                lastName = state.lastName.trim().takeIf { it.isNotBlank() },
-                phone = state.phone.trim().takeIf { it.isNotBlank() },
-                role = state.role,
-                isActive = state.isActive,
-                updatedAt = Instant.now().toString()
-            )
+            val now = Instant.now().toString()
+            val normalizedRole = state.role.trim().lowercase()
+            val isCompany = normalizedRole == "company" || normalizedRole == "empresa"
 
-            Log.d("AdminEditUserVM", "Saving user id=${state.userId} role=${state.role} isActive=${state.isActive}")
+            // 1) Atualizar profiles (campos comuns)
+            val request = if (isCompany) {
+                // Para empresa: usar firstName como fallback do company_name (consistência)
+                // e lastName vazio/null
+                AdminUserEditRequest(
+                    firstName = state.companyName.trim(),
+                    lastName = null,
+                    phone = state.phone.trim().takeIf { it.isNotBlank() },
+                    role = state.role,
+                    isActive = state.isActive,
+                    updatedAt = now
+                )
+            } else {
+                AdminUserEditRequest(
+                    firstName = state.firstName.trim(),
+                    lastName = state.lastName.trim().takeIf { it.isNotBlank() },
+                    phone = state.phone.trim().takeIf { it.isNotBlank() },
+                    role = state.role,
+                    isActive = state.isActive,
+                    updatedAt = now
+                )
+            }
+
+            Log.d("AdminEditUserVM", "Saving user id=${state.userId} role=${state.role} isActive=${state.isActive} isCompany=$isCompany")
 
             val result = repository.updateUser(state.userId, request)
 
             if (result.isSuccess) {
+                // 2) Se for empresa, atualizar também companies.company_name
+                if (isCompany) {
+                    val companyResult = repository.updateCompanyName(
+                        profileId = state.userId,
+                        companyName = state.companyName.trim()
+                    )
+                    if (companyResult.isFailure) {
+                        Log.e("AdminEditUserVM", "Failed to update company name", companyResult.exceptionOrNull())
+                        // Não bloquear o save — o profile foi atualizado
+                    }
+                }
+
                 val updatedUser = result.getOrThrow()
                 Log.d("AdminEditUserVM", "User saved successfully: id=${updatedUser.id}, firstName=${updatedUser.firstName}")
                 _uiState.value = _uiState.value.copy(

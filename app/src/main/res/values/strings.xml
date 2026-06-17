@@ -37,6 +37,7 @@
     <string name="role_supervisor">Orientador</string>
     <string name="role_institution">Instituição</string>
     <string name="role_admin">Administrador</string>
+    <string name="role_advisor">Orientador</string>
     <string name="function_label">Função</string>
 
     <string name="account_validation_warning">Este tipo de conta requer validação pela instituição ou administrador antes de ter acesso total à plataforma.</string>
@@ -97,6 +98,9 @@
     <string name="error_only_letters">Use apenas letras e espaços.</string>
     <string name="error_company_name_too_short">O nome da empresa deve ter pelo menos 2 caracteres.</string>
     <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
+    <string name="error_company_name_required">Insere o nome da empresa.</string>
+    <string name="error_first_name_required">Insere o nome.</string>
+    <string name="error_last_name_required">Insere o apelido.</string>
     <string name="error_login_failed">Não foi possível iniciar sessão. Verifique o email e a palavra-passe.</string>
     <string name="error_register_failed">Não foi possível criar a conta. Verifique os dados ou tente novamente.</string>
     <string name="error_loading_sent_requests">Não foi possível carregar os pedidos enviados.</string>
@@ -374,6 +378,7 @@
     <string name="status_with_advisor">Com orientador</string>
     <string name="status_rejected">Recusada</string>
     <string name="only_with_vacancies">Apenas com vagas disponíveis</string>
+    <string name="only_with_vacancies_short">Vagas</string>
     <string name="only_with_vacancies_subtitle">Mostra apenas ofertas com pelo menos uma vaga.</string>
     <string name="apply_filters">Aplicar filtros</string>
 
@@ -421,7 +426,7 @@
     <string name="students_in_guidance">Alunos em orientação</string>
     <string name="active_internships">Estágios ativos</string>
     <string name="pending_tasks">Tarefas pendentes</string>
-    <string name="my_students">Os meus alunos</string>
+    <string name="my_students">Meus alunos</string>
     <string name="view_all">Ver todos</string>
     <string name="recent_activities">Atividades recentes</string>
     <string name="no_recent_activities">Ainda não existem atividades recentes.</string>
@@ -449,7 +454,6 @@
     <string name="advisor_invite_active">Ativo</string>
     <string name="advisor_register_no_invite">Não existe convite de orientador para este email.</string>
     <string name="advisor_register_success">Conta de orientador criada com sucesso.</string>
-    <string name="role_advisor">Orientador</string>
     <string name="advisor_register_title">Registo de orientador</string>
     <string name="advisor_register_description">Para criares uma conta como orientador, a empresa deve ter criado previamente um convite com este email.</string>
     <string name="loading">A carregar...</string>
@@ -512,6 +516,7 @@
     <string name="advisor_assigned_students_load_error">Não foi possível carregar os alunos atribuídos.</string>
     <string name="menu">Menu</string>
     <string name="contact">Contacto</string>
+    <string name="not_specified">Não indicado</string>
     <string name="department">Departamento</string>
     <string name="advisor_name_placeholder">Orientador</string>
     <string name="advisor_profile_load_error">Não foi possível carregar o perfil do orientador.</string>
@@ -769,7 +774,7 @@
     <string name="active_companies_label">Empresas ativas</string>
     <string name="active_feminine">Ativa</string>
     <string name="active_internships_label">Estágios ativos</string>
-    <string name="active_status_label">Estado ativo</string>
+    <string name="active_status_label">Ativo</string>
     <string name="add_task">Adicionar tarefa</string>
     <string name="task_title_label">Título da tarefa</string>
     <string name="task_title_placeholder">Ex: Revisão do relatório de estágio</string>
@@ -908,7 +913,7 @@
     <string name="improvements_placeholder_full">Escreva os aspetos a melhorar...</string>
     <string name="in_progress_label">Em progresso</string>
     <string name="inactive_feminine">Inativa</string>
-    <string name="inactive_status_label">Estado inativo</string>
+    <string name="inactive_status_label">Inativo</string>
     <string name="internship_prefix">Estágio </string>
     <string name="language_code_en">EN</string>
     <string name="language_code_pt">PT</string>
@@ -1019,4 +1024,35 @@
     <string name="supervisor_not_assigned">Orientador não atribuído.</string>
     <string name="teacher_not_assigned_message">Docente não atribuído.</string>
     <string name="search_advisor">Procurar orientador</string>
+    <string name="search_teacher_title">Solicitar docente</string>
+    <string name="request_teacher">Solicitar docente</string>
+    <string name="advisor_not_assigned_fallback">Orientador por atribuir</string>
+    <string name="teacher_not_assigned_fallback">Docente por atribuir</string>
+
+    <!-- Student Home -->
+    <string name="student_home_greeting">Olá, %1$s</string>
+    <string name="student_home_subtitle">Encontra o teu próximo estágio</string>
+    <string name="search_internship_hint">Pesquisar estágio, empresa ou localização</string>
+
+    <!-- Company Business Areas -->
+    <string name="area_consulting">Consultoria</string>
+    <string name="area_automotive">Automóvel</string>
+    <string name="area_food">Alimentação</string>
+    <string name="area_energy">Energia</string>
+    <string name="area_technology">Tecnologia</string>
+    <string name="area_health">Saúde</string>
+    <string name="area_education">Educação</string>
+    <string name="area_finance">Finanças</string>
+
+    <!-- Admin Create User - Company selection for advisor -->
+    <string name="company_required">Empresa *</string>
+    <string name="no_companies_available">Não existem empresas ativas disponíveis.</string>
+    <string name="select_company_placeholder">Seleciona a empresa</string>
+
+    <!-- Admin Users Filters -->
+    <string name="user_type_filter_label">Tipo</string>
+    <string name="user_status_filter_label">Estado</string>
+    <string name="user_type_advisors">Orientadores</string>
+    <string name="user_type_admins">Administradores</string>
+    <string name="filter_inactive_masc">Inativos</string>
 </resources>

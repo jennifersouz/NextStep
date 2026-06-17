@@ -1,12 +1,14 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.CompanyNameDto
 import com.example.nextstep.data.model.CompanyProfileDto
 import com.example.nextstep.data.model.OfferDto
 import com.example.nextstep.data.model.UpdateCompanyProfileDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 
 class CompanyProfileRepository {
 
@@ -98,7 +100,14 @@ class CompanyProfileRepository {
                 }
                 .decodeList<OfferDto>()
 
-            Result.success(offers)
+            val currentName = company?.companyName
+            val updatedOffers = if (currentName != null) {
+                offers.map { it.copy(companyName = currentName) }
+            } else {
+                offers
+            }
+
+            Result.success(updatedOffers)
         } catch (exception: Exception) {
             Log.e(
                 "CompanyProfileRepository",
@@ -123,7 +132,28 @@ class CompanyProfileRepository {
                 }
                 .decodeList<OfferDto>()
 
-            Result.success(offers)
+            val currentName = try {
+                val company = supabase
+                    .from("companies")
+                    .select(columns = Columns.list("company_name")) {
+                        filter {
+                            eq("profile_id", companyProfileId)
+                        }
+                    }
+                    .decodeSingle<CompanyNameDto>()
+                company.companyName
+            } catch (e: Exception) {
+                Log.e("CompanyProfileRepository", "Erro ao buscar nome atual da empresa", e)
+                null
+            }
+
+            val updatedOffers = if (currentName != null) {
+                offers.map { it.copy(companyName = currentName) }
+            } else {
+                offers
+            }
+
+            Result.success(updatedOffers)
         } catch (exception: Exception) {
             Log.e(
                 "CompanyProfileRepository",

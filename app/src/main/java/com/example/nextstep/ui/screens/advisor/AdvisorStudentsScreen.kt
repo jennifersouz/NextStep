@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorAssignedStudentDto
+import com.example.nextstep.ui.components.AppFilterChipsRow
 import com.example.nextstep.ui.utils.applicationStatusToDisplay
 
 private val YellowBadge = Color(0xFFFFF9C4)
@@ -83,8 +84,17 @@ fun AdvisorStudentsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Filter chips
-        FilterChipsRow(
+        AppFilterChipsRow(
+            filters = AdvisorStudentsFilter.entries,
             selectedFilter = state.selectedFilter,
+            labelProvider = { filter ->
+                when (filter) {
+                    AdvisorStudentsFilter.ALL -> stringResource(R.string.all)
+                    AdvisorStudentsFilter.ACTIVE -> stringResource(R.string.active)
+                    AdvisorStudentsFilter.TO_COMPLETE -> stringResource(R.string.to_complete)
+                    AdvisorStudentsFilter.COMPLETED -> stringResource(R.string.completed)
+                }
+            },
             onFilterSelected = { viewModel.onFilterSelected(it) }
         )
 
@@ -193,44 +203,6 @@ private fun SearchBar(
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     )
-}
-
-@Composable
-private fun FilterChipsRow(
-    selectedFilter: AdvisorStudentsFilter,
-    onFilterSelected: (AdvisorStudentsFilter) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        AdvisorStudentsFilter.entries.forEach { filter ->
-            val label = when (filter) {
-                AdvisorStudentsFilter.ALL -> stringResource(R.string.all)
-                AdvisorStudentsFilter.ACTIVE -> stringResource(R.string.active)
-                AdvisorStudentsFilter.TO_COMPLETE -> stringResource(R.string.to_complete)
-                AdvisorStudentsFilter.COMPLETED -> stringResource(R.string.completed)
-            }
-            val isSelected = filter == selectedFilter
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) Color(0xFF2B2B2B) else Color(0xFFF5F5F5))
-                    .clickable { onFilterSelected(filter) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = label,
-                    fontSize = 13.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) Color.White else Color(0xFF333333)
-                )
-            }
-        }
-    }
 }
 
 @Composable

@@ -2,11 +2,9 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,7 +27,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
-import com.example.nextstep.ui.utils.roleToDisplayName
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun AdminUsersScreen(
@@ -95,11 +93,41 @@ fun AdminUsersScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Filter chips
-            AdminUsersFilterChips(
-                selectedFilter = state.selectedFilter,
-                onFilterClick = { viewModel.onFilterChange(it) }
-            )
+            // Filter dropdowns
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AppFilterDropdown(
+                    label = stringResource(R.string.user_type_filter_label),
+                    selectedOption = state.selectedTypeFilter,
+                    options = listOf(
+                        stringResource(R.string.filter_all_masc),
+                        stringResource(R.string.tab_students),
+                        stringResource(R.string.tab_teachers),
+                        stringResource(R.string.companies_label),
+                        stringResource(R.string.user_type_advisors),
+                        stringResource(R.string.user_type_admins)
+                    ),
+                    onOptionSelected = { viewModel.onTypeFilterChange(it) },
+                    modifier = Modifier.weight(1f)
+                )
+
+                AppFilterDropdown(
+                    label = stringResource(R.string.user_status_filter_label),
+                    selectedOption = state.selectedStatusFilter,
+                    options = listOf(
+                        stringResource(R.string.filter_all_masc),
+                        stringResource(R.string.filter_active),
+                        stringResource(R.string.filter_inactive_masc),
+                        stringResource(R.string.filter_archived)
+                    ),
+                    onOptionSelected = { viewModel.onStatusFilterChange(it) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -165,33 +193,59 @@ fun AdminUsersScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminUsersFilterChips(
-    selectedFilter: AdminUsersFilter,
-    onFilterClick: (AdminUsersFilter) -> Unit
+fun AppFilterDropdown(
+    label: String,
+    selectedOption: String,
+    options: List<String>,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        AdminUsersFilter.entries.forEach { filter ->
-            val isSelected = filter == selectedFilter
+    var expanded by remember { mutableStateOf(false) }
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) Color(0xFFFDFA52) else Color(0xFFF5F5F5))
-                    .clickable { onFilterClick(filter) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(filter.labelRes),
-                    fontSize = 13.sp,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = Color.Black
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label, fontSize = 13.sp) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            singleLine = true,
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 14.sp,
+                color = Color.Black
+            ),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFE0E0E0),
+                unfocusedBorderColor = Color(0xFFE0E0E0),
+                focusedContainerColor = Color(0xFFF7F7F7),
+                unfocusedContainerColor = Color(0xFFF7F7F7),
+                cursorColor = Color.Black
+            )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option, fontSize = 14.sp) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
                 )
             }
         }
@@ -270,7 +324,7 @@ fun AdminUserListItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Role badge
                 Text(
-                    text = roleToDisplayName(profile.role),
+                    text = Formatters.formatRole(profile.role),
                     fontSize = 12.sp,
                     color = Color(0xFF555555),
                     fontWeight = FontWeight.Medium
@@ -287,11 +341,11 @@ fun AdminUserListItem(
                     statusColor = Color(0xFF6D4C41)
                     statusBg = Color(0xFFEFEBE9)
                 } else if (profile.isActive == true) {
-                    statusLabel = stringResource(R.string.active_status_label)
+                    statusLabel = stringResource(R.string.active_status)
                     statusColor = Color(0xFF2E7D32)
                     statusBg = Color(0xFFE8F5E9)
                 } else {
-                    statusLabel = stringResource(R.string.inactive_status_label)
+                    statusLabel = stringResource(R.string.inactive_status)
                     statusColor = Color(0xFFC62828)
                     statusBg = Color(0xFFFFEBEE)
                 }

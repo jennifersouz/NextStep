@@ -17,13 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun AdminCompanyDetailScreen(
@@ -266,7 +268,7 @@ fun AdminCompanyDetailScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     DetailRow(label = stringResource(R.string.detail_name), value = company.companyName ?: "")
                     company.nif?.let { DetailRow(label = stringResource(R.string.detail_nif), value = it) }
-                    company.businessArea?.let { DetailRow(label = stringResource(R.string.detail_business_area), value = it) }
+                    company.businessArea?.let { DetailRow(label = stringResource(R.string.detail_business_area), value = Formatters.formatCompanyArea(it)) }
                     company.location?.let { DetailRow(label = stringResource(R.string.detail_location), value = it) }
                     company.phone?.let { DetailRow(label = stringResource(R.string.detail_phone), value = it) }
                     company.description?.let { DetailRow(label = stringResource(R.string.detail_description), value = it) }
@@ -276,127 +278,124 @@ fun AdminCompanyDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Edit button
-            Card(
-                modifier = Modifier.fillMaxWidth(),
+            // Action buttons — same style as user detail screen
+            // Editar empresa — always visible
+            Button(
+                onClick = onEditClick,
+                enabled = !isActionLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { if (!isActionLoading) onEditClick() }
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF1A1A1A),
+                    contentColor = Color.White
+                )
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Filled.Edit,
-                        contentDescription = null,
-                        tint = Color(0xFF8D6E00),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(stringResource(R.string.edit_company_action), fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
-                }
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.edit_company_action), fontWeight = FontWeight.Medium)
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Deactivate / Reactivate — apenas para empresas não arquivadas
             if (!isArchived) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    onClick = {
-                        if (!isActionLoading) {
-                            if (isActive) showDeactivateDialog = true
-                            else showReactivateDialog = true
-                        }
-                    }
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                if (isActive) {
+                    Button(
+                        onClick = { showDeactivateDialog = true },
+                        enabled = !isActionLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFF3E0),
+                            contentColor = Color(0xFFE65100)
+                        )
                     ) {
                         Icon(
-                            imageVector = if (isActive) Icons.Filled.Block else Icons.Filled.CheckCircle,
+                            imageVector = Icons.Filled.Block,
                             contentDescription = null,
-                            tint = when {
-                                isActionLoading -> Color(0xFFCCCCCC)
-                                isActive -> Color(0xFFE65100)
-                                else -> Color(0xFF2E7D32)
-                            },
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(18.dp)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = when {
-                                isActionLoading -> stringResource(R.string.updating_label)
-                                isActive -> stringResource(R.string.deactivate_access)
-                                else -> stringResource(R.string.reactivate_access)
-                            },
-                            fontSize = 15.sp,
-                            color = if (isActionLoading) Color(0xFF999999) else Color.Black,
-                            modifier = Modifier.weight(1f)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.deactivate_access), fontWeight = FontWeight.Medium)
+                    }
+                } else {
+                    Button(
+                        onClick = { showReactivateDialog = true },
+                        enabled = !isActionLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE8F5E9),
+                            contentColor = Color(0xFF2E7D32)
                         )
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.reactivate_access), fontWeight = FontWeight.Medium)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Archive (Remove from platform)
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+                // Remover da plataforma
+                Button(
+                    onClick = { showArchiveDialog = true },
+                    enabled = !isActionLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    onClick = { if (!isActionLoading) showArchiveDialog = true }
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Filled.Archive,
-                            contentDescription = null,
-                            tint = if (isActionLoading) Color(0xFFCCCCCC) else Color(0xFFBF360C),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            stringResource(R.string.remove_from_platform),
-                            fontSize = 15.sp,
-                            color = if (isActionLoading) Color(0xFF999999) else Color(0xFFBF360C),
-                            modifier = Modifier.weight(1f)
-                        )
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // View offers
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                onClick = { onViewOffers(company) }
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFBE9E7),
+                        contentColor = Color(0xFFBF360C)
+                    )
                 ) {
                     Icon(
-                        Icons.Filled.Business,
+                        imageVector = Icons.Filled.Archive,
                         contentDescription = null,
-                        tint = Color(0xFF555555),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(stringResource(R.string.view_company_offers), fontSize = 15.sp, color = Color.Black, modifier = Modifier.weight(1f))
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFCCCCCC))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.remove_from_platform), fontWeight = FontWeight.Medium)
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // View offers — always visible
+            Button(
+                onClick = { onViewOffers(company) },
+                enabled = !isActionLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF1A1A1A),
+                    contentColor = Color.White
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Business,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.view_company_offers), fontWeight = FontWeight.Medium)
             }
 
             Spacer(modifier = Modifier.height(24.dp))

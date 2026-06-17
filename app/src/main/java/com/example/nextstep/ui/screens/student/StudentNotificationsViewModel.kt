@@ -68,6 +68,39 @@ class StudentNotificationsViewModel : ViewModel() {
         }
     }
 
+    fun markAllAsRead(
+        onLocalStateChanged: (Int) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            val viewResult = viewRepository.markAllNotificationsAsSeen()
+            val tableResult = tableRepository.markAllAsRead()
+
+            if (viewResult.isSuccess && tableResult.isSuccess) {
+                val updatedNotifications = _uiState.value.notifications.map { item ->
+                    when (item) {
+                        is StudentNotificationItem.ViewBased -> item.copy(
+                            notification = item.notification.copy(
+                                isSeen = true,
+                                studentStatusSeen = true
+                            )
+                        )
+                        is StudentNotificationItem.TableBased -> item.copy(
+                            notification = item.notification.copy(isRead = true)
+                        )
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    notifications = updatedNotifications
+                )
+
+                onLocalStateChanged(0)
+            } else {
+                loadNotifications()
+            }
+        }
+    }
+
     fun markAsSeen(
         notification: StudentNotificationItem,
         onLocalStateChanged: (Int) -> Unit = {},

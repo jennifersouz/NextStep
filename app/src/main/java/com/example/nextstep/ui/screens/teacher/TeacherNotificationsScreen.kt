@@ -26,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -74,7 +75,7 @@ fun TeacherNotificationsScreen(
 
             Text(
                 text = stringResource(R.string.teacher_notifications_title),
-                fontSize = 20.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.weight(1f)
@@ -84,7 +85,7 @@ fun TeacherNotificationsScreen(
                 TextButton(onClick = { viewModel.markAllAsRead() }) {
                     Text(
                         text = stringResource(R.string.mark_all_as_read),
-                        color = TeacherUiColors.YellowAccent,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )

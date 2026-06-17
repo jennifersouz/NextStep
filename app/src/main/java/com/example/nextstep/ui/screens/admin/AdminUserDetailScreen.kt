@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.ui.utils.DateFormatUtils
-import com.example.nextstep.ui.utils.roleToDisplayName
+import com.example.nextstep.ui.utils.Formatters
 
 
 @Composable
@@ -212,7 +214,7 @@ fun AdminUserDetailScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Avatar
+            // Avatar + Name + Status (same visual structure as company detail)
             val displayName = listOfNotNull(profile.firstName, profile.lastName)
                 .filter { it.isNotBlank() }
                 .joinToString(" ")
@@ -225,84 +227,106 @@ fun AdminUserDetailScreen(
                 .joinToString("") { it.first().uppercase() }
                 .ifBlank { "?" }
 
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF2B2B2B))
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = initials,
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF2B2B2B)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = initials,
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        text = displayName,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    // Status badge
+                    val statusLabel: String
+                    val statusColor: Color
+                    val statusBg: Color
+                    when {
+                        isArchived -> {
+                            statusLabel = stringResource(R.string.archived_status)
+                            statusColor = Color(0xFF6D4C41)
+                            statusBg = Color(0xFFEFEBE9)
+                        }
+                        isActive -> {
+                            statusLabel = stringResource(R.string.active_status)
+                            statusColor = Color(0xFF2E7D32)
+                            statusBg = Color(0xFFE8F5E9)
+                        }
+                        else -> {
+                            statusLabel = stringResource(R.string.inactive_status)
+                            statusColor = Color(0xFFC62828)
+                            statusBg = Color(0xFFFFEBEE)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(statusBg)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = statusLabel,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = statusColor
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Status badge
-            val statusLabel: String
-            val statusColor: Color
-            val statusBg: Color
-            when {
-                isArchived -> {
-                    statusLabel = stringResource(R.string.archived_status)
-                    statusColor = Color(0xFF6D4C41)
-                    statusBg = Color(0xFFEFEBE9)
-                }
-                isActive -> {
-                    statusLabel = stringResource(R.string.active_status_label)
-                    statusColor = Color(0xFF2E7D32)
-                    statusBg = Color(0xFFE8F5E9)
-                }
-                else -> {
-                    statusLabel = stringResource(R.string.inactive_status_label)
-                    statusColor = Color(0xFFC62828)
-                    statusBg = Color(0xFFFFEBEE)
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(statusBg)
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
-                    .align(Alignment.CenterHorizontally)
+            // Info card (same style as company detail)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
             ) {
-                Text(
-                    text = statusLabel,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = statusColor
-                )
+                Column(modifier = Modifier.padding(16.dp)) {
+                    DetailRow(label = stringResource(R.string.detail_name), value = displayName)
+                    DetailRow(label = stringResource(R.string.email_label), value = profile.email ?: "")
+                    DetailRow(label = stringResource(R.string.detail_role), value = Formatters.formatRole(profile.role))
+                    DetailRow(label = stringResource(R.string.detail_phone), value = profile.phone ?: stringResource(R.string.not_available))
+
+                    val createdAt = profile.createdAt
+                        ?.let { DateFormatUtils.formatDateForUi(it) }
+                        ?: stringResource(R.string.unknown_label)
+                    DetailRow(label = stringResource(R.string.detail_registration_date), value = createdAt)
+                }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Fields
-            DetailField(label = stringResource(R.string.detail_name), value = displayName)
-            Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = stringResource(R.string.email_label), value = profile.email ?: "")
-            Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = stringResource(R.string.detail_role), value = roleToDisplayName(profile.role))
-            Spacer(modifier = Modifier.height(16.dp))
-            DetailField(label = stringResource(R.string.detail_phone), value = profile.phone ?: stringResource(R.string.not_available))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val createdAt = profile.createdAt
-                ?.let { DateFormatUtils.formatDateForUi(it) }
-                ?: stringResource(R.string.unknown_label)
-            DetailField(label = stringResource(R.string.detail_registration_date), value = createdAt)
 
             if (isArchived) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 if (profile.archivedAt != null) {
-                    DetailField(label = stringResource(R.string.archived_at_label), value = profile.archivedAt)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            DetailRow(label = stringResource(R.string.archived_at_label), value = profile.archivedAt)
+                        }
+                    }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -419,11 +443,14 @@ fun AdminUserDetailScreen(
     }
 }
 
+/**
+ * Row-style field used inside the info card (matches company detail's DetailRow style).
+ */
 @Composable
-private fun DetailField(label: String, value: String, valueColor: Color = Color.Black) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = label, fontSize = 14.sp, color = Color(0xFF8A8A8A))
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = value, fontSize = 16.sp, color = valueColor, fontWeight = FontWeight.Medium)
+private fun DetailRow(label: String, value: String) {
+    Column(modifier = Modifier.padding(vertical = 6.dp)) {
+        Text(text = label, fontSize = 12.sp, color = Color(0xFF777777), fontWeight = FontWeight.Medium)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(text = value, fontSize = 15.sp, color = Color.Black)
     }
 }

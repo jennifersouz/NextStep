@@ -5,18 +5,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InstitutionProfileDto(
-    @SerialName("profile_id")
-    val profileId: String,
+    val id: String,
 
     val email: String? = null,
 
+    @SerialName("first_name")
     val name: String? = null,
 
-    val nif: String? = null,
+    val phone: String? = null,
 
-    val locality: String? = null,
+    val role: String? = null,
 
-    val address: String? = null,
+    @SerialName("is_active")
+    val isActive: Boolean? = null,
 
-    val phone: String? = null
+    @SerialName("created_at")
+    val createdAt: String? = null
 )

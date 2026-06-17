@@ -1,12 +1,14 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.CompanyDto
 import com.example.nextstep.data.model.CreateSavedOfferDto
 import com.example.nextstep.data.model.OfferDto
 import com.example.nextstep.data.model.SavedOfferDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 
 class StudentSavedOffersRepository {
 
@@ -94,7 +96,32 @@ class StudentSavedOffersRepository {
                 .select()
                 .decodeList<OfferDto>()
 
-            Result.success(offers)
+            val profileIds = offers.mapNotNull { it.companyProfileId }.distinct()
+            if (profileIds.isEmpty()) {
+                return Result.success(offers)
+            }
+
+            val companies = supabase
+                .from("companies")
+                .select(columns = Columns.list("profile_id, company_name")) {
+                    filter {
+                        isIn("profile_id", profileIds)
+                    }
+                }
+                .decodeList<CompanyDto>()
+
+            val companyNameMap = companies.associate { it.profileId to it.companyName }
+
+            val updatedOffers = offers.map { offer ->
+                val currentName = offer.companyProfileId?.let { companyNameMap[it] }
+                if (currentName != null && currentName != offer.companyName) {
+                    offer.copy(companyName = currentName)
+                } else {
+                    offer
+                }
+            }
+
+            Result.success(updatedOffers)
         } catch (exception: Exception) {
             Log.e("StudentSavedOffersRepo", "Erro ao carregar ofertas guardadas", exception)
             Result.failure(exception)

@@ -2,9 +2,9 @@ package com.example.nextstep.ui.screens.student
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +23,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -75,88 +77,106 @@ fun StudentNotificationsScreen(
         }
     }
 
-    when {
-        state.isLoading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color.Black)
-            }
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, top = 30.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.notifications),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.weight(1f)
+            )
 
-        state.errorMessageRes != null -> {
-            val errorRes = state.errorMessageRes
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(horizontal = 28.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (errorRes != null) {
+            if (state.unreadCount > 0) {
+                TextButton(onClick = { viewModel.markAllAsRead(onLocalStateChanged = onUnreadCountChanged) }) {
                     Text(
-                        text = stringResource(errorRes),
-                        color = Color(0xFFB00020),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
+                        text = stringResource(R.string.mark_all_as_read),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
         }
 
-        state.notifications.isEmpty() -> {
-            StudentNotificationsEmptyState()
-        }
-
-        else -> {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White),
-                contentPadding = PaddingValues(
-                    start = 20.dp,
-                    end = 20.dp,
-                    top = 30.dp,
-                    bottom = 28.dp
-                )
-            ) {
-                item {
-                    Text(
-                        text = stringResource(R.string.notifications),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(34.dp))
-                }
-
-                items(
-                    items = state.notifications,
-                    key = { item ->
-                        "${item.id}_${item.type}"
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.Black)
                     }
-                ) { item ->
-                    StudentNotificationItemRow(
-                        notification = item,
-                        onClick = {
-                            viewModel.markAsSeen(
-                                notification = item,
-                                onLocalStateChanged = onUnreadCountChanged,
-                                onSuccess = {
-                                    item.applicationId?.let { appId ->
-                                        onNotificationClick(item.type, appId)
-                                    }
-                                }
+                }
+
+                state.errorMessageRes != null -> {
+                    val errorRes = state.errorMessageRes
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (errorRes != null) {
+                            Text(
+                                text = stringResource(errorRes),
+                                color = Color(0xFFB00020),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
                             )
                         }
-                    )
+                    }
+                }
 
-                    Spacer(modifier = Modifier.height(26.dp))
+                state.notifications.isEmpty() -> {
+                    StudentNotificationsEmptyState()
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            start = 20.dp,
+                            end = 20.dp,
+                            top = 8.dp,
+                            bottom = 28.dp
+                        )
+                    ) {
+                        items(
+                            items = state.notifications,
+                            key = { item ->
+                                "${item.id}_${item.type}"
+                            }
+                        ) { item ->
+                            StudentNotificationItemRow(
+                                notification = item,
+                                onClick = {
+                                    viewModel.markAsSeen(
+                                        notification = item,
+                                        onLocalStateChanged = onUnreadCountChanged,
+                                        onSuccess = {
+                                            item.applicationId?.let { appId ->
+                                                onNotificationClick(item.type, appId)
+                                            }
+                                        }
+                                    )
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(26.dp))
+                        }
+                    }
                 }
             }
         }
@@ -189,6 +209,8 @@ fun ViewBasedNotificationItem(
     notification: com.example.nextstep.data.model.StudentNotificationDto,
     onClick: () -> Unit
 ) {
+    val isUnread = notification.isUnread
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,29 +219,16 @@ fun ViewBasedNotificationItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (notification.isUnread) {
-            Box(
-                modifier = Modifier
-                    .size(7.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFE8505B))
-            )
-        } else {
-            Spacer(modifier = Modifier.width(7.dp))
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
         StudentNotificationCompanyLogo(
             companyName = notification.companyName.orEmpty().ifBlank { "?" }
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -227,26 +236,42 @@ fun ViewBasedNotificationItem(
                         notification.offerTitle.orEmpty()
                     },
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = if (isUnread) FontWeight.Bold else FontWeight.SemiBold,
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.width(5.dp))
-
-                Text(
-                    text = relativeNotificationTime(notification.sortDate),
-                    fontSize = 14.sp,
-                    color = Color(0xFF8A8A8A)
-                )
+                if (isUnread) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8505B))
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = studentNotificationMessage(notification),
-                fontSize = 16.sp,
-                color = Color(0xFF8A8A8A)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = studentNotificationMessage(notification),
+                    fontSize = 14.sp,
+                    color = if (isUnread) Color.Black else Color(0xFF8A8A8A),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = relativeNotificationTime(notification.sortDate),
+                    fontSize = 12.sp,
+                    color = Color(0xFF8A8A8A)
+                )
+            }
         }
     }
 }
@@ -256,6 +281,8 @@ fun TableBasedNotificationItem(
     notification: com.example.nextstep.data.model.NotificationDto,
     onClick: () -> Unit
 ) {
+    val isUnread = !notification.isRead
+
     val icon = when (notification.type) {
         "message" -> Icons.AutoMirrored.Filled.Chat
         "evaluation" -> Icons.Default.Star
@@ -285,19 +312,6 @@ fun TableBasedNotificationItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!notification.isRead) {
-            Box(
-                modifier = Modifier
-                    .size(7.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFE8505B))
-            )
-        } else {
-            Spacer(modifier = Modifier.width(7.dp))
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
         Box(
             modifier = Modifier
                 .size(54.dp)
@@ -315,35 +329,51 @@ fun TableBasedNotificationItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = notification.title,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = if (isUnread) FontWeight.Bold else FontWeight.SemiBold,
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.width(5.dp))
-
-                Text(
-                    text = relativeNotificationTime(notification.createdAt.orEmpty()),
-                    fontSize = 14.sp,
-                    color = Color(0xFF8A8A8A)
-                )
+                if (isUnread) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8505B))
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = notification.message,
-                fontSize = 16.sp,
-                color = Color(0xFF8A8A8A)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = notification.message,
+                    fontSize = 14.sp,
+                    color = if (isUnread) Color.Black else Color(0xFF8A8A8A),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = relativeNotificationTime(notification.createdAt.orEmpty()),
+                    fontSize = 12.sp,
+                    color = Color(0xFF8A8A8A)
+                )
+            }
         }
     }
 }

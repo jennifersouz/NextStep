@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nextstep.data.repository.NotificationsRepository
 import com.example.nextstep.data.repository.OffersRepository
 import com.example.nextstep.data.repository.StudentNotificationsRepository
+import com.example.nextstep.data.repository.StudentProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,12 +16,29 @@ class StudentDashboardViewModel : ViewModel() {
     private val offersRepository = OffersRepository()
     private val notificationsRepository = StudentNotificationsRepository()
     private val tableNotificationsRepository = NotificationsRepository()
+    private val profileRepository = StudentProfileRepository()
     private val _uiState = MutableStateFlow(StudentDashboardUiState())
     val uiState: StateFlow<StudentDashboardUiState> = _uiState.asStateFlow()
 
     init {
         loadOffers()
+        loadStudentName()
         loadUnreadNotificationsCount()
+    }
+
+    fun loadStudentName() {
+        viewModelScope.launch {
+            val result = profileRepository.getCurrentStudentProfile()
+            if (result.isSuccess) {
+                val profile = result.getOrNull()
+                _uiState.value = _uiState.value.copy(
+                    studentName = profile?.firstName.orEmpty(),
+                    isLoadingName = false
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(isLoadingName = false)
+            }
+        }
     }
 
     fun onSearchChange(value: String) {

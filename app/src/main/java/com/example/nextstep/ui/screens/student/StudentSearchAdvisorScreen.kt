@@ -28,7 +28,8 @@ import com.example.nextstep.ui.components.ProfileAvatar
 fun StudentSearchAdvisorScreen(
     internshipId: String,
     onBackClick: () -> Unit,
-    viewModel: StudentSearchAdvisorViewModel = viewModel()
+    viewModel: StudentSearchAdvisorViewModel = viewModel(),
+    titleRes: Int = R.string.advisors
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -39,7 +40,7 @@ fun StudentSearchAdvisorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.advisors), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(titleRes), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))

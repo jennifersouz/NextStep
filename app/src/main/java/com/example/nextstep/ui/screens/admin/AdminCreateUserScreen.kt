@@ -478,6 +478,122 @@ fun AdminCreateUserScreen(
                     )
                 }
 
+                "advisor" -> {
+                    OutlinedTextField(
+                        value = state.firstName,
+                        onValueChange = viewModel::onFirstNameChange,
+                        label = { Text(stringResource(R.string.name_required)) },
+                        isError = state.firstNameError != null,
+                        supportingText = state.firstNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.lastName,
+                        onValueChange = viewModel::onLastNameChange,
+                        label = { Text(stringResource(R.string.last_name_required)) },
+                        isError = state.lastNameError != null,
+                        supportingText = state.lastNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = state.department,
+                        onValueChange = viewModel::onDepartmentChange,
+                        label = { Text(stringResource(R.string.department)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+
+                    // ── Empresa associada (dropdown obrigatório) ──────────────
+                    Text(
+                        stringResource(R.string.company_required),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    if (state.isLoadingCompanies) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(vertical = 8.dp),
+                            color = Color.Gray
+                        )
+                    } else if (state.availableCompanies.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_companies_available),
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    } else {
+                        var companyMenuExpanded by remember { mutableStateOf(false) }
+
+                        Box {
+                            OutlinedTextField(
+                                value = state.selectedCompanyName ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { companyMenuExpanded = true },
+                                enabled = false,
+                                trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
+                                isError = state.companyError != null,
+                                supportingText = state.companyError?.let {
+                                    { Text(it, color = Color(0xFFB00020)) }
+                                },
+                                placeholder = { Text(stringResource(R.string.select_company_placeholder)) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    disabledTextColor = Color.Black,
+                                    disabledBorderColor = if (state.companyError != null)
+                                        Color(0xFFB00020) else Color(0xFFEDEDED),
+                                    disabledTrailingIconColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            DropdownMenu(
+                                expanded = companyMenuExpanded,
+                                onDismissRequest = { companyMenuExpanded = false }
+                            ) {
+                                state.availableCompanies.forEach { company ->
+                                    DropdownMenuItem(
+                                        text = { Text(company.companyName) },
+                                        onClick = {
+                                            viewModel.onCompanyChange(
+                                                company.companyProfileId,
+                                                company.companyName
+                                            )
+                                            companyMenuExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                "institution" -> {
+                    OutlinedTextField(
+                        value = state.institutionName,
+                        onValueChange = viewModel::onInstitutionNameChange,
+                        label = { Text(stringResource(R.string.institution_name_required)) },
+                        isError = state.institutionNameError != null,
+                        supportingText = state.institutionNameError?.let {
+                            { Text(it, color = Color(0xFFB00020)) }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                }
+
                 "admin" -> {
                     OutlinedTextField(
                         value = state.firstName,

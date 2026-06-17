@@ -4,6 +4,7 @@ import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.data.model.AdminCompanyOptionDto
 import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.InstitutionOptionDto
 import com.example.nextstep.data.repository.AdminUsersRepository
@@ -39,6 +40,16 @@ data class AdminCreateUserUiState(
     val location: String = "",
     val description: String = "",
 
+    // Institution specific
+    val institutionName: String = "",
+
+    // Advisor specific (company assignment required)
+    val availableCompanies: List<AdminCompanyOptionDto> = emptyList(),
+    val isLoadingCompanies: Boolean = false,
+    val selectedCompanyProfileId: String? = null,
+    val selectedCompanyName: String? = null,
+    val companyError: String? = null,
+
     // Field-level errors
     val roleError: String? = null,
     val emailError: String? = null,
@@ -53,6 +64,7 @@ data class AdminCreateUserUiState(
     val businessAreaError: String? = null,
     val locationError: String? = null,
     val institutionError: String? = null,
+    val institutionNameError: String? = null,
     val generalErrorMessage: String? = null,
 
     // Institutions loaded from Supabase
@@ -70,6 +82,10 @@ class AdminCreateUserViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminCreateUserUiState())
     val uiState: StateFlow<AdminCreateUserUiState> = _uiState.asStateFlow()
+
+    // ── Allowed roles (defense-in-depth) ─────────────────────────────────────
+
+    private val allowedRoles = listOf("student", "teacher", "company", "advisor", "institution", "admin")
 
     // ── Load institutions (for teacher) ─────────────────────────────────────────
 
@@ -96,6 +112,32 @@ class AdminCreateUserViewModel : ViewModel() {
         }
     }
 
+    // ── Load active companies (for advisor) ────────────────────────────────────
+
+    fun loadCompanies() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingCompanies = true)
+            val result = repository.getActiveCompanies()
+            result.fold(
+                onSuccess = { companies ->
+                    Log.d("AdminCreateUserVM", "Companies loaded: ${companies.size}")
+                    _uiState.value = _uiState.value.copy(
+                        availableCompanies = companies,
+                        isLoadingCompanies = false
+                    )
+                },
+                onFailure = { e ->
+                    Log.e("AdminCreateUserVM", "Error loading companies", e)
+                    _uiState.value = _uiState.value.copy(
+                        availableCompanies = emptyList(),
+                        isLoadingCompanies = false,
+                        companyError = "Não foi possível carregar as empresas."
+                    )
+                }
+            )
+        }
+    }
+
     // ── Field change handlers ────────────────────────────────────────────────
 
     fun onRoleChange(role: String) {
@@ -110,10 +152,17 @@ class AdminCreateUserViewModel : ViewModel() {
             businessAreaError = null,
             locationError = null,
             institutionError = null,
-            generalErrorMessage = null
+            institutionNameError = null,
+            generalErrorMessage = null,
+            companyError = null,
+            selectedCompanyProfileId = null,
+            selectedCompanyName = null
         )
         if (role == "teacher") {
             loadInstitutions()
+        }
+        if (role == "advisor") {
+            loadCompanies()
         }
     }
 
@@ -197,6 +246,15 @@ class AdminCreateUserViewModel : ViewModel() {
         )
     }
 
+    fun onCompanyChange(companyProfileId: String, companyName: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedCompanyProfileId = companyProfileId,
+            selectedCompanyName = companyName,
+            companyError = null,
+            generalErrorMessage = null
+        )
+    }
+
     fun onCompanyNameChange(value: String) {
         _uiState.value = _uiState.value.copy(
             companyName = value,
@@ -235,6 +293,14 @@ class AdminCreateUserViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(description = value)
     }
 
+    fun onInstitutionNameChange(value: String) {
+        _uiState.value = _uiState.value.copy(
+            institutionName = value,
+            institutionNameError = null,
+            generalErrorMessage = null
+        )
+    }
+
     // ── Create ───────────────────────────────────────────────────────────────
 
     fun createUser() {
@@ -245,6 +311,15 @@ class AdminCreateUserViewModel : ViewModel() {
 
             val state = _uiState.value
             val cleanedEmail = state.email.trim().lowercase()
+
+            // Validate role is in allowed list (defense-in-depth)
+            if (state.selectedRole !in allowedRoles) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    generalErrorMessage = "Tipo de utilizador inválido. Atualiza a lista de tipos e tenta novamente."
+                )
+                return@launch
+            }
 
             // Verificar email duplicado antes de chamar Edge Function
             val emailAlreadyExists = repository.emailExists(cleanedEmail)
@@ -271,10 +346,18 @@ class AdminCreateUserViewModel : ViewModel() {
                 department = state.department.takeIf { it.isNotBlank() }?.trim(),
                 institutionProfileId = state.institutionProfileId.takeIf { it.isNotBlank() },
                 companyName = state.companyName.takeIf { it.isNotBlank() }?.trim(),
+                institutionName = state.institutionName.takeIf { it.isNotBlank() }?.trim(),
                 nif = state.nif.takeIf { it.isNotBlank() }?.trim(),
                 businessArea = state.businessArea.takeIf { it.isNotBlank() }?.trim(),
                 location = state.location.takeIf { it.isNotBlank() }?.trim(),
-                description = state.description.takeIf { it.isNotBlank() }?.trim()
+                description = state.description.takeIf { it.isNotBlank() }?.trim(),
+                companyProfileId = state.selectedCompanyProfileId?.takeIf { it.isNotBlank() }
+            )
+
+            Log.d(
+                "AdminCreateUserVM",
+                "createUser: role=${request.role}, email=${request.email}, " +
+                    "companyProfileId=${request.companyProfileId}"
             )
 
             val result = repository.createUser(request)
@@ -385,6 +468,26 @@ class AdminCreateUserViewModel : ViewModel() {
                     isValid = false
                 }
             }
+            "advisor" -> {
+                if (state.firstName.isBlank()) {
+                    _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
+                    isValid = false
+                }
+                if (state.lastName.isBlank()) {
+                    _uiState.value = _uiState.value.copy(lastNameError = "Apelido obrigatório.")
+                    isValid = false
+                }
+                if (state.selectedCompanyProfileId.isNullOrBlank()) {
+                    _uiState.value = _uiState.value.copy(companyError = "Seleciona a empresa do orientador.")
+                    isValid = false
+                }
+            }
+            "institution" -> {
+                if (state.institutionName.isBlank()) {
+                    _uiState.value = _uiState.value.copy(institutionNameError = "Nome da instituição obrigatório.")
+                    isValid = false
+                }
+            }
             "admin" -> {
                 if (state.firstName.isBlank()) {
                     _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
@@ -409,6 +512,7 @@ class AdminCreateUserViewModel : ViewModel() {
     private fun mapApiErrorToFriendly(raw: String): String {
         val lower = raw.lowercase()
         return when {
+            "empresa obrigatória" in lower -> "Seleciona a empresa do orientador."
             "institution_profile_id" in lower -> "Seleciona uma instituição."
             "nif" in lower && "companies_nif_check" in lower -> "O NIF deve conter 9 dígitos."
             "nif" in lower -> "Verifica o NIF informado."
@@ -422,6 +526,8 @@ class AdminCreateUserViewModel : ViewModel() {
             "first_name" in lower -> "Nome obrigatório."
             "email" in lower -> "Verifica o email informado."
             "company_name" in lower -> "Nome da empresa obrigatório."
+            "tipo de utilizador inválido" in lower ->
+                "O tipo de utilizador selecionado é inválido. Atualiza a lista de tipos e tenta novamente."
             "already exists" in lower ||
             "duplicate" in lower -> "Já existe um utilizador com este email."
             else -> "Não foi possível criar o utilizador. Verifica os dados e tenta novamente."

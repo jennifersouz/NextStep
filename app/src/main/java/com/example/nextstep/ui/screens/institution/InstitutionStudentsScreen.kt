@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -163,7 +164,7 @@ private fun InstitutionStudentCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(56.dp)
                     .background(
                         color = Color(0xFFEFEFEF),
                         shape = CircleShape
@@ -172,13 +173,13 @@ private fun InstitutionStudentCard(
             ) {
                 Text(
                     text = getStudentInitials(student),
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
             }
 
-            Spacer(modifier = Modifier.size(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column(
                 modifier = Modifier.weight(1f)
@@ -187,47 +188,20 @@ private fun InstitutionStudentCard(
                     text = "${student.firstName} ${student.lastName}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = student.email,
-                    fontSize = 14.sp,
-                    color = Color(0xFF6B7280)
+                    text = buildSecondaryInfo(student),
+                    fontSize = 13.sp,
+                    color = Color(0xFF9CA3AF),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-
-                Row {
-                    if (student.studentNumber.isNotBlank()) {
-                        Text(
-                            text = stringResource(R.string.student_number_prefix) + student.studentNumber,
-                            fontSize = 13.sp,
-                            color = Color(0xFF9CA3AF)
-                        )
-                    }
-                    if (student.course.isNotBlank()) {
-                        if (student.studentNumber.isNotBlank()) {
-                            Text(
-                                text = stringResource(R.string.separator_bullet),
-                                fontSize = 13.sp,
-                                color = Color(0xFF9CA3AF)
-                            )
-                        }
-                        Text(
-                            text = student.course,
-                            fontSize = 13.sp,
-                            color = Color(0xFF9CA3AF)
-                        )
-                    }
-                    if (student.academicYear != null) {
-                        Text(
-                            text = stringResource(R.string.separator_bullet) + student.academicYear + stringResource(R.string.academic_year_suffix),
-                            fontSize = 13.sp,
-                            color = Color(0xFF9CA3AF)
-                        )
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -337,4 +311,18 @@ private fun getStudentInitials(student: InstitutionStudentDto): String {
     val first = student.firstName.firstOrNull()?.uppercase() ?: ""
     val last = student.lastName.firstOrNull()?.uppercase() ?: ""
     return if (first.isNotBlank() || last.isNotBlank()) "$first$last" else "?"
+}
+
+private fun buildSecondaryInfo(student: InstitutionStudentDto): String {
+    val parts = mutableListOf<String>()
+    if (student.studentNumber.isNotBlank()) {
+        parts.add("N.º de aluno: ${student.studentNumber}")
+    }
+    if (student.course.isNotBlank()) {
+        parts.add(student.course)
+    }
+    if (student.academicYear != null) {
+        parts.add("${student.academicYear}.º ano")
+    }
+    return parts.joinToString(" • ")
 }

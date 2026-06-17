@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 data class ProfileDetailData(
     val name: String,
     val email: String,
-    val phone: String?
+    val phone: String?,
+    val department: String?,
+    val roleType: String
 )
 
 data class ProfileDetailUiState(
@@ -54,7 +56,9 @@ class ProfileDetailViewModel : ViewModel() {
                         ProfileDetailData(
                             name = advisor.name ?: "",
                             email = advisor.email ?: "",
-                            phone = advisor.phone
+                            phone = advisor.phone,
+                            department = advisor.department,
+                            roleType = "advisor"
                         )
                     }
                     "teacher" -> {
@@ -63,10 +67,12 @@ class ProfileDetailViewModel : ViewModel() {
                         ProfileDetailData(
                             name = teacher.displayName,
                             email = teacher.email ?: "",
-                            phone = teacher.phone
+                            phone = teacher.phone,
+                            department = teacher.department,
+                            roleType = "teacher"
                         )
                     }
-                    else -> ProfileDetailData("", "", null)
+                    else -> ProfileDetailData("", "", null, null, "")
                 }
                 _uiState.value.copy(
                     profile = data,

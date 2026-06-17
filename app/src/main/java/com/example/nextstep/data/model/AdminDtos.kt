@@ -19,9 +19,6 @@ data class AdminProfileDto(
 
     val phone: String? = null,
 
-    // Default null — não usar true aqui.
-    // Se o Supabase devolver null (por RLS ou coluna omitida), não queremos
-    // que o Kotlin assuma que o utilizador está ativo.
     @SerialName("is_active")
     val isActive: Boolean? = null,
 
@@ -37,7 +34,6 @@ data class AdminProfileDto(
     @SerialName("archive_reason")
     val archiveReason: String? = null
 ) {
-    /** Arquivado se archived_at estiver preenchido — independente de isActive. */
     val isArchived: Boolean get() = archivedAt != null
 }
 
@@ -77,6 +73,9 @@ data class AdminCreateUserRequest(
     @SerialName("company_name")
     val companyName: String? = null,
 
+    @SerialName("institution_name")
+    val institutionName: String? = null,
+
     val nif: String? = null,
 
     @SerialName("business_area")
@@ -84,7 +83,10 @@ data class AdminCreateUserRequest(
 
     val location: String? = null,
 
-    val description: String? = null
+    val description: String? = null,
+
+    @SerialName("company_profile_id")
+    val companyProfileId: String? = null
 )
 
 // ── Company DTOs ─────────────────────────────────────────────────────────────
@@ -229,7 +231,6 @@ data class AdminCompanyUpdateDto(
 /**
  * DTO específico para edição de utilizador pelo Admin.
  * Não contém: id, email, archived_at, archived_by, archive_reason.
- * Email nunca é alterado nesta tela — alterar email exige alterar Supabase Auth.
  */
 @Serializable
 data class AdminUserEditRequest(
@@ -251,8 +252,22 @@ data class AdminUserEditRequest(
 )
 
 /**
+ * DTO específico para atualizar a tabela teachers quando o admin edita um docente.
+ * Sincroniza os campos de nome/telefone que o admin alterou em profiles.
+ */
+@Serializable
+data class AdminTeacherSyncDto(
+    @SerialName("first_name")
+    val firstName: String,
+
+    @SerialName("last_name")
+    val lastName: String? = null,
+
+    val phone: String? = null
+)
+
+/**
  * DTO específico para edição de empresa pelo Admin.
- * Não contém: id, profile_id, archived_at, archived_by, archive_reason.
  */
 @Serializable
 data class AdminCompanyEditRequest(
@@ -275,12 +290,23 @@ data class AdminCompanyEditRequest(
     val updatedAt: String
 )
 
-// ── Status update DTOs ───────────────────────────────────────────────────────
+// ── Company name update DTO for companies table ──────────────────────────────
 
 /**
- * Usado para reativar ou desativar utilizadores (profiles).
- * Envia apenas is_active e updated_at — sem archived_by, archived_at, id, email, role.
+ * DTO específico para atualizar apenas o nome da empresa
+ * na tabela companies, usando profile_id como filtro.
  */
+@Serializable
+data class AdminCompanyNameUpdateDto(
+    @SerialName("company_name")
+    val companyName: String,
+
+    @SerialName("updated_at")
+    val updatedAt: String
+)
+
+// ── Status update DTOs ───────────────────────────────────────────────────────
+
 @Serializable
 data class UserActiveStatusUpdateDto(
     @SerialName("is_active")
@@ -400,7 +426,6 @@ data class OfferActiveUpdateDto(
 
 /**
  * DTO específico para desativar ofertas ao arquivar empresa.
- * A tabela offers NÃO tem coluna updated_at — apenas is_active.
  */
 @Serializable
 data class OfferDeactivateUpdateDto(
@@ -438,6 +463,17 @@ data class AdminCompanyOfferDto(
 
     @SerialName("created_at")
     val createdAt: String? = null
+)
+
+// ── Company option DTO for dropdown ──────────────────────────────────────────
+
+@Serializable
+data class AdminCompanyOptionDto(
+    @SerialName("profile_id")
+    val companyProfileId: String,
+
+    @SerialName("company_name")
+    val companyName: String
 )
 
 // ApplicationTaskDto and ApplicationMessageDto are defined in

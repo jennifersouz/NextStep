@@ -35,6 +35,7 @@ class AdvisorTasksRepository {
                     .from("advisor_tasks_view")
                     .select()
                     .decodeList<AdvisorTaskListItemDto>()
+                    .map { it.resolveStudentName() }
 
                 cacheTasksLocally(tasks)
                 Result.success(tasks)
@@ -59,6 +60,7 @@ class AdvisorTasksRepository {
                         }
                     }
                     .decodeList<AdvisorTaskListItemDto>()
+                    .map { it.resolveStudentName() }
 
                 cacheTasksLocally(tasks)
                 Log.d("TasksDebug", "Tarefas encontradas: ${tasks.size}")
@@ -157,7 +159,7 @@ class AdvisorTasksRepository {
     private suspend fun fallbackToLocalTasks(): Result<List<AdvisorTaskListItemDto>> {
         return try {
             val localTasks = taskDao.getAllTasks()
-            Result.success(localTasks.map { it.toListItemDto() })
+            Result.success(localTasks.map { it.toListItemDto().resolveStudentName() })
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas locais", exception)
             Result.success(emptyList())
@@ -169,7 +171,7 @@ class AdvisorTasksRepository {
     ): Result<List<AdvisorTaskListItemDto>> {
         return try {
             val localTasks = taskDao.getTasksByApplication(applicationId)
-            Result.success(localTasks.map { it.toListItemDto() })
+            Result.success(localTasks.map { it.toListItemDto().resolveStudentName() })
         } catch (exception: Exception) {
             Log.e("AdvisorTasksRepo", "Erro ao carregar tarefas locais da candidatura", exception)
             Result.success(emptyList())
@@ -229,6 +231,13 @@ class AdvisorTasksRepository {
     }
 }
 
+private fun AdvisorTaskListItemDto.resolveStudentName(): AdvisorTaskListItemDto {
+    val resolvedName = studentName?.takeIf { it.isNotBlank() }
+        ?: studentEmail?.takeIf { it.isNotBlank() }
+        ?: "Aluno não identificado"
+    return copy(studentName = resolvedName)
+}
+
 private fun AdvisorTaskListItemDto.toEntity() = TaskEntity(
     id = id,
     applicationId = applicationId,
@@ -242,7 +251,9 @@ private fun AdvisorTaskListItemDto.toEntity() = TaskEntity(
     completedAt = completedAt,
     createdAt = createdAt ?: "",
     updatedAt = createdAt ?: "",
-    syncStatus = "synced"
+    syncStatus = "synced",
+    studentName = studentName,
+    offerTitle = offerTitle
 )
 
 private fun TaskEntity.toListItemDto() = AdvisorTaskListItemDto(
@@ -254,5 +265,7 @@ private fun TaskEntity.toListItemDto() = AdvisorTaskListItemDto(
     priority = priority,
     dueDate = dueDate,
     createdAt = createdAt,
-    completedAt = completedAt
+    completedAt = completedAt,
+    studentName = studentName,
+    offerTitle = offerTitle
 )

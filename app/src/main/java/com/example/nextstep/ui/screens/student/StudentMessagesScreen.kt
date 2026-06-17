@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -164,14 +165,15 @@ private fun StudentChatConversationCard(
     conversation: StudentChatConversationDto,
     onClick: () -> Unit
 ) {
-    val chatLabel = conversation.chatLabel ?: stringResource(R.string.chat_label)
+    val fallbackLabel = stringResource(R.string.chat_label)
+    val displayName = conversation.participantName?.takeIf { it.isNotBlank() }
+        ?: fallbackLabel
     val offerTitle = conversation.offerTitle.orEmpty()
         .ifBlank { stringResource(R.string.not_available) }
-    val participantName = conversation.participantName
-    val subtitle = if (!participantName.isNullOrBlank()) {
-        "$chatLabel · $participantName"
-    } else {
-        chatLabel
+    val roleTag = when (conversation.participantType) {
+        "teacher" -> stringResource(R.string.teacher_role)
+        "advisor" -> stringResource(R.string.advisor_role)
+        else -> null
     }
 
     Row(
@@ -213,14 +215,36 @@ private fun StudentChatConversationCard(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = subtitle,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = displayName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+
+                if (roleTag != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color(0xFFF0F0F0))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = roleTag,
+                            fontSize = 11.sp,
+                            color = Color(0xFF6B7280),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(3.dp))
 

@@ -79,9 +79,7 @@ class ApplicationChatViewModel : ViewModel() {
             }
         }
 
-        if (_uiState.value.participantName.isBlank()) {
-            fetchParticipantDetails(applicationId, chatType)
-        }
+        fetchParticipantDetails(applicationId, chatType)
         
         loadMessages(applicationId, chatType, showLoading = isNewConversation)
         
@@ -141,36 +139,72 @@ class ApplicationChatViewModel : ViewModel() {
 
     private fun fetchParticipantDetails(applicationId: String, chatType: String = "advisor") {
         viewModelScope.launch {
-            try {
-                // Tenta carregar como orientador (vendo aluno)
-                assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
-                    val app = apps.find { it.applicationId == applicationId }
-                    if (app != null) {
-                        val studentName = app.studentFullName
-                        if (studentName.isNotBlank()) {
-                            _uiState.value = _uiState.value.copy(
-                                participantName = normalizeName(studentName)
-                            )
-                            return@launch
-                        }
-                    }
-                }
+            var isAdvisorCurrentUser = false
+            var name = ""
 
-                // Tenta carregar como aluno (vendo orientador ou docente)
+            // Tenta carregar como orientador (vendo aluno)
+            assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
+                val app = apps.find { it.applicationId == applicationId }
+                if (app != null && app.studentFullName.isNotBlank()) {
+                    name = normalizeName(app.studentFullName)
+                    isAdvisorCurrentUser = true
+                }
+            }
+
+            // Se não encontrou como orientador, tenta como aluno (vendo orientador ou docente)
+            if (name.isBlank()) {
                 studentAppsRepository.getSubmittedApplicationById(applicationId).onSuccess { app ->
                     val formattedName = when (chatType) {
                         "teacher" -> app.formattedTeacherName
                         else -> app.formattedAdvisorName
                     }
                     if (formattedName.isNotBlank() && formattedName != "Orientador" && formattedName != "Docente") {
-                        _uiState.value = _uiState.value.copy(
-                            participantName = formattedName
-                        )
+                        name = formattedName
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("ChatViewModel", "Error fetching participant details", e)
             }
+
+            if (name.isNotBlank()) {
+                _uiState.value = _uiState.value.copy(
+                    participantName = name,
+                    showRoleTag = !isAdvisorCurrentUser
+                )
+            } else if (chatType == "teacher") {
+                _uiState.value = _uiState.value.copy(
+                    showRoleTag = false
+                )
+            }
+        }
+    }
+
+    private suspend fun fetchParticipantNameSuspending(applicationId: String, chatType: String): String {
+        return try {
+            // Tenta carregar como orientador (vendo aluno)
+            assignedAppsRepository.getAssignedApplications().onSuccess { apps ->
+                val app = apps.find { it.applicationId == applicationId }
+                if (app != null) {
+                    val studentName = app.studentFullName
+                    if (studentName.isNotBlank()) {
+                        return normalizeName(studentName)
+                    }
+                }
+            }
+
+            // Tenta carregar como aluno (vendo orientador ou docente)
+            studentAppsRepository.getSubmittedApplicationById(applicationId).onSuccess { app ->
+                val formattedName = when (chatType) {
+                    "teacher" -> app.formattedTeacherName
+                    else -> app.formattedAdvisorName
+                }
+                if (formattedName.isNotBlank() && formattedName != "Orientador" && formattedName != "Docente") {
+                    return formattedName
+                }
+            }
+
+            ""
+        } catch (e: Exception) {
+            Log.e("ChatViewModel", "Error fetching participant details", e)
+            ""
         }
     }
 

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdvisorTaskListItemDto
+import com.example.nextstep.ui.components.AppFilterChipsRow
 import com.example.nextstep.ui.utils.DateFormatUtils
 import com.example.nextstep.ui.utils.localizedPriority
 
@@ -134,9 +135,19 @@ fun AdvisorTaskListItem(
                     color = Color.Black
                 )
 
-                if (showStudentInfo && task.studentName != null) {
+                if (showStudentInfo) {
+                    val displayStudentName = task.studentName?.takeIf { it.isNotBlank() }
+                        ?: "Aluno não identificado"
                     Text(
-                        text = "${task.studentName} • ${task.offerTitle ?: ""}",
+                        text = "Aluno: $displayStudentName",
+                        fontSize = 13.sp,
+                        color = AdvisorUiColors.TextDarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        text = "Estágio: ${task.offerTitle ?: "—"}",
                         fontSize = 13.sp,
                         color = AdvisorUiColors.TextDarkGray,
                         maxLines = 1,
@@ -194,49 +205,19 @@ fun AdvisorTaskFilterChips(
     selectedFilter: AdvisorTaskFilter,
     onFilterSelected: (AdvisorTaskFilter) -> Unit
 ) {
-    // Usar LazyRow para garantir scroll horizontal e evitar quebra de linha (Ponto 2)
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 24.dp)
-    ) {
-        items(AdvisorTaskFilter.entries.toTypedArray()) { filter ->
-            val label = when (filter) {
+    AppFilterChipsRow(
+        filters = AdvisorTaskFilter.entries,
+        selectedFilter = selectedFilter,
+        labelProvider = { filter ->
+            when (filter) {
                 AdvisorTaskFilter.ALL -> stringResource(R.string.all)
                 AdvisorTaskFilter.PENDING -> stringResource(R.string.status_pending)
                 AdvisorTaskFilter.IN_PROGRESS -> stringResource(R.string.status_in_progress)
                 AdvisorTaskFilter.COMPLETED -> stringResource(R.string.status_completed)
             }
-            val isSelected = filter == selectedFilter
-
-            // Uso de Surface para garantir consistência visual e evitar quebras de texto
-            Surface(
-                modifier = Modifier
-                    .height(44.dp)
-                    .clickable { onFilterSelected(filter) },
-                shape = RoundedCornerShape(22.dp),
-                color = if (isSelected) AdvisorUiColors.YellowAccent else Color(0xFFF5F5F5),
-                border = if (isSelected) null else BorderStroke(1.dp, AdvisorUiColors.BorderGray)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = label,
-                        fontSize = 14.sp,
-                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                        color = if (isSelected) Color.Black else Color(0xFF333333),
-                        maxLines = 1, // ABSOLUTAMENTE 1 linha (Ponto 2)
-                        softWrap = false, // NUNCA quebrar palavra (Ponto 2)
-                        overflow = TextOverflow.Visible
-                    )
-                }
-            }
-        }
-    }
+        },
+        onFilterSelected = { onFilterSelected(it) }
+    )
 }
 
 @Composable

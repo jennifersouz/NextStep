@@ -26,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -61,7 +62,7 @@ fun AdvisorNotificationsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 24.dp, top = 8.dp, bottom = 8.dp),
+                .padding(start = 8.dp, end = 24.dp, top = 24.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
@@ -74,7 +75,7 @@ fun AdvisorNotificationsScreen(
             
             Text(
                 text = stringResource(R.string.notifications),
-                fontSize = 20.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.weight(1f)
@@ -84,7 +85,7 @@ fun AdvisorNotificationsScreen(
                 TextButton(onClick = { viewModel.markAllAsRead() }) {
                     Text(
                         text = stringResource(R.string.mark_all_as_read),
-                        color = AdvisorUiColors.InProgressText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -139,19 +140,8 @@ private fun NotificationItem(
         else -> Icons.Default.Notifications
     }
 
-    val iconBgColor = when (notification.type) {
-        "advisor_assigned" -> AdvisorUiColors.InProgressBg
-        "new_message" -> AdvisorUiColors.YellowLight
-        "task_created", "task_updated" -> AdvisorUiColors.CompletedBg
-        else -> AdvisorUiColors.BorderGray
-    }
-
-    val iconColor = when (notification.type) {
-        "advisor_assigned" -> AdvisorUiColors.InProgressText
-        "new_message" -> AdvisorUiColors.PendingText
-        "task_created", "task_updated" -> AdvisorUiColors.CompletedText
-        else -> AdvisorUiColors.TextGray
-    }
+    val iconBgColor = Color(0xFFF4F4F4)
+    val iconColor = Color(0xFF616161)
 
     // Melhora texto da notificação (Ponto 5)
     val displayMessage = if (notification.type == "advisor_assigned" && notification.message.contains("foi atribuído", ignoreCase = true)) {

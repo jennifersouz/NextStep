@@ -159,7 +159,7 @@ fun ProfileScreenLayout(
 }
 
 @Composable
-private fun ProfileFieldItem(
+fun ProfileFieldItem(
     label: String,
     value: String
 ) {

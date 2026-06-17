@@ -1,6 +1,13 @@
 package com.example.nextstep.ui.utils
 
 /**
+ * Lista de roles técnicos permitidos na aplicação.
+ * Deve manter-se sincronizado com o CHECK constraint da tabela profiles
+ * e com a lista ALLOWED_ROLES na Edge Function admin-create-user.
+ */
+val ALLOWED_ROLES = listOf("student", "teacher", "company", "advisor", "institution", "admin")
+
+/**
  * Converte um role técnico (armazenado na base de dados em inglês)
  * para o nome de exibição traduzido no idioma ativo.
  *

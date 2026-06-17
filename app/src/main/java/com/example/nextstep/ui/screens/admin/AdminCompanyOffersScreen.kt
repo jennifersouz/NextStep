@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyOfferDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun AdminCompanyOffersScreen(
@@ -187,8 +188,11 @@ private fun AdminOfferListItem(offer: AdminCompanyOfferDto) {
         Spacer(modifier = Modifier.height(4.dp))
 
         // Meta row: area · location · work_mode
-        val meta = listOfNotNull(offer.area, offer.location, offer.workMode)
-            .joinToString(" · ")
+        val meta = listOfNotNull(
+            offer.area?.let { Formatters.formatOfferArea(it) },
+            offer.location,
+            offer.workMode?.let { Formatters.formatWorkMode(it) }
+        ).joinToString(" · ")
         if (meta.isNotBlank()) {
             Text(
                 text = meta,

@@ -1,6 +1,7 @@
 package com.example.nextstep.data.repository
 
 import android.util.Log
+import com.example.nextstep.data.model.CompanyDto
 import com.example.nextstep.data.model.CompanyNameDto
 import com.example.nextstep.data.model.CreateOfferDto
 import com.example.nextstep.data.model.OfferDto
@@ -25,7 +26,32 @@ class OffersRepository {
                 }
                 .decodeList<OfferDto>()
 
-            Result.success(offers)
+            val profileIds = offers.mapNotNull { it.companyProfileId }.distinct()
+            if (profileIds.isEmpty()) {
+                return Result.success(offers)
+            }
+
+            val companies = supabase
+                .from("companies")
+                .select(columns = Columns.list("profile_id, company_name")) {
+                    filter {
+                        isIn("profile_id", profileIds)
+                    }
+                }
+                .decodeList<CompanyDto>()
+
+            val companyNameMap = companies.associate { it.profileId to it.companyName }
+
+            val updatedOffers = offers.map { offer ->
+                val currentName = offer.companyProfileId?.let { companyNameMap[it] }
+                if (currentName != null && currentName != offer.companyName) {
+                    offer.copy(companyName = currentName)
+                } else {
+                    offer
+                }
+            }
+
+            Result.success(updatedOffers)
         } catch (exception: Exception) {
             Log.e("OffersRepository", "Erro ao buscar ofertas", exception)
             Result.failure(exception)
@@ -105,7 +131,30 @@ class OffersRepository {
                 }
                 .decodeSingle<OfferDto>()
 
-            Result.success(offer)
+            val currentName = offer.companyProfileId?.let { profileId ->
+                try {
+                    val company = supabase
+                        .from("companies")
+                        .select(columns = Columns.list("company_name")) {
+                            filter {
+                                eq("profile_id", profileId)
+                            }
+                        }
+                        .decodeSingle<CompanyNameDto>()
+                    company.companyName
+                } catch (e: Exception) {
+                    Log.e("OffersRepository", "Erro ao buscar nome atual da empresa", e)
+                    null
+                }
+            }
+
+            val updatedOffer = if (currentName != null && currentName != offer.companyName) {
+                offer.copy(companyName = currentName)
+            } else {
+                offer
+            }
+
+            Result.success(updatedOffer)
         } catch (exception: Exception) {
             Log.e("OffersRepository", "Erro ao buscar detalhes da oferta", exception)
             Result.failure(exception)

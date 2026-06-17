@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun AdminCompaniesScreen(
@@ -231,7 +232,7 @@ fun AdminCompanyListItem(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val details = listOfNotNull(
-                    company.businessArea,
+                    Formatters.formatCompanyArea(company.businessArea),
                     company.location
                 ).joinToString(" · ")
 

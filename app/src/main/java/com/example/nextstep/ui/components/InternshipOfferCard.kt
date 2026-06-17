@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,11 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun InternshipOfferCard(
@@ -43,49 +40,31 @@ fun InternshipOfferCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp)
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE0E0E0),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Box(
-                modifier = Modifier.clickable(enabled = onCompanyClick != null) {
-                    onCompanyClick?.invoke()
-                }
-            ) {
-                CompanyLogo(
-                    companyName = offer.companyName
-                )
-            }
+            CompanyLogo(
+                companyName = offer.companyName,
+                size = 44,
+                fontSize = 14
+            )
 
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = offer.companyName,
-                    fontSize = 16.sp,
-                    color = Color(0xFF8A8A8A),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF6B7280),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.clickable(enabled = onCompanyClick != null) {
@@ -93,40 +72,57 @@ fun InternshipOfferCard(
                     }
                 )
 
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = offer.title,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(28.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(4.dp))
+                    LabelChip(text = offer.location)
 
                     Text(
-                        text = offer.location,
-                        fontSize = 17.sp,
-                        color = Color.Black,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        text = "·",
+                        color = Color(0xFFD1D5DB),
+                        fontSize = 14.sp
                     )
+
+                    LabelChip(text = Formatters.formatWorkMode(offer.workMode))
+
+                    if (!offer.duration.isNullOrBlank()) {
+                        Text(
+                            text = "·",
+                            color = Color(0xFFD1D5DB),
+                            fontSize = 14.sp
+                        )
+
+                        LabelChip(text = offer.duration)
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LabelChip(text: String) {
+    Text(
+        text = text,
+        fontSize = 12.sp,
+        color = Color(0xFF6B7280),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -143,9 +139,7 @@ fun CompanyLogo(
         .joinToString("") { part ->
             part.first().uppercase()
         }
-        .ifBlank {
-            "?"
-        }
+        .ifBlank { "?" }
 
     Box(
         modifier = modifier
@@ -168,3 +162,5 @@ fun CompanyLogo(
         )
     }
 }
+
+

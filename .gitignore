@@ -13,5 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-/supabase/fix-chat-architecture.sql
-/REQUISITOS_AUDITORIA_COMPLETA.md
+

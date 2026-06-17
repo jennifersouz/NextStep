@@ -18,5 +18,7 @@ data class TaskEntity(
     @ColumnInfo(name = "completed_at") val completedAt: String? = null,
     @ColumnInfo(name = "created_at") val createdAt: String? = null,
     @ColumnInfo(name = "updated_at") val updatedAt: String? = null,
-    @ColumnInfo(name = "sync_status") val syncStatus: String = "synced"
+    @ColumnInfo(name = "sync_status") val syncStatus: String = "synced",
+    @ColumnInfo(name = "student_name") val studentName: String? = null,
+    @ColumnInfo(name = "offer_title") val offerTitle: String? = null
 )

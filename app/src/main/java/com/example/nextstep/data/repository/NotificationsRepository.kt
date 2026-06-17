@@ -48,4 +48,23 @@ class NotificationsRepository {
             Result.failure(exception)
         }
     }
+
+    suspend fun markAllAsRead(): Result<Unit> {
+        return try {
+            val userId = auth.currentUserOrNull()?.id
+                ?: return Result.failure(IllegalStateException("Não autenticado"))
+
+            supabase.from("notifications")
+                .update(UpdateNotificationReadDto(isRead = true)) {
+                    filter {
+                        eq("receiver_profile_id", userId)
+                        eq("is_read", false)
+                    }
+                }
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("NotificationsRepo", "Erro ao marcar todas como lidas", exception)
+            Result.failure(exception)
+        }
+    }
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,8 +25,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -53,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDto
+import com.example.nextstep.ui.screens.admin.AppFilterDropdown
 
 @Composable
 fun InstitutionUsersScreen(
@@ -75,7 +73,8 @@ fun InstitutionUsersScreen(
         showBackButton = showBackButton,
         onBackClick = onBackClick,
         onAddUserClick = onAddUserClick,
-        onFilterSelected = viewModel::selectFilter,
+        onTypeFilterChange = viewModel::onTypeFilterChange,
+        onStatusFilterChange = viewModel::onStatusFilterChange,
         onSearchChange = viewModel::updateSearchQuery,
         onDeleteInvite = { user -> selectedInviteToDelete = user },
         onUserClick = onUserClick
@@ -120,28 +119,13 @@ internal fun InstitutionUsersContent(
     showBackButton: Boolean = false,
     onBackClick: (() -> Unit)? = null,
     onAddUserClick: () -> Unit,
-    onFilterSelected: (InstitutionUserFilter) -> Unit,
+    onTypeFilterChange: (String) -> Unit,
+    onStatusFilterChange: (String) -> Unit,
     onSearchChange: (String) -> Unit,
     onDeleteInvite: (InstitutionUserDto) -> Unit = {},
     onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> }
 ) {
-    val filteredUsers = filterUsers(state.users, state.selectedFilter)
-
-    val searchedUsers = if (state.searchQuery.isBlank()) {
-        filteredUsers
-    } else {
-        val query = state.searchQuery.trim().lowercase()
-        filteredUsers.filter { user ->
-            val fullName = "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".lowercase()
-            fullName.contains(query) ||
-                user.email.lowercase().contains(query) ||
-                user.course.orEmpty().lowercase().contains(query) ||
-                user.department.orEmpty().lowercase().contains(query) ||
-                user.studentNumber.orEmpty().lowercase().contains(query)
-        }
-    }
-
-    val sortedUsers = searchedUsers.sortedWith(
+    val sortedUsers = state.filteredUsers.sortedWith(
         compareBy<InstitutionUserDto> { isInviteAccepted(it) }
             .thenByDescending { it.createdAt.orEmpty() }
     )
@@ -196,31 +180,7 @@ internal fun InstitutionUsersContent(
                 }
             }
 
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                items(InstitutionUserFilter.entries) { filter ->
-                    val isSelected = state.selectedFilter == filter
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onFilterSelected(filter) },
-                        label = {
-                            Text(text = institutionUserFilterLabel(filter))
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFFFDFA52),
-                            selectedLabelColor = Color.Black,
-                            containerColor = Color(0xFFF3F3F3),
-                            labelColor = Color.Black
-                        )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             OutlinedTextField(
                 value = state.searchQuery,
@@ -241,6 +201,40 @@ internal fun InstitutionUsersContent(
                 )
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AppFilterDropdown(
+                    label = stringResource(R.string.user_type_filter_label),
+                    selectedOption = state.selectedTypeFilter,
+                    options = listOf(
+                        "Todos",
+                        "Alunos",
+                        "Docentes"
+                    ),
+                    onOptionSelected = onTypeFilterChange,
+                    modifier = Modifier.weight(1f)
+                )
+
+                AppFilterDropdown(
+                    label = stringResource(R.string.user_status_filter_label),
+                    selectedOption = state.selectedStatusFilter,
+                    options = listOf(
+                        "Todos",
+                        "Pendente",
+                        "Aceite",
+                        "Arquivado"
+                    ),
+                    onOptionSelected = onStatusFilterChange,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             if (state.isLoading) {
@@ -254,7 +248,7 @@ internal fun InstitutionUsersContent(
                 )
             } else if (sortedUsers.isEmpty()) {
                 InstitutionUsersEmptyState(
-                    isFiltered = state.selectedFilter != InstitutionUserFilter.ALL || state.searchQuery.isNotBlank()
+                    isFiltered = state.selectedTypeFilter != "Todos" || state.selectedStatusFilter != "Todos" || state.searchQuery.isNotBlank()
                 )
             } else {
                 LazyColumn(
@@ -271,7 +265,7 @@ internal fun InstitutionUsersContent(
                                 val role = user.targetRole
                                 val inviteId = user.inviteId
                                 val profileId = user.profileId
-                                
+
                                 Log.d(
                                     "InstitutionUsers",
                                     "Open user inviteId=$inviteId profileId=$profileId role=$role acceptedAt=${user.acceptedAt} inviteStatus=${user.inviteStatus} isAccepted=$accepted"
@@ -387,7 +381,7 @@ private fun InstitutionUserCard(
 private fun InviteStatusBadge(user: InstitutionUserDto) {
     val accepted = isInviteAccepted(user)
     val archived = isArchived(user)
-    
+
     val label = when {
         archived -> "Arquivado"
         accepted -> stringResource(R.string.accepted)
@@ -465,7 +459,7 @@ private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
 }
 
 private fun isArchived(user: InstitutionUserDto): Boolean {
-    return false
+    return user.inviteStatus?.trim()?.lowercase() == "archived"
 }
 
 private fun displayInstitutionUserName(user: InstitutionUserDto): String {
@@ -518,35 +512,5 @@ private fun getUserInitials(user: InstitutionUserDto): String {
         "$first$last"
     } else {
         user.email.firstOrNull()?.uppercase() ?: "?"
-    }
-}
-
-private fun filterUsers(
-    users: List<InstitutionUserDto>,
-    filter: InstitutionUserFilter
-): List<InstitutionUserDto> {
-    return when (filter) {
-        InstitutionUserFilter.ALL -> users
-        InstitutionUserFilter.STUDENTS -> users.filter {
-            it.targetRole.lowercase().trim() == "student"
-        }
-        InstitutionUserFilter.TEACHERS -> users.filter {
-            it.targetRole.lowercase().trim() == "teacher"
-        }
-        InstitutionUserFilter.PENDING -> users.filter { !isInviteAccepted(it) && !isArchived(it) }
-        InstitutionUserFilter.ACCEPTED -> users.filter { isInviteAccepted(it) && !isArchived(it) }
-        InstitutionUserFilter.ARCHIVED -> users.filter { isArchived(it) }
-    }
-}
-
-@Composable
-private fun institutionUserFilterLabel(filter: InstitutionUserFilter): String {
-    return when (filter) {
-        InstitutionUserFilter.ALL -> stringResource(R.string.filter_all)
-        InstitutionUserFilter.STUDENTS -> stringResource(R.string.student)
-        InstitutionUserFilter.TEACHERS -> stringResource(R.string.teacher)
-        InstitutionUserFilter.PENDING -> stringResource(R.string.pending)
-        InstitutionUserFilter.ACCEPTED -> stringResource(R.string.accepted)
-        InstitutionUserFilter.ARCHIVED -> "Arquivados"
     }
 }
