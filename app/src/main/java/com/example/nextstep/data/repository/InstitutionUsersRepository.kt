@@ -27,6 +27,18 @@ class InstitutionUsersRepository {
             val currentUser = supabase.auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
+            val institutionExists = supabase
+                .from("institutions")
+                .select {
+                    filter { eq("profile_id", currentUser.id) }
+                }
+                .decodeSingleOrNull<InstitutionIdOnlyDto>()
+
+            if (institutionExists == null) {
+                Log.e("InstitutionUsersRepository", "Instituição não encontrada para o utilizador autenticado: ${currentUser.id}")
+                return Result.failure(Exception("Perfil de instituição não encontrado. Certifique-se de que registou a sua instituição."))
+            }
+
             val invite = InstitutionInviteInsertDto(
                 institutionProfileId = currentUser.id,
                 targetRole = targetRole,
@@ -228,6 +240,12 @@ data class InstitutionInviteDetailDto(
 
 @Serializable
 private data class ProfileIdOnlyDto(
+    @SerialName("profile_id")
+    val profileId: String
+)
+
+@Serializable
+private data class InstitutionIdOnlyDto(
     @SerialName("profile_id")
     val profileId: String
 )
