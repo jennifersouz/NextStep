@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -442,7 +445,12 @@ private fun RegisterForm(
         value = state.email,
         onValueChange = viewModel::onEmailChange,
         placeholder = stringResource(R.string.email_placeholder),
-        errorMessageRes = state.emailError
+        errorMessageRes = state.emailError,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = ImeAction.Next,
+            autoCorrectEnabled = false
+        )
     )
 
     RegisterTextField(
@@ -451,7 +459,12 @@ private fun RegisterForm(
         onValueChange = viewModel::onPasswordChange,
         placeholder = stringResource(R.string.password_placeholder),
         isPassword = true,
-        errorMessageRes = state.passwordError
+        errorMessageRes = state.passwordError,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done,
+            autoCorrectEnabled = false
+        )
     )
 
     RegisterTextField(
@@ -460,7 +473,12 @@ private fun RegisterForm(
         onValueChange = viewModel::onConfirmPasswordChange,
         placeholder = stringResource(R.string.confirm_password_placeholder),
         isPassword = true,
-        errorMessageRes = state.confirmPasswordError
+        errorMessageRes = state.confirmPasswordError,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done,
+            autoCorrectEnabled = false
+        )
     )
 
     state.generalError?.let { errorRes ->
@@ -623,7 +641,8 @@ fun RegisterTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     isPassword: Boolean = false,
-    errorMessageRes: Int? = null
+    errorMessageRes: Int? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     Text(
         text = label,
@@ -645,6 +664,7 @@ fun RegisterTextField(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
         singleLine = true,
+        keyboardOptions = keyboardOptions,
         isError = errorMessageRes != null,
         supportingText = {
             errorMessageRes?.let {

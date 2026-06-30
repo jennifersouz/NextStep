@@ -8,6 +8,7 @@ import com.example.nextstep.R
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import com.example.nextstep.data.repository.AdvisorRegistrationRepository
 import com.example.nextstep.data.repository.AuthRepository
+import com.example.nextstep.ui.utils.SanitizationUtils
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,9 +71,12 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onEmailChange(value: String) {
+        val sanitized = value
+            .filter { c -> c != '\n' && c != '\r' && c != '\t' && c != ' ' && !SanitizationUtils.isInvisibleChar(c) }
+            .lowercase()
         _registerState.value = _registerState.value.copy(
-            email = value,
-            emailError = validateEmail(value),
+            email = sanitized,
+            emailError = validateEmail(sanitized),
             generalError = null,
             generalErrorText = null,
             isRegisterSuccess = false
@@ -80,10 +84,12 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onPasswordChange(value: String) {
+        val sanitized = value
+            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
         _registerState.value = _registerState.value.copy(
-            password = value,
-            passwordError = validatePassword(value),
-            confirmPasswordError = validateConfirmPassword(value, _registerState.value.confirmPassword),
+            password = sanitized,
+            passwordError = validatePassword(sanitized),
+            confirmPasswordError = validateConfirmPassword(sanitized, _registerState.value.confirmPassword),
             generalError = null,
             generalErrorText = null,
             isRegisterSuccess = false
@@ -91,9 +97,11 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onConfirmPasswordChange(value: String) {
+        val sanitized = value
+            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
         _registerState.value = _registerState.value.copy(
-            confirmPassword = value,
-            confirmPasswordError = validateConfirmPassword(_registerState.value.password, value),
+            confirmPassword = sanitized,
+            confirmPasswordError = validateConfirmPassword(_registerState.value.password, sanitized),
             generalError = null,
             generalErrorText = null,
             isRegisterSuccess = false
@@ -101,15 +109,20 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onLoginEmailChange(value: String) {
+        val sanitized = value
+            .filter { c -> c != '\n' && c != '\r' && c != '\t' && c != ' ' && !SanitizationUtils.isInvisibleChar(c) }
+            .lowercase()
         _loginState.value = _loginState.value.copy(
-            email = value,
+            email = sanitized,
             generalError = null
         )
     }
 
     fun onLoginPasswordChange(value: String) {
+        val sanitized = value
+            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
         _loginState.value = _loginState.value.copy(
-            password = value,
+            password = sanitized,
             generalError = null
         )
     }
@@ -539,6 +552,8 @@ class AuthViewModel : ViewModel() {
         if (!validateLogin()) return
 
         val state = _loginState.value
+        val sanitizedEmail = SanitizationUtils.sanitizeEmail(state.email)
+        val sanitizedPassword = SanitizationUtils.sanitizePassword(state.password)
 
         viewModelScope.launch {
             _loginState.value = state.copy(
@@ -547,8 +562,8 @@ class AuthViewModel : ViewModel() {
             )
 
             val result = authRepository.login(
-                email = state.email,
-                password = state.password
+                email = sanitizedEmail,
+                password = sanitizedPassword
             )
 
             _loginState.value = _loginState.value.copy(
@@ -585,6 +600,8 @@ class AuthViewModel : ViewModel() {
         if (!validateRegister()) return
 
         val state = _registerState.value
+        val sanitizedEmail = SanitizationUtils.sanitizeEmail(state.email)
+        val sanitizedPassword = SanitizationUtils.sanitizePassword(state.password)
 
         viewModelScope.launch {
             _registerState.value = state.copy(
@@ -596,8 +613,8 @@ class AuthViewModel : ViewModel() {
             val result = when (state.selectedRole) {
                 UserRole.STUDENT -> {
                     authRepository.registerInvitedStudent(
-                        email = state.email,
-                        password = state.password,
+                        email = sanitizedEmail,
+                        password = sanitizedPassword,
                         firstName = state.name,
                         lastName = state.lastName,
                         phone = state.teacherPhone.ifBlank { null },
@@ -609,8 +626,8 @@ class AuthViewModel : ViewModel() {
 
                 UserRole.COMPANY -> {
                     authRepository.registerCompany(
-                        email = state.email,
-                        password = state.password,
+                        email = sanitizedEmail,
+                        password = sanitizedPassword,
                         companyName = state.companyName,
                         nif = state.nif,
                         businessArea = state.area,
@@ -625,22 +642,22 @@ class AuthViewModel : ViewModel() {
                         locality = state.institutionLocality,
                         address = state.institutionAddress.ifBlank { null },
                         phone = state.institutionPhone.ifBlank { null },
-                        email = state.email,
-                        password = state.password
+                        email = sanitizedEmail,
+                        password = sanitizedPassword
                     )
                 }
 
                 UserRole.ADVISOR -> {
                     advisorRegistrationRepository.registerAdvisor(
-                        email = state.email,
-                        password = state.password
+                        email = sanitizedEmail,
+                        password = sanitizedPassword
                     )
                 }
 
                 UserRole.TEACHER -> {
                     authRepository.registerInvitedTeacher(
-                        email = state.email,
-                        password = state.password,
+                        email = sanitizedEmail,
+                        password = sanitizedPassword,
                         firstName = state.name,
                         lastName = state.lastName,
                         department = state.teacherDepartment.ifBlank { null },

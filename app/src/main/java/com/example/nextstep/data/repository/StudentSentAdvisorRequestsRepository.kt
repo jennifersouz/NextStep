@@ -2,8 +2,9 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.ApplicationIdDto
-import com.example.nextstep.data.model.ProfileNameDto
+import com.example.nextstep.data.model.OfferTitleDto
 import com.example.nextstep.data.model.SentAdvisorRequestDto
+import com.example.nextstep.data.model.TeacherNameDto
 import com.example.nextstep.data.model.TeacherRequestDto
 import com.example.nextstep.data.model.TeacherRequestStatusUpdateDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
@@ -30,6 +31,10 @@ class StudentSentAdvisorRequestsRepository {
                 return Result.success(emptyList())
             }
 
+            val appIdToOfferId = appResponse
+                .filter { it.offerId != null }
+                .associateBy({ it.id }, { it.offerId!! })
+
             val teacherRequests = supabase
                 .from("teacher_requests")
                 .select {
@@ -41,18 +46,40 @@ class StudentSentAdvisorRequestsRepository {
 
             val nonCancelled = teacherRequests.filter { it.status != "cancelled" }
 
+            val uniqueOfferIds = appIdToOfferId.values.toSet()
+            val offerIdToTitle = if (uniqueOfferIds.isNotEmpty()) {
+                supabase
+                    .from("offers")
+                    .select {
+                        filter {
+                            isIn("id", uniqueOfferIds.toList())
+                        }
+                    }
+                    .decodeList<OfferTitleDto>()
+                    .associateBy({ it.id }, { it.title })
+            } else {
+                emptyMap()
+            }
+
             val enriched = nonCancelled.map { req ->
                 val teacherName = req.teacherProfileId
                     ?.takeIf { it.isNotBlank() }
                     ?.let { fetchTeacherName(it) }
                     ?: "Orientador não atribuído"
+
+                val offerId = appIdToOfferId[req.applicationId]
+                val offerTitle = offerId?.let { offerIdToTitle[it] }
+                    ?: "Unknown internship"
+
                 SentAdvisorRequestDto(
                     id = req.id,
                     studentProfileId = studentProfileId,
                     teacherProfileId = req.teacherProfileId,
                     teacherStatus = req.status,
                     createdAt = req.createdAt,
-                    teacherName = teacherName
+                    teacherName = teacherName,
+                    offerId = offerId,
+                    offerTitle = offerTitle
                 )
             }
 
@@ -66,21 +93,15 @@ class StudentSentAdvisorRequestsRepository {
     private suspend fun fetchTeacherName(profileId: String): String? {
         return try {
             val response = supabase
-                .from("profiles")
+                .from("teachers")
                 .select {
                     filter {
-                        eq("id", profileId)
+                        eq("profile_id", profileId)
                     }
                 }
-                .decodeSingleOrNull<ProfileNameDto>()
+                .decodeSingleOrNull<TeacherNameDto>()
 
-            if (response != null) {
-                val first = response.firstName ?: ""
-                val last = response.lastName ?: ""
-                "$first $last".trim().ifBlank { null }
-            } else {
-                null
-            }
+            response?.displayName
         } catch (e: Exception) {
             null
         }

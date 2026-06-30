@@ -21,5 +21,11 @@ data class SentAdvisorRequestDto(
 
     // This field might need to be filled manually or from a join/view
     @SerialName("teacher_name")
-    val teacherName: String? = null
+    val teacherName: String? = null,
+
+    @SerialName("offer_id")
+    val offerId: String? = null,
+
+    @SerialName("offer_title")
+    val offerTitle: String? = null
 )

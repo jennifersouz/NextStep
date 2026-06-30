@@ -137,6 +137,13 @@ fun SentRequestRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Text(
+                text = request.offerTitle ?: "Unknown internship",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
 
         val status = request.teacherStatus?.lowercase() ?: "pending"
