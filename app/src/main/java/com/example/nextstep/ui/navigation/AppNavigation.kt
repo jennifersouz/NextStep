@@ -27,6 +27,7 @@ import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.chat.ApplicationChatScreen
 import com.example.nextstep.ui.screens.company.AssignAdvisorScreen
 import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
+import com.example.nextstep.ui.screens.company.AddCompanyEmployeeScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
 import com.example.nextstep.ui.screens.company.CompanyEditOfferScreen
 import com.example.nextstep.ui.screens.company.CompanyInternStudentProfileScreen
@@ -122,6 +123,7 @@ fun AppNavigation() {
                         UserRole.INSTITUTION -> Routes.INSTITUTION_DASHBOARD
                         UserRole.TEACHER -> Routes.TEACHER_DASHBOARD
                         UserRole.ADMIN -> Routes.ADMIN_DASHBOARD
+                        UserRole.EMPLOYEE -> Routes.COMPANY_DASHBOARD
                     }
 
                     navController.navigate(destination) {
@@ -603,7 +605,6 @@ fun AppNavigation() {
                 .collectAsState()
 
             CompanyInternStudentsScreen(
-                onBackClick = { navController.popBackStack() },
                 onStudentClick = { applicationId ->
                     navController.navigate(Routes.companyInternStudentProfile(applicationId))
                 },
@@ -1092,6 +1093,9 @@ fun AppNavigation() {
                         Routes.applicationChat(applicationId)
                     )
                 },
+                onAddEmployeeClick = {
+                    navController.navigate(Routes.ADD_COMPANY_EMPLOYEE)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) {
@@ -1099,6 +1103,17 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                }
+            )
+        }
+
+        composable(Routes.ADD_COMPANY_EMPLOYEE) {
+            AddCompanyEmployeeScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSuccess = {
+                    navController.popBackStack()
                 }
             )
         }

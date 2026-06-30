@@ -38,6 +38,7 @@
     <string name="role_institution">Instituição</string>
     <string name="role_admin">Administrador</string>
     <string name="role_advisor">Orientador</string>
+    <string name="role_employee">Funcionário</string>
     <string name="function_label">Função</string>
 
     <string name="account_validation_warning">Este tipo de conta requer validação pela instituição ou administrador antes de ter acesso total à plataforma.</string>
@@ -849,6 +850,15 @@
     <string name="mark_as_inactive">Marcar como inativo</string>
     <string name="mark_as_active">Marcar como ativo</string>
     <string name="internship_completed">Estágio concluído</string>
+    <string name="employees">Funcionários</string>
+    <string name="add_employee">Adicionar funcionário</string>
+    <string name="employee_register_title">Registo de funcionário</string>
+    <string name="employee_register_description">Para criares uma conta como funcionário, a empresa deve ter criado previamente um convite com este email.</string>
+    <string name="no_employees">Ainda não existem funcionários.</string>
+    <string name="send_employee_invite">Enviar convite</string>
+    <string name="employee_invite_description">O funcionário receberá/terá de usar este email para criar a própria conta na aplicação.</string>
+    <string name="employees_load_error">Não foi possível carregar os funcionários.</string>
+    <string name="employee_create_error">Não foi possível criar o convite. Tente novamente.</string>
     <string name="confirm_mark_inactive_title">Marcar como inativo</string>
     <string name="confirm_mark_inactive_message">Tens a certeza de que queres marcar este aluno como inativo?</string>
     <string name="confirm_mark_active_title">Marcar como ativo</string>

@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,7 +53,6 @@ import com.example.nextstep.R
 
 @Composable
 fun CompanyInternStudentsScreen(
-    onBackClick: () -> Unit = {},
     onStudentClick: (String) -> Unit = {},
     onMessageClick: (String) -> Unit = {},
     refreshKey: Int = 0,
@@ -75,30 +73,6 @@ fun CompanyInternStudentsScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Top bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
-                    tint = Color.Black
-                )
-            }
-
-            Text(
-                text = "Alunos em estágio",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
         // Search and Filter area
         Column(
             modifier = Modifier.fillMaxWidth()

@@ -177,6 +177,39 @@ class AuthRepository {
         }
     }
 
+    suspend fun registerInvitedEmployee(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String,
+        phone: String?,
+        department: String?
+    ): Result<Unit> {
+        return try {
+            val normalizedEmail = email.trim().lowercase()
+            Log.d("AuthRepository", "registerInvitedEmployee email=$normalizedEmail")
+
+            val userId = createAuthUserAndGetId(normalizedEmail, password)
+            Log.d("AuthRepository", "Created auth user id=$userId for employee")
+
+            supabase.postgrest.rpc(
+                function = "accept_company_employee_invite",
+                parameters = buildJsonObject {
+                    put("user_first_name", firstName.trim())
+                    put("user_last_name", lastName.trim())
+                    put("user_phone", phone?.trim()?.takeIf { it.isNotBlank() })
+                    put("user_department", department?.trim()?.takeIf { it.isNotBlank() })
+                }
+            )
+            Log.d("AuthRepository", "RPC accept_company_employee_invite succeeded")
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao registar funcionário convidado", exception)
+            Result.failure(exception)
+        }
+    }
+
     @Deprecated("Use registerInvitedStudent para alunos")
     suspend fun registerStudent(
         email: String,

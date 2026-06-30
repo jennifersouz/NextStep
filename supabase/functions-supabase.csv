@@ -589,3 +589,95 @@ has_pending_institution_invite,"
           and inv.accepted_at is null
     );
 "
+accept_company_employee_invite,"
+DECLARE
+    current_user_id uuid;
+    current_user_email text;
+    invite_record public.company_employee_invites%ROWTYPE;
+BEGIN
+    current_user_id := auth.uid();
+    IF current_user_id IS NULL THEN
+        RAISE EXCEPTION 'not_authenticated';
+    END IF;
+
+    SELECT email INTO current_user_email
+    FROM auth.users
+    WHERE id = current_user_id;
+
+    IF current_user_email IS NULL THEN
+        RAISE EXCEPTION 'email_not_found';
+    END IF;
+
+    SELECT * INTO invite_record
+    FROM public.company_employee_invites
+    WHERE lower(email) = lower(current_user_email)
+      AND accepted_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF invite_record.id IS NULL THEN
+        RAISE EXCEPTION 'invite_not_found';
+    END IF;
+
+    IF trim(coalesce(user_first_name, '')) = '' THEN
+        RAISE EXCEPTION 'first_name_required';
+    END IF;
+
+    IF trim(coalesce(user_last_name, '')) = '' THEN
+        RAISE EXCEPTION 'last_name_required';
+    END IF;
+
+    INSERT INTO public.profiles (id, email, role)
+    VALUES (current_user_id, current_user_email, 'employee')
+    ON CONFLICT (id) DO UPDATE
+    SET
+        email = excluded.email,
+        role = excluded.role,
+        updated_at = now();
+
+    INSERT INTO public.company_employees (
+        profile_id, company_profile_id,
+        first_name, last_name, email, phone, department
+    )
+    VALUES (
+        current_user_id,
+        invite_record.company_profile_id,
+        trim(user_first_name), trim(user_last_name),
+        current_user_email,
+        nullif(trim(coalesce(user_phone, '')), ''),
+        nullif(trim(coalesce(user_department, '')), '')
+    )
+    ON CONFLICT (profile_id) DO UPDATE
+    SET
+        first_name = excluded.first_name,
+        last_name = excluded.last_name,
+        email = excluded.email,
+        phone = excluded.phone,
+        department = excluded.department,
+        updated_at = now();
+
+    UPDATE public.company_employee_invites
+    SET accepted_at = now()
+    WHERE id = invite_record.id;
+END;
+"
+has_pending_company_employee_invite,"
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.company_employee_invites inv
+        WHERE lower(trim(inv.email)) = lower(trim(invite_email))
+          AND inv.accepted_at IS NULL
+    );
+"
+delete_pending_company_employee_invite,"
+BEGIN
+    DELETE FROM public.company_employee_invites
+    WHERE id = invite_uuid
+      AND company_profile_id = auth.uid()
+      AND accepted_at IS NULL;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'invite_not_found_or_already_accepted';
+    END IF;
+END;
+"

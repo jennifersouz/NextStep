@@ -317,14 +317,14 @@ class AuthViewModel : ViewModel() {
         )
 
         val nameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER || state.selectedRole == UserRole.EMPLOYEE) {
                 validatePersonName(state.name)
             } else {
                 null
             }
 
         val lastNameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER || state.selectedRole == UserRole.EMPLOYEE) {
                 validatePersonName(state.lastName)
             } else {
                 null
@@ -401,7 +401,7 @@ class AuthViewModel : ViewModel() {
             }
 
         val teacherDepartmentError =
-            if (state.selectedRole == UserRole.TEACHER) {
+            if (state.selectedRole == UserRole.TEACHER || state.selectedRole == UserRole.EMPLOYEE) {
                 validateRequiredText(state.teacherDepartment)
             } else {
                 null
@@ -578,6 +578,7 @@ class AuthViewModel : ViewModel() {
                     "institution" -> UserRole.INSTITUTION
                     "teacher" -> UserRole.TEACHER
                     "admin" -> UserRole.ADMIN
+                    "employee" -> UserRole.EMPLOYEE
                     else -> null
                 }
 
@@ -662,6 +663,17 @@ class AuthViewModel : ViewModel() {
                         lastName = state.lastName,
                         department = state.teacherDepartment.ifBlank { null },
                         phone = state.teacherPhone.ifBlank { null }
+                    )
+                }
+
+                UserRole.EMPLOYEE -> {
+                    authRepository.registerInvitedEmployee(
+                        email = sanitizedEmail,
+                        password = sanitizedPassword,
+                        firstName = state.name,
+                        lastName = state.lastName,
+                        phone = state.teacherPhone.ifBlank { null },
+                        department = state.teacherDepartment.ifBlank { null }
                     )
                 }
 

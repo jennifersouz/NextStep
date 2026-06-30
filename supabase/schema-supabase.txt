@@ -4,7 +4,7 @@
 CREATE TABLE public.profiles (
   id uuid NOT NULL,
   email text NOT NULL UNIQUE,
-  role text NOT NULL CHECK (role = ANY (ARRAY['student'::text, 'company'::text, 'teacher'::text, 'advisor'::text, 'institution'::text, 'admin'::text])),
+  role text NOT NULL CHECK (role = ANY (ARRAY['student'::text, 'company'::text, 'teacher'::text, 'advisor'::text, 'institution'::text, 'admin'::text, 'employee'::text, 'aluno'::text, 'empresa'::text, 'docente'::text, 'orientador'::text, 'instituicao'::text, 'administrador'::text, 'funcionario'::text])),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   first_name text,
@@ -233,6 +233,33 @@ CREATE TABLE public.notifications (
   CONSTRAINT notifications_sender_profile_id_fkey FOREIGN KEY (sender_profile_id) REFERENCES public.profiles(id),
   CONSTRAINT notifications_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id),
   CONSTRAINT notifications_receiver_profile_id_fkey FOREIGN KEY (receiver_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.company_employee_invites (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_profile_id uuid NOT NULL,
+  email text NOT NULL,
+  first_name text,
+  last_name text,
+  department text,
+  phone text,
+  accepted_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT company_employee_invites_pkey PRIMARY KEY (id),
+  CONSTRAINT company_employee_invites_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.company_employees (
+  profile_id uuid NOT NULL,
+  company_profile_id uuid NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  department text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT company_employees_pkey PRIMARY KEY (profile_id),
+  CONSTRAINT company_employees_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id),
+  CONSTRAINT company_employees_company_profile_id_fkey FOREIGN KEY (company_profile_id) REFERENCES public.profiles(id)
 );
 CREATE TABLE public.teacher_evaluations (
   id uuid NOT NULL DEFAULT gen_random_uuid(),

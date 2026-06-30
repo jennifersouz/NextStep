@@ -6,5 +6,6 @@ enum class UserRole {
     ADVISOR,
     INSTITUTION,
     TEACHER,
-    ADMIN
+    ADMIN,
+    EMPLOYEE
 }

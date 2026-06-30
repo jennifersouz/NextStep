@@ -88,6 +88,9 @@ object Routes {
     const val INSTITUTION_USERS = "institution_users"
     const val ADD_INSTITUTION_USER = "add_institution_user"
 
+    const val COMPANY_EMPLOYEES = "company_employees"
+    const val ADD_COMPANY_EMPLOYEE = "add_company_employee"
+
     const val INSTITUTION_TEACHERS = "institution_teachers"
     const val INSTITUTION_TEACHER_DETAIL = "institution_teacher_detail/{teacherProfileId}"
     const val INSTITUTION_TEACHER_DETAIL_ARG = "teacherProfileId"

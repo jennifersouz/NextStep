@@ -132,3 +132,8 @@ public,teacher_evaluations,Teachers can read own evaluations,PERMISSIVE,{authent
 public,teachers,Admins can read all teachers,PERMISSIVE,{authenticated},SELECT,(is_admin() OR (profile_id = auth.uid())),null
 public,teachers,Institution can read own teachers,PERMISSIVE,{authenticated},SELECT,(institution_profile_id = auth.uid()),null
 public,teachers,Teachers can read own profile,PERMISSIVE,{authenticated},SELECT,(profile_id = auth.uid()),null
+public,company_employee_invites,Company can manage own employee invites,PERMISSIVE,{authenticated},ALL,(company_profile_id = auth.uid()),(company_profile_id = auth.uid())
+public,company_employee_invites,Invited employee can view own invite,PERMISSIVE,{authenticated},SELECT,"(lower(email) = lower((auth.jwt() ->> 'email')))",null
+public,company_employees,Company can manage own employees,PERMISSIVE,{authenticated},ALL,(company_profile_id = auth.uid()),(company_profile_id = auth.uid())
+public,company_employees,Employee can view own record,PERMISSIVE,{authenticated},SELECT,(profile_id = auth.uid()),null
+public,company_employees,Employee can update own record,PERMISSIVE,{authenticated},UPDATE,(profile_id = auth.uid()),(profile_id = auth.uid())
