@@ -143,6 +143,19 @@ class AdminDashboardRepository {
         }
     }
 
+    suspend fun getPublishedOffersCount(): Result<Int> {
+        return try {
+            val offers = supabase
+                .from("offers")
+                .select()
+                .decodeList<AdminOfferDto>()
+            Result.success(offers.size)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao contar ofertas publicadas", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getActiveCompaniesCount(): Result<Int> {
         return try {
             val companies = supabase
@@ -198,6 +211,22 @@ class AdminDashboardRepository {
             Result.success(profiles)
         } catch (exception: Exception) {
             Log.e("AdminDashboardRepo", "Erro ao carregar perfis recentes", exception)
+            Result.success(emptyList())
+        }
+    }
+
+    suspend fun getAllProfiles(): Result<List<ProfileDto>> {
+        return try {
+            val profiles = supabase
+                .from("profiles")
+                .select {
+                    order("created_at", Order.DESCENDING)
+                }
+                .decodeList<ProfileDto>()
+
+            Result.success(profiles)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao carregar todos os perfis", exception)
             Result.success(emptyList())
         }
     }

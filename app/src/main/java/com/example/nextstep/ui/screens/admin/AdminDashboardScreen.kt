@@ -30,6 +30,7 @@ fun AdminDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     onAddUserClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
+    onSeeAllActivities: () -> Unit = {},
     sessionViewModel: SessionViewModel = viewModel()
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.HOME) }
@@ -251,7 +252,11 @@ fun AdminDashboardScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                AdminTab.HOME -> AdminHomeScreen()
+                AdminTab.HOME -> AdminHomeScreen(
+                    onNavigateToCompanies = { selectedTab = AdminTab.COMPANIES },
+                    onNavigateToUsers = { selectedTab = AdminTab.USERS },
+                    onSeeAllActivities = onSeeAllActivities
+                )
 
                 AdminTab.USERS -> {
                     AdminUsersScreen(

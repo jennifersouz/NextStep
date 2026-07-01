@@ -221,7 +221,9 @@
     <string name="offer_work_mode">Regime</string>
     <string name="offer_duration">Duração</string>
     <string name="offer_vacancies">Vagas</string>
-    <string name="offer_vacancies_value">%1$d vaga(s)</string>
+    <string name="offer_vacancies_value">%1$d vagas</string>
+    <string name="vacancy_count">%1$d vaga</string>
+    <string name="duration_months">Duração: %1$d meses</string>
     <string name="offer_requirements">Requisitos</string>
     <string name="applying">A candidatar...</string>
     <string name="applied_button">Candidatura enviada</string>
@@ -435,8 +437,10 @@
     <string name="pending_tasks">Tarefas pendentes</string>
     <string name="my_students">Meus alunos</string>
     <string name="view_all">Ver todos</string>
+    <string name="activities">Atividades</string>
     <string name="recent_activities">Atividades recentes</string>
     <string name="no_recent_activities">Ainda não existem atividades recentes.</string>
+    <string name="no_activities">Ainda não existem atividades.</string>
     <string name="evaluations">Avaliações</string>
     <string name="documents">Documentos</string>
     <string name="about_internship">Sobre o estágio</string>
@@ -768,11 +772,19 @@
     <!-- Admin -->
     <string name="account_disabled">Conta desativada. Contacta o administrador.</string>
     <string name="company_offers_title">Ofertas da empresa</string>
-    <string name="admin_company_no_offers">Esta empresa ainda não publicou ofertas.</string>
+    <string name="admin_company_no_offers">Esta empresa ainda não tem ofertas publicadas.</string>
     <string name="offer_no_title">Sem título</string>
     <string name="badge_active">Ativa</string>
     <string name="badge_inactive">Inativa</string>
     <string name="duration_with_value">Duração: %1$s</string>
+    <string name="recent_student_created">Novo aluno registado: %1$s</string>
+    <string name="recent_teacher_created">Novo docente registado: %1$s</string>
+    <string name="recent_advisor_created">Novo orientador registado: %1$s</string>
+    <string name="recent_company_created">Nova empresa criada: %1$s</string>
+    <string name="recent_institution_created">Nova instituição criada: %1$s</string>
+    <string name="recent_user_archived">Utilizador arquivado: %1$s</string>
+    <string name="recent_user_activated">Utilizador ativado: %1$s</string>
+    <string name="recent_user_deactivated">Utilizador desativado: %1$s</string>
 
     <!-- Shared -->
     <string name="error_loading_teachers">Erro ao carregar os orientadores.</string>
@@ -964,6 +976,13 @@
     <string name="in_progress_label">Em progresso</string>
     <string name="inactive_feminine">Inativa</string>
     <string name="inactive_status_label">Inativo</string>
+
+    <!-- Admin Companies Filters -->
+    <string name="company_filter_all">Todas</string>
+    <string name="company_filter_active">Ativas</string>
+    <string name="company_filter_inactive">Inativas</string>
+    <string name="company_filter_archived">Arquivadas</string>
+
     <string name="internship_prefix">Estágio </string>
     <string name="language_code_en">EN</string>
     <string name="language_code_pt">PT</string>

@@ -111,6 +111,7 @@ object Routes {
     const val INSTITUTION_USER_DETAIL_ROLE_ARG = "role"
     const val INSTITUTION_USER_DETAIL_INVITE_ARG = "inviteId"
 
+    const val ADMIN_ACTIVITIES = "admin_activities"
     const val ADMIN_CREATE_USER = "admin_create_user"
 
     const val TEACHER_NOTIFICATIONS = "teacher_notifications"

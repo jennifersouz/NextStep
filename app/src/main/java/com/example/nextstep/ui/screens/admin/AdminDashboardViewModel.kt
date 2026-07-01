@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.data.model.ProfileDto
 import com.example.nextstep.data.repository.AdminDashboardRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,7 @@ class AdminDashboardViewModel : ViewModel() {
 
             val internshipsResult = repository.getActiveInternshipsCount()
             val applicationsResult = repository.getApplicationsCount()
-            val evaluationsResult = repository.getCompletedEvaluationsCount()
+            val offersResult = repository.getPublishedOffersCount()
             val usersResult = repository.getUsersCount()
             val nameResult = repository.getAdminProfileName()
             val emailResult = repository.getAdminProfileEmail()
@@ -36,7 +37,7 @@ class AdminDashboardViewModel : ViewModel() {
             val errors = listOfNotNull(
                 internshipsResult.exceptionOrNull(),
                 applicationsResult.exceptionOrNull(),
-                evaluationsResult.exceptionOrNull(),
+                offersResult.exceptionOrNull(),
                 usersResult.exceptionOrNull()
             ).takeIf { it.isNotEmpty() }
 
@@ -44,15 +45,41 @@ class AdminDashboardViewModel : ViewModel() {
                 isLoading = false,
                 activeInternshipsCount = internshipsResult.getOrDefault(0),
                 applicationsCount = applicationsResult.getOrDefault(0),
-                completedEvaluationsCount = evaluationsResult.getOrDefault(0),
+                publishedOffersCount = offersResult.getOrDefault(0),
                 usersCount = usersResult.getOrDefault(0),
                 adminName = nameResult.getOrDefault(""),
                 adminEmail = emailResult.getOrDefault(""),
-                recentProfiles = recentResult.getOrDefault(emptyList()),
+                recentActivities = recentResult.getOrDefault(emptyList()).map { it.toActivityUiModel() },
+                recentActivitiesLoading = false,
                 totalCompaniesCount = totalCompaniesResult.getOrDefault(0),
                 activeCompaniesCount = activeCompaniesResult.getOrDefault(0),
                 errorMessage = errors?.firstOrNull()?.message
             )
         }
     }
+}
+
+private fun ProfileDto.toActivityUiModel(): RecentActivityUiModel {
+    val displayName = listOfNotNull(
+        firstName?.takeIf { it.isNotBlank() },
+        lastName?.takeIf { it.isNotBlank() }
+    ).joinToString(" ").ifBlank { email }
+
+    val type = when (role.trim().lowercase()) {
+        "student", "aluno" -> RecentActivityType.STUDENT_CREATED
+        "teacher", "docente" -> RecentActivityType.TEACHER_CREATED
+        "advisor", "orientador" -> RecentActivityType.ADVISOR_CREATED
+        "company", "empresa" -> RecentActivityType.COMPANY_CREATED
+        "institution", "instituição", "instituicao" -> RecentActivityType.INSTITUTION_CREATED
+        else -> RecentActivityType.STUDENT_CREATED
+    }
+
+    return RecentActivityUiModel(
+        id = id,
+        type = type,
+        name = displayName,
+        email = email,
+        roleName = role,
+        createdAt = createdAt
+    )
 }

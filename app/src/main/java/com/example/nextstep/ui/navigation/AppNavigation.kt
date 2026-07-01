@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.admin.AdminCreateUserScreen
+import com.example.nextstep.ui.screens.admin.AdminActivitiesScreen
 import com.example.nextstep.ui.screens.admin.AdminDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorDashboardScreen
 import com.example.nextstep.ui.screens.advisor.AdvisorEditProfileScreen
@@ -701,6 +702,9 @@ fun AppNavigation() {
                 },
                 onBackClick = {
                     navController.popBackStack()
+                },
+                onSeeAllActivities = {
+                    navController.navigate(Routes.ADMIN_ACTIVITIES)
                 }
             )
         }
@@ -717,6 +721,14 @@ fun AppNavigation() {
                         }
                         launchSingleTop = true
                     }
+                }
+            )
+        }
+
+        composable(Routes.ADMIN_ACTIVITIES) {
+            AdminActivitiesScreen(
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
