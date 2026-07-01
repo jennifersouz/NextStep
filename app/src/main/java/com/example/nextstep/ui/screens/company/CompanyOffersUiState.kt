@@ -12,9 +12,9 @@ data class CompanyOffersUiState(
     @StringRes val errorMessageRes: Int? = null
 )
 
-enum class OfferFilter(val label: String) {
-    ALL("Todas"),
-    ACTIVE("Ativas"),
-    INACTIVE("Inativas"),
-    ARCHIVED("Arquivadas")
+enum class OfferFilter(val labelRes: Int) {
+    ALL(com.example.nextstep.R.string.company_filter_all),
+    ACTIVE(com.example.nextstep.R.string.company_filter_active),
+    INACTIVE(com.example.nextstep.R.string.company_filter_inactive),
+    ARCHIVED(com.example.nextstep.R.string.company_filter_archived)
 }

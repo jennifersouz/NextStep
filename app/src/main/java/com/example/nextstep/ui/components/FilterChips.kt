@@ -1,22 +1,23 @@
 package com.example.nextstep.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.nextstep.ui.screens.advisor.AdvisorUiColors
 
 @Composable
 fun AppFilterChip(
@@ -25,21 +26,18 @@ fun AppFilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
-        color = if (selected) AdvisorUiColors.YellowAccent else Color(0xFFF4F4F4)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (selected) Color(0xFFFDFA52) else Color(0xFFF5F5F5))
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
             text = text,
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Clip,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-            color = if (selected) Color.Black else Color(0xFF444444),
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-            fontSize = 14.sp
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = Color.Black
         )
     }
 }
@@ -51,11 +49,11 @@ fun <T> AppFilterChipsRow(
     labelProvider: @Composable (T) -> String,
     onFilterSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(start = 24.dp, end = 48.dp)
+    contentPadding: PaddingValues = PaddingValues(start = 24.dp, end = 24.dp)
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = contentPadding
     ) {
         items(filters) { filter ->

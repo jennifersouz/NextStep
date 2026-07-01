@@ -148,7 +148,7 @@ fun CompanyOffersScreen(
         AppFilterChipsRow(
             filters = OfferFilter.entries.toList(),
             selectedFilter = state.selectedFilter,
-            labelProvider = { it.label },
+            labelProvider = { stringResource(it.labelRes) },
             onFilterSelected = { viewModel.onFilterChange(it) }
         )
 
