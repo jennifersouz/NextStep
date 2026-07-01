@@ -53,7 +53,16 @@
     <string name="course_placeholder">Ex: Computer Engineering</string>
     <string name="year_required">Year *</string>
     <string name="year_placeholder">Ex: 3rd year</string>
-
+    <string name="role_employee">Employee</string>
+    <string name="employees">Employees</string>
+    <string name="add_employee">Add employee</string>
+    <string name="employee_register_title">Employee registration</string>
+    <string name="employee_register_description">To create an account as an employee, the company must have previously created an invite with this email.</string>
+    <string name="no_employees">There are no employees yet.</string>
+    <string name="send_employee_invite">Send invite</string>
+    <string name="employee_invite_description">The employee will need to use this email to create their own account in the app.</string>
+    <string name="employees_load_error">Could not load employees.</string>
+    <string name="employee_create_error">Could not create the invite. Please try again.</string>
     <string name="company_name_required">Company name *</string>
     <string name="company_name_placeholder">Ex: Tech Solutions</string>
     <string name="nif_required">Tax ID *</string>
