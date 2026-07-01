@@ -34,11 +34,15 @@ class AuthRepository {
                 return Result.success(roleResult.getOrThrow())
             }
 
-            // Caso seja orientador ou docente que acabou de criar conta:
-            // a conta existe no Auth, mas ainda não tem linha em profiles/advisors/teachers.
+            // Caso seja orientador, funcionário de empresa ou docente que acabou de criar conta:
+            // a conta existe no Auth, mas ainda não tem linha em profiles/advisors/teachers/company_employees.
             // Tentamos aceitar convite se houver.
             runCatching {
                 supabase.postgrest.rpc("accept_advisor_invite")
+            }
+
+            runCatching {
+                supabase.postgrest.rpc("accept_company_employee_invite")
             }
 
             // Note: accept_institution_invite now requires user data, so we can't call it here without data.
@@ -177,6 +181,21 @@ class AuthRepository {
         }
     }
 
+    suspend fun hasPendingCompanyEmployeeInvite(email: String): Result<Boolean> {
+        return try {
+            val result = supabase.postgrest.rpc(
+                function = "has_pending_company_employee_invite",
+                parameters = buildJsonObject {
+                    put("invite_email", email.trim().lowercase())
+                }
+            )
+            Result.success(result.data.toString().toBoolean())
+        } catch (exception: Exception) {
+            Log.e("AuthRepository", "Erro ao verificar convite de funcionário pendente", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun registerInvitedEmployee(
         email: String,
         password: String,
@@ -189,9 +208,18 @@ class AuthRepository {
             val normalizedEmail = email.trim().lowercase()
             Log.d("AuthRepository", "registerInvitedEmployee email=$normalizedEmail")
 
+            // 1. Verificar se existe convite pendente
+            val inviteCheck = hasPendingCompanyEmployeeInvite(normalizedEmail)
+            Log.d("AuthRepository", "hasPendingCompanyEmployeeInvite email=$normalizedEmail result=${inviteCheck.getOrNull()}")
+            if (inviteCheck.isFailure || inviteCheck.getOrNull() == false) {
+                return Result.failure(IllegalStateException("INVITE_NOT_FOUND"))
+            }
+
+            // 2. Criar utilizador no Auth
             val userId = createAuthUserAndGetId(normalizedEmail, password)
             Log.d("AuthRepository", "Created auth user id=$userId for employee")
 
+            // 3. Chamar RPC para aceitar convite, criar perfil (role=advisor), advisor e company_employee
             supabase.postgrest.rpc(
                 function = "accept_company_employee_invite",
                 parameters = buildJsonObject {

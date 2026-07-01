@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
+import com.example.nextstep.ui.components.AppFilterChipsRow
 
 @Composable
 fun CompanyInternStudentsScreen(
@@ -127,34 +128,12 @@ fun CompanyInternStudentsScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Filter chips
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CompanyInternStudentsFilter.entries.forEach { filter ->
-                    val isSelected = state.selectedFilter == filter
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(
-                                if (isSelected) Color(0xFFFDFA52) else Color(0xFFF3F3F3)
-                            )
-                            .clickable { viewModel.onFilterChange(filter) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = filter.label,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = Color.Black
-                        )
-                    }
-                }
-            }
+            AppFilterChipsRow(
+                filters = CompanyInternStudentsFilter.entries,
+                selectedFilter = state.selectedFilter,
+                labelProvider = { filter -> stringResource(filter.labelRes) },
+                onFilterSelected = { viewModel.onFilterChange(it) }
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -201,7 +180,7 @@ fun CompanyInternStudentsScreen(
                         modifier = Modifier.padding(horizontal = 32.dp)
                     ) {
                         Text(
-                            text = "Ainda não existem alunos em estágio.",
+                            text = stringResource(R.string.no_interns),
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -211,7 +190,7 @@ fun CompanyInternStudentsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Quando uma candidatura for aceite, o aluno aparecerá aqui.",
+                            text = stringResource(R.string.no_interns_description),
                             fontSize = 14.sp,
                             color = Color(0xFF8A8A8A),
                             textAlign = TextAlign.Center,
@@ -229,7 +208,7 @@ fun CompanyInternStudentsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhum aluno encontrado para este filtro.",
+                        text = stringResource(R.string.no_interns_filter),
                         fontSize = 16.sp,
                         color = Color(0xFF8A8A8A),
                         textAlign = TextAlign.Center

@@ -53,18 +53,18 @@
     <string name="course_placeholder">Ex: Computer Engineering</string>
     <string name="year_required">Year *</string>
     <string name="year_placeholder">Ex: 3rd year</string>
-    <string name="role_employee">Employee</string>
-    <string name="employees">Employees</string>
+    <string name="role_employee">Company employee</string>
+    <string name="employees">Company employees</string>
     <string name="interns">Interns</string>
-    <string name="add_employee">Add employee</string>
-    <string name="employee_register_title">Employee registration</string>
-    <string name="employee_register_description">To create an account as an employee, the company must have previously created an invite with this email.</string>
-    <string name="no_employees">There are no employees yet.</string>
-    <string name="add_employees_description">Add employees to your team.</string>
+    <string name="add_employee">Add company employee</string>
+    <string name="employee_register_title">Company employee registration</string>
+    <string name="employee_register_description">To create an account as a company employee, the company must have previously created an invite with this email.</string>
+    <string name="no_employees">There are no company employees yet.</string>
+    <string name="add_employees_description">Add company employees to your team.</string>
     <string name="send_employee_invite">Send invite</string>
-    <string name="employee_invite_description">The employee will need to use this email to create their own account in the app.</string>
-    <string name="employees_load_error">Could not load employees.</string>
-    <string name="employee_create_error">Could not create the invite. Please try again.</string>
+    <string name="employee_invite_description">The company employee will need to use this email to create their own account in the app.</string>
+    <string name="employees_load_error">Could not load company employees.</string>
+    <string name="employee_create_error">Could not create the company employee invite. Please try again.</string>
     <string name="company_name_required">Company name *</string>
     <string name="company_name_placeholder">Ex: Tech Solutions</string>
     <string name="nif_required">Tax ID *</string>
@@ -1038,21 +1038,7 @@
     <string name="evaluation_not_available">Evaluation not yet available.</string>
 
     <string name="company_intern_evaluation_empty_subtitle">The advisor has not yet submitted the evaluation.</string>
-    <string name="company_evaluation_title">Company evaluation</string>
-    <string name="company_evaluation_grade_label">Final grade (0-20)</string>
-    <string name="company_evaluation_feedback_label">Qualitative feedback</string>
-    <string name="company_evaluation_recommendation_label">Final recommendation</string>
-    <string name="company_evaluation_save_button">Save evaluation</string>
-    <string name="company_evaluation_update_button">Update evaluation</string>
-    <string name="company_evaluation_save_success">Evaluation saved successfully.</string>
-    <string name="company_evaluation_save_error">Error saving evaluation. Try again.</string>
-    <string name="company_evaluation_load_error">Error loading evaluation.</string>
-    <string name="company_evaluation_invalid_grade">Enter a valid grade between 0 and 20.</string>
-    <string name="company_evaluation_empty_feedback">Write a qualitative feedback.</string>
-    <string name="company_evaluation_submitted">Evaluation submitted</string>
-    <string name="company_evaluation_warning_active">This evaluation should be completed at the end of the internship.</string>
-    <string name="company_evaluation_no_permission">You do not have permission to evaluate this student.</string>
-    <string name="company_evaluation_not_in_internship">This student is not currently in an internship.</string>
+
     <string name="company_intern_tab_summary">Summary</string>
     <string name="company_intern_tab_activities">Activities</string>
     <string name="company_intern_tab_evaluation">Evaluation</string>
@@ -1270,8 +1256,8 @@
     <string name="internship_status_cancelled">Cancelled</string>
     <string name="internship_status_unknown">Unknown</string>
 
-    <string name="employee_invite_created">Invite created. The employee must create an account with this email.</string>
-    <string name="employee_email_placeholder">Enter the employee\'s email</string>
+    <string name="employee_invite_created">Invite created. The company employee must create an account with this email.</string>
+    <string name="employee_email_placeholder">Enter the company employee\'s email</string>
 
     <!-- Company Offer Detail -->
     <string name="general_information">General information</string>
@@ -1282,4 +1268,19 @@
     <string name="active_offer">Active offer</string>
     <string name="inactive_offer">Inactive offer</string>
     <string name="archived_offer">Archived offer</string>
+
+    <!-- Company Employee Filters -->
+    <string name="company_employee_filter_all">All</string>
+    <string name="company_employee_filter_active">Active</string>
+    <string name="company_employee_filter_pending">Pending</string>
+    <string name="company_employee_filter_inactive">Inactive</string>
+    <string name="company_intern_filter_active">Active</string>
+    <string name="no_employees_filter">There are no employees in this filter.</string>
+    <string name="no_interns">There are no interns yet.</string>
+    <string name="no_interns_description">When an application is accepted, the student will appear here.</string>
+    <string name="no_interns_filter">There are no interns in this filter.</string>
+
+    <!-- Status badges -->
+    <string name="status_inactive">Inactive</string>
+    <string name="invite_sent">Invite sent</string>
 </resources>

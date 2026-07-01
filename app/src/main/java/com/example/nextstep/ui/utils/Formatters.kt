@@ -21,6 +21,7 @@ object Formatters {
             "student", "aluno" -> stringResource(R.string.role_student)
             "company", "empresa" -> stringResource(R.string.role_company)
             "advisor", "orientador" -> stringResource(R.string.role_advisor)
+            "employee", "funcionário", "funcionario" -> stringResource(R.string.role_employee)
             "teacher", "docente" -> stringResource(R.string.role_teacher)
             "institution", "instituição", "instituicao" -> stringResource(R.string.role_institution)
             "admin", "administrador" -> stringResource(R.string.role_admin)

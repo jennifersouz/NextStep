@@ -689,6 +689,7 @@ class AuthViewModel : ViewModel() {
                     "teacher" -> UserRole.TEACHER
                     "admin" -> UserRole.ADMIN
                     "employee" -> UserRole.EMPLOYEE
+                    "company_employee" -> UserRole.EMPLOYEE
                     else -> null
                 }
 

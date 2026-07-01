@@ -40,6 +40,10 @@ class CompanyEmployeesViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(searchQuery = value)
     }
 
+    fun onFilterChange(filter: CompanyEmployeeFilter) {
+        _uiState.value = _uiState.value.copy(selectedEmployeeFilter = filter)
+    }
+
     fun toggleSort() {
         _uiState.value = _uiState.value.copy(
             sortAscending = !_uiState.value.sortAscending

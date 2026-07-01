@@ -3,7 +3,6 @@ package com.example.nextstep.ui.screens.company
 import androidx.annotation.StringRes
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyAdvisorEvaluationDto
-import com.example.nextstep.data.model.CompanyEvaluationDto
 import com.example.nextstep.data.model.CompanyInternStudentProfileDto
 import com.example.nextstep.data.model.CompanyStudentActivityDto
 
@@ -47,21 +46,6 @@ data class CompanyInternStudentProfileUiState(
     val advisorEvaluation: CompanyAdvisorEvaluationDto? = null,
     val isLoadingEvaluation: Boolean = false,
     @StringRes val evaluationErrorRes: Int? = null,
-    // Evaluation (RF91) — Company evaluation
-    val companyEvaluation: CompanyEvaluationDto? = null,
-    val isLoadingCompanyEvaluation: Boolean = false,
-    @StringRes val companyEvaluationErrorRes: Int? = null,
-    val isSavingCompanyEvaluation: Boolean = false,
-    @StringRes val companyEvaluationSaveSuccessRes: Int? = null,
-    @StringRes val companyEvaluationSaveErrorRes: Int? = null,
-    // Company evaluation form state
-    val companyEvaluationGradeText: String = "",
-    val companyEvaluationFeedbackText: String = "",
-    val companyEvaluationStrengthsText: String = "",
-    val companyEvaluationImprovementsText: String = "",
-    val companyEvaluationRecommendationText: String = "",
-    @StringRes val companyEvaluationGradeErrorRes: Int? = null,
-    @StringRes val companyEvaluationFeedbackErrorRes: Int? = null,
     
     // RF24: Status Update
     val isUpdatingStatus: Boolean = false,

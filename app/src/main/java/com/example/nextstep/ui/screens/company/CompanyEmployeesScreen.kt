@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +29,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -49,10 +51,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyEmployeeInviteDisplayDto
+import com.example.nextstep.ui.components.AppFilterChipsRow
 
 @Composable
 fun CompanyEmployeesScreen(
-    onAddEmployeeClick: () -> Unit,
     viewModel: CompanyEmployeesViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -72,34 +74,8 @@ fun CompanyEmployeesScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 24.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(
-                onClick = onAddEmployeeClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFDFA52),
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.height(44.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.add_employee),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
         OutlinedTextField(
             value = state.searchQuery,
             onValueChange = viewModel::onSearchChange,
@@ -130,6 +106,18 @@ fun CompanyEmployeesScreen(
             )
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        AppFilterChipsRow(
+            filters = CompanyEmployeeFilter.entries,
+            selectedFilter = state.selectedEmployeeFilter,
+            labelProvider = { filter -> stringResource(filter.labelRes) },
+            onFilterSelected = { viewModel.onFilterChange(it) },
+            contentPadding = PaddingValues(0.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when {
                 state.isLoading -> {
@@ -157,7 +145,7 @@ fun CompanyEmployeesScreen(
                     }
                 }
 
-                state.filteredEmployees.isEmpty() -> {
+                state.filteredEmployees.isEmpty() && state.employees.isEmpty() -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -186,6 +174,22 @@ fun CompanyEmployeesScreen(
                     }
                 }
 
+                state.filteredEmployees.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_employees_filter),
+                            fontSize = 16.sp,
+                            color = Color(0xFF8A8A8A),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -209,12 +213,49 @@ fun CompanyEmployeesScreen(
 private fun CompanyEmployeeCard(
     employee: CompanyEmployeeInviteDisplayDto
 ) {
-    val initials = employee.displayName
-        .split(" ")
-        .filter { it.isNotBlank() }
-        .take(2)
-        .joinToString("") { it.first().uppercase() }
-        .ifBlank { "?" }
+    val hasName = !employee.firstName.isNullOrBlank() || !employee.lastName.isNullOrBlank()
+
+    val displayTitle: String
+    val displaySubtitle: String?
+
+    if (hasName) {
+        displayTitle = employee.displayName
+        displaySubtitle = if (employee.status == "pending") employee.email else employee.department
+    } else {
+        displayTitle = employee.email
+        displaySubtitle = stringResource(R.string.invite_sent)
+    }
+
+    val initials = if (hasName) {
+        employee.displayName
+            .split(" ")
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("") { it.first().uppercase() }
+    } else {
+        null
+    }
+
+    val badgeLabelRes = when (employee.status) {
+        "active" -> R.string.status_active
+        "pending" -> R.string.pending
+        "inactive" -> R.string.status_inactive
+        else -> null
+    }
+
+    val badgeBg = when (employee.status) {
+        "active" -> Color(0xFFE8F5E9)
+        "pending" -> Color(0xFFFFF4CC)
+        "inactive" -> Color(0xFFF1F1F1)
+        else -> Color.Transparent
+    }
+
+    val badgeTextColor = when (employee.status) {
+        "active" -> Color(0xFF2E7D32)
+        "pending" -> Color(0xFF8A6D00)
+        "inactive" -> Color(0xFF666666)
+        else -> Color.Transparent
+    }
 
     Column(
         modifier = Modifier
@@ -231,35 +272,53 @@ private fun CompanyEmployeeCard(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF2B2B2B)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = initials,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            if (initials != null) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF2B2B2B)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = initials,
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFFF3CD)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Mail,
+                        contentDescription = stringResource(R.string.pending_invite),
+                        tint = Color(0xFF7A5D00),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = employee.displayName,
+                    text = displayTitle,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (employee.department != null) {
+
+                if (displaySubtitle != null) {
                     Text(
-                        text = employee.department,
+                        text = displaySubtitle,
                         fontSize = 13.sp,
                         color = Color(0xFF666666),
                         maxLines = 1,
@@ -268,29 +327,30 @@ private fun CompanyEmployeeCard(
                 }
             }
 
-            if (employee.status == "pending") {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFFFF8CC))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+            if (badgeLabelRes != null) {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = badgeBg
                 ) {
                     Text(
-                        text = stringResource(R.string.pending),
+                        text = stringResource(badgeLabelRes),
+                        color = badgeTextColor,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF7A5D00)
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        if (employee.status != "pending" && displaySubtitle == employee.department) {
+            Spacer(modifier = Modifier.height(6.dp))
 
-        Text(
-            text = employee.email,
-            fontSize = 13.sp,
-            color = Color(0xFF666666)
-        )
+            Text(
+                text = employee.email,
+                fontSize = 13.sp,
+                color = Color(0xFF666666)
+            )
+        }
     }
 }

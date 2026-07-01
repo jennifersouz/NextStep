@@ -5,7 +5,7 @@ package com.example.nextstep.ui.utils
  * Deve manter-se sincronizado com o CHECK constraint da tabela profiles
  * e com a lista ALLOWED_ROLES na Edge Function admin-create-user.
  */
-val ALLOWED_ROLES = listOf("student", "teacher", "company", "advisor", "institution", "admin")
+val ALLOWED_ROLES = listOf("student", "teacher", "company", "advisor", "institution", "admin", "employee")
 
 /**
  * Converte um role técnico (armazenado na base de dados em inglês)
@@ -24,6 +24,7 @@ fun roleToDisplayName(role: String?): String {
         "company" -> "Empresa"
         "teacher" -> "Docente"
         "advisor" -> "Orientador"
+        "employee" -> "Colaborador da empresa"
         "institution" -> "Instituição"
         "admin" -> "Administrador"
         else -> role ?: ""
@@ -40,6 +41,7 @@ fun roleToDisplayNameEn(role: String?): String {
         "company" -> "Company"
         "teacher" -> "Teacher"
         "advisor" -> "Advisor"
+        "employee" -> "Company employee"
         "institution" -> "Institution"
         "admin" -> "Administrator"
         else -> role ?: ""

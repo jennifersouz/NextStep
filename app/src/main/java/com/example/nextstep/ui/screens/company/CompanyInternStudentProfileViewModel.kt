@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.model.CompanyEvaluationUpsertDto
-import com.example.nextstep.data.repository.CompanyEvaluationRepository
 import com.example.nextstep.data.repository.CompanyInternStudentRepository
 import com.example.nextstep.data.repository.CompanyInternStudentsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +15,6 @@ class CompanyInternStudentProfileViewModel : ViewModel() {
 
     private val repository = CompanyInternStudentRepository()
     private val studentsRepository = CompanyInternStudentsRepository()
-    private val evaluationRepository = CompanyEvaluationRepository()
 
     private val _uiState = MutableStateFlow(CompanyInternStudentProfileUiState())
     val uiState: StateFlow<CompanyInternStudentProfileUiState> = _uiState.asStateFlow()
@@ -184,158 +181,6 @@ class CompanyInternStudentProfileViewModel : ViewModel() {
         }
     }
 
-    // --- RF91: Company Evaluation ---
-
-    fun loadCompanyEvaluation(applicationId: String) {
-        if (applicationId.isBlank()) return
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoadingCompanyEvaluation = true,
-                companyEvaluationErrorRes = null
-            )
-
-            val result = evaluationRepository.getEvaluation(applicationId)
-
-            _uiState.value = if (result.isSuccess) {
-                val evaluation = result.getOrNull()
-                _uiState.value.copy(
-                    companyEvaluation = evaluation,
-                    isLoadingCompanyEvaluation = false,
-                    companyEvaluationErrorRes = null,
-                    companyEvaluationGradeText = evaluation?.grade?.toString().orEmpty(),
-                    companyEvaluationFeedbackText = evaluation?.qualitativeFeedback.orEmpty(),
-                    companyEvaluationStrengthsText = evaluation?.strengths.orEmpty(),
-                    companyEvaluationImprovementsText = evaluation?.improvements.orEmpty(),
-                    companyEvaluationRecommendationText = evaluation?.recommendation.orEmpty()
-                )
-            } else {
-                _uiState.value.copy(
-                    isLoadingCompanyEvaluation = false,
-                    companyEvaluationErrorRes = R.string.company_evaluation_load_error
-                )
-            }
-        }
-    }
-
-    fun onCompanyEvaluationGradeChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationGradeText = value,
-            companyEvaluationGradeErrorRes = null
-        )
-    }
-
-    fun onCompanyEvaluationFeedbackChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationFeedbackText = value,
-            companyEvaluationFeedbackErrorRes = null
-        )
-    }
-
-    fun onCompanyEvaluationStrengthsChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationStrengthsText = value
-        )
-    }
-
-    fun onCompanyEvaluationImprovementsChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationImprovementsText = value
-        )
-    }
-
-    fun onCompanyEvaluationRecommendationChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationRecommendationText = value
-        )
-    }
-
-    fun saveCompanyEvaluation() {
-        val profile = _uiState.value.profile ?: return
-        val state = _uiState.value
-
-        // Clear previous errors
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationGradeErrorRes = null,
-            companyEvaluationFeedbackErrorRes = null,
-            companyEvaluationSaveErrorRes = null,
-            companyEvaluationSaveSuccessRes = null
-        )
-
-        // Validate grade
-        val gradeText = state.companyEvaluationGradeText
-        val gradeValue = gradeText.replace(",", ".").toDoubleOrNull()
-
-        if (gradeValue == null || gradeValue < 0.0 || gradeValue > 20.0) {
-            _uiState.value = _uiState.value.copy(
-                companyEvaluationGradeErrorRes = R.string.company_evaluation_invalid_grade
-            )
-            return
-        }
-
-        // Validate qualitative feedback
-        val feedbackText = state.companyEvaluationFeedbackText
-        if (feedbackText.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                companyEvaluationFeedbackErrorRes = R.string.company_evaluation_empty_feedback
-            )
-            return
-        }
-
-        val strengthsText = state.companyEvaluationStrengthsText
-        val improvementsText = state.companyEvaluationImprovementsText
-        val recommendationText = state.companyEvaluationRecommendationText
-
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isSavingCompanyEvaluation = true
-            )
-
-            val dto = CompanyEvaluationUpsertDto(
-                applicationId = profile.applicationId,
-                companyProfileId = profile.companyProfileId,
-                studentProfileId = profile.studentProfileId,
-                grade = gradeValue,
-                qualitativeFeedback = feedbackText.trim(),
-                strengths = strengthsText.trim().takeIf { it.isNotBlank() },
-                improvements = improvementsText.trim().takeIf { it.isNotBlank() },
-                recommendation = recommendationText.trim().takeIf { it.isNotBlank() }
-            )
-
-            val result = evaluationRepository.upsertEvaluation(dto)
-
-            if (result.isSuccess) {
-                val saved = result.getOrThrow()
-                _uiState.value = _uiState.value.copy(
-                    companyEvaluation = saved,
-                    isSavingCompanyEvaluation = false,
-                    companyEvaluationSaveSuccessRes = R.string.company_evaluation_save_success
-                )
-            } else {
-                val errorMsg = result.exceptionOrNull()?.message.orEmpty()
-                val errorRes = when {
-                    errorMsg.contains("PERMISSION_DENIED", ignoreCase = true) ->
-                        R.string.company_evaluation_no_permission
-                    errorMsg.contains("NOT_IN_INTERNSHIP", ignoreCase = true) ->
-                        R.string.company_evaluation_not_in_internship
-                    else -> R.string.company_evaluation_save_error
-                }
-                _uiState.value = _uiState.value.copy(
-                    isSavingCompanyEvaluation = false,
-                    companyEvaluationSaveErrorRes = errorRes
-                )
-            }
-        }
-    }
-
-    fun consumeCompanyEvaluationMessages() {
-        _uiState.value = _uiState.value.copy(
-            companyEvaluationSaveSuccessRes = null,
-            companyEvaluationSaveErrorRes = null,
-            companyEvaluationGradeErrorRes = null,
-            companyEvaluationFeedbackErrorRes = null
-        )
-    }
-
     // --- Tab Navigation ---
 
     fun onTabChange(tab: CompanyInternStudentTab) {
@@ -351,9 +196,6 @@ class CompanyInternStudentProfileViewModel : ViewModel() {
             CompanyInternStudentTab.EVALUATION -> {
                 if (_uiState.value.advisorEvaluation == null && _uiState.value.evaluationErrorRes == null) {
                     loadAdvisorEvaluation(currentApplicationId)
-                }
-                if (_uiState.value.companyEvaluation == null && _uiState.value.companyEvaluationErrorRes == null) {
-                    loadCompanyEvaluation(currentApplicationId)
                 }
             }
             else -> { /* Summary is loaded via loadProfile */ }

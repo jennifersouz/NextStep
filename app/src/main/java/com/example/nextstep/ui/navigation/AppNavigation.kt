@@ -127,7 +127,7 @@ fun AppNavigation() {
                         UserRole.INSTITUTION -> Routes.INSTITUTION_DASHBOARD
                         UserRole.TEACHER -> Routes.TEACHER_DASHBOARD
                         UserRole.ADMIN -> Routes.ADMIN_DASHBOARD
-                        UserRole.EMPLOYEE -> Routes.COMPANY_DASHBOARD
+                        UserRole.EMPLOYEE -> Routes.ADVISOR_DASHBOARD
                     }
 
                     navController.navigate(destination) {

@@ -248,14 +248,6 @@ private fun RegisterForm(
             )
 
             RoleDropdownItem(
-                text = stringResource(R.string.role_advisor),
-                onClick = {
-                    viewModel.onRoleChange(UserRole.ADVISOR)
-                    onRoleMenuExpandChange(false)
-                }
-            )
-
-            RoleDropdownItem(
                 text = stringResource(R.string.role_institution),
                 onClick = {
                     viewModel.onRoleChange(UserRole.INSTITUTION)

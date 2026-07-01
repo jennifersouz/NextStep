@@ -91,9 +91,9 @@ class CompanyInternStudentsViewModel : ViewModel() {
                 val status = it.internshipStatus?.trim()?.lowercase()
                 status in setOf("accepted", "active", "in_progress")
             }
-            CompanyInternStudentsFilter.INACTIVE -> result.filter {
+            CompanyInternStudentsFilter.PENDING -> result.filter {
                 val status = it.internshipStatus?.trim()?.lowercase()
-                status == "inactive"
+                status == "pending"
             }
             CompanyInternStudentsFilter.COMPLETED -> result.filter {
                 val status = it.internshipStatus?.trim()?.lowercase()

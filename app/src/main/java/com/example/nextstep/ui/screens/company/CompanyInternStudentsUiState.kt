@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.company
 
 import androidx.annotation.StringRes
+import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyInternStudentDto
 
 data class CompanyInternStudentsUiState(
@@ -12,9 +13,9 @@ data class CompanyInternStudentsUiState(
     @StringRes val errorMessageRes: Int? = null
 )
 
-enum class CompanyInternStudentsFilter(val label: String) {
-    ALL("Todos"),
-    ACTIVE("Ativos"),
-    INACTIVE("Inativos"),
-    COMPLETED("Concluídos")
+enum class CompanyInternStudentsFilter(val labelRes: Int) {
+    ALL(R.string.company_intern_filter_all),
+    ACTIVE(R.string.company_intern_filter_active),
+    PENDING(R.string.company_intern_filter_pending),
+    COMPLETED(R.string.company_intern_filter_completed)
 }
