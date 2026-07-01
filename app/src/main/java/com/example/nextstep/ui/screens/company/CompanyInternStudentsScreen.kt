@@ -55,7 +55,6 @@ import com.example.nextstep.ui.components.AppFilterChipsRow
 @Composable
 fun CompanyInternStudentsScreen(
     onStudentClick: (String) -> Unit = {},
-    onMessageClick: (String) -> Unit = {},
     refreshKey: Int = 0,
     viewModel: CompanyInternStudentsViewModel = viewModel()
 ) {
@@ -84,7 +83,7 @@ fun CompanyInternStudentsScreen(
                 onValueChange = viewModel::onSearchChange,
                 placeholder = {
                     Text(
-                        text = "Pesquisar por nome, curso, oferta...",
+                        text = stringResource(R.string.search_interns_placeholder),
                         color = Color(0xFF8A8A8A),
                         fontSize = 14.sp
                     )
@@ -92,7 +91,7 @@ fun CompanyInternStudentsScreen(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Pesquisar",
+                        contentDescription = stringResource(R.string.search),
                         tint = Color(0xFF8A8A8A)
                     )
                 },
@@ -101,7 +100,7 @@ fun CompanyInternStudentsScreen(
                         IconButton(onClick = { viewModel.onSearchChange("") }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Limpar",
+                                contentDescription = stringResource(R.string.clear),
                                 tint = Color(0xFF8A8A8A)
                             )
                         }
@@ -234,8 +233,7 @@ fun CompanyInternStudentsScreen(
                         ) { student ->
                             CompanyInternStudentCard(
                                 student = student,
-                                onClick = { onStudentClick(student.applicationId) },
-                                onMessageClick = { onMessageClick(student.applicationId) }
+                                onClick = { onStudentClick(student.applicationId) }
                             )
                         }
                     }
@@ -254,8 +252,7 @@ fun CompanyInternStudentsScreen(
                         ) { student ->
                             CompanyInternStudentCard(
                                 student = student,
-                                onClick = { onStudentClick(student.applicationId) },
-                                onMessageClick = { onMessageClick(student.applicationId) }
+                                onClick = { onStudentClick(student.applicationId) }
                             )
                         }
                     }
@@ -268,8 +265,7 @@ fun CompanyInternStudentsScreen(
 @Composable
 fun CompanyInternStudentCard(
     student: com.example.nextstep.data.model.CompanyInternStudentDto,
-    onClick: () -> Unit,
-    onMessageClick: () -> Unit = {}
+    onClick: () -> Unit
 ) {
     val initials = student.studentName
         ?.split(" ")
@@ -324,7 +320,7 @@ fun CompanyInternStudentCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = student.studentName ?: "Sem nome",
+                    text = student.studentName ?: stringResource(R.string.not_available),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -364,7 +360,7 @@ fun CompanyInternStudentCard(
         // Offer title
         if (student.offerTitle != null) {
             Text(
-                text = "Oferta: ${student.offerTitle}",
+                text = "${stringResource(R.string.offer_label)}: ${student.offerTitle}",
                 fontSize = 14.sp,
                 color = Color(0xFF333333),
                 maxLines = 1,
@@ -376,7 +372,7 @@ fun CompanyInternStudentCard(
 
         // Status
         Text(
-            text = "Estado: $statusTranslated",
+            text = "${stringResource(R.string.status_label)}: $statusTranslated",
             fontSize = 13.sp,
             color = Color(0xFF666666),
             maxLines = 1,
@@ -410,45 +406,21 @@ fun CompanyInternStudentCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Action buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(36.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF2B2B2B))
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center
         ) {
-            // Ver perfil button
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(36.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF2B2B2B))
-                    .clickable { onClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Ver perfil",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
-                )
-            }
-
-            // Mensagem button
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(36.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFF3F3F3))
-                    .clickable { onMessageClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Mensagem",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
-                )
-            }
+            Text(
+                text = stringResource(R.string.view_profile),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
         }
     }
 }

@@ -116,42 +116,44 @@ object Formatters {
         }
     }
 
+    @Composable
     fun formatInternshipStatus(value: String?): String {
         return when (value?.trim()?.lowercase()) {
-            "pending", "pendente" -> "Pendente"
-            "accepted", "aceite" -> "Aceite"
-            "active", "ativo" -> "Ativo"
-            "inactive", "inativo" -> "Inativo"
-            "in_progress", "em progresso" -> "Em progresso"
-            "completed", "concluido", "concluído" -> "Concluído"
-            "rejected", "recusado", "recusada" -> "Recusado"
-            "cancelled", "cancelado", "cancelada" -> "Cancelado"
-            null, "" -> "Não indicado"
-            else -> value
+            "pending", "pendente" -> stringResource(R.string.pending)
+            "accepted", "aceite" -> stringResource(R.string.accepted)
+            "active", "ativo" -> stringResource(R.string.status_active)
+            "inactive", "inativo" -> stringResource(R.string.inactive_status_label)
+            "in_progress", "em progresso" -> stringResource(R.string.in_progress)
+            "completed", "concluido", "concluído" -> stringResource(R.string.completed_label)
+            "rejected", "recusado", "recusada" -> stringResource(R.string.rejected)
+            "cancelled", "cancelado", "cancelada" -> stringResource(R.string.internship_status_cancelled)
+            null, "" -> stringResource(R.string.not_specified)
+            else -> value ?: ""
         }
     }
 
+    @Composable
     fun formatDateTime(value: String?): String {
-        if (value.isNullOrBlank()) return "Não indicada"
+        if (value.isNullOrBlank()) return stringResource(R.string.not_available)
+
+        val separator = stringResource(R.string.date_at)
+        val pattern = "dd/MM/yyyy '$separator' HH:mm"
 
         return try {
-            // Normalize fractional seconds to 3 digits for Instant.parse if necessary
             val normalized = value.replace(Regex("\\.(\\d{3})\\d+"), ".$1")
             val instant = Instant.parse(
                 normalized.replace("+00:00", "Z")
             )
 
             val formatter = DateTimeFormatter
-                .ofPattern("dd/MM/yyyy 'às' HH:mm")
+                .ofPattern(pattern)
                 .withZone(ZoneId.systemDefault())
 
             formatter.format(instant)
         } catch (e: Exception) {
             try {
                 val offsetDateTime = OffsetDateTime.parse(value)
-                val formatter = DateTimeFormatter
-                    .ofPattern("dd/MM/yyyy 'às' HH:mm")
-
+                val formatter = DateTimeFormatter.ofPattern(pattern)
                 offsetDateTime.format(formatter)
             } catch (e2: Exception) {
                 value

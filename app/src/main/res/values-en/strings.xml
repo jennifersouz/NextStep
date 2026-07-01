@@ -133,6 +133,11 @@
     <string name="search">Search</string>
     <string name="search_user">Search user…</string>
     <string name="search_company">Search company…</string>
+    <string name="clear">Clear</string>
+    <string name="my_offers">My offers</string>
+    <string name="search_offers_placeholder">Search by title, area, location...</string>
+    <string name="search_interns_placeholder">Search by name, course, offer…</string>
+    <string name="search_employees_placeholder">Search by name, email, department…</string>
     <string name="filter">Filter</string>
     <string name="results_count">%1$d results</string>
 
@@ -487,6 +492,7 @@
     <string name="loading">Loading…</string>
     <string name="send_advisor_invite">Send invite</string>
     <string name="advisor_invite_description">The advisor must use this email to create their own account in the app. The company does not set the password for the advisor.</string>
+    <string name="view_profile">View profile</string>
     <string name="view_student_profile">View student profile</string>
     <string name="company_student_profile_load_error">Could not load the student profile.</string>
     <string name="academic_information">Academic information</string>
@@ -498,7 +504,9 @@
     <string name="city">City</string>
     <string name="country">Country</string>
     <string name="application">Application</string>
+    <string name="offer_label">Offer</string>
     <string name="offer">Offer</string>
+    <string name="status_label">Status</string>
     <string name="status">Status</string>
     <string name="advisors">Advisors</string>
     <string name="send_request">Send Request</string>
@@ -1057,6 +1065,19 @@
     <string name="company_intern_evaluation_strengths">Strengths</string>
     <string name="company_intern_evaluation_title">Advisor Evaluation</string>
     <string name="company_intern_profile_academic_data">Academic Data</string>
+    <string name="draft_label">Draft</string>
+    <string name="final_label">Final</string>
+    <string name="date_at">at</string>
+    <string name="application_date">Application date</string>
+    <string name="no_offers_search_subtitle">Try changing the search terms.</string>
+    <string name="no_offers_archived">No archived offers</string>
+    <string name="no_offers_archived_subtitle">When you remove offers, they will appear here.</string>
+    <string name="no_offers_inactive">No inactive offers</string>
+    <string name="no_offers_inactive_subtitle">When you deactivate offers, they will appear here.</string>
+    <string name="no_offers_active">No active offers</string>
+    <string name="no_offers_active_subtitle">When you activate offers, they will appear here.</string>
+    <string name="no_offers_published">There are no published offers yet.</string>
+    <string name="no_offers_published_subtitle">Start by creating a new internship offer.</string>
     <string name="company_intern_profile_application_date">Application date</string>
     <string name="company_intern_profile_internship">Internship</string>
     <string name="company_intern_profile_load_error">Error loading student profile.</string>

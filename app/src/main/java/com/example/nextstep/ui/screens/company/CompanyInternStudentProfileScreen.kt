@@ -826,25 +826,28 @@ private fun InternProfileInfoRow(label: String, value: String?) {
     }
 }
 
+@Composable
 private fun translateInternshipStatus(status: String?): String {
     return Formatters.formatInternshipStatus(status)
 }
 
+@Composable
 private fun translateActivityStatus(status: String?): String {
     return when (status?.trim()?.lowercase()) {
-        "pending" -> "Pendente"
-        "in_progress" -> "Em progresso"
-        "completed" -> "Concluída"
-        "cancelled" -> "Cancelada"
+        "pending" -> stringResource(R.string.pending)
+        "in_progress" -> stringResource(R.string.in_progress)
+        "completed" -> stringResource(R.string.completed_label)
+        "cancelled" -> stringResource(R.string.internship_status_cancelled)
         else -> status.orEmpty()
     }
 }
 
+@Composable
 private fun translateEvaluationStatus(status: String?): String {
     return when (status?.trim()?.lowercase()) {
-        "draft" -> "Rascunho"
-        "submitted" -> "Submetida"
-        "final" -> "Final"
-        else -> status.orEmpty().ifBlank { "Não disponível" }
+        "draft" -> stringResource(R.string.draft_label)
+        "submitted" -> stringResource(R.string.status_submitted)
+        "final" -> stringResource(R.string.final_label)
+        else -> status.orEmpty().ifBlank { stringResource(R.string.not_available) }
     }
 }

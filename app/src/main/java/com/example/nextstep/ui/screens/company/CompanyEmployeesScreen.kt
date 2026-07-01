@@ -81,7 +81,7 @@ fun CompanyEmployeesScreen(
             onValueChange = viewModel::onSearchChange,
             placeholder = {
                 Text(
-                    text = stringResource(R.string.search),
+                    text = stringResource(R.string.search_employees_placeholder),
                     color = Color(0xFF8A8A8A),
                     fontSize = 14.sp
                 )

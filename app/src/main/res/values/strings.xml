@@ -123,6 +123,11 @@
     <string name="search">Pesquisar</string>
     <string name="search_user">Pesquisar utilizador…</string>
     <string name="search_company">Pesquisar empresa…</string>
+    <string name="clear">Limpar</string>
+    <string name="my_offers">As minhas ofertas</string>
+    <string name="search_offers_placeholder">Pesquisar por título, área, localização...</string>
+    <string name="search_interns_placeholder">Pesquisar por nome, curso, oferta…</string>
+    <string name="search_employees_placeholder">Pesquisar por nome, email, departamento…</string>
     <string name="filter">Filtrar</string>
     <string name="results_count">%1$d resultados</string>
 
@@ -487,6 +492,7 @@
     <string name="loading">A carregar...</string>
     <string name="send_advisor_invite">Enviar convite</string>
     <string name="advisor_invite_description">O orientador receberá/terá de usar este email para criar a própria conta na aplicação. A empresa não define a palavra-passe do orientador.</string>
+    <string name="view_profile">Ver perfil</string>
     <string name="view_student_profile">Ver perfil do aluno</string>
     <string name="company_student_profile_load_error">Não foi possível carregar o perfil do aluno.</string>
     <string name="academic_information">Informação académica</string>
@@ -498,7 +504,9 @@
     <string name="city">Cidade</string>
     <string name="country">País</string>
     <string name="application">Candidatura</string>
+    <string name="offer_label">Oferta</string>
     <string name="offer">Oferta</string>
+    <string name="status_label">Estado</string>
     <string name="status">Estado</string>
     <string name="advisors">Orientadores</string>
     <string name="send_request">Enviar Pedido</string>
@@ -890,6 +898,19 @@
     <string name="company_intern_filter_in_progress">Em progresso</string>
     <string name="company_intern_filter_pending">Pendentes</string>
     <string name="company_intern_profile_academic_data">Dados Académicos</string>
+    <string name="draft_label">Rascunho</string>
+    <string name="final_label">Final</string>
+    <string name="date_at">às</string>
+    <string name="application_date">Data da candidatura</string>
+    <string name="no_offers_search_subtitle">Tenta alterar os termos da pesquisa.</string>
+    <string name="no_offers_archived">Nenhuma oferta arquivada</string>
+    <string name="no_offers_archived_subtitle">Quando removeres ofertas, elas aparecerão aqui.</string>
+    <string name="no_offers_inactive">Nenhuma oferta inativa</string>
+    <string name="no_offers_inactive_subtitle">Quando desativares ofertas, elas aparecerão aqui.</string>
+    <string name="no_offers_active">Nenhuma oferta ativa</string>
+    <string name="no_offers_active_subtitle">Quando ativares ofertas, elas aparecerão aqui.</string>
+    <string name="no_offers_published">Ainda não existem ofertas publicadas.</string>
+    <string name="no_offers_published_subtitle">Começa por criar uma nova oferta de estágio.</string>
     <string name="company_intern_profile_application_date">Data de candidatura</string>
     <string name="company_intern_profile_internship">Estágio</string>
     <string name="company_intern_profile_load_error">Erro ao carregar perfil do aluno.</string>

@@ -83,7 +83,7 @@ fun CompanyOffersScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "As minhas ofertas",
+                text = stringResource(R.string.my_offers),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -97,7 +97,7 @@ fun CompanyOffersScreen(
             onValueChange = viewModel::onSearchChange,
             placeholder = {
                 Text(
-                    text = "Pesquisar por título, área, localização...",
+                    text = stringResource(R.string.search_offers_placeholder),
                     color = Color(0xFF8A8A8A),
                     fontSize = 14.sp
                 )
@@ -105,7 +105,7 @@ fun CompanyOffersScreen(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Pesquisar",
+                    contentDescription = stringResource(R.string.search),
                     tint = Color(0xFF8A8A8A)
                 )
             },
@@ -114,7 +114,7 @@ fun CompanyOffersScreen(
                     IconButton(onClick = { viewModel.onSearchChange("") }) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Limpar",
+                            contentDescription = stringResource(R.string.clear),
                             tint = Color(0xFF8A8A8A)
                         )
                     }
@@ -272,7 +272,7 @@ fun CompanyOfferCard(
             val isArchived = offer.archivedAt != null
             when {
                 isArchived -> OfferStatusBadge(
-                    text = "Arquivada",
+                    text = stringResource(R.string.archived_feminine),
                     bgColor = Color(0xFFF3F3F3),
                     textColor = Color(0xFF8A8A8A)
                 )
@@ -282,14 +282,14 @@ fun CompanyOfferCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        CompanyOfferDetailRow(label = "Área", value = Formatters.formatOfferArea(offer.area))
-        CompanyOfferDetailRow(label = "Localização", value = offer.location.orEmpty())
+        CompanyOfferDetailRow(label = stringResource(R.string.area), value = Formatters.formatOfferArea(offer.area))
+        CompanyOfferDetailRow(label = stringResource(R.string.location), value = offer.location.orEmpty())
         CompanyOfferDetailRow(
-            label = "Regime",
+            label = stringResource(R.string.work_mode),
             value = Formatters.formatWorkMode(offer.workMode)
         )
-        CompanyOfferDetailRow(label = "Duração", value = offer.duration.orEmpty())
-        CompanyOfferDetailRow(label = "Vagas", value = offer.vacancies?.toString().orEmpty())
+        CompanyOfferDetailRow(label = stringResource(R.string.duration), value = offer.duration.orEmpty())
+        CompanyOfferDetailRow(label = stringResource(R.string.vacancies), value = offer.vacancies?.toString().orEmpty())
     }
 }
 
@@ -320,7 +320,7 @@ fun CompanyOfferDetailRow(
 
 @Composable
 fun OfferStatusBadge(isActive: Boolean) {
-    val text = if (isActive) "Ativa" else "Inativa"
+    val text = if (isActive) stringResource(R.string.active_feminine) else stringResource(R.string.inactive_feminine)
     val bgColor = if (isActive) Color(0xFFE8F5E9) else Color(0xFFFBE9E7)
     val textColor = if (isActive) Color(0xFF138A36) else Color(0xFFB00020)
 
@@ -375,7 +375,7 @@ fun CompanyOffersEmptyState(
         ) {
             if (hasSearch) {
                 Text(
-                    text = "Nenhum resultado encontrado",
+                    text = stringResource(R.string.no_search_results_title),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -385,14 +385,14 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Tenta alterar os termos da pesquisa.",
+                    text = stringResource(R.string.no_offers_search_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center
                 )
             } else if (filter == OfferFilter.ARCHIVED) {
                 Text(
-                    text = "Nenhuma oferta arquivada",
+                    text = stringResource(R.string.no_offers_archived),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -402,14 +402,14 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Quando removeres ofertas, elas aparecerão aqui.",
+                    text = stringResource(R.string.no_offers_archived_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center
                 )
             } else if (filter == OfferFilter.INACTIVE) {
                 Text(
-                    text = "Nenhuma oferta inativa",
+                    text = stringResource(R.string.no_offers_inactive),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -419,14 +419,14 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Quando desativares ofertas, elas aparecerão aqui.",
+                    text = stringResource(R.string.no_offers_inactive_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center
                 )
             } else if (filter == OfferFilter.ACTIVE) {
                 Text(
-                    text = "Nenhuma oferta ativa",
+                    text = stringResource(R.string.no_offers_active),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -436,14 +436,14 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Quando ativares ofertas, elas aparecerão aqui.",
+                    text = stringResource(R.string.no_offers_active_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center
                 )
             } else {
                 Text(
-                    text = "Ainda não existem ofertas publicadas.",
+                    text = stringResource(R.string.no_offers_published),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -453,7 +453,7 @@ fun CompanyOffersEmptyState(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Começa por criar uma nova oferta de estágio.",
+                    text = stringResource(R.string.no_offers_published_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF8A8A8A),
                     textAlign = TextAlign.Center

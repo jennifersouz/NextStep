@@ -612,9 +612,6 @@ fun AppNavigation() {
                 onStudentClick = { applicationId ->
                     navController.navigate(Routes.companyInternStudentProfile(applicationId))
                 },
-                onMessageClick = { applicationId ->
-                    navController.navigate(Routes.applicationChat(applicationId))
-                },
                 refreshKey = internStatusChanged
             )
         }
@@ -1109,11 +1106,6 @@ fun AppNavigation() {
                 onInternStudentClick = { applicationId ->
                     navController.navigate(
                         Routes.companyInternStudentProfile(applicationId)
-                    )
-                },
-                onInternMessageClick = { applicationId ->
-                    navController.navigate(
-                        Routes.applicationChat(applicationId)
                     )
                 },
                 onAddEmployeeClick = {

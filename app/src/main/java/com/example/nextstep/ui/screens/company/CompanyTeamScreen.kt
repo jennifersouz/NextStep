@@ -42,8 +42,7 @@ enum class CompanyTeamTab {
 @Composable
 fun CompanyTeamScreen(
     onAddEmployeeClick: () -> Unit,
-    onInternStudentClick: (String) -> Unit = {},
-    onInternMessageClick: (String) -> Unit = {}
+    onInternStudentClick: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableStateOf(CompanyTeamTab.EMPLOYEES) }
 
@@ -108,8 +107,7 @@ fun CompanyTeamScreen(
 
             CompanyTeamTab.INTERNS -> {
                 CompanyInternStudentsScreen(
-                    onStudentClick = onInternStudentClick,
-                    onMessageClick = onInternMessageClick
+                    onStudentClick = onInternStudentClick
                 )
             }
         }

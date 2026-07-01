@@ -41,7 +41,6 @@ fun CompanyDashboardScreen(
     onOfferClick: (String) -> Unit = {},
     onApplicationClick: (String) -> Unit = {},
     onInternStudentClick: (String) -> Unit = {},
-    onInternMessageClick: (String) -> Unit = {},
     onAddEmployeeClick: () -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
@@ -101,8 +100,7 @@ fun CompanyDashboardScreen(
                 CompanyBottomRoutes.TEAM -> {
                     CompanyTeamScreen(
                         onAddEmployeeClick = onAddEmployeeClick,
-                        onInternStudentClick = onInternStudentClick,
-                        onInternMessageClick = onInternMessageClick
+                        onInternStudentClick = onInternStudentClick
                     )
                 }
 

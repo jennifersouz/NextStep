@@ -660,10 +660,10 @@ private fun displayApplicationStatus(
     status: String?
 ): String {
     return when (status?.trim()?.lowercase()) {
-        "pending", "pendente" -> "Pendente"
-        "accepted", "aceite" -> "Aceite"
-        "rejected", "recusada", "rejeitada" -> "Recusada"
-        "viewed" -> "Vista"
+        "pending", "pendente" -> stringResource(R.string.application_status_pending)
+        "accepted", "aceite" -> stringResource(R.string.application_status_accepted)
+        "rejected", "recusada", "rejeitada" -> stringResource(R.string.application_status_rejected)
+        "viewed" -> stringResource(R.string.company_applications_seen)
         else -> status.orEmpty()
     }
 }

@@ -1,5 +1,7 @@
 package com.example.nextstep.ui.screens.company
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -117,16 +119,17 @@ class CompanyInternStudentsViewModel : ViewModel() {
     }
 
     companion object {
+        @Composable
         fun translateStatus(status: String?): String {
             return when (status?.trim()?.lowercase()) {
-                "accepted", "active" -> "Ativo"
-                "in_progress" -> "Em progresso"
-                "completed" -> "Concluído"
-                "inactive" -> "Inativo"
-                "pending" -> "Pendente"
-                "rejected" -> "Recusada"
-                "cancelled" -> "Cancelado"
-                else -> status ?: "Desconhecido"
+                "accepted", "active" -> stringResource(R.string.status_active)
+                "in_progress" -> stringResource(R.string.in_progress)
+                "completed" -> stringResource(R.string.completed_label)
+                "inactive" -> stringResource(R.string.inactive_status_label)
+                "pending" -> stringResource(R.string.pending)
+                "rejected" -> stringResource(R.string.rejected)
+                "cancelled" -> stringResource(R.string.internship_status_cancelled)
+                else -> status ?: stringResource(R.string.unknown_label)
             }
         }
     }

@@ -594,6 +594,8 @@ DECLARE
     current_user_id uuid;
     current_user_email text;
     invite_record public.company_employee_invites%ROWTYPE;
+    resolved_first_name text;
+    resolved_last_name text;
 BEGIN
     current_user_id := auth.uid();
     IF current_user_id IS NULL THEN
@@ -619,21 +621,62 @@ BEGIN
         RAISE EXCEPTION 'invite_not_found';
     END IF;
 
-    IF trim(coalesce(user_first_name, '')) = '' THEN
-        RAISE EXCEPTION 'first_name_required';
-    END IF;
+    resolved_first_name := coalesce(
+        nullif(trim(coalesce(user_first_name, '')), ''),
+        nullif(trim(coalesce(invite_record.first_name, '')), ''),
+        ''
+    );
 
-    IF trim(coalesce(user_last_name, '')) = '' THEN
-        RAISE EXCEPTION 'last_name_required';
-    END IF;
+    resolved_last_name := coalesce(
+        nullif(trim(coalesce(user_last_name, '')), ''),
+        nullif(trim(coalesce(invite_record.last_name, '')), ''),
+        ''
+    );
 
-    INSERT INTO public.profiles (id, email, role)
-    VALUES (current_user_id, current_user_email, 'employee')
+    INSERT INTO public.profiles (
+        id, email, role, first_name, last_name, phone, is_active
+    )
+    VALUES (
+        current_user_id,
+        current_user_email,
+        'advisor',
+        resolved_first_name,
+        resolved_last_name,
+        nullif(trim(coalesce(user_phone, invite_record.phone, '')), ''),
+        true
+    )
     ON CONFLICT (id) DO UPDATE
     SET
         email = excluded.email,
         role = excluded.role,
+        first_name = excluded.first_name,
+        last_name = excluded.last_name,
+        phone = excluded.phone,
+        is_active = excluded.is_active,
         updated_at = now();
+
+    INSERT INTO public.advisors (
+        profile_id, company_profile_id, name, email, phone, department
+    )
+    VALUES (
+        current_user_id,
+        invite_record.company_profile_id,
+        CASE
+            WHEN resolved_first_name <> '' OR resolved_last_name <> ''
+            THEN trim(resolved_first_name || ' ' || resolved_last_name)
+            ELSE current_user_email
+        END,
+        current_user_email,
+        nullif(trim(coalesce(user_phone, invite_record.phone, '')), ''),
+        nullif(trim(coalesce(user_department, invite_record.department, '')), '')
+    )
+    ON CONFLICT (profile_id) DO UPDATE
+    SET
+        company_profile_id = excluded.company_profile_id,
+        name = excluded.name,
+        email = excluded.email,
+        phone = excluded.phone,
+        department = excluded.department;
 
     INSERT INTO public.company_employees (
         profile_id, company_profile_id,
@@ -642,10 +685,11 @@ BEGIN
     VALUES (
         current_user_id,
         invite_record.company_profile_id,
-        trim(user_first_name), trim(user_last_name),
+        resolved_first_name,
+        resolved_last_name,
         current_user_email,
-        nullif(trim(coalesce(user_phone, '')), ''),
-        nullif(trim(coalesce(user_department, '')), '')
+        nullif(trim(coalesce(user_phone, invite_record.phone, '')), ''),
+        nullif(trim(coalesce(user_department, invite_record.department, '')), '')
     )
     ON CONFLICT (profile_id) DO UPDATE
     SET
