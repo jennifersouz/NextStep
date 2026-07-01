@@ -7,21 +7,32 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,7 +72,6 @@ fun CompanyOfferDetailScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    // Reload offer when returning from edit
     LaunchedEffect(offerUpdated) {
         if (offerUpdated) {
             viewModel.loadOffer(offerId)
@@ -71,21 +82,15 @@ fun CompanyOfferDetailScreen(
         viewModel.loadOffer(offerId)
     }
 
-    // States for dialogs
     var showDeactivateDialog by remember { mutableStateOf(false) }
     var showActivateDialog by remember { mutableStateOf(false) }
     var showArchiveDialog by remember { mutableStateOf(false) }
 
-    // Deactivate confirmation dialog
     if (showDeactivateDialog) {
         AlertDialog(
             onDismissRequest = { showDeactivateDialog = false },
-            title = {
-                Text(text = stringResource(R.string.deactivate_offer))
-            },
-            text = {
-                Text(text = stringResource(R.string.deactivate_offer_confirmation))
-            },
+            title = { Text(text = stringResource(R.string.deactivate_offer)) },
+            text = { Text(text = stringResource(R.string.deactivate_offer_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -93,10 +98,7 @@ fun CompanyOfferDetailScreen(
                         viewModel.deactivateOffer(offerId = offerId, onSuccess = onBackClick)
                     }
                 ) {
-                    Text(
-                        text = stringResource(R.string.deactivate),
-                        color = Color(0xFFB00020)
-                    )
+                    Text(text = stringResource(R.string.deactivate), color = Color(0xFFB00020))
                 }
             },
             dismissButton = {
@@ -107,16 +109,11 @@ fun CompanyOfferDetailScreen(
         )
     }
 
-    // Activate confirmation dialog
     if (showActivateDialog) {
         AlertDialog(
             onDismissRequest = { showActivateDialog = false },
-            title = {
-                Text(text = stringResource(R.string.activate_offer))
-            },
-            text = {
-                Text(text = stringResource(R.string.activate_offer_confirmation))
-            },
+            title = { Text(text = stringResource(R.string.activate_offer)) },
+            text = { Text(text = stringResource(R.string.activate_offer_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -124,10 +121,7 @@ fun CompanyOfferDetailScreen(
                         viewModel.activateOffer(offerId = offerId)
                     }
                 ) {
-                    Text(
-                        text = stringResource(R.string.activate),
-                        color = Color.Black
-                    )
+                    Text(text = stringResource(R.string.activate), color = Color.Black)
                 }
             },
             dismissButton = {
@@ -138,16 +132,11 @@ fun CompanyOfferDetailScreen(
         )
     }
 
-    // Archive confirmation dialog
     if (showArchiveDialog) {
         AlertDialog(
             onDismissRequest = { showArchiveDialog = false },
-            title = {
-                Text(text = stringResource(R.string.archive_offer))
-            },
-            text = {
-                Text(text = stringResource(R.string.archive_offer_confirmation))
-            },
+            title = { Text(text = stringResource(R.string.archive_offer)) },
+            text = { Text(text = stringResource(R.string.archive_offer_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -155,10 +144,7 @@ fun CompanyOfferDetailScreen(
                         viewModel.archiveOffer(offerId = offerId, reason = null)
                     }
                 ) {
-                    Text(
-                        text = stringResource(R.string.archive),
-                        color = Color(0xFFB00020)
-                    )
+                    Text(text = stringResource(R.string.archive), color = Color(0xFFB00020))
                 }
             },
             dismissButton = {
@@ -169,7 +155,6 @@ fun CompanyOfferDetailScreen(
         )
     }
 
-    // Success snackbar
     if (state.successMessage != null) {
         Snackbar(
             modifier = Modifier
@@ -263,37 +248,56 @@ private fun CompanyOfferDetailContent(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 28.dp),
+                    .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Left Column: Main Info & Actions
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Text(
-                        text = offer.title,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                    OfferDetailHeader(
+                        title = offer.title,
+                        isArchived = isArchived,
+                        isActive = offer.isActive
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                    // Status badge
-                    CompanyOfferStatusBadge(offer = offer, isArchived = isArchived)
+                    OfferDetailSectionCard(title = stringResource(R.string.general_information)) {
+                        OfferInfoItem(
+                            icon = Icons.Default.Business,
+                            label = stringResource(R.string.company),
+                            value = offer.companyName
+                        )
+                        OfferInfoItem(
+                            icon = Icons.Default.Category,
+                            label = stringResource(R.string.area),
+                            value = Formatters.formatOfferArea(offer.area)
+                        )
+                        OfferInfoItem(
+                            icon = Icons.Default.LocationOn,
+                            label = stringResource(R.string.location),
+                            value = offer.location
+                        )
+                        OfferInfoItem(
+                            icon = Icons.Default.Schedule,
+                            label = stringResource(R.string.work_mode),
+                            value = Formatters.formatWorkMode(offer.workMode)
+                        )
+                        OfferInfoItem(
+                            icon = Icons.Default.DateRange,
+                            label = stringResource(R.string.duration),
+                            value = formatDuration(offer.duration)
+                        )
+                        OfferInfoItem(
+                            icon = Icons.Default.People,
+                            label = stringResource(R.string.vacancies),
+                            value = formatVacancies(offer.vacancies)
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
-                    CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
-                    CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
-                    CompanyOfferInfo(title = stringResource(R.string.work_mode), value = Formatters.formatWorkMode(offer.workMode))
-                    CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
-                    CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
-
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     OfferActions(
                         isArchived = isArchived,
@@ -305,28 +309,39 @@ private fun CompanyOfferDetailContent(
                         onArchiveClick = onArchiveClick
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
 
-                // Right Column: Details (Description & Requirements)
                 Column(
                     modifier = Modifier
-                        .weight(1.2f)
+                        .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    CompanyOfferInfo(
-                        title = stringResource(R.string.description),
-                        value = offer.description
-                    )
+                    OfferDetailSectionCard(title = stringResource(R.string.description)) {
+                        Text(
+                            text = offer.description?.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.no_description),
+                            fontSize = 15.sp,
+                            color = if (offer.description?.isNotBlank() == true) Color.Black
+                            else Color(0xFF8A8A8A),
+                            lineHeight = 22.sp
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    CompanyOfferInfo(
-                        title = stringResource(R.string.requirements),
-                        value = offer.requirements
-                    )
+                    OfferDetailSectionCard(title = stringResource(R.string.requirements)) {
+                        Text(
+                            text = offer.requirements?.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.no_requirements),
+                            fontSize = 15.sp,
+                            color = if (offer.requirements?.isNotBlank() == true) Color.Black
+                            else Color(0xFF8A8A8A),
+                            lineHeight = 22.sp
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
             }
         } else {
@@ -334,44 +349,76 @@ private fun CompanyOfferDetailContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 28.dp),
-                verticalArrangement = Arrangement.Top
+                    .padding(horizontal = 24.dp)
             ) {
-                Text(
-                    text = offer.title,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                OfferDetailHeader(
+                    title = offer.title,
+                    isArchived = isArchived,
+                    isActive = offer.isActive
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                CompanyOfferStatusBadge(offer = offer, isArchived = isArchived)
+                OfferDetailSectionCard(title = stringResource(R.string.general_information)) {
+                    OfferInfoItem(
+                        icon = Icons.Default.Business,
+                        label = stringResource(R.string.company),
+                        value = offer.companyName
+                    )
+                    OfferInfoItem(
+                        icon = Icons.Default.Category,
+                        label = stringResource(R.string.area),
+                        value = Formatters.formatOfferArea(offer.area)
+                    )
+                    OfferInfoItem(
+                        icon = Icons.Default.LocationOn,
+                        label = stringResource(R.string.location),
+                        value = offer.location
+                    )
+                    OfferInfoItem(
+                        icon = Icons.Default.Schedule,
+                        label = stringResource(R.string.work_mode),
+                        value = Formatters.formatWorkMode(offer.workMode)
+                    )
+                    OfferInfoItem(
+                        icon = Icons.Default.DateRange,
+                        label = stringResource(R.string.duration),
+                        value = formatDuration(offer.duration)
+                    )
+                    OfferInfoItem(
+                        icon = Icons.Default.People,
+                        label = stringResource(R.string.vacancies),
+                        value = formatVacancies(offer.vacancies)
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                CompanyOfferInfo(title = stringResource(R.string.company), value = offer.companyName)
-                CompanyOfferInfo(title = stringResource(R.string.area), value = offer.area)
-                CompanyOfferInfo(title = stringResource(R.string.location), value = offer.location)
-                CompanyOfferInfo(title = stringResource(R.string.work_mode), value = Formatters.formatWorkMode(offer.workMode))
-                CompanyOfferInfo(title = stringResource(R.string.duration), value = offer.duration)
-                CompanyOfferInfo(title = stringResource(R.string.vacancies), value = offer.vacancies.toString())
+                OfferDetailSectionCard(title = stringResource(R.string.description)) {
+                    Text(
+                        text = offer.description?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.no_description),
+                        fontSize = 15.sp,
+                        color = if (offer.description?.isNotBlank() == true) Color.Black
+                        else Color(0xFF8A8A8A),
+                        lineHeight = 22.sp
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                CompanyOfferInfo(
-                    title = stringResource(R.string.description),
-                    value = offer.description
-                )
+                OfferDetailSectionCard(title = stringResource(R.string.requirements)) {
+                    Text(
+                        text = offer.requirements?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.no_requirements),
+                        fontSize = 15.sp,
+                        color = if (offer.requirements?.isNotBlank() == true) Color.Black
+                        else Color(0xFF8A8A8A),
+                        lineHeight = 22.sp
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(18.dp))
-
-                CompanyOfferInfo(
-                    title = stringResource(R.string.requirements),
-                    value = offer.requirements
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 OfferActions(
                     isArchived = isArchived,
@@ -383,37 +430,137 @@ private fun CompanyOfferDetailContent(
                     onArchiveClick = onArchiveClick
                 )
 
-                Spacer(modifier = Modifier.height(42.dp))
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
 }
 
 @Composable
-private fun CompanyOfferStatusBadge(offer: OfferDto, isArchived: Boolean) {
-    when {
-        isArchived -> {
-            OfferDetailBadge(
-                text = "Arquivada",
-                bgColor = Color(0xFFF3F3F3),
-                textColor = Color(0xFF8A8A8A)
+private fun OfferDetailHeader(
+    title: String,
+    isArchived: Boolean,
+    isActive: Boolean
+) {
+    Text(
+        text = title,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Black
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    val (badgeText, bgColor, textColor) = when {
+        isArchived -> Triple(
+            stringResource(R.string.archived_offer),
+            Color(0xFFF3F3F3),
+            Color(0xFF8A8A8A)
+        )
+        isActive -> Triple(
+            stringResource(R.string.active_offer),
+            Color(0xFFE8F5E9),
+            Color(0xFF138A36)
+        )
+        else -> Triple(
+            stringResource(R.string.inactive_offer),
+            Color(0xFFFBE9E7),
+            Color(0xFFB00020)
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .background(bgColor, RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = badgeText,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
+    }
+}
+
+@Composable
+private fun OfferDetailSectionCard(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8))
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
             )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            content()
         }
-        offer.isActive -> {
-            OfferDetailBadge(
-                text = stringResource(R.string.offer_active),
-                bgColor = Color(0xFFE8F5E9),
-                textColor = Color(0xFF138A36)
+    }
+}
+
+@Composable
+private fun OfferInfoItem(
+    icon: ImageVector,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF8A8A8A),
+            modifier = Modifier.size(20.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Color(0xFF8A8A8A)
             )
-        }
-        else -> {
-            OfferDetailBadge(
-                text = stringResource(R.string.offer_inactive),
-                bgColor = Color(0xFFFBE9E7),
-                textColor = Color(0xFFB00020)
+
+            Text(
+                text = value.ifBlank { stringResource(R.string.not_available) },
+                fontSize = 15.sp,
+                color = Color.Black
             )
         }
     }
+}
+
+@Composable
+private fun formatDuration(duration: String?): String {
+    if (duration.isNullOrBlank()) return stringResource(R.string.not_available)
+    val numeric = duration.toIntOrNull()
+    return if (numeric != null) {
+        if (numeric == 1) stringResource(R.string.duration_month)
+        else stringResource(R.string.duration_months, numeric)
+    } else {
+        duration
+    }
+}
+
+@Composable
+private fun formatVacancies(count: Int): String {
+    return if (count == 1) stringResource(R.string.vacancy_count)
+    else stringResource(R.string.vacancies_count, count)
 }
 
 @Composable
@@ -428,7 +575,7 @@ private fun OfferActions(
 ) {
     if (isArchived) {
         Text(
-            text = "Esta oferta foi removida da lista principal. O histórico foi mantido.",
+            text = stringResource(R.string.archived_offer),
             fontSize = 14.sp,
             color = Color(0xFF8A8A8A),
             textAlign = TextAlign.Center,
@@ -503,55 +650,5 @@ private fun OfferActions(
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-@Composable
-private fun OfferDetailBadge(
-    text: String,
-    bgColor: Color,
-    textColor: Color
-) {
-    Box(
-        modifier = Modifier
-            .background(bgColor, RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-    ) {
-        Text(
-            text = text,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = textColor
-        )
-    }
-}
-
-@Composable
-private fun CompanyOfferInfo(
-    title: String,
-    value: String?
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = title,
-            color = Color(0xFF8A8A8A),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = value.orEmpty().ifBlank {
-                stringResource(R.string.not_available)
-            },
-            color = Color.Black,
-            fontSize = 15.sp,
-            lineHeight = 21.sp
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
     }
 }

@@ -55,10 +55,12 @@
     <string name="year_placeholder">Ex: 3rd year</string>
     <string name="role_employee">Employee</string>
     <string name="employees">Employees</string>
+    <string name="interns">Interns</string>
     <string name="add_employee">Add employee</string>
     <string name="employee_register_title">Employee registration</string>
     <string name="employee_register_description">To create an account as an employee, the company must have previously created an invite with this email.</string>
     <string name="no_employees">There are no employees yet.</string>
+    <string name="add_employees_description">Add employees to your team.</string>
     <string name="send_employee_invite">Send invite</string>
     <string name="employee_invite_description">The employee will need to use this email to create their own account in the app.</string>
     <string name="employees_load_error">Could not load employees.</string>
@@ -169,7 +171,6 @@
     <string name="company_create_offer_placeholder">Here you will be able to publish a new internship offer.</string>
 
     <string name="company_team_title">Team</string>
-    <string name="company_team_placeholder">Here you will be able to manage company supervisors and users.</string>
 
     <string name="company_profile_title">Profile</string>
     <string name="company_profile_placeholder">Here you will be able to view and edit company information.</string>
@@ -232,8 +233,8 @@
     <string name="offer_duration">Duration</string>
     <string name="offer_vacancies">Vacancies</string>
     <string name="offer_vacancies_value">%1$d vacancies</string>
-    <string name="vacancy_count">%1$d vacancy</string>
-    <string name="duration_months">Duration: %1$d months</string>
+    <string name="vacancy_count">1 vacancy</string>
+    <string name="duration_months">%1$d months</string>
     <string name="offer_requirements">Requirements</string>
     <string name="applying">Applying…</string>
     <string name="applied_button">Application sent</string>
@@ -374,6 +375,10 @@
     <string name="filter_with_advisor">With advisor</string>
     <string name="filter_rejected">Rejected</string>
     <string name="no_applications_for_filter">There are no applications in this filter.</string>
+    <string name="filter_status">Status</string>
+    <string name="application_filter_to_review">To review</string>
+    <string name="application_filter_waiting_student">Waiting for student</string>
+    <string name="application_filter_with_advisor">With advisor</string>
     <string name="status_unread">Unread</string>
     <string name="status_pending">Pending</string>
     <string name="status_waiting_student_acceptance">Waiting for student</string>
@@ -391,6 +396,9 @@
     <string name="area_it">IT</string>
     <string name="area_marketing">Marketing</string>
     <string name="area_other">Other</string>
+    <string name="area_mobile">Mobile development</string>
+    <string name="area_software">Software</string>
+    <string name="area_not_defined">Not defined</string>
     <string name="write_message">Write a message…</string>
     <string name="send_message">Send message</string>
     <string name="chat_empty">There are no messages in this application yet.</string>
@@ -485,7 +493,7 @@
     <string name="student">Student</string>
     <string name="student_number">Student number</string>
     <string name="course">Course</string>
-    <string name="academic_year">Academic year</string>
+    <string name="academic_year">Year</string>
     <string name="year">Year</string>
     <string name="city">City</string>
     <string name="country">Country</string>
@@ -1264,4 +1272,14 @@
 
     <string name="employee_invite_created">Invite created. The employee must create an account with this email.</string>
     <string name="employee_email_placeholder">Enter the employee\'s email</string>
+
+    <!-- Company Offer Detail -->
+    <string name="general_information">General information</string>
+    <string name="no_description">No description.</string>
+    <string name="no_requirements">No requirements.</string>
+    <string name="duration_month">1 month</string>
+    <string name="vacancies_count">%1$d vacancies</string>
+    <string name="active_offer">Active offer</string>
+    <string name="inactive_offer">Inactive offer</string>
+    <string name="archived_offer">Archived offer</string>
 </resources>

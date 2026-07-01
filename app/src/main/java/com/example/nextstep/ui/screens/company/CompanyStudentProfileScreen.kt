@@ -252,7 +252,7 @@ private fun CompanyCandidateProfileContent(
                         )
 
                         ProfileInfoRow(
-                            label = stringResource(R.string.year),
+                            label = stringResource(R.string.academic_year),
                             value = profile.academicYear?.toString()
                         )
 
@@ -397,7 +397,7 @@ private fun CompanyCandidateProfileContent(
                     )
 
                     ProfileInfoRow(
-                        label = stringResource(R.string.year),
+                        label = stringResource(R.string.academic_year),
                         value = profile.academicYear?.toString()
                     )
 

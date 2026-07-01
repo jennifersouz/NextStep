@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyEmployeeInviteDisplayDto
 
 @Composable
@@ -70,25 +72,29 @@ fun CompanyEmployeesScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-
             Button(
                 onClick = onAddEmployeeClick,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFDFA52),
                     contentColor = Color.Black
-                )
+                ),
+                modifier = Modifier.height(44.dp)
             ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+                Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "+ Add Employee",
+                    text = stringResource(R.string.add_employee),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -99,7 +105,7 @@ fun CompanyEmployeesScreen(
             onValueChange = viewModel::onSearchChange,
             placeholder = {
                 Text(
-                    text = "Pesquisar...",
+                    text = stringResource(R.string.search),
                     color = Color(0xFF8A8A8A),
                     fontSize = 14.sp
                 )
@@ -107,14 +113,12 @@ fun CompanyEmployeesScreen(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Pesquisar",
+                    contentDescription = stringResource(R.string.search),
                     tint = Color(0xFF8A8A8A)
                 )
             },
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = Color(0xFFE0E0E0),
@@ -126,76 +130,74 @@ fun CompanyEmployeesScreen(
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color.Black)
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            when {
+                state.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.Black)
+                    }
                 }
-            }
 
-            state.errorMessageRes != null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 28.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(state.errorMessageRes!!),
-                        color = Color(0xFFB00020),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-            state.filteredEmployees.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 40.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(horizontal = 32.dp)
+                state.errorMessageRes != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 28.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Ainda não existem funcionários.",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Adicione funcionários à sua equipa.",
-                            fontSize = 14.sp,
-                            color = Color(0xFF8A8A8A),
+                            text = stringResource(state.errorMessageRes!!),
+                            color = Color(0xFFB00020),
+                            fontSize = 16.sp,
                             textAlign = TextAlign.Center
                         )
                     }
                 }
-            }
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(bottom = 28.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = state.filteredEmployees,
-                        key = { it.id }
-                    ) { employee ->
-                        CompanyEmployeeCard(employee = employee)
+                state.filteredEmployees.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_employees),
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.add_employees_description),
+                                fontSize = 14.sp,
+                                color = Color(0xFF8A8A8A),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 28.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = state.filteredEmployees,
+                            key = { it.id }
+                        ) { employee ->
+                            CompanyEmployeeCard(employee = employee)
+                        }
                     }
                 }
             }
@@ -274,7 +276,7 @@ private fun CompanyEmployeeCard(
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "Pendente",
+                        text = stringResource(R.string.pending),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF7A5D00)

@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +33,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -205,11 +208,25 @@ fun CompanyApplicationDetailContent(
                             )
 
                             application.course?.takeIf { it.isNotBlank() }?.let { course ->
-                                Text(
-                                    text = course,
-                                    fontSize = 13.sp,
-                                    color = Color(0xFF8A8A8A)
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.School,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+
+                                    Text(
+                                        text = course,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
                     }
@@ -338,7 +355,7 @@ fun CompanyApplicationDetailContent(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     CompanyApplicationDetailAvatar(
                         studentName = studentName
@@ -346,13 +363,47 @@ fun CompanyApplicationDetailContent(
 
                     Spacer(modifier = Modifier.width(14.dp))
 
-                    Text(
-                        text = studentName,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = studentName,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        application.course
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { course ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.School,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+
+                                    Text(
+                                        text = course,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     CompanyApplicationStatusDropdown(
                         currentStatus = currentStatus,
@@ -360,19 +411,6 @@ fun CompanyApplicationDetailContent(
                         onStatusSelected = onStatusSelected
                     )
                 }
-
-                application.course
-                    ?.takeIf { it.isNotBlank() }
-                    ?.let { course ->
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = course,
-                            fontSize = 14.sp,
-                            color = Color(0xFF8A8A8A),
-                            modifier = Modifier.padding(start = 76.dp)
-                        )
-                    }
 
                 statusErrorRes?.let { errorRes ->
                     Spacer(modifier = Modifier.height(16.dp))

@@ -21,7 +21,7 @@ class CompanyApplicationsViewModel : ViewModel() {
         loadApplications()
     }
 
-    fun selectFilter(filter: CompanyApplicationFilter) {
+    fun selectFilter(filter: ApplicationStatusFilter) {
         _uiState.value = _uiState.value.copy(
             selectedFilter = filter
         )

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,8 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyApplicationDto
+import com.example.nextstep.ui.screens.admin.AppFilterDropdown
 
 @Composable
 fun CompanyApplicationsContent(
@@ -95,10 +93,9 @@ fun CompanyApplicationsContent(
         }
 
         else -> {
-            val filteredApplications = filterCompanyApplications(
-                applications = state.applications,
-                selectedFilter = state.selectedFilter
-            )
+            val filteredApplications = state.applications.filter { app ->
+                matchesApplicationFilter(app, state.selectedFilter)
+            }
 
             if (isLandscape) {
                 LazyVerticalGrid(
@@ -123,12 +120,23 @@ fun CompanyApplicationsContent(
                                 color = Color.Black
                             )
 
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                            CompanyApplicationsFilterChips(
-                                selectedFilter = state.selectedFilter,
-                                onFilterSelected = viewModel::selectFilter,
-                                applications = state.applications
+                            AppFilterDropdown(
+                                label = stringResource(R.string.filter_status),
+                                selectedOption = stringResource(state.selectedFilter.labelRes()),
+                                options = ApplicationStatusFilter.entries,
+                                optionLabel = { stringResource(it.labelRes()) },
+                                onOptionSelected = viewModel::selectFilter,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "${stringResource(state.selectedFilter.labelRes())} (${filteredApplications.size})",
+                                fontSize = 14.sp,
+                                color = Color(0xFF777777)
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -178,14 +186,29 @@ fun CompanyApplicationsContent(
                             color = Color.Black
                         )
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     item {
-                        CompanyApplicationsFilterChips(
-                            selectedFilter = state.selectedFilter,
-                            onFilterSelected = viewModel::selectFilter,
-                            applications = state.applications
+                        AppFilterDropdown(
+                            label = stringResource(R.string.filter_status),
+                            selectedOption = stringResource(state.selectedFilter.labelRes()),
+                            options = ApplicationStatusFilter.entries,
+                            optionLabel = { stringResource(it.labelRes()) },
+                            onOptionSelected = viewModel::selectFilter,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        Text(
+                            text = "${stringResource(state.selectedFilter.labelRes())} (${filteredApplications.size})",
+                            fontSize = 14.sp,
+                            color = Color(0xFF777777)
                         )
                     }
 
@@ -224,123 +247,40 @@ fun CompanyApplicationsContent(
     }
 }
 
-@Composable
-private fun CompanyApplicationsFilterChips(
-    selectedFilter: CompanyApplicationFilter,
-    onFilterSelected: (CompanyApplicationFilter) -> Unit,
-    applications: List<CompanyApplicationDto>
-) {
-    val filters = CompanyApplicationFilter.entries
+private fun matchesApplicationFilter(
+    application: CompanyApplicationDto,
+    filter: ApplicationStatusFilter
+): Boolean {
+    val status = determineApplicationStatus(application)
 
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(filters) { filter ->
-            val count = filterCompanyApplications(
-                applications = applications,
-                selectedFilter = filter
-            ).size
-
-            FilterChip(
-                selected = selectedFilter == filter,
-                onClick = {
-                    onFilterSelected(filter)
-                },
-                label = {
-                    Text(
-                        text = "${companyApplicationFilterLabel(filter)} ($count)"
-                    )
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFFFDFA52),
-                    selectedLabelColor = Color.Black
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun companyApplicationFilterLabel(
-    filter: CompanyApplicationFilter
-): String {
     return when (filter) {
-        CompanyApplicationFilter.ALL -> stringResource(R.string.filter_all)
-        CompanyApplicationFilter.UNREAD -> stringResource(R.string.filter_unread)
-        CompanyApplicationFilter.PENDING -> stringResource(R.string.filter_pending)
-        CompanyApplicationFilter.WAITING_STUDENT_ACCEPTANCE -> stringResource(
-            R.string.filter_waiting_student_acceptance
-        )
-        CompanyApplicationFilter.NEEDS_ADVISOR -> stringResource(R.string.filter_needs_advisor)
-        CompanyApplicationFilter.WITH_ADVISOR -> stringResource(R.string.filter_with_advisor)
-        CompanyApplicationFilter.REJECTED -> stringResource(R.string.filter_rejected)
-    }
-}
-
-private fun filterCompanyApplications(
-    applications: List<CompanyApplicationDto>,
-    selectedFilter: CompanyApplicationFilter
-): List<CompanyApplicationDto> {
-    return when (selectedFilter) {
-        CompanyApplicationFilter.ALL -> applications
-
-        CompanyApplicationFilter.UNREAD -> applications.filter {
-            !it.viewedByCompany
-        }
-
-        CompanyApplicationFilter.PENDING -> applications.filter {
-            it.status.lowercase().trim() in listOf("pending", "pendente")
-        }
-
-        CompanyApplicationFilter.WAITING_STUDENT_ACCEPTANCE -> applications.filter {
-            it.status.lowercase().trim() in listOf("accepted", "aceite") &&
-                !it.studentPresenceConfirmed
-        }
-
-        CompanyApplicationFilter.NEEDS_ADVISOR -> applications.filter {
-            it.status.lowercase().trim() in listOf("accepted", "aceite") &&
-                it.studentPresenceConfirmed &&
-                it.advisorProfileId.isNullOrBlank()
-        }
-
-        CompanyApplicationFilter.WITH_ADVISOR -> applications.filter {
-            !it.advisorProfileId.isNullOrBlank()
-        }
-
-        CompanyApplicationFilter.REJECTED -> applications.filter {
-            it.status.lowercase().trim() in listOf("rejected", "recusada", "rejeitada")
-        }
+        ApplicationStatusFilter.ALL -> true
+        ApplicationStatusFilter.TO_REVIEW -> !application.viewedByCompany
+        ApplicationStatusFilter.PENDING -> status == ApplicationStatus.PENDING
+        ApplicationStatusFilter.ACCEPTED -> status == ApplicationStatus.ACCEPTED
+        ApplicationStatusFilter.REJECTED -> status == ApplicationStatus.REJECTED
+        ApplicationStatusFilter.WAITING_STUDENT -> status == ApplicationStatus.WAITING_STUDENT
+        ApplicationStatusFilter.WITH_ADVISOR -> status == ApplicationStatus.WITH_ADVISOR
     }
 }
 
 @Composable
 private fun companyApplicationOperationalStatus(application: CompanyApplicationDto): String {
-    val status = application.status.lowercase().trim()
-
     return when {
         !application.viewedByCompany -> stringResource(R.string.status_unread)
-
-        status in listOf("pending", "pendente") -> stringResource(R.string.status_pending)
-
-        status in listOf("accepted", "aceite") &&
-            !application.studentPresenceConfirmed -> stringResource(
-            R.string.status_waiting_student_acceptance
-        )
-
-        status in listOf("accepted", "aceite") &&
-            application.studentPresenceConfirmed &&
-            application.advisorProfileId.isNullOrBlank() -> stringResource(
-            R.string.status_needs_advisor
-        )
-
-        !application.advisorProfileId.isNullOrBlank() -> stringResource(R.string.status_with_advisor)
-
-        status in listOf("rejected", "recusada", "rejeitada") -> stringResource(
-            R.string.status_rejected
-        )
-
-        else -> application.status
+        else -> {
+            val appStatus = determineApplicationStatus(application)
+            when (appStatus) {
+                ApplicationStatus.PENDING -> stringResource(R.string.status_pending)
+                ApplicationStatus.ACCEPTED -> stringResource(R.string.status_accepted)
+                ApplicationStatus.REJECTED -> stringResource(R.string.status_rejected)
+                ApplicationStatus.WAITING_STUDENT -> stringResource(
+                    R.string.status_waiting_student_acceptance
+                )
+                ApplicationStatus.WITH_ADVISOR -> stringResource(R.string.status_with_advisor)
+                ApplicationStatus.UNKNOWN -> application.status
+            }
+        }
     }
 }
 

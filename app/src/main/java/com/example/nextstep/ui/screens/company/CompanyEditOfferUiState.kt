@@ -4,7 +4,7 @@ data class CompanyEditOfferUiState(
     val offerId: String = "",
     val title: String = "",
     val description: String = "",
-    val area: String = "",
+    val selectedArea: OfferArea? = null,
     val location: String = "",
     val workMode: String = "",
     val duration: String = "",

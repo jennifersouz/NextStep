@@ -1119,9 +1119,6 @@ fun AppNavigation() {
                 onAddEmployeeClick = {
                     navController.navigate(Routes.ADD_COMPANY_EMPLOYEE)
                 },
-                onAdvisorsClick = {
-                    navController.navigate(Routes.COMPANY_ADVISORS)
-                },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) {

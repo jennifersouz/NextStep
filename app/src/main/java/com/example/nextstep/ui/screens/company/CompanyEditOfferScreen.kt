@@ -138,10 +138,16 @@ fun CompanyEditOfferScreen(
 
                                 Spacer(modifier = Modifier.height(14.dp))
 
-                                CompanyEditOfferOutlinedTextField(
-                                    value = state.area,
-                                    onValueChange = viewModel::onAreaChange,
+                                val areaItems = OfferArea.entries.map { stringResource(it.labelRes) }
+
+                                CompanyEditOfferDropdownField(
                                     label = stringResource(R.string.offer_area),
+                                    selectedValue = state.selectedArea?.let { stringResource(it.labelRes) } ?: "",
+                                    onValueChange = { selectedLabel ->
+                                        val index = areaItems.indexOf(selectedLabel)
+                                        if (index >= 0) viewModel.onAreaChange(OfferArea.entries[index])
+                                    },
+                                    items = areaItems,
                                     isError = state.areaError != null,
                                     supportingText = state.areaError?.let { stringResource(it) }
                                 )
@@ -238,10 +244,16 @@ fun CompanyEditOfferScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        CompanyEditOfferOutlinedTextField(
-                            value = state.area,
-                            onValueChange = viewModel::onAreaChange,
+                        val areaItems = OfferArea.entries.map { stringResource(it.labelRes) }
+
+                        CompanyEditOfferDropdownField(
                             label = stringResource(R.string.offer_area),
+                            selectedValue = state.selectedArea?.let { stringResource(it.labelRes) } ?: "",
+                            onValueChange = { selectedLabel ->
+                                val index = areaItems.indexOf(selectedLabel)
+                                if (index >= 0) viewModel.onAreaChange(OfferArea.entries[index])
+                            },
+                            items = areaItems,
                             isError = state.areaError != null,
                             supportingText = state.areaError?.let { stringResource(it) }
                         )

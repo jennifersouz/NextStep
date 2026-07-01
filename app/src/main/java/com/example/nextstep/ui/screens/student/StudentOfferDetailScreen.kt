@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.OfferDto
+import com.example.nextstep.ui.utils.Formatters
 
 @Composable
 fun StudentOfferDetailScreen(
@@ -484,16 +485,7 @@ fun OfferDetailErrorState(
 
 @Composable
 fun offerAreaLabel(area: String): String {
-    return when (area) {
-        "mobile" -> stringResource(R.string.offer_area_mobile)
-        "web" -> stringResource(R.string.offer_area_web)
-        "ai" -> stringResource(R.string.offer_area_ai)
-        "cybersecurity" -> stringResource(R.string.offer_area_cybersecurity)
-        "data" -> stringResource(R.string.offer_area_data)
-        "design" -> stringResource(R.string.offer_area_design)
-        "management" -> stringResource(R.string.offer_area_management)
-        else -> stringResource(R.string.offer_area_other)
-    }
+    return Formatters.formatOfferArea(area)
 }
 
 @Composable

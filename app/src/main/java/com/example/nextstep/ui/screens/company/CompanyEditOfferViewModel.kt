@@ -46,12 +46,13 @@ class CompanyEditOfferViewModel : ViewModel() {
 
             _uiState.value = if (result.isSuccess) {
                 val offer = result.getOrNull()
+                val areaString = offer?.area.orEmpty()
 
                 _uiState.value.copy(
                     offerId = offerId,
                     title = offer?.title.orEmpty(),
                     description = offer?.description.orEmpty(),
-                    area = offer?.area.orEmpty(),
+                    selectedArea = OfferArea.entries.firstOrNull { it.dbValue.equals(areaString, ignoreCase = true) },
                     location = offer?.location.orEmpty(),
                     workMode = workModeToLabel(offer?.workMode),
                     duration = offer?.duration.orEmpty(),
@@ -78,8 +79,8 @@ class CompanyEditOfferViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(description = value, descriptionError = null)
     }
 
-    fun onAreaChange(value: String) {
-        _uiState.value = _uiState.value.copy(area = value, areaError = null)
+    fun onAreaChange(area: OfferArea) {
+        _uiState.value = _uiState.value.copy(selectedArea = area, areaError = null)
     }
 
     fun onLocationChange(value: String) {
@@ -125,7 +126,7 @@ class CompanyEditOfferViewModel : ViewModel() {
             R.string.error_offer_description_required
         } else null
 
-        val areaError = if (state.area.isBlank()) {
+        val areaError = if (state.selectedArea == null) {
             hasError = true
             R.string.error_offer_area_required
         } else null
@@ -184,7 +185,7 @@ class CompanyEditOfferViewModel : ViewModel() {
         val request = CompanyOfferUpdateDto(
             title = state.title.trim(),
             description = state.description.trim(),
-            area = state.area.trim(),
+            area = state.selectedArea!!.dbValue,
             location = state.location.trim(),
             workMode = labelToWorkMode(state.workMode),
             duration = state.duration.trim(),
@@ -207,12 +208,13 @@ class CompanyEditOfferViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 val updatedOffer = result.getOrNull()
+                val updatedArea = updatedOffer?.area.orEmpty()
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     successMessageRes = R.string.company_offer_update_success,
                     title = updatedOffer?.title.orEmpty(),
                     description = updatedOffer?.description.orEmpty(),
-                    area = updatedOffer?.area.orEmpty(),
+                    selectedArea = OfferArea.entries.firstOrNull { it.dbValue.equals(updatedArea, ignoreCase = true) },
                     location = updatedOffer?.location.orEmpty(),
                     workMode = workModeToLabel(updatedOffer?.workMode),
                     duration = updatedOffer?.duration.orEmpty(),

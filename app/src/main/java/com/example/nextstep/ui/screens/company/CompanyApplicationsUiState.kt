@@ -5,7 +5,7 @@ import com.example.nextstep.data.model.CompanyApplicationDto
 
 data class CompanyApplicationsUiState(
     val applications: List<CompanyApplicationDto> = emptyList(),
-    val selectedFilter: CompanyApplicationFilter = CompanyApplicationFilter.ALL,
+    val selectedFilter: ApplicationStatusFilter = ApplicationStatusFilter.ALL,
     val isLoading: Boolean = true,
     @StringRes val errorMessageRes: Int? = null
 )

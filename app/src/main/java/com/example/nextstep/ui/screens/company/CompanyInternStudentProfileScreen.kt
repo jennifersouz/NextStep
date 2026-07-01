@@ -31,8 +31,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Tab
@@ -61,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyAdvisorEvaluationDto
+import com.example.nextstep.ui.screens.admin.AppFilterDropdown
 import com.example.nextstep.data.model.CompanyEvaluationDto
 import com.example.nextstep.data.model.CompanyInternStudentProfileDto
 import com.example.nextstep.data.model.CompanyStudentActivityDto
@@ -573,14 +572,14 @@ private fun SummaryTab(
             InternProfileSectionCard(title = stringResource(R.string.company_intern_profile_academic_data)) {
                 InternProfileInfoRow(label = stringResource(R.string.student_number), value = profile.studentNumber)
                 InternProfileInfoRow(label = stringResource(R.string.course), value = profile.course)
-                InternProfileInfoRow(label = stringResource(R.string.year), value = profile.academicYear?.toString())
+                InternProfileInfoRow(label = stringResource(R.string.academic_year), value = profile.academicYear?.toString())
                 InternProfileInfoRow(label = stringResource(R.string.education_institution), value = profile.educationInstitution)
             }
         }
         item {
             InternProfileSectionCard(title = stringResource(R.string.company_intern_profile_internship)) {
                 InternProfileInfoRow(label = stringResource(R.string.offer), value = profile.offerTitle)
-                InternProfileInfoRow(label = stringResource(R.string.offer_area), value = profile.offerArea)
+                InternProfileInfoRow(label = stringResource(R.string.offer_area), value = Formatters.formatOfferArea(profile.offerArea))
                 InternProfileInfoRow(label = stringResource(R.string.location), value = profile.offerLocation)
                 InternProfileInfoRow(label = stringResource(R.string.offer_work_mode), value = Formatters.formatWorkMode(profile.offerWorkMode))
                 InternProfileInfoRow(label = stringResource(R.string.status), value = statusText)
@@ -702,26 +701,19 @@ private fun ActivitiesTab(
     selectedActivityFilter: CompanyActivityFilter,
     onActivityFilterChange: (CompanyActivityFilter) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Spacer(modifier = Modifier.height(16.dp))
+
         Text(text = stringResource(R.string.company_intern_activities_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-        Spacer(modifier = Modifier.height(12.dp))
 
-        // Filter chips
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val filters = listOf(
-                CompanyActivityFilter.ALL to stringResource(R.string.company_intern_filter_all),
-                CompanyActivityFilter.PENDING to stringResource(R.string.company_intern_filter_pending),
-                CompanyActivityFilter.IN_PROGRESS to stringResource(R.string.company_intern_filter_in_progress),
-                CompanyActivityFilter.COMPLETED to stringResource(R.string.company_intern_filter_completed)
-            )
-            filters.forEach { (filter, label) ->
-                FilterChip(selected = selectedActivityFilter == filter, onClick = { onActivityFilterChange(filter) }, label = { Text(text = label, fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFFFDFA52), selectedLabelColor = Color.Black, containerColor = Color(0xFFF0F0F0), labelColor = Color(0xFF555555)))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
+        AppFilterDropdown(
+            label = stringResource(R.string.filter_status),
+            selectedOption = stringResource(selectedActivityFilter.labelRes()),
+            options = CompanyActivityFilter.entries,
+            optionLabel = { stringResource(it.labelRes()) },
+            onOptionSelected = onActivityFilterChange,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         when {
             isLoadingActivities -> {
@@ -832,7 +824,7 @@ private fun EvaluationTab(
 ) {
     val status = internshipStatus?.trim()?.lowercase()
     val isBlockedStatus = status in setOf("pending", "rejected", "cancelled")
-    val isActiveStatus = status in setOf("accepted", "active", "in_progress")
+    val isCompleted = status == "completed"
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 26.dp),
@@ -899,8 +891,8 @@ private fun EvaluationTab(
                 }
             }
             else -> {
-                item {
-                    if (isActiveStatus) {
+                if (!isCompleted) {
+                    item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
@@ -934,6 +926,7 @@ private fun EvaluationTab(
                         onRecommendationChange = onCompanyEvaluationRecommendationChange,
                         gradeErrorRes = companyEvaluationGradeErrorRes,
                         feedbackErrorRes = companyEvaluationFeedbackErrorRes,
+                        isEditable = isCompleted,
                         onSave = onSaveCompanyEvaluation,
                         onConsumeMessages = onConsumeCompanyEvaluationMessages
                     )
@@ -1007,6 +1000,7 @@ private fun CompanyEvaluationSection(
     onRecommendationChange: (String) -> Unit,
     gradeErrorRes: Int?,
     feedbackErrorRes: Int?,
+    isEditable: Boolean = true,
     onSave: () -> Unit,
     onConsumeMessages: () -> Unit
 ) {
@@ -1043,6 +1037,7 @@ private fun CompanyEvaluationSection(
                 isError = gradeErrorRes != null,
                 supportingText = gradeErrorRes?.let { { Text(stringResource(it), color = Color(0xFFB00020)) } },
                 singleLine = true,
+                enabled = isEditable,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -1056,6 +1051,7 @@ private fun CompanyEvaluationSection(
                 supportingText = feedbackErrorRes?.let { { Text(stringResource(it), color = Color(0xFFB00020)) } },
                 minLines = 3,
                 maxLines = 5,
+                enabled = isEditable,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -1067,6 +1063,7 @@ private fun CompanyEvaluationSection(
                 label = { Text(stringResource(R.string.company_intern_evaluation_strengths)) },
                 minLines = 2,
                 maxLines = 4,
+                enabled = isEditable,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -1078,6 +1075,7 @@ private fun CompanyEvaluationSection(
                 label = { Text(stringResource(R.string.company_intern_evaluation_improvements)) },
                 minLines = 2,
                 maxLines = 4,
+                enabled = isEditable,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -1089,6 +1087,7 @@ private fun CompanyEvaluationSection(
                 label = { Text(stringResource(R.string.company_evaluation_recommendation_label)) },
                 minLines = 2,
                 maxLines = 4,
+                enabled = isEditable,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -1106,21 +1105,23 @@ private fun CompanyEvaluationSection(
             }
 
             // Save button
-            Button(
-                onClick = onSave,
-                enabled = !isSaving,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-            ) {
-                if (isSaving) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
-                } else {
-                    Text(
-                        text = if (existingEvaluation != null) stringResource(R.string.company_evaluation_update_button) else stringResource(R.string.company_evaluation_save_button),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+            if (isEditable) {
+                Button(
+                    onClick = onSave,
+                    enabled = !isSaving,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    if (isSaving) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                    } else {
+                        Text(
+                            text = if (existingEvaluation != null) stringResource(R.string.company_evaluation_update_button) else stringResource(R.string.company_evaluation_save_button),
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

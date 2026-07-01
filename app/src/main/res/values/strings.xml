@@ -161,7 +161,6 @@
     <string name="company_create_offer_placeholder">Aqui vais poder publicar uma nova oferta de estágio.</string>
 
     <string name="company_team_title">Equipa</string>
-    <string name="company_team_placeholder">Aqui vais poder gerir orientadores e utilizadores da empresa.</string>
 
     <string name="company_profile_title">Perfil</string>
     <string name="company_profile_placeholder">Aqui vais poder consultar e editar os dados da empresa.</string>
@@ -222,8 +221,8 @@
     <string name="offer_duration">Duração</string>
     <string name="offer_vacancies">Vagas</string>
     <string name="offer_vacancies_value">%1$d vagas</string>
-    <string name="vacancy_count">%1$d vaga</string>
-    <string name="duration_months">Duração: %1$d meses</string>
+    <string name="vacancy_count">1 vaga</string>
+    <string name="duration_months">%1$d meses</string>
     <string name="offer_requirements">Requisitos</string>
     <string name="applying">A candidatar...</string>
     <string name="applied_button">Candidatura enviada</string>
@@ -376,6 +375,10 @@
     <string name="filter_with_advisor">Com orientador</string>
     <string name="filter_rejected">Recusadas</string>
     <string name="no_applications_for_filter">Não existem candidaturas neste filtro.</string>
+    <string name="filter_status">Estado</string>
+    <string name="application_filter_to_review">Por ver</string>
+    <string name="application_filter_waiting_student">A aguardar aluno</string>
+    <string name="application_filter_with_advisor">Com orientador</string>
     <string name="status_unread">Por ver</string>
     <string name="status_pending">Pendente</string>
     <string name="status_waiting_student_acceptance">A aguardar aluno</string>
@@ -393,6 +396,9 @@
     <string name="area_it">Informática</string>
     <string name="area_marketing">Marketing</string>
     <string name="area_other">Outra</string>
+    <string name="area_mobile">Programação móvel</string>
+    <string name="area_software">Software</string>
+    <string name="area_not_defined">Não definida</string>
     <string name="write_message">Escreve uma mensagem...</string>
     <string name="send_message">Enviar mensagem</string>
     <string name="chat_empty">Ainda não existem mensagens nesta candidatura.</string>
@@ -487,8 +493,8 @@
     <string name="student">Aluno</string>
     <string name="student_number">Número de aluno</string>
     <string name="course">Curso</string>
-    <string name="academic_year">Ano académico</string>
-    <string name="year">Year</string>
+    <string name="academic_year">Ano</string>
+    <string name="year">Ano</string>
     <string name="city">Cidade</string>
     <string name="country">País</string>
     <string name="application">Candidatura</string>
@@ -900,10 +906,12 @@
     <string name="mark_as_active">Marcar como ativo</string>
     <string name="internship_completed">Estágio concluído</string>
     <string name="employees">Funcionários</string>
+    <string name="interns">Estagiários</string>
     <string name="add_employee">Adicionar funcionário</string>
     <string name="employee_register_title">Registo de funcionário</string>
     <string name="employee_register_description">Para criares uma conta como funcionário, a empresa deve ter criado previamente um convite com este email.</string>
     <string name="no_employees">Ainda não existem funcionários.</string>
+    <string name="add_employees_description">Adicione funcionários à sua equipa.</string>
     <string name="send_employee_invite">Enviar convite</string>
     <string name="employee_invite_description">O funcionário receberá/terá de usar este email para criar a própria conta na aplicação.</string>
     <string name="employee_invite_created">Convite criado. O funcionário deve criar conta com este email.</string>
@@ -1263,4 +1271,14 @@
     <string name="internship_status_inactive">Inativo</string>
     <string name="internship_status_cancelled">Cancelado</string>
     <string name="internship_status_unknown">Desconhecido</string>
+
+    <!-- Company Offer Detail -->
+    <string name="general_information">Informações gerais</string>
+    <string name="no_description">Sem descrição.</string>
+    <string name="no_requirements">Sem requisitos.</string>
+    <string name="duration_month">1 mês</string>
+    <string name="vacancies_count">%1$d vagas</string>
+    <string name="active_offer">Oferta ativa</string>
+    <string name="inactive_offer">Oferta inativa</string>
+    <string name="archived_offer">Oferta arquivada</string>
 </resources>

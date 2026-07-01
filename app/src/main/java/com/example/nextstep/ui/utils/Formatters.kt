@@ -75,33 +75,30 @@ object Formatters {
     }
 
     /**
+      * Returns the string resource ID for an offer area technical value.
+      * Use with stringResource(formatOfferAreaRes(...)) for Composable contexts.
+      */
+    fun formatOfferAreaRes(area: String?): Int {
+        return when (area?.trim()?.lowercase()) {
+            "mobile" -> R.string.area_mobile
+            "software" -> R.string.area_software
+            "management", "gestão", "gestao" -> R.string.area_management
+            "design" -> R.string.area_design
+            "marketing" -> R.string.area_marketing
+            "data", "dados" -> R.string.area_data
+            "finance", "finanças", "financas" -> R.string.area_finance
+            "other", "outro", "outra" -> R.string.area_other
+            else -> R.string.area_not_defined
+        }
+    }
+
+    /**
       * Formats offer business area according to the current locale.
-      * Supports controlled codes (management, automotive, etc.) and legacy PT values.
-      * For unmapped free-text values, returns the original text unchanged.
+      * Supports controlled codes (management, design, etc.) and legacy PT values.
       */
     @Composable
     fun formatOfferArea(value: String?): String {
-        return when (value?.trim()?.lowercase()) {
-            "consulting", "consultoria" -> stringResource(R.string.area_consulting)
-            "automotive", "automotiva", "automóvel", "automovel" -> stringResource(R.string.area_automotive)
-            "food", "alimentos", "alimentação", "alimentacao" -> stringResource(R.string.area_food)
-            "energy", "energia", "combustível", "combustivel" -> stringResource(R.string.area_energy)
-            "technology", "tecnologia" -> stringResource(R.string.area_technology)
-            "design" -> stringResource(R.string.offer_area_design)
-            "management", "gestão", "gestao" -> stringResource(R.string.offer_area_management)
-            "data", "dados" -> stringResource(R.string.offer_area_data)
-            "health", "saúde", "saude" -> stringResource(R.string.area_health)
-            "education", "educação", "educacao" -> stringResource(R.string.area_education)
-            "finance", "finanças", "financas" -> stringResource(R.string.area_finance)
-            "mobile" -> stringResource(R.string.offer_area_mobile)
-            "web" -> stringResource(R.string.offer_area_web)
-            "ai" -> stringResource(R.string.offer_area_ai)
-            "cybersecurity" -> stringResource(R.string.offer_area_cybersecurity)
-            "marketing" -> stringResource(R.string.area_marketing)
-            "software" -> stringResource(R.string.area_it)
-            null, "" -> ""
-            else -> value // Free text, return as-is
-        }
+        return stringResource(formatOfferAreaRes(value))
     }
 
     /**

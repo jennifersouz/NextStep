@@ -42,7 +42,6 @@ fun CompanyDashboardScreen(
     onApplicationClick: (String) -> Unit = {},
     onInternStudentClick: (String) -> Unit = {},
     onInternMessageClick: (String) -> Unit = {},
-    onAdvisorsClick: () -> Unit = {},
     onAddEmployeeClick: () -> Unit = {},
     onLogoutSuccess: () -> Unit = {},
     viewModel: CompanyDashboardViewModel = viewModel()
@@ -129,8 +128,7 @@ fun CompanyDashboardScreen(
                                     onSuccess = onLogoutSuccess
                                 )
                             },
-                            onOfferClick = onOfferClick,
-                            onAdvisorsClick = onAdvisorsClick
+                            onOfferClick = onOfferClick
                         )
                     }
                 }

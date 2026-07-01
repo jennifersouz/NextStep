@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.company
 
 import androidx.annotation.StringRes
+import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyAdvisorEvaluationDto
 import com.example.nextstep.data.model.CompanyEvaluationDto
 import com.example.nextstep.data.model.CompanyInternStudentProfileDto
@@ -17,6 +18,15 @@ enum class CompanyActivityFilter {
     PENDING,
     IN_PROGRESS,
     COMPLETED
+}
+
+fun CompanyActivityFilter.labelRes(): Int {
+    return when (this) {
+        CompanyActivityFilter.ALL -> R.string.company_intern_filter_all
+        CompanyActivityFilter.PENDING -> R.string.company_intern_filter_pending
+        CompanyActivityFilter.IN_PROGRESS -> R.string.company_intern_filter_in_progress
+        CompanyActivityFilter.COMPLETED -> R.string.company_intern_filter_completed
+    }
 }
 
 data class CompanyInternStudentProfileUiState(

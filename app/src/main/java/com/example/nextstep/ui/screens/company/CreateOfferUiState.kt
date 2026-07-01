@@ -14,6 +14,9 @@ enum class OfferArea(
     DATA("data", R.string.offer_area_data),
     DESIGN("design", R.string.offer_area_design),
     MANAGEMENT("management", R.string.offer_area_management),
+    SOFTWARE("software", R.string.area_software),
+    MARKETING("marketing", R.string.area_marketing),
+    FINANCE("finance", R.string.area_finance),
     OTHER("other", R.string.offer_area_other)
 }
 

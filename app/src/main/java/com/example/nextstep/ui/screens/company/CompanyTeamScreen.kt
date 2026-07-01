@@ -93,14 +93,14 @@ private fun CompanyTeamTabRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         CompanyTeamTabItem(
-            text = "Funcionários",
+            text = stringResource(R.string.employees),
             isSelected = selectedTab == CompanyTeamTab.EMPLOYEES,
             onClick = { onTabSelected(CompanyTeamTab.EMPLOYEES) },
             modifier = Modifier.weight(1f)
         )
 
         CompanyTeamTabItem(
-            text = "Estagiários",
+            text = stringResource(R.string.interns),
             isSelected = selectedTab == CompanyTeamTab.INTERNS,
             onClick = { onTabSelected(CompanyTeamTab.INTERNS) },
             modifier = Modifier.weight(1f)
