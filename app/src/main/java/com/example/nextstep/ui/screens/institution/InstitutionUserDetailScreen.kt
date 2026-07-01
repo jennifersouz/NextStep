@@ -81,8 +81,8 @@ fun InstitutionUserDetailScreen(
                     }
                 }
 
-                state.errorMessage != null && state.userDetail == null -> {
-                    InstitutionUserDetailErrorState(message = state.errorMessage!!)
+                state.errorMessageRes != null && state.userDetail == null -> {
+                    InstitutionUserDetailErrorState(message = stringResource(state.errorMessageRes!!))
                 }
 
                 state.userDetail != null -> {

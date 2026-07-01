@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +26,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,9 +77,19 @@ fun AdminCreateUserScreen(
         "admin" to stringResource(R.string.role_admin)
     )
 
+    LaunchedEffect(Unit) {
+        viewModel.loadCompanies()
+    }
+
     LaunchedEffect(state.isCreated) {
         if (state.isCreated) {
             onUserCreated()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearCreationState()
         }
     }
 
@@ -101,17 +116,21 @@ fun AdminCreateUserScreen(
                         .imePadding()
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
-                    if (state.generalErrorMessage != null) {
+                    val generalErrorText = state.generalErrorMessage
+                        ?: state.generalErrorMessageRes?.let { stringResource(it) }
+                    if (generalErrorText != null) {
                         Text(
-                            text = state.generalErrorMessage!!,
+                            text = generalErrorText,
                             color = Color(0xFFB00020),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }
-                    if (state.successMessage != null) {
+                    val successText = state.successMessage
+                        ?: state.successMessageRes?.let { stringResource(it) }
+                    if (successText != null) {
                         Text(
-                            text = state.successMessage!!,
+                            text = successText,
                             color = Color(0xFF2E7D32),
                             fontSize = 14.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -157,31 +176,35 @@ fun AdminCreateUserScreen(
 
             // ── Tipo de utilizador ───────────────────────────────────────────
             Text(stringResource(R.string.user_type_required), fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Box {
+            ExposedDropdownMenuBox(
+                expanded = roleMenuExpanded,
+                onExpandedChange = { roleMenuExpanded = !roleMenuExpanded },
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 OutlinedTextField(
                     value = roleOptions.find { it.first == state.selectedRole }?.second ?: "",
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { roleMenuExpanded = true },
-                    enabled = false,
-                    trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth(),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleMenuExpanded) },
                     isError = state.roleError != null,
                     supportingText = state.roleError?.let {
-                        { Text(it, color = Color(0xFFB00020)) }
+                        { Text(stringResource(it), color = Color(0xFFB00020)) }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.Black,
-                        disabledBorderColor = if (state.roleError != null)
+                        unfocusedTextColor = Color.Black,
+                        unfocusedBorderColor = if (state.roleError != null)
                             Color(0xFFB00020) else Color(0xFFEDEDED),
-                        disabledTrailingIconColor = Color.Black
+                        unfocusedTrailingIconColor = Color.Black
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                DropdownMenu(
+                ExposedDropdownMenu(
                     expanded = roleMenuExpanded,
-                    onDismissRequest = { roleMenuExpanded = false }
+                    onDismissRequest = { roleMenuExpanded = false },
+                    modifier = Modifier.heightIn(max = 240.dp)
                 ) {
                     roleOptions.forEach { (value, label) ->
                         DropdownMenuItem(
@@ -202,7 +225,7 @@ fun AdminCreateUserScreen(
                 label = { Text(stringResource(R.string.email_required)) },
                 isError = state.emailError != null,
                 supportingText = state.emailError?.let {
-                    { Text(it, color = Color(0xFFB00020)) }
+                    { Text(stringResource(it), color = Color(0xFFB00020)) }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -216,7 +239,7 @@ fun AdminCreateUserScreen(
                 label = { Text(stringResource(R.string.temporary_password_label)) },
                 isError = state.passwordError != null,
                 supportingText = state.passwordError?.let {
-                    { Text(it, color = Color(0xFFB00020)) }
+                    { Text(stringResource(it), color = Color(0xFFB00020)) }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -254,7 +277,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -266,7 +289,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -275,10 +298,10 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.studentNumber,
                         onValueChange = viewModel::onStudentNumberChange,
-                        label = { Text(stringResource(R.string.student_number_label)) },
+                        label = { Text(stringResource(R.string.student_number_required)) },
                         isError = state.studentNumberError != null,
                         supportingText = state.studentNumberError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -290,7 +313,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.course_required)) },
                         isError = state.courseError != null,
                         supportingText = state.courseError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -299,23 +322,84 @@ fun AdminCreateUserScreen(
                     OutlinedTextField(
                         value = state.academicYear,
                         onValueChange = viewModel::onAcademicYearChange,
-                        label = { Text(stringResource(R.string.academic_year_label)) },
+                        label = { Text(stringResource(R.string.academic_year_required)) },
                         isError = state.academicYearError != null,
                         supportingText = state.academicYearError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
-                    OutlinedTextField(
-                        value = state.educationInstitution,
-                        onValueChange = viewModel::onEducationInstitutionChange,
-                        label = { Text(stringResource(R.string.education_institution)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true
+                    // ── Instituição de Ensino (dropdown) ─────────────────────
+                    Text(
+                        stringResource(R.string.select_education_institution),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
                     )
+                    if (state.isLoadingInstitutions) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(vertical = 8.dp),
+                            color = Color.Gray
+                        )
+                    } else if (state.institutionsLoaded && state.availableInstitutions.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_institutions_available),
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    } else {
+                        val selectedInstitution = state.availableInstitutions.find {
+                            it.id == state.selectedStudentInstitutionId
+                        }
+                        val institutionLabel = selectedInstitution?.displayName ?: ""
+
+                        ExposedDropdownMenuBox(
+                            expanded = institutionMenuExpanded,
+                            onExpandedChange = { institutionMenuExpanded = !institutionMenuExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = institutionLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                                    .fillMaxWidth(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = institutionMenuExpanded) },
+                                isError = state.studentInstitutionError != null,
+                                supportingText = state.studentInstitutionError?.let {
+                                    { Text(stringResource(it), color = Color(0xFFB00020)) }
+                                },
+                                placeholder = { Text(stringResource(R.string.select_institution_placeholder)) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedTextColor = Color.Black,
+                                    unfocusedBorderColor = if (state.studentInstitutionError != null)
+                                        Color(0xFFB00020) else Color(0xFFEDEDED),
+                                    unfocusedTrailingIconColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = institutionMenuExpanded,
+                                onDismissRequest = { institutionMenuExpanded = false },
+                                modifier = Modifier.heightIn(max = 240.dp)
+                            ) {
+                                state.availableInstitutions.forEach { institution ->
+                                    DropdownMenuItem(
+                                        text = { Text(institution.displayName) },
+                                        onClick = {
+                                            viewModel.onStudentInstitutionSelected(institution.id, institution.displayName)
+                                            institutionMenuExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 "teacher" -> {
@@ -325,7 +409,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -337,7 +421,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -365,7 +449,7 @@ fun AdminCreateUserScreen(
                                 .padding(vertical = 8.dp),
                             color = Color.Gray
                         )
-                    } else if (state.availableInstitutions.isEmpty()) {
+                    } else if (state.institutionsLoaded && state.availableInstitutions.isEmpty()) {
                         Text(
                             text = stringResource(R.string.no_institutions_available),
                             color = Color(0xFFB00020),
@@ -378,32 +462,36 @@ fun AdminCreateUserScreen(
                         }
                         val institutionLabel = selectedInstitution?.displayName ?: ""
 
-                        Box {
+                        ExposedDropdownMenuBox(
+                            expanded = institutionMenuExpanded,
+                            onExpandedChange = { institutionMenuExpanded = !institutionMenuExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             OutlinedTextField(
                                 value = institutionLabel,
                                 onValueChange = {},
                                 readOnly = true,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { institutionMenuExpanded = true },
-                                enabled = false,
-                                trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                                    .fillMaxWidth(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = institutionMenuExpanded) },
                                 isError = state.institutionError != null,
                                 supportingText = state.institutionError?.let {
-                                    { Text(it, color = Color(0xFFB00020)) }
+                                    { Text(stringResource(it), color = Color(0xFFB00020)) }
                                 },
                                 placeholder = { Text(stringResource(R.string.select_institution_placeholder)) },
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    disabledTextColor = Color.Black,
-                                    disabledBorderColor = if (state.institutionError != null)
+                                    unfocusedTextColor = Color.Black,
+                                    unfocusedBorderColor = if (state.institutionError != null)
                                         Color(0xFFB00020) else Color(0xFFEDEDED),
-                                    disabledTrailingIconColor = Color.Black
+                                    unfocusedTrailingIconColor = Color.Black
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
-                            DropdownMenu(
+                            ExposedDropdownMenu(
                                 expanded = institutionMenuExpanded,
-                                onDismissRequest = { institutionMenuExpanded = false }
+                                onDismissRequest = { institutionMenuExpanded = false },
+                                modifier = Modifier.heightIn(max = 240.dp)
                             ) {
                                 state.availableInstitutions.forEach { institution ->
                                     DropdownMenuItem(
@@ -426,7 +514,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.company_name_required)) },
                         isError = state.companyNameError != null,
                         supportingText = state.companyNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -438,7 +526,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.nif_required)) },
                         isError = state.nifError != null,
                         supportingText = state.nifError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -450,7 +538,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.business_area)) },
                         isError = state.businessAreaError != null,
                         supportingText = state.businessAreaError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -462,7 +550,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.location_required)) },
                         isError = state.locationError != null,
                         supportingText = state.locationError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -485,7 +573,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -497,7 +585,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -535,39 +623,43 @@ fun AdminCreateUserScreen(
                     } else {
                         var companyMenuExpanded by remember { mutableStateOf(false) }
 
-                        Box {
+                        ExposedDropdownMenuBox(
+                            expanded = companyMenuExpanded,
+                            onExpandedChange = { companyMenuExpanded = !companyMenuExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             OutlinedTextField(
                                 value = state.selectedCompanyName ?: "",
                                 onValueChange = {},
                                 readOnly = true,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { companyMenuExpanded = true },
-                                enabled = false,
-                                trailingIcon = { Icon(Icons.Default.KeyboardArrowDown, null) },
-                                isError = state.companyError != null,
-                                supportingText = state.companyError?.let {
-                                    { Text(it, color = Color(0xFFB00020)) }
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                                    .fillMaxWidth(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = companyMenuExpanded) },
+                                isError = state.companyErrorRes != null,
+                                supportingText = state.companyErrorRes?.let {
+                                    { Text(stringResource(it), color = Color(0xFFB00020)) }
                                 },
                                 placeholder = { Text(stringResource(R.string.select_company_placeholder)) },
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    disabledTextColor = Color.Black,
-                                    disabledBorderColor = if (state.companyError != null)
+                                    unfocusedTextColor = Color.Black,
+                                    unfocusedBorderColor = if (state.companyErrorRes != null)
                                         Color(0xFFB00020) else Color(0xFFEDEDED),
-                                    disabledTrailingIconColor = Color.Black
+                                    unfocusedTrailingIconColor = Color.Black
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
-                            DropdownMenu(
+                            ExposedDropdownMenu(
                                 expanded = companyMenuExpanded,
-                                onDismissRequest = { companyMenuExpanded = false }
+                                onDismissRequest = { companyMenuExpanded = false },
+                                modifier = Modifier.heightIn(max = 240.dp)
                             ) {
                                 state.availableCompanies.forEach { company ->
                                     DropdownMenuItem(
                                         text = { Text(company.companyName) },
                                         onClick = {
                                             viewModel.onCompanyChange(
-                                                company.companyProfileId,
+                                                company.effectiveId,
                                                 company.companyName
                                             )
                                             companyMenuExpanded = false
@@ -586,7 +678,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.institution_name_required)) },
                         isError = state.institutionNameError != null,
                         supportingText = state.institutionNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -601,7 +693,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.name_required)) },
                         isError = state.firstNameError != null,
                         supportingText = state.firstNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -613,7 +705,7 @@ fun AdminCreateUserScreen(
                         label = { Text(stringResource(R.string.last_name_required)) },
                         isError = state.lastNameError != null,
                         supportingText = state.lastNameError?.let {
-                            { Text(it, color = Color(0xFFB00020)) }
+                            { Text(stringResource(it), color = Color(0xFFB00020)) }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),

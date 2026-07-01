@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,17 +48,18 @@ fun AddCompanyEmployeeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            snackbarHostState.showSnackbar("Convite criado. O funcionário deve criar conta com este email.")
+            snackbarHostState.showSnackbar(context.getString(R.string.employee_invite_created))
             onSuccess()
         }
     }
 
-    LaunchedEffect(state.errorMessage) {
-        state.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+    LaunchedEffect(state.errorMessageRes) {
+        state.errorMessageRes?.let { res ->
+            snackbarHostState.showSnackbar(context.getString(res))
             viewModel.clearError()
         }
     }
@@ -94,7 +96,7 @@ fun AddCompanyEmployeeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Adicionar Funcionário",
+                text = stringResource(R.string.add_employee),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -103,7 +105,7 @@ fun AddCompanyEmployeeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Email do convite",
+                text = stringResource(R.string.invite_email),
                 fontSize = 17.sp,
                 color = Color.Black
             )
@@ -115,7 +117,7 @@ fun AddCompanyEmployeeScreen(
                 onValueChange = viewModel::onEmailChange,
                 placeholder = {
                     Text(
-                        text = "Insira o email do funcionário",
+                        text = stringResource(R.string.employee_email_placeholder),
                         color = Color(0xFF8A8A8A)
                     )
                 },
@@ -160,9 +162,9 @@ fun AddCompanyEmployeeScreen(
             ) {
                 Text(
                     text = if (state.isLoading) {
-                        "A enviar..."
+                        stringResource(R.string.sending)
                     } else {
-                        "Enviar convite"
+                        stringResource(R.string.send_employee_invite)
                     },
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold

@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,6 +55,7 @@ fun InstitutionStudentDetailScreen(
     viewModel: InstitutionStudentDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showArchiveDialog by remember { mutableStateOf(false) }
 
@@ -61,17 +63,17 @@ fun InstitutionStudentDetailScreen(
         viewModel.loadStudentDetail(studentProfileId)
     }
 
-    LaunchedEffect(state.successMessage) {
-        state.successMessage?.let {
-            snackbarHostState.showSnackbar(it)
+    LaunchedEffect(state.successMessageRes) {
+        state.successMessageRes?.let { res ->
+            snackbarHostState.showSnackbar(context.getString(res))
             viewModel.clearMessages()
         }
     }
 
-    LaunchedEffect(state.errorMessage) {
-        state.errorMessage?.let {
+    LaunchedEffect(state.errorMessageRes) {
+        state.errorMessageRes?.let { res ->
             if (state.student != null) {
-                snackbarHostState.showSnackbar(it)
+                snackbarHostState.showSnackbar(context.getString(res))
                 viewModel.clearMessages()
             }
         }
@@ -100,9 +102,9 @@ fun InstitutionStudentDetailScreen(
                     }
                 }
 
-                state.errorMessage != null && state.student == null -> {
+                state.errorMessageRes != null && state.student == null -> {
                     InstitutionStudentDetailErrorState(
-                        message = state.errorMessage!!,
+                        message = stringResource(state.errorMessageRes!!),
                         onRetryClick = { viewModel.loadStudentDetail(studentProfileId) }
                     )
                 }

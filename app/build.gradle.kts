@@ -24,7 +24,7 @@ android {
     defaultConfig {
         applicationId = "com.example.nextstep"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -54,8 +54,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -87,8 +87,7 @@ dependencies {
     implementation(libs.supabase.realtime)
     implementation(libs.supabase.storage)
     implementation(libs.supabase.functions)
-    implementation("io.github.jan-tennert.supabase:realtime-kt")
-    implementation("io.ktor:ktor-client-okhttp:3.0.0")
+    implementation(libs.ktor.client.android)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

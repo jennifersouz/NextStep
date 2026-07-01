@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.student
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.repository.StudentInternshipsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +24,7 @@ class StudentInternshipsViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessageRes = null
             )
 
             val result = repository.getStudentInternships()
@@ -47,7 +48,7 @@ class StudentInternshipsViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar os estágios. Tente novamente."
+                    errorMessageRes = R.string.company_internships_load_error
                 )
             }
         }

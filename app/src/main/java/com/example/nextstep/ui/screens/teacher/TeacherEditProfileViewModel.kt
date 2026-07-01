@@ -65,7 +65,7 @@ class TeacherEditProfileViewModel : ViewModel() {
 
         if (state.name.isBlank()) {
             _uiState.value = _uiState.value.copy(
-                nameError = "O nome é obrigatório."
+                nameError = R.string.error_name_required_generic
             )
             return
         }

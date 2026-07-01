@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.company
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -22,7 +23,7 @@ class AddCompanyEmployeeViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             email = cleanedValue,
             emailError = null,
-            errorMessage = null
+            errorMessageRes = null
         )
     }
 
@@ -33,13 +34,13 @@ class AddCompanyEmployeeViewModel : ViewModel() {
 
         _uiState.value = state.copy(
             emailError = emailError,
-            errorMessage = if (emailError != null) "Corrija os campos assinalados antes de continuar." else null
+            errorMessageRes = if (emailError != null) R.string.form_has_errors else null
         )
 
         if (emailError != null) return
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageRes = null)
 
             val result = repository.createInvite(email = state.email)
 
@@ -49,14 +50,14 @@ class AddCompanyEmployeeViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível criar o convite. Tente novamente."
+                    errorMessageRes = R.string.employee_create_error
                 )
             }
         }
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
+        _uiState.value = _uiState.value.copy(errorMessageRes = null)
     }
 
     private fun validateEmail(value: String): Int? {
@@ -71,7 +72,7 @@ class AddCompanyEmployeeViewModel : ViewModel() {
 data class AddCompanyEmployeeUiState(
     val email: String = "",
     val emailError: Int? = null,
-    val errorMessage: String? = null,
+    @StringRes val errorMessageRes: Int? = null,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false
 )

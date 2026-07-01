@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
 import com.example.nextstep.data.repository.AdminUsersRepository
@@ -9,6 +10,48 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+enum class UserTypeFilter {
+    ALL,
+    STUDENTS,
+    TEACHERS,
+    COMPANIES,
+    ADVISORS,
+    INSTITUTIONS,
+    ADMINISTRATORS
+}
+
+enum class UserStatusFilter {
+    ALL,
+    ACTIVE,
+    INACTIVE,
+    ARCHIVED,
+    PENDING,
+    ACCEPTED
+}
+
+fun UserTypeFilter.labelRes(): Int {
+    return when (this) {
+        UserTypeFilter.ALL -> R.string.filter_all_masc
+        UserTypeFilter.STUDENTS -> R.string.tab_students
+        UserTypeFilter.TEACHERS -> R.string.tab_teachers
+        UserTypeFilter.COMPANIES -> R.string.companies_label
+        UserTypeFilter.ADVISORS -> R.string.user_type_advisors
+        UserTypeFilter.INSTITUTIONS -> R.string.user_type_institutions
+        UserTypeFilter.ADMINISTRATORS -> R.string.user_type_admins
+    }
+}
+
+fun UserStatusFilter.labelRes(): Int {
+    return when (this) {
+        UserStatusFilter.ALL -> R.string.filter_all_masc
+        UserStatusFilter.ACTIVE -> R.string.filter_active
+        UserStatusFilter.INACTIVE -> R.string.filter_inactive
+        UserStatusFilter.ARCHIVED -> R.string.filter_archived
+        UserStatusFilter.PENDING -> R.string.filter_pending
+        UserStatusFilter.ACCEPTED -> R.string.filter_accepted
+    }
+}
 
 class AdminUsersViewModel : ViewModel() {
 
@@ -41,7 +84,7 @@ class AdminUsersViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar os utilizadores."
+                    errorMessageRes = R.string.error_could_not_load_users
                 )
             }
         }
@@ -60,12 +103,12 @@ class AdminUsersViewModel : ViewModel() {
         applyFiltersAndSearch()
     }
 
-    fun onTypeFilterChange(type: String) {
+    fun onTypeFilterChange(type: UserTypeFilter) {
         _uiState.value = _uiState.value.copy(selectedTypeFilter = type)
         applyFiltersAndSearch()
     }
 
-    fun onStatusFilterChange(status: String) {
+    fun onStatusFilterChange(status: UserStatusFilter) {
         _uiState.value = _uiState.value.copy(selectedStatusFilter = status)
         applyFiltersAndSearch()
     }
@@ -78,32 +121,49 @@ class AdminUsersViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Utilizador atualizado com sucesso."
+                    successMessageRes = R.string.user_updated_success
                 )
                 loadUsers()
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível atualizar o utilizador."
+                    errorMessageRes = mapGenericError(result.exceptionOrNull()?.message)
                 )
             }
         }
     }
 
-    fun setUserActive(userId: String, isActive: Boolean) {
+    fun toggleUserActive(userId: String, active: Boolean) {
         viewModelScope.launch {
-            val result = repository.deactivateUser(userId) // deprecated in favor of detail VM, kept for backwards compat
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            val result = if (active) {
+                repository.reactivateUser(userId)
+            } else {
+                repository.deactivateUser(userId)
+            }
 
             if (result.isSuccess) {
+                val updatedUser = repository.getUserById(userId).getOrNull()
+                val users = _uiState.value.users.map {
+                    if (it.id == userId) (updatedUser ?: it) else it
+                }
+
                 _uiState.value = _uiState.value.copy(
-                    successMessage = if (isActive) "Conta ativada com sucesso." else "Conta desativada com sucesso."
+                    users = users,
+                    filteredUsers = applyFilter(users),
+                    selectedUser = updatedUser ?: _uiState.value.selectedUser,
+                    isLoading = false,
+                    successMessageRes = if (active) {
+                        R.string.user_reactivated_success
+                    } else {
+                        R.string.user_deactivated_success
+                    }
                 )
-                loadUsers()
             } else {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível alterar o estado da conta."
+                    isLoading = false,
+                    errorMessageRes = R.string.error_could_not_update_user_status
                 )
             }
         }
@@ -115,14 +175,13 @@ class AdminUsersViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Utilizador desativado com sucesso.",
+                    successMessageRes = R.string.user_deleted_success,
                     selectedUser = null
                 )
                 loadUsers()
             } else {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível remover o utilizador."
+                    errorMessageRes = mapGenericError(result.exceptionOrNull()?.message)
                 )
             }
         }
@@ -153,29 +212,42 @@ class AdminUsersViewModel : ViewModel() {
         )
     }
 
+    private fun mapGenericError(message: String?): Int {
+        val normalized = message.orEmpty().lowercase()
+        return when {
+            "already exists" in normalized || "duplicate" in normalized ->
+                R.string.error_email_already_exists
+            "not found" in normalized ->
+                R.string.error_user_not_found
+            "permission" in normalized || "unauthorized" in normalized ->
+                R.string.error_could_not_update_user_status
+            else ->
+                R.string.error_could_not_update_user
+        }
+    }
+
     private fun applyFilter(users: List<AdminProfileDto>): List<AdminProfileDto> {
         val state = _uiState.value
-        val typeFilter = state.selectedTypeFilter.trim().lowercase()
-        val statusFilter = state.selectedStatusFilter.trim().lowercase()
 
         return users.filter { user ->
-            val matchesType = typeFilter == "todos" ||
-                when (typeFilter) {
-                    "alunos" -> user.role?.trim()?.lowercase() == "student"
-                    "docentes" -> user.role?.trim()?.lowercase() == "teacher"
-                    "empresas" -> user.role?.trim()?.lowercase() == "company"
-                    "orientadores" -> user.role?.trim()?.lowercase() == "advisor"
-                    "administradores" -> user.role?.trim()?.lowercase() == "admin"
-                    else -> true
-                }
+            val matchesType = when (state.selectedTypeFilter) {
+                UserTypeFilter.ALL -> true
+                UserTypeFilter.STUDENTS -> user.role?.trim()?.lowercase() == "student"
+                UserTypeFilter.TEACHERS -> user.role?.trim()?.lowercase() == "teacher"
+                UserTypeFilter.COMPANIES -> user.role?.trim()?.lowercase() == "company"
+                UserTypeFilter.ADVISORS -> user.role?.trim()?.lowercase() == "advisor"
+                UserTypeFilter.INSTITUTIONS -> user.role?.trim()?.lowercase() in setOf("institution", "instituicao")
+                UserTypeFilter.ADMINISTRATORS -> user.role?.trim()?.lowercase() == "admin"
+            }
 
-            val matchesStatus = statusFilter == "todos" ||
-                when (statusFilter) {
-                    "ativos" -> user.isActive == true && !user.isArchived
-                    "inativos" -> user.isActive == false && !user.isArchived
-                    "arquivados" -> user.isArchived
-                    else -> true
-                }
+            val matchesStatus = when (state.selectedStatusFilter) {
+                UserStatusFilter.ALL -> true
+                UserStatusFilter.ACTIVE -> user.isActive == true && !user.isArchived
+                UserStatusFilter.INACTIVE -> user.isActive == false && !user.isArchived
+                UserStatusFilter.ARCHIVED -> user.isArchived
+                UserStatusFilter.PENDING -> false
+                else -> true
+            }
 
             matchesType && matchesStatus
         }

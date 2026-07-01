@@ -20,17 +20,23 @@ data class CompanyAdvisorsUiState(
                 advisors.filter { advisor ->
                     advisor.name.contains(query, ignoreCase = true) ||
                             advisor.email.contains(query, ignoreCase = true) ||
-                            advisor.department.orEmpty().contains(query, ignoreCase = true)
+                            advisor.department.contains(query, ignoreCase = true)
                 }
             }
 
             return if (sortAscending) {
                 filtered.sortedBy { advisor ->
-                    advisor.name.lowercase()
+                    advisor.name
+                        .ifBlank { advisor.email }
+                        .lowercase()
+                        .trim()
                 }
             } else {
                 filtered.sortedByDescending { advisor ->
-                    advisor.name.lowercase()
+                    advisor.name
+                        .ifBlank { advisor.email }
+                        .lowercase()
+                        .trim()
                 }
             }
         }

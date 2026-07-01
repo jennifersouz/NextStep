@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -33,11 +34,11 @@ import com.example.nextstep.ui.utils.Formatters
 fun AdminUsersScreen(
     viewModel: AdminUsersViewModel = viewModel(),
     onUserClick: (AdminProfileDto) -> Unit = {},
-    onAddUserClick: () -> Unit = {}
+    onAddUserClick: () -> Unit = {},
+    onBackClick: (() -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    // Refresh when screen becomes visible/resumed (useful when returning from creation screen)
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -70,18 +71,30 @@ fun AdminUsersScreen(
                 .padding(padding)
                 .background(Color.White)
         ) {
-            // Header
-            Text(
-                text = stringResource(R.string.users_label),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = if (onBackClick != null) 4.dp else 24.dp, end = 24.dp, top = 8.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onBackClick != null) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.users_label),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Search bar
             AdminSearchBar(
                 value = state.searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
@@ -93,7 +106,6 @@ fun AdminUsersScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Filter dropdowns
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,28 +114,18 @@ fun AdminUsersScreen(
             ) {
                 AppFilterDropdown(
                     label = stringResource(R.string.user_type_filter_label),
-                    selectedOption = state.selectedTypeFilter,
-                    options = listOf(
-                        stringResource(R.string.filter_all_masc),
-                        stringResource(R.string.tab_students),
-                        stringResource(R.string.tab_teachers),
-                        stringResource(R.string.companies_label),
-                        stringResource(R.string.user_type_advisors),
-                        stringResource(R.string.user_type_admins)
-                    ),
+                    selectedOption = stringResource(state.selectedTypeFilter.labelRes()),
+                    options = UserTypeFilter.entries.toList(),
+                    optionLabel = { stringResource(it.labelRes()) },
                     onOptionSelected = { viewModel.onTypeFilterChange(it) },
                     modifier = Modifier.weight(1f)
                 )
 
                 AppFilterDropdown(
                     label = stringResource(R.string.user_status_filter_label),
-                    selectedOption = state.selectedStatusFilter,
-                    options = listOf(
-                        stringResource(R.string.filter_all_masc),
-                        stringResource(R.string.filter_active),
-                        stringResource(R.string.filter_inactive_masc),
-                        stringResource(R.string.filter_archived)
-                    ),
+                    selectedOption = stringResource(state.selectedStatusFilter.labelRes()),
+                    options = UserStatusFilter.entries.toList(),
+                    optionLabel = { stringResource(it.labelRes()) },
                     onOptionSelected = { viewModel.onStatusFilterChange(it) },
                     modifier = Modifier.weight(1f)
                 )
@@ -131,7 +133,6 @@ fun AdminUsersScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Content
             when {
                 state.isLoading && state.users.isEmpty() -> {
                     Box(
@@ -142,7 +143,9 @@ fun AdminUsersScreen(
                     }
                 }
 
-                state.errorMessage != null && state.users.isEmpty() -> {
+                state.errorMessage != null || state.errorMessageRes != null -> {
+                    val displayError = state.errorMessage
+                        ?: state.errorMessageRes?.let { stringResource(it) }
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -150,7 +153,7 @@ fun AdminUsersScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = state.errorMessage ?: "",
+                            text = displayError ?: "",
                             color = Color(0xFFB00020),
                             fontSize = 15.sp
                         )
@@ -195,11 +198,12 @@ fun AdminUsersScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppFilterDropdown(
+fun <T> AppFilterDropdown(
     label: String,
     selectedOption: String,
-    options: List<String>,
-    onOptionSelected: (String) -> Unit,
+    options: List<T>,
+    optionLabel: @Composable (T) -> String,
+    onOptionSelected: (T) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -241,7 +245,7 @@ fun AppFilterDropdown(
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option, fontSize = 14.sp) },
+                    text = { Text(optionLabel(option), fontSize = 14.sp) },
                     onClick = {
                         onOptionSelected(option)
                         expanded = false
@@ -271,7 +275,6 @@ fun AdminUserListItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Avatar with initials
         val initials = displayName
             .split(" ")
             .filter { it.isNotBlank() }
@@ -322,7 +325,6 @@ fun AdminUserListItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Role badge
                 Text(
                     text = Formatters.formatRole(profile.role),
                     fontSize = 12.sp,
@@ -332,7 +334,6 @@ fun AdminUserListItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Status badge: Archived > Active > Inactive
                 val statusLabel: String
                 val statusColor: Color
                 val statusBg: Color

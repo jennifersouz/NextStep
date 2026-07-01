@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ fun InstitutionTeacherDetailScreen(
     viewModel: InstitutionTeacherDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showArchiveDialog by remember { mutableStateOf(false) }
 
@@ -60,17 +62,17 @@ fun InstitutionTeacherDetailScreen(
         viewModel.loadTeacherDetail(teacherProfileId)
     }
 
-    LaunchedEffect(state.successMessage) {
-        state.successMessage?.let {
-            snackbarHostState.showSnackbar(it)
+    LaunchedEffect(state.successMessageRes) {
+        state.successMessageRes?.let { res ->
+            snackbarHostState.showSnackbar(context.getString(res))
             viewModel.clearMessages()
         }
     }
 
-    LaunchedEffect(state.errorMessage) {
-        state.errorMessage?.let {
+    LaunchedEffect(state.errorMessageRes) {
+        state.errorMessageRes?.let { res ->
             if (state.teacher != null) {
-                snackbarHostState.showSnackbar(it)
+                snackbarHostState.showSnackbar(context.getString(res))
                 viewModel.clearMessages()
             }
         }
@@ -99,9 +101,9 @@ fun InstitutionTeacherDetailScreen(
                     }
                 }
 
-                state.errorMessage != null && state.teacher == null -> {
+                state.errorMessageRes != null && state.teacher == null -> {
                     InstitutionTeacherDetailErrorState(
-                        message = state.errorMessage!!,
+                        message = stringResource(state.errorMessageRes!!),
                         onRetryClick = { viewModel.loadTeacherDetail(teacherProfileId) }
                     )
                 }

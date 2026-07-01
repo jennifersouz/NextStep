@@ -15,13 +15,15 @@ data class CompanyEditOfferUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
 
-    val titleError: String? = null,
-    val descriptionError: String? = null,
-    val areaError: String? = null,
-    val locationError: String? = null,
-    val workModeError: String? = null,
-    val durationError: String? = null,
-    val vacanciesError: String? = null,
+    val titleError: Int? = null,
+    val descriptionError: Int? = null,
+    val areaError: Int? = null,
+    val locationError: Int? = null,
+    val workModeError: Int? = null,
+    val durationError: Int? = null,
+    val vacanciesError: Int? = null,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val errorMessageRes: Int? = null,
+    val successMessage: String? = null,
+    val successMessageRes: Int? = null
 )

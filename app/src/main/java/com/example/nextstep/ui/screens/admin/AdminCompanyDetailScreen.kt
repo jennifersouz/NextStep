@@ -61,7 +61,9 @@ fun AdminCompanyDetailScreen(
     onViewOffers: (AdminCompanyDto) -> Unit = {},
     isActionLoading: Boolean = false,
     successMessage: String? = null,
+    successMessageRes: Int? = null,
     errorMessage: String? = null,
+    errorMessageRes: Int? = null,
     onMessageDismiss: () -> Unit = {}
 ) {
     val isActive = company.isActive == true
@@ -165,24 +167,26 @@ fun AdminCompanyDetailScreen(
         }
 
         // Feedback messages
-        if (successMessage != null) {
+        val displaySuccess = successMessage ?: successMessageRes?.let { stringResource(it) }
+        if (displaySuccess != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFE8F5E9))
                     .padding(horizontal = 24.dp, vertical = 10.dp)
             ) {
-                Text(successMessage, color = Color(0xFF2E7D32), fontSize = 14.sp)
+                Text(displaySuccess, color = Color(0xFF2E7D32), fontSize = 14.sp)
             }
         }
-        if (errorMessage != null) {
+        val displayError = errorMessage ?: errorMessageRes?.let { stringResource(it) }
+        if (displayError != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFFFEBEE))
                     .padding(horizontal = 24.dp, vertical = 10.dp)
             ) {
-                Text(errorMessage, color = Color(0xFFB00020), fontSize = 14.sp)
+                Text(displayError, color = Color(0xFFB00020), fontSize = 14.sp)
             }
         }
 

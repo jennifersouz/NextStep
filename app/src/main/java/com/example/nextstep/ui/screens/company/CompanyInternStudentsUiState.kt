@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import androidx.annotation.StringRes
 import com.example.nextstep.data.model.CompanyInternStudentDto
 
 data class CompanyInternStudentsUiState(
@@ -8,7 +9,7 @@ data class CompanyInternStudentsUiState(
     val searchQuery: String = "",
     val selectedFilter: CompanyInternStudentsFilter = CompanyInternStudentsFilter.ALL,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    @StringRes val errorMessageRes: Int? = null
 )
 
 enum class CompanyInternStudentsFilter(val label: String) {

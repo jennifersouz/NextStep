@@ -16,7 +16,7 @@ data class AdvisorEditProfileUiState(
     val email: String = "",
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
-    val nameError: String? = null,
+    @androidx.annotation.StringRes val nameError: Int? = null,
     @androidx.annotation.StringRes val errorMessageRes: Int? = null,
     @androidx.annotation.StringRes val successMessageRes: Int? = null
 )
@@ -72,7 +72,7 @@ class AdvisorEditProfileViewModel : ViewModel() {
 
         if (state.name.isBlank()) {
             _uiState.value = _uiState.value.copy(
-                nameError = "O nome é obrigatório."
+                nameError = R.string.error_name_required_generic
             )
             return
         }

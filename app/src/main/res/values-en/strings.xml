@@ -95,7 +95,8 @@
     <string name="error_nif_digits">Tax ID must contain only digits.</string>
     <string name="error_nif_length">Tax ID must have 9 digits.</string>
     <string name="error_name_too_short">Name must have at least 2 characters.</string>
-    <string name="error_only_letters">Use only letters and spaces.</string>
+    <string name="error_only_letters">This field can only contain letters.</string>
+    <string name="error_invalid_location">Location can only contain letters.</string>
     <string name="error_company_name_too_short">Company name must have at least 2 characters.</string>
     <string name="error_invalid_company_name">Use only letters, spaces, - or .</string>
     <string name="error_company_name_required">Enter the company name.</string>
@@ -397,7 +398,11 @@
     <string name="delete_advisor">Delete</string>
     <string name="delete_advisor_confirmation">Are you sure you want to delete this advisor?</string>
     <string name="advisors_load_error">Could not load advisors.</string>
-    <string name="advisor_create_error">Could not register advisor.</string>
+    <string name="advisor_create_error">Could not create advisor invitation.</string>
+    <string name="error_advisor_email_required">Enter the advisor\'s email.</string>
+    <string name="advisor_invite_sent">Advisor invitation sent.</string>
+    <string name="advisor_invite_pending_exists">There is already a pending invitation for this email.</string>
+    <string name="advisor_invite_account_exists">There is already an account associated with this email.</string>
     <string name="advisor_delete_error">Could not delete advisor.</string>
     <string name="no_advisors">You do not have any advisors registered yet.</string>
     <string name="sort_ascending">Sort A-Z</string>
@@ -443,7 +448,18 @@
 
     <string name="advisor_invite_pending">Pending</string>
     <string name="advisor_invite_active">Active</string>
-    <string name="advisor_register_no_invite">There is no advisor invite for this email.</string>
+    <string name="advisor_register_no_invite">There is no pending invite for this email.</string>
+    <string name="error_user_already_exists_advisor">An account already exists with this email. Please sign in to accept the invitation.</string>
+    <string name="error_advisor_register_generic">Could not complete the advisor registration.</string>
+    <string name="error_advisor_orphan_account">Account created, but could not link the invite. Please sign in again or contact support.</string>
+    <string name="advisor_name_required">Name *</string>
+    <string name="advisor_register_name_placeholder">Enter your name</string>
+    <string name="advisor_last_name_required">Last Name *</string>
+    <string name="advisor_last_name_placeholder">Enter your last name</string>
+    <string name="advisor_phone_label">Phone</string>
+    <string name="advisor_phone_placeholder">Enter your phone</string>
+    <string name="advisor_department_required">Department *</string>
+    <string name="advisor_department_placeholder">Enter your department</string>
     <string name="advisor_register_success">Advisor account created successfully.</string>
     <string name="advisor_register_title">Advisor registration</string>
     <string name="advisor_register_description">To create an advisor account, the company must have previously created an invite with this email.</string>
@@ -549,7 +565,8 @@
     <string name="no_chats_yet_label">There are no conversations yet</string>
     <string name="no_companies_found">No companies found</string>
     <string name="no_conversation_found">No conversation found</string>
-    <string name="no_institutions_available">No institutions available</string>
+    <string name="loading_institutions">Loading institutions...</string>
+    <string name="no_institutions_available">No active institutions available.</string>
     <string name="no_messages_tap_to_start">No messages. Tap to start</string>
     <string name="no_recent_activities_label">No recent activities</string>
     <string name="no_tasks_for_filter">There are no tasks for this filter</string>
@@ -607,7 +624,13 @@
     <string name="unread_count_over_9">9+</string>
     <string name="updating_label">Updating</string>
     <string name="user_details_title">User details</string>
+    <string name="user_details">User details</string>
     <string name="user_removed_message">User removed successfully</string>
+    <string name="user_archived_success">User archived successfully.</string>
+    <string name="name">Name</string>
+    <string name="archived">Archived</string>
+    <string name="role">Role</string>
+    <string name="archived_on">Archived on</string>
     <string name="users_label">Users</string>
     <string name="view_company_offers">View company offers</string>
     <string name="view_document">View document</string>
@@ -814,6 +837,26 @@
     <string name="new_assigned_student_message">A new student has been assigned to you.</string>
     <string name="new_message_from_student">New message from student</string>
 
+    <string name="teacher_requests_load_error">Error loading requests.</string>
+    <string name="teacher_accept_request_error">Error accepting request.</string>
+    <string name="teacher_reject_request_error">Error rejecting request.</string>
+    <string name="teacher_request_detail_load_error">Could not load request details.</string>
+    <string name="error_opening_document">Could not open document.</string>
+    <string name="teachers_load_error">Could not load teachers.</string>
+    <string name="teacher_load_error">Could not load teacher.</string>
+    <string name="teacher_archive_error">Could not archive teacher.</string>
+    <string name="teacher_archive_success">Teacher archived successfully.</string>
+    <string name="students_load_error">Could not load students.</string>
+    <string name="student_load_error">Could not load student.</string>
+    <string name="student_archive_error">Could not archive student.</string>
+    <string name="student_archive_success">Student archived successfully.</string>
+    <string name="institution_user_load_error">Could not load user.</string>
+    <string name="internship_detail_load_error">Error loading internship details.</string>
+    <string name="error_saving_task">Error saving task.</string>
+    <string name="error_reading_file">Could not read the file.</string>
+    <string name="report_submitted_success">Report submitted successfully.</string>
+    <string name="error_attaching_report">Could not attach the report.</string>
+
     <!-- Teacher Requests -->
     <string name="requests">Requests</string>
     <string name="search_requests_placeholder">Search student or internship</string>
@@ -947,6 +990,7 @@
     <string name="sending_label">Sending</string>
 
     <!-- Missing PT strings translated to EN -->
+    <string name="academic_year_required">Academic year *</string>
     <string name="academic_year_label">Academic year</string>
     <string name="academic_year_suffix">th year</string>
     <string name="active_checkbox_label">Active</string>
@@ -1055,6 +1099,141 @@
     <string name="user_type_filter_label">Type</string>
     <string name="user_status_filter_label">Status</string>
     <string name="user_type_advisors">Advisors</string>
+    <string name="user_type_institutions">Education institutions</string>
     <string name="user_type_admins">Administrators</string>
     <string name="filter_inactive_masc">Inactive</string>
+    <string name="filter_inactive">Inactive</string>
+    <string name="filter_accepted">Accepted</string>
+
+    <!-- Phone validation -->
+    <string name="error_phone_digits">The phone number must contain digits only.</string>
+    <string name="error_phone_length">The phone number must be 9 digits long.</string>
+
+    <!-- Admin Edit User -->
+    <string name="user_updated_success">User updated successfully.</string>
+
+    <!-- Admin Profile -->
+    <string name="admin_role">Administrator</string>
+    <string name="profile_updated_success">Profile updated successfully.</string>
+
+    <!-- Admin Create User - Validation -->
+    <string name="error_email_required">Enter an email.</string>
+    <string name="error_password_required">Enter a temporary password.</string>
+    <string name="error_name_required">Name is required.</string>
+    <string name="error_student_number_required">Student number is required.</string>
+    <string name="error_course_required">Course is required.</string>
+    <string name="error_academic_year_required">Academic year is required.</string>
+    <string name="error_academic_year_invalid">Enter a valid academic year (1-6).</string>
+    <string name="error_institution_required">Select an institution.</string>
+    <string name="error_nif_required">Tax ID is required.</string>
+    <string name="error_business_area_required">Business area is required.</string>
+    <string name="error_location_required">Location is required.</string>
+    <string name="error_company_select_required">Select the advisor\'s company.</string>
+    <string name="error_institution_name_required">Institution name is required.</string>
+    <string name="error_invalid_role_type">The selected user type is invalid. Please update the type list and try again.</string>
+    <string name="error_email_already_exists">An account already exists with this email.</string>
+    <string name="error_verify_email">Check the email provided.</string>
+    <string name="error_user_not_found">User not found.</string>
+    <string name="error_could_not_load_user">Could not load user data.</string>
+    <string name="error_could_not_update_user">Could not update user.</string>
+    <string name="error_create_user_failed">Could not create the user. Try again.</string>
+    <string name="user_created_success">User created successfully.</string>
+    <string name="user_deactivated_success">User access deactivated successfully.</string>
+    <string name="user_reactivated_success">User access reactivated successfully.</string>
+    <string name="user_activated_success">Account activated successfully.</string>
+    <string name="user_deleted_success">User deactivated successfully.</string>
+    <string name="user_access_deactivated_success">User access deactivated successfully.</string>
+    <string name="user_access_reactivated_success">User access reactivated successfully.</string>
+    <string name="error_could_not_load_users">Could not load users.</string>
+    <string name="error_could_not_update_user_status">Could not change account status.</string>
+    <string name="error_could_not_remove_user">Could not remove user.</string>
+    <string name="error_could_not_load_profile">Could not load profile.</string>
+    <string name="error_could_not_deactivate_access">Could not deactivate access.</string>
+    <string name="error_could_not_reactivate_user">Could not reactivate user.</string>
+    <string name="error_could_not_archive_user">Could not remove user from the platform.</string>
+    <string name="error_failed_to_load_companies">Could not load companies.</string>
+    <string name="error_could_not_update_company">Could not update company.</string>
+
+    <!-- Education Institution dropdown -->
+    <string name="select_education_institution">Education Institution *</string>
+
+    <!-- Company management strings for Admin -->
+    <string name="company_created_success">Company created successfully.</string>
+    <string name="company_updated_success">Company updated successfully.</string>
+    <string name="company_deactivated_success">Company deactivated successfully.</string>
+    <string name="company_activated_success">Company activated successfully.</string>
+    <string name="company_access_deactivated_success">Company access deactivated successfully.</string>
+    <string name="company_access_reactivated_success">Company access reactivated successfully.</string>
+    <string name="company_removed_success">Company removed from the platform successfully.</string>
+    <string name="error_could_not_create_company">Could not create company.</string>
+    <string name="error_could_not_save_company_changes">Could not save company changes.</string>
+    <string name="error_could_not_change_company_status">Could not change company status.</string>
+    <string name="error_could_not_remove_company">Could not remove company.</string>
+    <string name="error_could_not_remove_company_from_platform">Could not remove company from the platform.</string>
+
+    <!-- Offer validation -->
+    <string name="error_offer_title_required">Title is required.</string>
+    <string name="error_offer_description_required">Description is required.</string>
+    <string name="error_offer_area_required">Area is required.</string>
+    <string name="error_offer_location_required">Location is required.</string>
+    <string name="error_offer_work_mode_required">Select the work mode.</string>
+    <string name="error_offer_duration_required">Duration is required.</string>
+    <string name="error_offer_vacancies_required">Number of vacancies is required.</string>
+    <string name="error_offer_vacancies_invalid">Enter a valid number of vacancies.</string>
+    <string name="error_offer_vacancies_positive">The number of vacancies must be greater than zero.</string>
+
+    <!-- Profile and task validation -->
+    <string name="error_name_required_generic">Name is required.</string>
+    <string name="error_task_title_required">Title is required.</string>
+
+    <!-- Grade validation -->
+    <string name="error_grade_required_teacher">Enter a grade.</string>
+
+    <!-- Company offer update messages -->
+    <string name="company_offer_update_success">Offer updated successfully.</string>
+
+    <!-- Teacher evaluation messages -->
+    <string name="evaluation_save_error">Error saving evaluation.</string>
+    <string name="evaluation_load_error">Error loading evaluation.</string>
+
+    <!-- Teacher Dashboard -->
+    <string name="teacher_dashboard_load_error">Error loading dashboard data.</string>
+    <string name="teacher_activity_request_accepted">Request accepted</string>
+    <string name="teacher_activity_request_rejected">Request rejected</string>
+    <string name="teacher_activity_new_request">New request received</string>
+    <string name="teacher_activity_new_message">New message</string>
+
+    <!-- Teacher Conversations -->
+    <string name="teacher_conversations_load_error">Error loading conversations.</string>
+
+    <!-- Teacher Requests -->
+    <string name="teacher_request_accept_error">Error accepting request.</string>
+    <string name="teacher_request_reject_error">Error rejecting request.</string>
+    <string name="teacher_request_document_open_error">Could not open the document.</string>
+
+    <!-- Generic error messages -->
+    <string name="error_loading_offers">Could not load offers.</string>
+    <string name="error_loading_intern_students">Could not load intern students.</string>
+    <string name="error_loading_student">Could not load the student.</string>
+    <string name="error_archiving_student">Could not archive the student.</string>
+    <string name="student_archived_successfully">Student archived successfully.</string>
+    <string name="error_loading_teacher">Could not load the teacher.</string>
+    <string name="error_archiving_teacher">Could not archive the teacher.</string>
+    <string name="teacher_archived_successfully">Teacher archived successfully.</string>
+    <string name="error_loading_user">Could not load the user.</string>
+
+    <!-- Company Offers -->
+    <string name="offer_deactivated_successfully">Offer deactivated successfully.</string>
+    <string name="offer_activated_successfully">Offer activated successfully.</string>
+    <string name="offer_archived_successfully">Offer archived successfully.</string>
+
+    <!-- Internship Status -->
+    <string name="internship_status_active">Active</string>
+    <string name="internship_status_in_progress">In progress</string>
+    <string name="internship_status_inactive">Inactive</string>
+    <string name="internship_status_cancelled">Cancelled</string>
+    <string name="internship_status_unknown">Unknown</string>
+
+    <string name="employee_invite_created">Invite created. The employee must create an account with this email.</string>
+    <string name="employee_email_placeholder">Enter the employee\'s email</string>
 </resources>

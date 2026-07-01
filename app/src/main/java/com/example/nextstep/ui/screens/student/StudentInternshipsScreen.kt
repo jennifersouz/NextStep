@@ -48,9 +48,9 @@ fun StudentInternshipsScreen(
                 LoadingState()
             }
 
-            state.errorMessage != null -> {
+            state.errorMessageRes != null -> {
                 ErrorState(
-                    message = state.errorMessage!!,
+                    message = stringResource(state.errorMessageRes!!),
                     onRetryClick = { viewModel.loadInternships() }
                 )
             }

@@ -16,83 +16,64 @@ class AddCompanyAdvisorViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AddCompanyAdvisorUiState())
     val uiState: StateFlow<AddCompanyAdvisorUiState> = _uiState.asStateFlow()
 
-    fun onNameChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            name = value,
-            nameErrorRes = null,
-            errorMessageRes = null
-        )
-    }
-
     fun onEmailChange(value: String) {
         _uiState.value = _uiState.value.copy(
             email = value,
             emailErrorRes = null,
-            errorMessageRes = null
+            errorMessageRes = null,
+            successMessageRes = null
         )
     }
 
-    fun onPhoneChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            phone = value,
-            errorMessageRes = null
-        )
-    }
-
-    fun onDepartmentChange(value: String) {
-        _uiState.value = _uiState.value.copy(
-            department = value,
-            errorMessageRes = null
-        )
-    }
-
-    fun createAdvisor(
+    fun sendInvite(
         onSuccess: () -> Unit
     ) {
         val state = _uiState.value
 
-        val nameError = if (state.name.isBlank()) {
-            R.string.error_required_field
-        } else {
-            null
-        }
-
         val emailError = if (state.email.isBlank()) {
-            R.string.error_required_field
+            R.string.error_advisor_email_required
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(state.email.trim()).matches()) {
             R.string.error_invalid_email
         } else {
             null
         }
 
-        if (nameError != null || emailError != null) {
-            _uiState.value = state.copy(
-                nameErrorRes = nameError,
-                emailErrorRes = emailError
-            )
+        if (emailError != null) {
+            _uiState.value = state.copy(emailErrorRes = emailError)
             return
         }
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isSaving = true,
-                errorMessageRes = null
+                errorMessageRes = null,
+                successMessageRes = null
             )
 
-            val result = repository.createAdvisor(
-                name = state.name,
-                email = state.email,
-                phone = state.phone,
-                department = state.department
-            )
+            val result = repository.inviteAdvisor(email = state.email)
 
             if (result.isSuccess) {
-                _uiState.value = AddCompanyAdvisorUiState()
-                onSuccess()
-            } else {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
-                    errorMessageRes = R.string.advisor_create_error
+                    successMessageRes = R.string.advisor_invite_sent
+                )
+                onSuccess()
+            } else {
+                val errorMessage = result.exceptionOrNull()?.message.orEmpty()
+
+                val errorRes = when {
+                    errorMessage.contains("duplicate", ignoreCase = true) ||
+                    errorMessage.contains("already exists", ignoreCase = true) ||
+                    errorMessage.contains("unique", ignoreCase = true) ||
+                    errorMessage.contains("pending", ignoreCase = true) -> {
+                        R.string.advisor_invite_pending_exists
+                    }
+                    else -> R.string.advisor_create_error
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    errorMessageRes = errorRes
                 )
             }
         }

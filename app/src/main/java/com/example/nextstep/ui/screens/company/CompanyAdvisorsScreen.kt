@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -51,6 +53,7 @@ import com.example.nextstep.data.model.CompanyAdvisorDto
 
 @Composable
 fun CompanyAdvisorsScreen(
+    onBackClick: () -> Unit,
     onAddClick: () -> Unit,
     onAdvisorClick: (String) -> Unit,
     viewModel: CompanyAdvisorsViewModel = viewModel()
@@ -103,6 +106,7 @@ fun CompanyAdvisorsScreen(
         else -> {
             CompanyAdvisorsContent(
                 state = state,
+                onBackClick = onBackClick,
                 onAddClick = onAddClick,
                 onAdvisorClick = onAdvisorClick,
                 onSearchChange = viewModel::onSearchChange,
@@ -115,6 +119,7 @@ fun CompanyAdvisorsScreen(
 @Composable
 private fun CompanyAdvisorsContent(
     state: CompanyAdvisorsUiState,
+    onBackClick: () -> Unit,
     onAddClick: () -> Unit,
     onAdvisorClick: (String) -> Unit,
     onSearchChange: (String) -> Unit,
@@ -136,14 +141,22 @@ private fun CompanyAdvisorsContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = onBackClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+
                 Text(
                     text = stringResource(R.string.manage_advisors),
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier.weight(1f)
                 )
-
-                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = onAddClick,

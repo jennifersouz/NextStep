@@ -102,7 +102,7 @@ fun AdminCompanyOffersScreen(
                 }
             }
 
-            state.errorMessage != null -> {
+            state.errorMessageRes != null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -110,7 +110,7 @@ fun AdminCompanyOffersScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = state.errorMessage ?: "",
+                        text = stringResource(state.errorMessageRes!!),
                         color = Color(0xFFB00020),
                         fontSize = 15.sp
                     )

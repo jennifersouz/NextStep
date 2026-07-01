@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.institution
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.repository.InstitutionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,7 @@ class InstitutionTeachersViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(
                 filter = filter,
                 isLoading = true,
-                errorMessage = null
+                errorMessageRes = null
             )
 
             val result = repository.getInstitutionTeachers(filter)
@@ -31,14 +32,14 @@ class InstitutionTeachersViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(
                         teachers = teachers,
                         isLoading = false,
-                        errorMessage = null
+                        errorMessageRes = null
                     )
                 },
                 onFailure = { exception ->
                     Log.e("InstitutionTeachersVM", "Erro ao carregar docentes", exception)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Não foi possível carregar os docentes."
+                        errorMessageRes = R.string.teachers_load_error
                     )
                 }
             )
@@ -55,11 +56,11 @@ class InstitutionTeacherDetailViewModel : ViewModel() {
 
     fun loadTeacherDetail(teacherProfileId: String, preserveSuccess: Boolean = false) {
         viewModelScope.launch {
-            val currentSuccessMessage = if (preserveSuccess) _uiState.value.successMessage else null
+            val currentSuccessMessageRes = if (preserveSuccess) _uiState.value.successMessageRes else null
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null,
-                successMessage = currentSuccessMessage
+                errorMessageRes = null,
+                successMessageRes = currentSuccessMessageRes
             )
 
             val result = repository.getInstitutionTeacherDetail(teacherProfileId)
@@ -69,18 +70,17 @@ class InstitutionTeacherDetailViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(
                         teacher = teacher,
                         isLoading = false,
-                        errorMessage = null
+                        errorMessageRes = null
                     )
                 },
                 onFailure = { exception ->
                     Log.e("InstitutionTeacherDetailVM", "Erro ao carregar detalhe do docente", exception)
-                    if (currentSuccessMessage == null) {
+                    if (currentSuccessMessageRes == null) {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = "Não foi possível carregar o docente."
+                            errorMessageRes = R.string.teacher_load_error
                         )
                     } else {
-                        // Se estávamos a recarregar após arquivar, não substituir a mensagem de sucesso por erro
                         _uiState.value = _uiState.value.copy(isLoading = false)
                     }
                 }
@@ -90,23 +90,22 @@ class InstitutionTeacherDetailViewModel : ViewModel() {
 
     fun archiveTeacher(teacherProfileId: String, reason: String?) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null)
+            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessageRes = null, successMessageRes = null)
             
             val result = repository.archiveTeacher(teacherProfileId, reason)
             
             result.fold(
                 onSuccess = { updatedTeacher ->
-                    // Só mostrar sucesso se institutionArchivedAt foi realmente preenchido
                     if (updatedTeacher.institutionArchivedAt != null) {
                         _uiState.value = _uiState.value.copy(
                             teacher = updatedTeacher,
                             isActionLoading = false,
-                            successMessage = "Docente arquivado com sucesso."
+                            successMessageRes = R.string.teacher_archive_success
                         )
                     } else {
                         _uiState.value = _uiState.value.copy(
                             isActionLoading = false,
-                            errorMessage = "Não foi possível arquivar o docente."
+                            errorMessageRes = R.string.teacher_archive_error
                         )
                     }
                 },
@@ -114,7 +113,7 @@ class InstitutionTeacherDetailViewModel : ViewModel() {
                     Log.e("InstitutionTeacherDetailVM", "Erro ao arquivar docente", exception)
                     _uiState.value = _uiState.value.copy(
                         isActionLoading = false,
-                        errorMessage = "Não foi possível arquivar o docente."
+                        errorMessageRes = R.string.teacher_archive_error
                     )
                 }
             )
@@ -122,6 +121,6 @@ class InstitutionTeacherDetailViewModel : ViewModel() {
     }
 
     fun clearMessages() {
-        _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
+        _uiState.value = _uiState.value.copy(errorMessageRes = null, successMessageRes = null)
     }
 }

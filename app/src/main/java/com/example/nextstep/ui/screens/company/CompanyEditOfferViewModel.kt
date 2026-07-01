@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.company
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.CompanyOfferUpdateDto
 import com.example.nextstep.data.repository.CompanyOffersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,7 @@ class CompanyEditOfferViewModel : ViewModel() {
             } else {
                 _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar a oferta."
+                    errorMessageRes = R.string.company_offer_load_error
                 )
             }
         }
@@ -116,46 +117,46 @@ class CompanyEditOfferViewModel : ViewModel() {
 
         val titleError = if (state.title.isBlank()) {
             hasError = true
-            "Título obrigatório."
+            R.string.error_offer_title_required
         } else null
 
         val descriptionError = if (state.description.isBlank()) {
             hasError = true
-            "Descrição obrigatória."
+            R.string.error_offer_description_required
         } else null
 
         val areaError = if (state.area.isBlank()) {
             hasError = true
-            "Área obrigatória."
+            R.string.error_offer_area_required
         } else null
 
         val locationError = if (state.location.isBlank()) {
             hasError = true
-            "Localização obrigatória."
+            R.string.error_offer_location_required
         } else null
 
         val workModeError = if (state.workMode.isBlank()) {
             hasError = true
-            "Seleciona o regime da oferta."
+            R.string.error_offer_work_mode_required
         } else null
 
         val durationError = if (state.duration.isBlank()) {
             hasError = true
-            "Duração obrigatória."
+            R.string.error_offer_duration_required
         } else null
 
         val vacanciesError = when {
             state.vacancies.isBlank() -> {
                 hasError = true
-                "Número de vagas obrigatório."
+                R.string.error_offer_vacancies_required
             }
             state.vacancies.toIntOrNull() == null -> {
                 hasError = true
-                "Insere um número de vagas válido."
+                R.string.error_offer_vacancies_invalid
             }
             state.vacancies.toInt() <= 0 -> {
                 hasError = true
-                "O número de vagas deve ser superior a zero."
+                R.string.error_offer_vacancies_positive
             }
             else -> null
         }
@@ -208,7 +209,7 @@ class CompanyEditOfferViewModel : ViewModel() {
                 val updatedOffer = result.getOrNull()
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
-                    successMessage = "Oferta atualizada com sucesso.",
+                    successMessageRes = R.string.company_offer_update_success,
                     title = updatedOffer?.title.orEmpty(),
                     description = updatedOffer?.description.orEmpty(),
                     area = updatedOffer?.area.orEmpty(),
@@ -222,7 +223,7 @@ class CompanyEditOfferViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
-                    errorMessage = "Não foi possível atualizar a oferta."
+                    errorMessageRes = R.string.company_offer_update_error
                 )
             }
         }

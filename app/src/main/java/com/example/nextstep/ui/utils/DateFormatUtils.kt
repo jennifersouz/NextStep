@@ -46,6 +46,22 @@ object DateFormatUtils {
         }
     }
 
+    fun formatDateTimeForDisplay(value: String?, locale: Locale): String? {
+        if (value.isNullOrBlank()) return null
+        return try {
+            val dateTime = OffsetDateTime.parse(value)
+                .atZoneSameInstant(ZoneId.systemDefault())
+            val pattern = if (locale.language == "en") {
+                "dd/MM/yyyy 'at' HH:mm"
+            } else {
+                "dd/MM/yyyy 'às' HH:mm"
+            }
+            dateTime.format(DateTimeFormatter.ofPattern(pattern, locale))
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun formatMessageListTime(rawDate: String?): String {
         if (rawDate.isNullOrBlank()) return ""
         

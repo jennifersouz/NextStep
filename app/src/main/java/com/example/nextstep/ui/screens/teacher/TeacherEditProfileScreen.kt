@@ -83,7 +83,7 @@ fun TeacherEditProfileScreen(
                     label = { Text(stringResource(R.string.name_required)) },
                     isError = state.nameError != null,
                     supportingText = state.nameError?.let { error ->
-                        { Text(error, color = Color(0xFFB00020)) }
+                        { Text(stringResource(error), color = Color(0xFFB00020)) }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),

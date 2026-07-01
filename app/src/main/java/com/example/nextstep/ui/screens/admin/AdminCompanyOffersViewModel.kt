@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.repository.AdminCompaniesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,7 @@ class AdminCompanyOffersViewModel : ViewModel() {
 
     fun loadOffers(companyProfileId: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageRes = null)
 
             val result = repository.getOffersByCompany(companyProfileId)
 
@@ -29,7 +30,7 @@ class AdminCompanyOffersViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar as ofertas."
+                    errorMessageRes = R.string.error_loading_offers
                 )
             }
         }

@@ -121,7 +121,7 @@ fun TeacherRequestsScreen(
                         color = Color.Black
                     )
                 }
-                state.errorMessage != null -> {
+                state.errorMessageRes != null -> {
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)

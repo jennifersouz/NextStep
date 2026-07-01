@@ -7,9 +7,11 @@ data class AdminUsersUiState(
     val users: List<AdminProfileDto> = emptyList(),
     val filteredUsers: List<AdminProfileDto> = emptyList(),
     val searchQuery: String = "",
-    val selectedTypeFilter: String = "Todos",
-    val selectedStatusFilter: String = "Todos",
+    val selectedTypeFilter: UserTypeFilter = UserTypeFilter.ALL,
+    val selectedStatusFilter: UserStatusFilter = UserStatusFilter.ALL,
     val selectedUser: AdminProfileDto? = null,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val errorMessageRes: Int? = null,
+    val successMessage: String? = null,
+    val successMessageRes: Int? = null
 )

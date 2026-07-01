@@ -86,9 +86,9 @@ fun InstitutionTeachersScreen(
                 }
             }
 
-            state.errorMessage != null -> {
+            state.errorMessageRes != null -> {
                 InstitutionTeachersErrorState(
-                    message = state.errorMessage!!,
+                    message = stringResource(state.errorMessageRes!!),
                     onRetryClick = { viewModel.loadTeachers() }
                 )
             }

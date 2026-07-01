@@ -469,11 +469,104 @@ data class AdminCompanyOfferDto(
 
 @Serializable
 data class AdminCompanyOptionDto(
+    val id: String? = null,
+
     @SerialName("profile_id")
-    val companyProfileId: String,
+    val companyProfileId: String? = null,
 
     @SerialName("company_name")
-    val companyName: String
+    val companyName: String,
+
+    @SerialName("is_active")
+    val isActive: Boolean? = null,
+
+    @SerialName("archived_at")
+    val archivedAt: String? = null
+) {
+    val effectiveId: String get() = companyProfileId ?: id ?: ""
+}
+
+/**
+ * DTO for joining companies with profiles via `profiles!inner`.
+ * Used in [AdminUsersRepository.getActiveCompanies] to filter by profile status.
+ */
+@Serializable
+data class CompanyWithProfileDto(
+    @SerialName("profile_id")
+    val profileId: String,
+
+    @SerialName("company_name")
+    val companyName: String,
+
+    @SerialName("is_active")
+    val isActive: Boolean? = null,
+
+    @SerialName("archived_at")
+    val archivedAt: String? = null,
+
+    val profiles: NestedProfileData? = null
+)
+
+@Serializable
+data class NestedProfileData(
+    val id: String,
+    val role: String? = null,
+
+    @SerialName("is_active")
+    val isActive: Boolean? = null,
+
+    @SerialName("archived_at")
+    val archivedAt: String? = null
+)
+
+// ── Teacher DTO for admin ──────────────────────────────────────────────────────
+
+@Serializable
+data class AdminTeacherDto(
+    val id: String,
+
+    @SerialName("profile_id")
+    val profileId: String? = null,
+
+    @SerialName("institution_profile_id")
+    val institutionProfileId: String? = null
+)
+
+@Serializable
+data class AdminTeacherInstitutionUpdateDto(
+    @SerialName("institution_profile_id")
+    val institutionProfileId: String,
+
+    @SerialName("updated_at")
+    val updatedAt: String
+)
+
+// ── Student DTOs for admin ────────────────────────────────────────────────────
+
+@Serializable
+data class AdminStudentDto(
+    val id: String,
+
+    @SerialName("profile_id")
+    val profileId: String? = null,
+
+    @SerialName("first_name")
+    val firstName: String? = null,
+
+    @SerialName("last_name")
+    val lastName: String? = null,
+
+    @SerialName("education_institution")
+    val educationInstitution: String? = null
+)
+
+@Serializable
+data class AdminStudentInstitutionUpdateDto(
+    @SerialName("education_institution")
+    val educationInstitution: String,
+
+    @SerialName("updated_at")
+    val updatedAt: String
 )
 
 // ApplicationTaskDto and ApplicationMessageDto are defined in

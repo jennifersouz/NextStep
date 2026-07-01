@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.student
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,10 +20,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentEditProfileScreen(
     onBackClick: () -> Unit,
@@ -114,16 +127,92 @@ fun StudentEditProfileScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    StudentEditProfileField(
-                        label = stringResource(R.string.education_institution),
-                        value = state.educationInstitution,
-                        onValueChange = viewModel::onEducationInstitutionChange,
-                        errorRes = state.educationInstitutionErrorRes,
-                        keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words,
-                            keyboardType = KeyboardType.Text
-                        )
+                    // ── Instituição de Ensino (dropdown) ─────────────────────
+                    var institutionMenuExpanded by remember { mutableStateOf(false) }
+
+                    Text(
+                        text = stringResource(R.string.select_education_institution),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
                     )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (state.isLoadingInstitutions) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(vertical = 8.dp),
+                            color = Color.Gray
+                        )
+                    } else if (state.availableInstitutions.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_institutions_available),
+                            color = Color(0xFFB00020),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    } else {
+                        val selectedInstitution = state.availableInstitutions.find {
+                            it.id == state.selectedInstitutionId
+                        }
+                        val institutionLabel = selectedInstitution?.displayName
+                            ?: state.selectedInstitutionName
+
+                        ExposedDropdownMenuBox(
+                            expanded = institutionMenuExpanded,
+                            onExpandedChange = { institutionMenuExpanded = !institutionMenuExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            OutlinedTextField(
+                                value = institutionLabel,
+                                onValueChange = {},
+                                readOnly = true,
+                                modifier = Modifier
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                                    .fillMaxWidth(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = institutionMenuExpanded) },
+                                isError = state.educationInstitutionErrorRes != null,
+                                supportingText = state.educationInstitutionErrorRes?.let { resId ->
+                                    { Text(stringResource(resId), color = Color(0xFFB00020)) }
+                                },
+                                placeholder = { Text(stringResource(R.string.select_institution_placeholder)) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedTextColor = Color.Black,
+                                    unfocusedBorderColor = if (state.educationInstitutionErrorRes != null)
+                                        Color(0xFFB00020) else Color(0xFFD9D9D9),
+                                    unfocusedTrailingIconColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                singleLine = true
+                            )
+                            ExposedDropdownMenu(
+                                expanded = institutionMenuExpanded,
+                                onDismissRequest = { institutionMenuExpanded = false },
+                                modifier = Modifier.heightIn(max = 240.dp)
+                            ) {
+                                state.availableInstitutions.forEach { institution ->
+                                    DropdownMenuItem(
+                                        text = { Text(institution.displayName) },
+                                        onClick = {
+                                            viewModel.onInstitutionSelected(institution.id, institution.displayName)
+                                            institutionMenuExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        state.educationInstitutionErrorRes?.let {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(it),
+                                color = Color(0xFFB00020),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(28.dp))
 

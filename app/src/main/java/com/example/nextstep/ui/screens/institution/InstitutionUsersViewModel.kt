@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDto
 import com.example.nextstep.data.repository.InstitutionUsersRepository
+import com.example.nextstep.ui.screens.admin.UserStatusFilter
+import com.example.nextstep.ui.screens.admin.UserTypeFilter
+import com.example.nextstep.ui.screens.admin.labelRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,12 +39,12 @@ class InstitutionUsersViewModel : ViewModel() {
         }
     }
 
-    fun onTypeFilterChange(type: String) {
+    fun onTypeFilterChange(type: UserTypeFilter) {
         _uiState.value = _uiState.value.copy(selectedTypeFilter = type)
         applyFiltersAndSearch()
     }
 
-    fun onStatusFilterChange(status: String) {
+    fun onStatusFilterChange(status: UserStatusFilter) {
         _uiState.value = _uiState.value.copy(selectedStatusFilter = status)
         applyFiltersAndSearch()
     }
@@ -109,27 +112,25 @@ class InstitutionUsersViewModel : ViewModel() {
 
     private fun applyFilter(users: List<InstitutionUserDto>): List<InstitutionUserDto> {
         val state = _uiState.value
-        val typeFilter = state.selectedTypeFilter.trim().lowercase()
-        val statusFilter = state.selectedStatusFilter.trim().lowercase()
 
         return users.filter { user ->
-            val matchesType = typeFilter == "todos" ||
-                when (typeFilter) {
-                    "alunos" -> user.targetRole.trim().lowercase() == "student"
-                    "docentes" -> user.targetRole.trim().lowercase() == "teacher"
-                    else -> true
-                }
+            val matchesType = when (state.selectedTypeFilter) {
+                UserTypeFilter.ALL -> true
+                UserTypeFilter.STUDENTS -> user.targetRole.trim().lowercase() == "student"
+                UserTypeFilter.TEACHERS -> user.targetRole.trim().lowercase() == "teacher"
+                else -> true
+            }
 
             val accepted = isInviteAccepted(user)
             val archived = isArchived(user)
 
-            val matchesStatus = statusFilter == "todos" ||
-                when (statusFilter) {
-                    "pendente" -> !accepted && !archived
-                    "aceite" -> accepted && !archived
-                    "arquivado" -> archived
-                    else -> true
-                }
+            val matchesStatus = when (state.selectedStatusFilter) {
+                UserStatusFilter.ALL -> true
+                UserStatusFilter.PENDING -> !accepted && !archived
+                UserStatusFilter.ACCEPTED -> accepted && !archived
+                UserStatusFilter.ARCHIVED -> archived
+                else -> true
+            }
 
             matchesType && matchesStatus
         }
@@ -140,8 +141,8 @@ data class InstitutionUsersUiState(
     val users: List<InstitutionUserDto> = emptyList(),
     val filteredUsers: List<InstitutionUserDto> = emptyList(),
     val isLoading: Boolean = false,
-    val selectedTypeFilter: String = "Todos",
-    val selectedStatusFilter: String = "Todos",
+    val selectedTypeFilter: UserTypeFilter = UserTypeFilter.ALL,
+    val selectedStatusFilter: UserStatusFilter = UserStatusFilter.ALL,
     val searchQuery: String = "",
     val errorMessageRes: Int? = null
 )

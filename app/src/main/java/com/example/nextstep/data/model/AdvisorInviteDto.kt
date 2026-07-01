@@ -5,19 +5,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AdvisorInviteDto(
-    val id: String,
+    val id: String = "",
 
     @SerialName("company_profile_id")
-    val companyProfileId: String,
+    val companyProfileId: String = "",
 
-    val name: String,
-    val email: String,
+    val email: String = "",
+
+    val name: String? = null,
+
     val phone: String? = null,
-    val department: String? = null,
-    val status: String,
 
-    @SerialName("advisor_profile_id")
-    val advisorProfileId: String? = null,
+    val department: String? = null,
+
+    val status: String = "pending",
 
     @SerialName("created_at")
     val createdAt: String? = null,

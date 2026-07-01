@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.teacher
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.ApplicationTaskDto
 import com.example.nextstep.data.model.TeacherEvaluationDto
 import com.example.nextstep.data.model.TeacherStudentDetailNonSerializable
@@ -44,9 +45,13 @@ data class TeacherEvaluationState(
     val strengths: String = "",
     val improvements: String = "",
     val gradeError: String? = null,
+    @androidx.annotation.StringRes val gradeErrorRes: Int? = null,
     val feedbackError: String? = null,
+    @androidx.annotation.StringRes val feedbackErrorRes: Int? = null,
     val errorMessage: String? = null,
+    @androidx.annotation.StringRes val errorMessageRes: Int? = null,
     val successMessage: String? = null,
+    @androidx.annotation.StringRes val successMessageRes: Int? = null,
     val isEditing: Boolean = false
 )
 
@@ -142,10 +147,10 @@ class TeacherStudentDetailViewModel : ViewModel() {
                         )
                     }
                 }
-                .onFailure { exception ->
+                .onFailure {
                     _evaluationState.value = _evaluationState.value.copy(
                         isLoadingEvaluation = false,
-                        errorMessage = exception.message
+                        errorMessageRes = R.string.evaluation_load_error
                     )
                 }
         }
@@ -154,14 +159,14 @@ class TeacherStudentDetailViewModel : ViewModel() {
     fun onGradeChange(grade: String) {
         _evaluationState.value = _evaluationState.value.copy(
             grade = grade,
-            gradeError = null
+            gradeErrorRes = null
         )
     }
 
     fun onQualitativeFeedbackChange(feedback: String) {
         _evaluationState.value = _evaluationState.value.copy(
             qualitativeFeedback = feedback,
-            feedbackError = null
+            feedbackErrorRes = null
         )
     }
 
@@ -185,8 +190,8 @@ class TeacherStudentDetailViewModel : ViewModel() {
             qualitativeFeedback = eval?.qualitativeFeedback ?: "",
             strengths = eval?.strengths ?: "",
             improvements = eval?.improvements ?: "",
-            gradeError = null,
-            feedbackError = null,
+            gradeErrorRes = null,
+            feedbackErrorRes = null,
             errorMessage = null,
             successMessage = null
         )
@@ -196,33 +201,33 @@ class TeacherStudentDetailViewModel : ViewModel() {
         val state = _evaluationState.value
 
         var hasError = false
-        var gradeError: String? = null
-        var feedbackError: String? = null
+        var gradeErrorRes: Int? = null
+        var feedbackErrorRes: Int? = null
 
         val gradeValue = state.grade.trim()
         if (gradeValue.isBlank()) {
-            gradeError = "Insere uma nota."
+            gradeErrorRes = R.string.evaluation_error_grade_required
             hasError = true
         } else {
             val parsedGrade = gradeValue.replace(",", ".").toDoubleOrNull()
             if (parsedGrade == null) {
-                gradeError = "Insere uma nota válida entre 0 e 20."
+                gradeErrorRes = R.string.evaluation_error_grade_invalid
                 hasError = true
             } else if (parsedGrade < 0.0 || parsedGrade > 20.0) {
-                gradeError = "Insere uma nota válida entre 0 e 20."
+                gradeErrorRes = R.string.evaluation_error_grade_invalid
                 hasError = true
             }
         }
 
         if (state.qualitativeFeedback.isBlank()) {
-            feedbackError = "Escreve uma apreciação qualitativa."
+            feedbackErrorRes = R.string.evaluation_error_feedback_required
             hasError = true
         }
 
         if (hasError) {
             _evaluationState.value = state.copy(
-                gradeError = gradeError,
-                feedbackError = feedbackError
+                gradeErrorRes = gradeErrorRes,
+                feedbackErrorRes = feedbackErrorRes
             )
             return
         }
@@ -248,15 +253,15 @@ class TeacherStudentDetailViewModel : ViewModel() {
                         isSavingEvaluation = false,
                         evaluation = savedEvaluation,
                         isEditing = false,
-                        successMessage = "Avaliação guardada com sucesso.",
-                        gradeError = null,
-                        feedbackError = null
+                        successMessageRes = R.string.evaluation_saved,
+                        gradeErrorRes = null,
+                        feedbackErrorRes = null
                     )
                 }
                 .onFailure { exception ->
                     _evaluationState.value = _evaluationState.value.copy(
                         isSavingEvaluation = false,
-                        errorMessage = exception.message ?: "Erro ao guardar avaliação."
+                        errorMessageRes = R.string.evaluation_save_error
                     )
                 }
         }

@@ -63,6 +63,13 @@ object Routes {
     const val COMPANY_ASSIGN_ADVISOR = "company_assign_advisor/{applicationId}"
     const val COMPANY_ASSIGN_ADVISOR_ARG = "applicationId"
 
+    const val COMPANY_ADVISORS = "company_advisors"
+
+    const val COMPANY_ADVISOR_DETAIL = "company_advisor_detail/{advisorId}"
+    const val COMPANY_ADVISOR_DETAIL_ARG = "advisorId"
+
+    const val COMPANY_ADD_ADVISOR = "company_add_advisor"
+
     const val CHAT = "chat/{applicationId}"
     const val CHAT_ARG = "applicationId"
 
@@ -170,6 +177,10 @@ object Routes {
 
     fun companyAssignAdvisor(applicationId: String): String {
         return "company_assign_advisor/${Uri.encode(applicationId)}"
+    }
+
+    fun companyAdvisorDetail(advisorId: String): String {
+        return "company_advisor_detail/${Uri.encode(advisorId)}"
     }
 
     fun companyStudentProfile(applicationId: String): String {

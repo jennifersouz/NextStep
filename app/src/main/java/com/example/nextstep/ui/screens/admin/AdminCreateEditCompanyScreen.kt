@@ -75,9 +75,9 @@ fun AdminCreateEditCompanyScreen(
     var description by rememberSaveable(existingCompany?.id) {
         mutableStateOf(existingCompany?.description ?: "")
     }
-    // isActive: carregar o valor real da empresa — nunca false por defeito
+    // isActive: carregar o valor real da empresa — true por defeito (novas empresas ativas)
     var isActive by rememberSaveable(existingCompany?.id) {
-        mutableStateOf(existingCompany?.isActive == true)
+        mutableStateOf(existingCompany?.isActive ?: true)
     }
 
     // Garantir sincronização se a empresa vier depois do primeiro render
@@ -93,7 +93,57 @@ fun AdminCreateEditCompanyScreen(
         }
     }
 
-    var nameError by rememberSaveable { mutableStateOf(false) }
+    var nameError by rememberSaveable { mutableStateOf<Int?>(null) }
+    var nifError by rememberSaveable { mutableStateOf<Int?>(null) }
+    var businessAreaError by rememberSaveable { mutableStateOf<Int?>(null) }
+    var locationError by rememberSaveable { mutableStateOf<Int?>(null) }
+    var phoneError by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    fun validateCompanyName(value: String): Int? {
+        return when {
+            value.isBlank() -> R.string.error_required_field
+            value.length < 2 -> R.string.error_company_name_too_short
+            !value.all { it.isLetter() || it.isWhitespace() || it == '&' || it == '-' || it == '.' } ->
+                R.string.error_invalid_company_name
+            else -> null
+        }
+    }
+
+    fun validateNif(value: String): Int? {
+        return when {
+            value.isBlank() -> null
+            !value.all { it.isDigit() } -> R.string.error_nif_digits
+            value.length != 9 -> R.string.error_nif_length
+            else -> null
+        }
+    }
+
+    fun validateBusinessArea(value: String): Int? {
+        return when {
+            value.isBlank() -> null
+            !value.all { it.isLetter() || it.isWhitespace() || it == '-' || it == '/' } ->
+                R.string.error_only_letters
+            else -> null
+        }
+    }
+
+    fun validateLocation(value: String): Int? {
+        return when {
+            value.isBlank() -> null
+            !value.all { it.isLetter() || it.isWhitespace() || it == '-' } ->
+                R.string.error_invalid_location
+            else -> null
+        }
+    }
+
+    fun validatePhone(value: String): Int? {
+        return when {
+            value.isBlank() -> null
+            !value.all { it.isDigit() } -> R.string.error_phone_digits
+            value.length != 9 -> R.string.error_phone_length
+            else -> null
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -141,7 +191,7 @@ fun AdminCreateEditCompanyScreen(
                 value = companyName,
                 onValueChange = {
                     companyName = it
-                    nameError = false
+                    nameError = validateCompanyName(it)
                 },
                 placeholder = { Text(stringResource(R.string.company_name_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -154,11 +204,11 @@ fun AdminCreateEditCompanyScreen(
                     cursorColor = Color.Black
                 ),
                 singleLine = true,
-                isError = nameError
+                isError = nameError != null
             )
-            if (nameError) {
+            nameError?.let {
                 Text(
-                    text = stringResource(R.string.company_name_required_error),
+                    text = stringResource(it),
                     color = Color(0xFFC62828),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp)
@@ -177,7 +227,11 @@ fun AdminCreateEditCompanyScreen(
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = nif,
-                onValueChange = { nif = it },
+                onValueChange = {
+                    val sanitized = it.filter { c -> c.isDigit() }.take(9)
+                    nif = sanitized
+                    nifError = validateNif(sanitized)
+                },
                 placeholder = { Text(stringResource(R.string.nif_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -188,8 +242,17 @@ fun AdminCreateEditCompanyScreen(
                     focusedContainerColor = Color(0xFFF5F5F5),
                     cursorColor = Color.Black
                 ),
-                singleLine = true
+                singleLine = true,
+                isError = nifError != null
             )
+            nifError?.let {
+                Text(
+                    text = stringResource(it),
+                    color = Color(0xFFC62828),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -203,7 +266,10 @@ fun AdminCreateEditCompanyScreen(
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = businessArea,
-                onValueChange = { businessArea = it },
+                onValueChange = {
+                    businessArea = it
+                    businessAreaError = validateBusinessArea(it)
+                },
                 placeholder = { Text(stringResource(R.string.business_area_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -214,8 +280,17 @@ fun AdminCreateEditCompanyScreen(
                     focusedContainerColor = Color(0xFFF5F5F5),
                     cursorColor = Color.Black
                 ),
-                singleLine = true
+                singleLine = true,
+                isError = businessAreaError != null
             )
+            businessAreaError?.let {
+                Text(
+                    text = stringResource(it),
+                    color = Color(0xFFC62828),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -229,7 +304,10 @@ fun AdminCreateEditCompanyScreen(
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = location,
-                onValueChange = { location = it },
+                onValueChange = {
+                    location = it
+                    locationError = validateLocation(it)
+                },
                 placeholder = { Text(stringResource(R.string.location_placeholder), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -240,8 +318,17 @@ fun AdminCreateEditCompanyScreen(
                     focusedContainerColor = Color(0xFFF5F5F5),
                     cursorColor = Color.Black
                 ),
-                singleLine = true
+                singleLine = true,
+                isError = locationError != null
             )
+            locationError?.let {
+                Text(
+                    text = stringResource(it),
+                    color = Color(0xFFC62828),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -255,7 +342,11 @@ fun AdminCreateEditCompanyScreen(
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = phone,
-                onValueChange = { phone = it },
+                onValueChange = {
+                    val sanitized = it.filter { c -> c.isDigit() }.take(9)
+                    phone = sanitized
+                    phoneError = validatePhone(sanitized)
+                },
                 placeholder = { Text(stringResource(R.string.phone_placeholder_example), color = Color(0xFF999999)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -266,8 +357,17 @@ fun AdminCreateEditCompanyScreen(
                     focusedContainerColor = Color(0xFFF5F5F5),
                     cursorColor = Color.Black
                 ),
-                singleLine = true
+                singleLine = true,
+                isError = phoneError != null
             )
+            phoneError?.let {
+                Text(
+                    text = stringResource(it),
+                    color = Color(0xFFC62828),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -338,9 +438,13 @@ fun AdminCreateEditCompanyScreen(
             // Save button
             Button(
                 onClick = {
-                    if (companyName.isBlank()) {
-                        nameError = true
-                    } else {
+                    nameError = validateCompanyName(companyName)
+                    nifError = validateNif(nif)
+                    businessAreaError = validateBusinessArea(businessArea)
+                    locationError = validateLocation(location)
+                    phoneError = validatePhone(phone)
+
+                    if (nameError == null && nifError == null && businessAreaError == null && locationError == null && phoneError == null) {
                         onSave(
                             companyName.trim(),
                             nif.trim().ifBlank { null },

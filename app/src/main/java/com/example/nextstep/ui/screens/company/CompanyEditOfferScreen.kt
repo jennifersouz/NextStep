@@ -133,7 +133,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onTitleChange,
                                     label = stringResource(R.string.offer_title),
                                     isError = state.titleError != null,
-                                    supportingText = state.titleError
+                                    supportingText = state.titleError?.let { stringResource(it) }
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
@@ -143,7 +143,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onAreaChange,
                                     label = stringResource(R.string.offer_area),
                                     isError = state.areaError != null,
-                                    supportingText = state.areaError
+                                    supportingText = state.areaError?.let { stringResource(it) }
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
@@ -153,7 +153,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onLocationChange,
                                     label = stringResource(R.string.offer_location),
                                     isError = state.locationError != null,
-                                    supportingText = state.locationError
+                                    supportingText = state.locationError?.let { stringResource(it) }
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
@@ -164,7 +164,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onWorkModeChange,
                                     items = listOf("Presencial", "Remoto", "Híbrido"),
                                     isError = state.workModeError != null,
-                                    supportingText = state.workModeError
+                                    supportingText = state.workModeError?.let { stringResource(it) }
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
@@ -174,7 +174,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onDurationChange,
                                     label = stringResource(R.string.offer_duration),
                                     isError = state.durationError != null,
-                                    supportingText = state.durationError
+                                    supportingText = state.durationError?.let { stringResource(it) }
                                 )
 
                                 Spacer(modifier = Modifier.height(14.dp))
@@ -184,7 +184,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onVacanciesChange,
                                     label = stringResource(R.string.offer_vacancies),
                                     isError = state.vacanciesError != null,
-                                    supportingText = state.vacanciesError,
+                                    supportingText = state.vacanciesError?.let { stringResource(it) },
                                     keyboardType = KeyboardType.Number
                                 )
                             }
@@ -195,7 +195,7 @@ fun CompanyEditOfferScreen(
                                     onValueChange = viewModel::onDescriptionChange,
                                     label = stringResource(R.string.offer_description),
                                     isError = state.descriptionError != null,
-                                    supportingText = state.descriptionError,
+                                    supportingText = state.descriptionError?.let { stringResource(it) },
                                     minLines = 4,
                                     maxLines = 7
                                 )
@@ -221,7 +221,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onTitleChange,
                             label = stringResource(R.string.offer_title),
                             isError = state.titleError != null,
-                            supportingText = state.titleError
+                            supportingText = state.titleError?.let { stringResource(it) }
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -231,7 +231,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onDescriptionChange,
                             label = stringResource(R.string.offer_description),
                             isError = state.descriptionError != null,
-                            supportingText = state.descriptionError,
+                            supportingText = state.descriptionError?.let { stringResource(it) },
                             minLines = 4,
                             maxLines = 7
                         )
@@ -243,7 +243,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onAreaChange,
                             label = stringResource(R.string.offer_area),
                             isError = state.areaError != null,
-                            supportingText = state.areaError
+                            supportingText = state.areaError?.let { stringResource(it) }
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -253,7 +253,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onLocationChange,
                             label = stringResource(R.string.offer_location),
                             isError = state.locationError != null,
-                            supportingText = state.locationError
+                            supportingText = state.locationError?.let { stringResource(it) }
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -264,7 +264,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onWorkModeChange,
                             items = listOf("Presencial", "Remoto", "Híbrido"),
                             isError = state.workModeError != null,
-                            supportingText = state.workModeError
+                            supportingText = state.workModeError?.let { stringResource(it) }
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -274,7 +274,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onDurationChange,
                             label = stringResource(R.string.offer_duration),
                             isError = state.durationError != null,
-                            supportingText = state.durationError
+                            supportingText = state.durationError?.let { stringResource(it) }
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -284,7 +284,7 @@ fun CompanyEditOfferScreen(
                             onValueChange = viewModel::onVacanciesChange,
                             label = stringResource(R.string.offer_vacancies),
                             isError = state.vacanciesError != null,
-                            supportingText = state.vacanciesError,
+                            supportingText = state.vacanciesError?.let { stringResource(it) },
                             keyboardType = KeyboardType.Number
                         )
 

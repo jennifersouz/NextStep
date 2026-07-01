@@ -364,6 +364,38 @@ private fun RegisterForm(
 
         UserRole.ADVISOR -> {
             AdvisorRegisterInfoBox()
+
+            RegisterTextField(
+                label = stringResource(R.string.advisor_name_required),
+                value = state.advisorName,
+                onValueChange = viewModel::onAdvisorNameChange,
+                placeholder = stringResource(R.string.advisor_register_name_placeholder),
+                errorMessageRes = state.advisorNameError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.advisor_last_name_required),
+                value = state.advisorLastName,
+                onValueChange = viewModel::onAdvisorLastNameChange,
+                placeholder = stringResource(R.string.advisor_last_name_placeholder),
+                errorMessageRes = state.advisorLastNameError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.advisor_department_required),
+                value = state.advisorDepartment,
+                onValueChange = viewModel::onAdvisorDepartmentChange,
+                placeholder = stringResource(R.string.advisor_department_placeholder),
+                errorMessageRes = state.advisorDepartmentError
+            )
+
+            RegisterTextField(
+                label = stringResource(R.string.advisor_phone_label),
+                value = state.advisorPhone,
+                onValueChange = viewModel::onAdvisorPhoneChange,
+                placeholder = stringResource(R.string.advisor_phone_placeholder),
+                errorMessageRes = state.advisorPhoneError
+            )
         }
 
         UserRole.INSTITUTION -> {

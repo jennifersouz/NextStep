@@ -43,9 +43,9 @@ fun TeacherRequestDetailScreen(
     }
 
     // Handle Action Errors (like document opening or update failures)
-    LaunchedEffect(state.actionError) {
-        state.actionError?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+    LaunchedEffect(state.actionErrorRes) {
+        state.actionErrorRes?.let { res ->
+            Toast.makeText(context, context.getString(res), Toast.LENGTH_LONG).show()
             viewModel.clearActionError()
         }
     }
@@ -79,13 +79,13 @@ fun TeacherRequestDetailScreen(
                 state.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color.Black)
                 }
-                state.loadError != null -> {
+                state.loadErrorRes != null -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = state.loadError ?: "",
+                            text = stringResource(state.loadErrorRes!!),
                             color = Color.Red,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )

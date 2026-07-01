@@ -148,10 +148,10 @@ fun TeacherMessagesScreen(
                     )
                 }
 
-                state.errorMessage != null -> {
+                state.errorMessageRes != null -> {
                     TeacherMessagesEmptyState(
                         title = stringResource(R.string.error_occurred),
-                        subtitle = state.errorMessage ?: stringResource(R.string.student_messages_load_error),
+                        subtitle = stringResource(state.errorMessageRes!!),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }

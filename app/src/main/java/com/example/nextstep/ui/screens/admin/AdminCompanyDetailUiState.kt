@@ -7,7 +7,9 @@ data class AdminCompanyDetailUiState(
     val isActionLoading: Boolean = false,
     val company: AdminCompanyDto? = null,
     val errorMessage: String? = null,
+    val errorMessageRes: Int? = null,
     val successMessage: String? = null,
+    val successMessageRes: Int? = null,
     val showDeactivateDialog: Boolean = false,
     val showReactivateDialog: Boolean = false,
     val showArchiveDialog: Boolean = false

@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.institution
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
@@ -21,7 +22,7 @@ class AddInstitutionUserViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             selectedType = type,
             emailError = null,
-            errorMessage = null
+            errorMessageRes = null
         )
     }
 
@@ -30,7 +31,7 @@ class AddInstitutionUserViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             email = cleanedValue,
             emailError = validateEmail(cleanedValue),
-            errorMessage = null
+            errorMessageRes = null
         )
     }
 
@@ -41,13 +42,13 @@ class AddInstitutionUserViewModel : ViewModel() {
 
         _uiState.value = state.copy(
             emailError = emailError,
-            errorMessage = if (emailError != null) "Corrija os campos assinalados antes de continuar." else null
+            errorMessageRes = if (emailError != null) R.string.form_has_errors else null
         )
 
         if (emailError != null) return
 
         viewModelScope.launch {
-            _uiState.value = state.copy(isLoading = true, errorMessage = null)
+            _uiState.value = state.copy(isLoading = true, errorMessageRes = null)
 
             val result = institutionUsersRepository.createInvite(
                 targetRole = if (state.selectedType == UserType.STUDENT) "student" else "teacher",
@@ -57,10 +58,10 @@ class AddInstitutionUserViewModel : ViewModel() {
             _uiState.value = state.copy(isLoading = false)
 
             if (result.isSuccess) {
-                _uiState.value = state.copy(isSuccess = true, errorMessage = null)
+                _uiState.value = state.copy(isSuccess = true, errorMessageRes = null)
             } else {
                 _uiState.value = state.copy(
-                    errorMessage = "Não foi possível criar o convite. Tente novamente.",
+                    errorMessageRes = R.string.employee_create_error,
                     isSuccess = false
                 )
             }
@@ -68,7 +69,14 @@ class AddInstitutionUserViewModel : ViewModel() {
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
+        _uiState.value = _uiState.value.copy(errorMessageRes = null)
+    }
+
+    fun clearAllMessages() {
+        _uiState.value = _uiState.value.copy(
+            emailError = null,
+            errorMessageRes = null
+        )
     }
 
     private fun validateEmail(value: String): Int? {
@@ -84,7 +92,7 @@ data class AddInstitutionUserUiState(
     val selectedType: UserType = UserType.STUDENT,
     val email: String = "",
     val emailError: Int? = null,
-    val errorMessage: String? = null,
+    @StringRes val errorMessageRes: Int? = null,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false
 )

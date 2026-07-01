@@ -10,7 +10,9 @@ data class AdminCompaniesUiState(
     val selectedFilter: AdminCompaniesFilter = AdminCompaniesFilter.ALL,
     val selectedCompany: AdminCompanyDto? = null,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val errorMessageRes: Int? = null,
+    val successMessage: String? = null,
+    val successMessageRes: Int? = null
 )
 
 enum class AdminCompaniesFilter(val labelRes: Int) {

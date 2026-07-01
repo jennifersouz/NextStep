@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.admin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.util.Log
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
 import com.example.nextstep.data.model.AdminCompanyEditRequest
 import com.example.nextstep.data.model.AdminCompanyUpdateDto
@@ -45,8 +46,7 @@ class AdminCompaniesViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível carregar as empresas."
+                    errorMessageRes = R.string.error_failed_to_load_companies
                 )
             }
         }
@@ -78,14 +78,13 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Empresa criada com sucesso."
+                    successMessageRes = R.string.company_created_success
                 )
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível criar a empresa."
+                    errorMessageRes = R.string.error_could_not_create_company
                 )
             }
         }
@@ -96,12 +95,12 @@ class AdminCompaniesViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             val result = repository.updateCompany(companyId, data)
             if (result.isSuccess) {
-                _uiState.value = _uiState.value.copy(successMessage = "Empresa atualizada com sucesso.")
+                _uiState.value = _uiState.value.copy(successMessageRes = R.string.company_updated_success)
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível atualizar a empresa."
+                    errorMessageRes = R.string.error_could_not_update_company
                 )
             }
         }
@@ -145,7 +144,7 @@ class AdminCompaniesViewModel : ViewModel() {
                 // Atualizar selectedCompany para que o detalhe reflita imediatamente
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    successMessage = "Empresa atualizada com sucesso.",
+                    successMessageRes = R.string.company_updated_success,
                     selectedCompany = updated
                 )
                 loadCompanies()
@@ -154,7 +153,7 @@ class AdminCompaniesViewModel : ViewModel() {
                 Log.e("AdminCompaniesVM", "editCompany failed id=$companyId", result.exceptionOrNull())
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível guardar as alterações da empresa."
+                    errorMessageRes = R.string.error_could_not_save_company_changes
                 )
                 onError()
             }
@@ -167,13 +166,12 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = if (isActive) "Empresa ativada com sucesso." else "Empresa desativada com sucesso."
+                    successMessageRes = if (isActive) R.string.company_activated_success else R.string.company_deactivated_success
                 )
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível alterar o estado da empresa."
+                    errorMessageRes = R.string.error_could_not_change_company_status
                 )
             }
         }
@@ -185,14 +183,13 @@ class AdminCompaniesViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    successMessage = "Empresa desativada com sucesso.",
+                    successMessageRes = R.string.company_deactivated_success,
                     selectedCompany = null
                 )
                 loadCompanies()
             } else {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = result.exceptionOrNull()?.message
-                        ?: "Não foi possível remover a empresa."
+                    errorMessageRes = R.string.error_could_not_remove_company
                 )
             }
         }

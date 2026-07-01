@@ -10,7 +10,7 @@ data class TeacherEditProfileUiState(
     val email: String = "",
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
-    val nameError: String? = null,
+    @StringRes val nameError: Int? = null,
     @StringRes val errorMessageRes: Int? = null,
     @StringRes val successMessageRes: Int? = null
 ) {

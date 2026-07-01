@@ -48,7 +48,7 @@
     <string name="student_name_label">Nome</string>
     <string name="last_name_required">Apelido *</string>
     <string name="last_name_placeholder">Insira o seu último nome</string>
-    <string name="student_number_required">Número*</string>
+    <string name="student_number_required">Número de aluno *</string>
     <string name="student_number_placeholder">Ex: 31086</string>
     <string name="course_required">Curso *</string>
     <string name="course_placeholder">Ex: Engenharia Informática</string>
@@ -96,7 +96,8 @@
     <string name="error_nif_digits">O NIF deve conter apenas dígitos.</string>
     <string name="error_nif_length">O NIF deve ter 9 dígitos.</string>
     <string name="error_name_too_short">O nome deve ter pelo menos 2 caracteres.</string>
-    <string name="error_only_letters">Use apenas letras e espaços.</string>
+    <string name="error_only_letters">Este campo só pode conter letras.</string>
+    <string name="error_invalid_location">A localização só pode conter letras.</string>
     <string name="error_company_name_too_short">O nome da empresa deve ter pelo menos 2 caracteres.</string>
     <string name="error_invalid_company_name">Use apenas letras, espaços, - ou .</string>
     <string name="error_company_name_required">Insere o nome da empresa.</string>
@@ -408,7 +409,11 @@
     <string name="delete_advisor">Eliminar</string>
     <string name="delete_advisor_confirmation">Tens a certeza de que queres eliminar este orientador?</string>
     <string name="advisors_load_error">Não foi possível carregar os orientadores.</string>
-    <string name="advisor_create_error">Não foi possível registar o orientador.</string>
+    <string name="advisor_create_error">Não foi possível criar o convite do orientador.</string>
+    <string name="error_advisor_email_required">Introduz o e-mail do orientador.</string>
+    <string name="advisor_invite_sent">Convite enviado ao orientador.</string>
+    <string name="advisor_invite_pending_exists">Já existe um convite pendente para este e-mail.</string>
+    <string name="advisor_invite_account_exists">Já existe uma conta associada a este e-mail.</string>
     <string name="advisor_delete_error">Não foi possível eliminar o orientador.</string>
     <string name="no_advisors">Ainda não tens orientadores registados.</string>
     <string name="sort_ascending">Ordenar A-Z</string>
@@ -454,7 +459,18 @@
 
     <string name="advisor_invite_pending">Pendente</string>
     <string name="advisor_invite_active">Ativo</string>
-    <string name="advisor_register_no_invite">Não existe convite de orientador para este email.</string>
+    <string name="advisor_register_no_invite">Não existe convite pendente para este e-mail.</string>
+    <string name="error_user_already_exists_advisor">Já existe uma conta com este e-mail. Faz login para aceitar o convite.</string>
+    <string name="error_advisor_register_generic">Não foi possível concluir o registo do orientador.</string>
+    <string name="error_advisor_orphan_account">Conta criada, mas não foi possível associar o convite. Faz login novamente ou contacta o suporte.</string>
+    <string name="advisor_name_required">Nome *</string>
+    <string name="advisor_register_name_placeholder">Insira o seu nome</string>
+    <string name="advisor_last_name_required">Apelido *</string>
+    <string name="advisor_last_name_placeholder">Insira o seu apelido</string>
+    <string name="advisor_phone_label">Telefone</string>
+    <string name="advisor_phone_placeholder">Insira o seu telefone</string>
+    <string name="advisor_department_required">Departamento *</string>
+    <string name="advisor_department_placeholder">Insira o seu departamento</string>
     <string name="advisor_register_success">Conta de orientador criada com sucesso.</string>
     <string name="advisor_register_title">Registo de orientador</string>
     <string name="advisor_register_description">Para criares uma conta como orientador, a empresa deve ter criado previamente um convite com este email.</string>
@@ -520,7 +536,7 @@
     <string name="contact">Contacto</string>
     <string name="not_specified">Não indicado</string>
     <string name="department">Departamento</string>
-    <string name="advisor_name_placeholder">Orientador</string>
+    <string name="advisor_name_placeholder">Insira o seu nome</string>
     <string name="advisor_profile_load_error">Não foi possível carregar o perfil do orientador.</string>
 
     <!-- Institution Flow -->
@@ -640,6 +656,26 @@
     <string name="new_assigned_student">Novo aluno atribuído</string>
     <string name="new_assigned_student_message">Foi-te atribuído um novo aluno para orientação.</string>
     <string name="new_message_from_student">O aluno enviou uma nova mensagem.</string>
+
+    <string name="teacher_requests_load_error">Erro ao carregar pedidos.</string>
+    <string name="teacher_accept_request_error">Erro ao aceitar pedido.</string>
+    <string name="teacher_reject_request_error">Erro ao rejeitar pedido.</string>
+    <string name="teacher_request_detail_load_error">Não foi possível carregar os detalhes do pedido.</string>
+    <string name="error_opening_document">Não foi possível abrir o documento.</string>
+    <string name="teachers_load_error">Não foi possível carregar os docentes.</string>
+    <string name="teacher_load_error">Não foi possível carregar o docente.</string>
+    <string name="teacher_archive_error">Não foi possível arquivar o docente.</string>
+    <string name="teacher_archive_success">Docente arquivado com sucesso.</string>
+    <string name="students_load_error">Não foi possível carregar os alunos.</string>
+    <string name="student_load_error">Não foi possível carregar o aluno.</string>
+    <string name="student_archive_error">Não foi possível arquivar o aluno.</string>
+    <string name="student_archive_success">Aluno arquivado com sucesso.</string>
+    <string name="institution_user_load_error">Não foi possível carregar o utilizador.</string>
+    <string name="internship_detail_load_error">Erro ao carregar detalhes do estágio.</string>
+    <string name="error_saving_task">Erro ao guardar tarefa.</string>
+    <string name="error_reading_file">Não foi possível ler o ficheiro.</string>
+    <string name="report_submitted_success">Relatório submetido com sucesso.</string>
+    <string name="error_attaching_report">Não foi possível anexar o relatório.</string>
 
     <!-- Teacher Requests -->
     <string name="requests">Pedidos</string>
@@ -766,6 +802,7 @@
     <string name="advisor_assigned_at">Atribuído em</string>
     <string name="advisor_empty_state_description">Quando um orientador for atribuído, os seus detalhes aparecerão aqui.</string>
     <string name="view_advisor_profile">Ver perfil do orientador</string>
+    <string name="academic_year_required">Ano letivo *</string>
     <string name="academic_year_label">Ano letivo</string>
     <string name="academic_year_suffix">.º ano</string>
     <string name="accepted_label">Aceite</string>
@@ -857,6 +894,8 @@
     <string name="no_employees">Ainda não existem funcionários.</string>
     <string name="send_employee_invite">Enviar convite</string>
     <string name="employee_invite_description">O funcionário receberá/terá de usar este email para criar a própria conta na aplicação.</string>
+    <string name="employee_invite_created">Convite criado. O funcionário deve criar conta com este email.</string>
+    <string name="employee_email_placeholder">Insira o email do funcionário</string>
     <string name="employees_load_error">Não foi possível carregar os funcionários.</string>
     <string name="employee_create_error">Não foi possível criar o convite. Tente novamente.</string>
     <string name="confirm_mark_inactive_title">Marcar como inativo</string>
@@ -941,7 +980,8 @@
     <string name="no_chats_yet_label">Ainda não existem conversas</string>
     <string name="no_companies_found">Nenhuma empresa encontrada</string>
     <string name="no_conversation_found">Nenhuma conversa encontrada</string>
-    <string name="no_institutions_available">Nenhuma instituição disponível</string>
+    <string name="loading_institutions">A carregar instituições...</string>
+    <string name="no_institutions_available">Não existem instituições ativas disponíveis.</string>
     <string name="no_messages_tap_to_start">Sem mensagens. Toque para começar</string>
     <string name="no_recent_activities_label">Sem atividades recentes</string>
     <string name="no_tasks_assigned">Nenhuma tarefa atribuída</string>
@@ -1003,7 +1043,13 @@
     <string name="unread_count_over_9">9+</string>
     <string name="updating_label">A atualizar</string>
     <string name="user_details_title">Detalhes do utilizador</string>
+    <string name="user_details">Detalhes do utilizador</string>
     <string name="user_removed_message">Utilizador removido com sucesso</string>
+    <string name="user_archived_success">Utilizador arquivado com sucesso.</string>
+    <string name="name">Nome</string>
+    <string name="archived">Arquivado</string>
+    <string name="role">Função</string>
+    <string name="archived_on">Arquivado em</string>
     <string name="users_label">Utilizadores</string>
     <string name="view_company_offers">Ver ofertas da empresa</string>
     <string name="view_document">Ver documento</string>
@@ -1064,6 +1110,138 @@
     <string name="user_type_filter_label">Tipo</string>
     <string name="user_status_filter_label">Estado</string>
     <string name="user_type_advisors">Orientadores</string>
+    <string name="user_type_institutions">Instituições de ensino</string>
     <string name="user_type_admins">Administradores</string>
     <string name="filter_inactive_masc">Inativos</string>
+    <string name="filter_inactive">Inativos</string>
+    <string name="filter_accepted">Aceites</string>
+
+    <!-- Phone validation -->
+    <string name="error_phone_digits">O telemóvel deve conter apenas dígitos.</string>
+    <string name="error_phone_length">O telemóvel deve ter 9 dígitos.</string>
+
+    <!-- Admin Edit User -->
+    <string name="user_updated_success">Utilizador atualizado com sucesso.</string>
+
+    <!-- Admin Profile -->
+    <string name="admin_role">Administrador</string>
+    <string name="profile_updated_success">Perfil atualizado com sucesso.</string>
+
+    <!-- Admin Create User - Validation -->
+    <string name="error_email_required">Insere um email.</string>
+    <string name="error_password_required">Insere uma password temporária.</string>
+    <string name="error_name_required">Nome obrigatório.</string>
+    <string name="error_student_number_required">Número de aluno obrigatório.</string>
+    <string name="error_course_required">Curso obrigatório.</string>
+    <string name="error_academic_year_required">Ano académico obrigatório.</string>
+    <string name="error_academic_year_invalid">Insere um ano académico válido (1-6).</string>
+    <string name="error_institution_required">Seleciona uma instituição.</string>
+    <string name="error_nif_required">NIF obrigatório.</string>
+    <string name="error_business_area_required">Área de negócio obrigatória.</string>
+    <string name="error_location_required">Localização obrigatória.</string>
+    <string name="error_company_select_required">Seleciona a empresa do orientador.</string>
+    <string name="error_institution_name_required">Nome da instituição obrigatório.</string>
+    <string name="error_invalid_role_type">O tipo de utilizador selecionado é inválido. Atualiza a lista de tipos e tenta novamente.</string>
+    <string name="error_email_already_exists">Já existe uma conta com este email.</string>
+    <string name="error_verify_email">Verifica o email informado.</string>
+    <string name="error_user_not_found">Utilizador não encontrado.</string>
+    <string name="error_could_not_load_user">Não foi possível carregar os dados do utilizador.</string>
+    <string name="error_could_not_update_user">Não foi possível atualizar o utilizador.</string>
+    <string name="error_create_user_failed">Não foi possível criar o utilizador. Tente novamente.</string>
+    <string name="user_created_success">Utilizador criado com sucesso.</string>
+    <string name="user_deactivated_success">Acesso do utilizador desativado com sucesso.</string>
+    <string name="user_reactivated_success">Acesso do utilizador reativado com sucesso.</string>
+    <string name="user_activated_success">Conta ativada com sucesso.</string>
+    <string name="user_deleted_success">Utilizador desativado com sucesso.</string>
+    <string name="user_access_deactivated_success">Acesso do utilizador desativado com sucesso.</string>
+    <string name="user_access_reactivated_success">Acesso do utilizador reativado com sucesso.</string>
+    <string name="error_could_not_load_users">Não foi possível carregar os utilizadores.</string>
+    <string name="error_could_not_update_user_status">Não foi possível alterar o estado da conta.</string>
+    <string name="error_could_not_remove_user">Não foi possível remover o utilizador.</string>
+    <string name="error_could_not_load_profile">Não foi possível carregar o perfil.</string>
+    <string name="error_could_not_deactivate_access">Não foi possível desativar o acesso.</string>
+    <string name="error_could_not_reactivate_user">Não foi possível reativar o utilizador.</string>
+    <string name="error_could_not_archive_user">Não foi possível remover o utilizador da plataforma.</string>
+    <string name="error_failed_to_load_companies">Não foi possível carregar as empresas.</string>
+    <string name="error_could_not_update_company">Não foi possível atualizar a empresa.</string>
+
+    <!-- Education Institution dropdown -->
+    <string name="select_education_institution">Instituição de Ensino *</string>
+
+    <!-- Company management strings for Admin -->
+    <string name="company_created_success">Empresa criada com sucesso.</string>
+    <string name="company_updated_success">Empresa atualizada com sucesso.</string>
+    <string name="company_deactivated_success">Empresa desativada com sucesso.</string>
+    <string name="company_activated_success">Empresa ativada com sucesso.</string>
+    <string name="company_access_deactivated_success">Acesso da empresa desativado com sucesso.</string>
+    <string name="company_access_reactivated_success">Acesso da empresa reativado com sucesso.</string>
+    <string name="company_removed_success">Empresa removida da plataforma com sucesso.</string>
+    <string name="error_could_not_create_company">Não foi possível criar a empresa.</string>
+    <string name="error_could_not_save_company_changes">Não foi possível guardar as alterações da empresa.</string>
+    <string name="error_could_not_change_company_status">Não foi possível alterar o estado da empresa.</string>
+    <string name="error_could_not_remove_company">Não foi possível remover a empresa.</string>
+    <string name="error_could_not_remove_company_from_platform">Não foi possível remover a empresa da plataforma.</string>
+
+    <!-- Offer validation -->
+    <string name="error_offer_title_required">Título obrigatório.</string>
+    <string name="error_offer_description_required">Descrição obrigatória.</string>
+    <string name="error_offer_area_required">Área obrigatória.</string>
+    <string name="error_offer_location_required">Localização obrigatória.</string>
+    <string name="error_offer_work_mode_required">Seleciona o regime da oferta.</string>
+    <string name="error_offer_duration_required">Duração obrigatória.</string>
+    <string name="error_offer_vacancies_required">Número de vagas obrigatório.</string>
+    <string name="error_offer_vacancies_invalid">Insere um número de vagas válido.</string>
+    <string name="error_offer_vacancies_positive">O número de vagas deve ser superior a zero.</string>
+
+    <!-- Profile and task validation -->
+    <string name="error_name_required_generic">O nome é obrigatório.</string>
+    <string name="error_task_title_required">O título é obrigatório.</string>
+
+    <!-- Grade validation -->
+    <string name="error_grade_required_teacher">Insere uma nota.</string>
+
+    <!-- Company offer update messages -->
+    <string name="company_offer_update_success">Oferta atualizada com sucesso.</string>
+
+    <!-- Teacher evaluation messages -->
+    <string name="evaluation_save_error">Erro ao guardar avaliação.</string>
+    <string name="evaluation_load_error">Erro ao carregar avaliação.</string>
+
+    <!-- Teacher Dashboard -->
+    <string name="teacher_dashboard_load_error">Erro ao carregar dados do dashboard.</string>
+    <string name="teacher_activity_request_accepted">Pedido aceite</string>
+    <string name="teacher_activity_request_rejected">Pedido rejeitado</string>
+    <string name="teacher_activity_new_request">Novo pedido recebido</string>
+    <string name="teacher_activity_new_message">Nova mensagem</string>
+
+    <!-- Teacher Conversations -->
+    <string name="teacher_conversations_load_error">Erro ao carregar conversas.</string>
+
+    <!-- Teacher Requests -->
+    <string name="teacher_request_accept_error">Erro ao aceitar pedido.</string>
+    <string name="teacher_request_reject_error">Erro ao rejeitar pedido.</string>
+    <string name="teacher_request_document_open_error">Não foi possível abrir o documento.</string>
+
+    <!-- Generic error messages -->
+    <string name="error_loading_offers">Não foi possível carregar as ofertas.</string>
+    <string name="error_loading_intern_students">Não foi possível carregar os alunos em estágio.</string>
+    <string name="error_loading_student">Não foi possível carregar o aluno.</string>
+    <string name="error_archiving_student">Não foi possível arquivar o aluno.</string>
+    <string name="student_archived_successfully">Aluno arquivado com sucesso.</string>
+    <string name="error_loading_teacher">Não foi possível carregar o docente.</string>
+    <string name="error_archiving_teacher">Não foi possível arquivar o docente.</string>
+    <string name="teacher_archived_successfully">Docente arquivado com sucesso.</string>
+    <string name="error_loading_user">Não foi possível carregar o utilizador.</string>
+
+    <!-- Company Offers -->
+    <string name="offer_deactivated_successfully">Oferta desativada com sucesso.</string>
+    <string name="offer_activated_successfully">Oferta ativada com sucesso.</string>
+    <string name="offer_archived_successfully">Oferta arquivada com sucesso.</string>
+
+    <!-- Internship Status -->
+    <string name="internship_status_active">Ativo</string>
+    <string name="internship_status_in_progress">Em progresso</string>
+    <string name="internship_status_inactive">Inativo</string>
+    <string name="internship_status_cancelled">Cancelado</string>
+    <string name="internship_status_unknown">Desconhecido</string>
 </resources>

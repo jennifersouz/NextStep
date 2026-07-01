@@ -25,7 +25,10 @@ import com.example.nextstep.ui.screens.auth.LoginScreen
 import com.example.nextstep.ui.screens.auth.RegisterScreen
 import com.example.nextstep.ui.screens.auth.UserRole
 import com.example.nextstep.ui.screens.chat.ApplicationChatScreen
+import com.example.nextstep.ui.screens.company.AddCompanyAdvisorScreen
 import com.example.nextstep.ui.screens.company.AssignAdvisorScreen
+import com.example.nextstep.ui.screens.company.CompanyAdvisorDetailScreen
+import com.example.nextstep.ui.screens.company.CompanyAdvisorsScreen
 import com.example.nextstep.ui.screens.company.CompanyApplicationDetailScreen
 import com.example.nextstep.ui.screens.company.AddCompanyEmployeeScreen
 import com.example.nextstep.ui.screens.company.CompanyDashboardScreen
@@ -695,6 +698,9 @@ fun AppNavigation() {
                 },
                 onAddUserClick = {
                     navController.navigate(Routes.ADMIN_CREATE_USER)
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -702,10 +708,15 @@ fun AppNavigation() {
         composable(Routes.ADMIN_CREATE_USER) {
             AdminCreateUserScreen(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.navigateBackOr(Routes.ADMIN_DASHBOARD)
                 },
                 onUserCreated = {
-                    navController.popBackStack()
+                    navController.navigate(Routes.ADMIN_DASHBOARD) {
+                        popUpTo(Routes.ADMIN_DASHBOARD) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -1096,6 +1107,9 @@ fun AppNavigation() {
                 onAddEmployeeClick = {
                     navController.navigate(Routes.ADD_COMPANY_EMPLOYEE)
                 },
+                onAdvisorsClick = {
+                    navController.navigate(Routes.COMPANY_ADVISORS)
+                },
                 onLogoutSuccess = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(navController.graph.id) {
@@ -1113,6 +1127,56 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.COMPANY_ADVISORS) {
+            CompanyAdvisorsScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onAddClick = {
+                    navController.navigate(Routes.COMPANY_ADD_ADVISOR)
+                },
+                onAdvisorClick = { advisorId ->
+                    navController.navigate(
+                        Routes.companyAdvisorDetail(advisorId)
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = Routes.COMPANY_ADVISOR_DETAIL,
+            arguments = listOf(
+                navArgument(Routes.COMPANY_ADVISOR_DETAIL_ARG) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val advisorId = backStackEntry.arguments
+                ?.getString(Routes.COMPANY_ADVISOR_DETAIL_ARG)
+                .orEmpty()
+
+            CompanyAdvisorDetailScreen(
+                advisorId = advisorId,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onAdvisorDeleted = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.COMPANY_ADD_ADVISOR) {
+            AddCompanyAdvisorScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onAdvisorCreated = {
                     navController.popBackStack()
                 }
             )

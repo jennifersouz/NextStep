@@ -51,6 +51,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDto
 import com.example.nextstep.ui.screens.admin.AppFilterDropdown
+import com.example.nextstep.ui.screens.admin.UserStatusFilter
+import com.example.nextstep.ui.screens.admin.UserTypeFilter
+import com.example.nextstep.ui.screens.admin.labelRes
 
 @Composable
 fun InstitutionUsersScreen(
@@ -119,8 +122,8 @@ internal fun InstitutionUsersContent(
     showBackButton: Boolean = false,
     onBackClick: (() -> Unit)? = null,
     onAddUserClick: () -> Unit,
-    onTypeFilterChange: (String) -> Unit,
-    onStatusFilterChange: (String) -> Unit,
+    onTypeFilterChange: (UserTypeFilter) -> Unit,
+    onStatusFilterChange: (UserStatusFilter) -> Unit,
     onSearchChange: (String) -> Unit,
     onDeleteInvite: (InstitutionUserDto) -> Unit = {},
     onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> }
@@ -211,25 +214,18 @@ internal fun InstitutionUsersContent(
             ) {
                 AppFilterDropdown(
                     label = stringResource(R.string.user_type_filter_label),
-                    selectedOption = state.selectedTypeFilter,
-                    options = listOf(
-                        "Todos",
-                        "Alunos",
-                        "Docentes"
-                    ),
+                    selectedOption = stringResource(state.selectedTypeFilter.labelRes()),
+                    options = listOf(UserTypeFilter.ALL, UserTypeFilter.STUDENTS, UserTypeFilter.TEACHERS),
+                    optionLabel = { stringResource(it.labelRes()) },
                     onOptionSelected = onTypeFilterChange,
                     modifier = Modifier.weight(1f)
                 )
 
                 AppFilterDropdown(
                     label = stringResource(R.string.user_status_filter_label),
-                    selectedOption = state.selectedStatusFilter,
-                    options = listOf(
-                        "Todos",
-                        "Pendente",
-                        "Aceite",
-                        "Arquivado"
-                    ),
+                    selectedOption = stringResource(state.selectedStatusFilter.labelRes()),
+                    options = listOf(UserStatusFilter.ALL, UserStatusFilter.PENDING, UserStatusFilter.ACCEPTED, UserStatusFilter.ARCHIVED),
+                    optionLabel = { stringResource(it.labelRes()) },
                     onOptionSelected = onStatusFilterChange,
                     modifier = Modifier.weight(1f)
                 )
@@ -248,7 +244,7 @@ internal fun InstitutionUsersContent(
                 )
             } else if (sortedUsers.isEmpty()) {
                 InstitutionUsersEmptyState(
-                    isFiltered = state.selectedTypeFilter != "Todos" || state.selectedStatusFilter != "Todos" || state.searchQuery.isNotBlank()
+                    isFiltered = state.selectedTypeFilter != UserTypeFilter.ALL || state.selectedStatusFilter != UserStatusFilter.ALL || state.searchQuery.isNotBlank()
                 )
             } else {
                 LazyColumn(
@@ -383,7 +379,7 @@ private fun InviteStatusBadge(user: InstitutionUserDto) {
     val archived = isArchived(user)
 
     val label = when {
-        archived -> "Arquivado"
+        archived -> stringResource(R.string.archived_status)
         accepted -> stringResource(R.string.accepted)
         else -> stringResource(R.string.pending)
     }
@@ -483,7 +479,7 @@ private fun institutionUserSubtitle(user: InstitutionUserDto): String {
     val archived = isArchived(user)
 
     if (archived) {
-        return "$roleLabel · Arquivado"
+        return "$roleLabel · ${stringResource(R.string.archived_status)}"
     }
 
     if (!accepted) {

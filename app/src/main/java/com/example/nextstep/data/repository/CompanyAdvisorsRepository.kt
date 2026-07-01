@@ -2,9 +2,9 @@ package com.example.nextstep.data.repository
 
 import android.util.Log
 import com.example.nextstep.data.model.AdvisorDto
+import com.example.nextstep.data.model.AdvisorInviteCreateDto
 import com.example.nextstep.data.model.AdvisorInviteDto
 import com.example.nextstep.data.model.CompanyAdvisorDto
-import com.example.nextstep.data.model.CreateCompanyAdvisorDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
@@ -42,30 +42,48 @@ class CompanyAdvisorsRepository {
                 .toSet()
 
             val activeItems = activeAdvisors.map { advisor ->
+                val activeDisplayName = advisor.name
+                    .takeIf { it.isNotBlank() }
+                    ?: advisor.email
+
                 CompanyAdvisorDto(
                     id = advisor.profileId,
                     profileId = advisor.profileId,
-                    name = advisor.name,
+                    name = activeDisplayName,
                     email = advisor.email,
-                    phone = advisor.phone,
-                    department = advisor.department,
+                    phone = advisor.phone ?: "",
+                    department = advisor.department ?: "",
                     status = "active"
                 )
             }
 
             val pendingItems = invites
                 .filter { invite ->
-                    invite.status == "pending" &&
-                            invite.email.lowercase().trim() !in activeEmails
+                    val inviteStatus = invite.status?.lowercase()?.trim() ?: "pending"
+                    inviteStatus == "pending" &&
+                            invite.acceptedAt == null &&
+                            invite.email.trim().lowercase() !in activeEmails
                 }
                 .map { invite ->
+                    val inviteDisplayName = invite.name
+                        ?.takeIf { it.isNotBlank() }
+                        ?: invite.email
+
+                    val invitePhone = invite.phone
+                        ?.takeIf { it.isNotBlank() }
+                        ?: ""
+
+                    val inviteDepartment = invite.department
+                        ?.takeIf { it.isNotBlank() }
+                        ?: ""
+
                     CompanyAdvisorDto(
                         id = invite.id,
-                        profileId = invite.advisorProfileId,
-                        name = invite.name,
+                        profileId = "",
+                        name = inviteDisplayName,
                         email = invite.email,
-                        phone = invite.phone,
-                        department = invite.department,
+                        phone = invitePhone,
+                        department = inviteDepartment,
                         status = "pending"
                     )
                 }
@@ -75,7 +93,10 @@ class CompanyAdvisorsRepository {
                     compareBy<CompanyAdvisorDto> { advisor ->
                         if (advisor.status == "active") 0 else 1
                     }.thenBy { advisor ->
-                        advisor.name.lowercase()
+                        advisor.name
+                            .ifBlank { advisor.email }
+                            .lowercase()
+                            .trim()
                     }
                 )
 
@@ -103,25 +124,59 @@ class CompanyAdvisorsRepository {
         }
     }
 
-    suspend fun createAdvisor(
-        name: String,
-        email: String,
-        phone: String,
-        department: String
-    ): Result<Unit> {
+    suspend fun inviteAdvisor(email: String): Result<Unit> {
         return try {
             val companyProfileId = auth.currentUserOrNull()?.id
                 ?: throw IllegalStateException("Empresa não autenticada.")
 
+            val normalizedEmail = email.trim().lowercase()
+
+            // Verificar se já existe um convite pendente para este email
+            val existingInvites = supabase
+                .from("advisor_invites")
+                .select {
+                    filter {
+                        eq("company_profile_id", companyProfileId)
+                        eq("email", normalizedEmail)
+                    }
+                }
+                .decodeList<AdvisorInviteDto>()
+
+            val hasPendingInvite = existingInvites.any { invite ->
+                val inviteStatus = invite.status?.lowercase()?.trim() ?: "pending"
+                inviteStatus == "pending" && invite.acceptedAt == null
+            }
+
+            if (hasPendingInvite) {
+                return Result.failure(
+                    IllegalStateException("Já existe um convite pendente para este e-mail.")
+                )
+            }
+
+            // Verificar se já existe um orientador ativo com este email
+            val existingActive = supabase
+                .from("advisors")
+                .select {
+                    filter {
+                        eq("company_profile_id", companyProfileId)
+                        eq("email", normalizedEmail)
+                    }
+                }
+                .decodeList<AdvisorDto>()
+
+            if (existingActive.isNotEmpty()) {
+                return Result.failure(
+                    IllegalStateException("Já existe um orientador ativo com este e-mail.")
+                )
+            }
+
             supabase
                 .from("advisor_invites")
                 .insert(
-                    CreateCompanyAdvisorDto(
+                    AdvisorInviteCreateDto(
                         companyProfileId = companyProfileId,
-                        name = name.trim(),
-                        email = email.trim().lowercase(),
-                        phone = phone.trim().ifBlank { null },
-                        department = department.trim().ifBlank { null }
+                        email = normalizedEmail,
+                        status = "pending"
                     )
                 )
 
@@ -139,7 +194,7 @@ class CompanyAdvisorsRepository {
             val companyProfileId = auth.currentUserOrNull()?.id
                 ?: throw IllegalStateException("Empresa não autenticada.")
 
-            // Tenta apagar como convite pendente
+            // Tenta apagar como convite pendente - não crasha se não encontrar
             runCatching {
                 supabase
                     .from("advisor_invites")
@@ -151,7 +206,7 @@ class CompanyAdvisorsRepository {
                     }
             }
 
-            // Tenta apagar como orientador ativo
+            // Tenta apagar como orientador ativo - não crasha se não encontrar
             runCatching {
                 supabase
                     .from("advisors")

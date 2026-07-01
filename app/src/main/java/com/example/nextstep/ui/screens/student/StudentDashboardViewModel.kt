@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.student
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.repository.NotificationsRepository
 import com.example.nextstep.data.repository.OffersRepository
 import com.example.nextstep.data.repository.StudentNotificationsRepository
@@ -51,7 +52,7 @@ class StudentDashboardViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessageRes = null
             )
 
             val result = offersRepository.getActiveOffers()
@@ -60,13 +61,13 @@ class StudentDashboardViewModel : ViewModel() {
                 _uiState.value.copy(
                     offers = result.getOrDefault(emptyList()),
                     isLoading = false,
-                    errorMessage = null
+                    errorMessageRes = null
                 )
             } else {
                 _uiState.value.copy(
                     offers = emptyList(),
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar as ofertas. Tente novamente."
+                    errorMessageRes = R.string.error_loading_offers
                 )
             }
         }

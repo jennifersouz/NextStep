@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.admin
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyDto
 import com.example.nextstep.data.repository.AdminCompaniesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +49,7 @@ class AdminCompanyDetailViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar a empresa."
+                    errorMessageRes = R.string.error_failed_to_load_companies
                 )
             }
         }
@@ -86,13 +87,13 @@ class AdminCompanyDetailViewModel : ViewModel() {
         val profileId = company.profileId
         if (profileId.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
-                errorMessage = "Não foi possível atualizar o estado da empresa."
+                errorMessageRes = R.string.error_could_not_change_company_status
             )
             Log.e("AdminCompanyDetailVM", "deactivate: profileId está vazio para empresa id=${company.id}")
             return
         }
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null)
+            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null, successMessageRes = null)
             dismissDialogs()
 
             val result = repository.deactivateCompany(company.id, profileId)
@@ -101,14 +102,14 @@ class AdminCompanyDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     company = updated ?: _uiState.value.company,
-                    successMessage = "Acesso da empresa desativado com sucesso."
+                    successMessageRes = R.string.company_access_deactivated_success
                 )
             } else {
                 val ex = result.exceptionOrNull()
                 Log.e("AdminCompanyDetailVM", "Erro ao desativar empresa id=${company.id}", ex)
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível atualizar o estado da empresa."
+                    errorMessageRes = R.string.error_could_not_change_company_status
                 )
             }
         }
@@ -119,13 +120,13 @@ class AdminCompanyDetailViewModel : ViewModel() {
         val profileId = company.profileId
         if (profileId.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
-                errorMessage = "Não foi possível atualizar o estado da empresa."
+                errorMessageRes = R.string.error_could_not_change_company_status
             )
             Log.e("AdminCompanyDetailVM", "reactivate: profileId está vazio para empresa id=${company.id}")
             return
         }
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null)
+            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null, successMessageRes = null)
             dismissDialogs()
 
             val result = repository.reactivateCompany(company.id, profileId)
@@ -134,14 +135,14 @@ class AdminCompanyDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     company = updated ?: _uiState.value.company,
-                    successMessage = "Acesso da empresa reativado com sucesso."
+                    successMessageRes = R.string.company_access_reactivated_success
                 )
             } else {
                 val ex = result.exceptionOrNull()
                 Log.e("AdminCompanyDetailVM", "Erro ao reativar empresa id=${company.id}", ex)
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível atualizar o estado da empresa."
+                    errorMessageRes = R.string.error_could_not_change_company_status
                 )
             }
         }
@@ -152,13 +153,13 @@ class AdminCompanyDetailViewModel : ViewModel() {
         val profileId = company.profileId
         if (profileId.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(
-                errorMessage = "Não foi possível remover a empresa da plataforma."
+                errorMessageRes = R.string.error_could_not_remove_company_from_platform
             )
             Log.e("AdminCompanyDetailVM", "archive: profileId está vazio para empresa id=${company.id}")
             return
         }
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null)
+            _uiState.value = _uiState.value.copy(isActionLoading = true, errorMessage = null, successMessage = null, successMessageRes = null)
             dismissDialogs()
 
             // adminId obtido internamente no Repository — não passar "" como UUID
@@ -172,14 +173,14 @@ class AdminCompanyDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     company = updated ?: _uiState.value.company,
-                    successMessage = "Empresa removida da plataforma com sucesso."
+                    successMessageRes = R.string.company_removed_success
                 )
             } else {
                 val ex = result.exceptionOrNull()
                 Log.e("AdminCompanyDetailVM", "Erro ao arquivar empresa id=${company.id}", ex)
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível remover a empresa da plataforma."
+                    errorMessageRes = R.string.error_could_not_remove_company_from_platform
                 )
             }
         }
@@ -191,7 +192,9 @@ class AdminCompanyDetailViewModel : ViewModel() {
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(
             successMessage = null,
-            errorMessage = null
+            successMessageRes = null,
+            errorMessage = null,
+            errorMessageRes = null
         )
     }
 }

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.repository.AdvisorTasksRepository
 import com.example.nextstep.data.repository.ApplicationsRepository
 import com.example.nextstep.data.repository.CompanyEvaluationRepository
@@ -47,7 +48,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
     fun loadDetail(internshipId: String) {
         currentInternshipId = internshipId
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageRes = null)
 
             val applicationResult = applicationRepository.getSubmittedApplicationById(internshipId)
             
@@ -71,7 +72,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Erro ao carregar detalhes do estágio."
+                    errorMessageRes = R.string.internship_detail_load_error
                 )
             }
         }
@@ -86,7 +87,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
     }
 
     fun hideAddTaskDialog() {
-        _uiState.value = _uiState.value.copy(showAddTaskDialog = false, taskError = null)
+        _uiState.value = _uiState.value.copy(showAddTaskDialog = false, taskErrorRes = null)
     }
 
     fun updateTaskTitle(title: String) {
@@ -96,12 +97,12 @@ class StudentInternshipDetailViewModel : ViewModel() {
     fun createTask() {
         val state = _uiState.value
         if (state.taskTitle.isBlank()) {
-            _uiState.value = state.copy(taskError = "O título é obrigatório.")
+            _uiState.value = state.copy(taskErrorRes = R.string.error_task_title_required)
             return
         }
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSavingTask = true, taskError = null)
+            _uiState.value = _uiState.value.copy(isSavingTask = true, taskErrorRes = null)
 
             val result = tasksRepository.createTask(
                 applicationId = currentInternshipId,
@@ -118,7 +119,7 @@ class StudentInternshipDetailViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isSavingTask = false,
-                    taskError = "Erro ao guardar tarefa."
+                    taskErrorRes = R.string.error_saving_task
                 )
             }
         }

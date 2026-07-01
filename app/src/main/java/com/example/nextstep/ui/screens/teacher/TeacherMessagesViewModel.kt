@@ -2,6 +2,7 @@ package com.example.nextstep.ui.screens.teacher
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.TeacherConversationDto
 import com.example.nextstep.data.repository.TeacherMessagesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,11 +20,10 @@ class TeacherMessagesViewModel(
 
     fun loadConversations() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessageRes = null) }
 
             repository.getConversations()
                 .onSuccess { conversations ->
-                    // Ordenar por data da última mensagem (mais recentes primeiro)
                     val sorted = conversations.sortedByDescending { it.lastMessageAt ?: "" }
                     _uiState.update { it.copy(
                         isLoading = false,
@@ -33,7 +33,7 @@ class TeacherMessagesViewModel(
                 .onFailure { exception ->
                     _uiState.update { it.copy(
                         isLoading = false,
-                        errorMessage = exception.message ?: "Erro ao carregar conversas."
+                        errorMessageRes = R.string.teacher_conversations_load_error
                     ) }
                 }
         }
@@ -56,6 +56,6 @@ class TeacherMessagesViewModel(
     }
 
     fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        _uiState.update { it.copy(errorMessageRes = null) }
     }
 }

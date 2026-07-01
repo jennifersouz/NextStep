@@ -1,7 +1,9 @@
 package com.example.nextstep.ui.screens.teacher
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.TeacherOrientationRequestDto
 import com.example.nextstep.data.repository.TeacherRequestsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,7 @@ data class TeacherRequestsUiState(
     val filteredRequests: List<TeacherOrientationRequestDto> = emptyList(),
     val selectedFilter: String = "", // Will be set from string resources
     val searchQuery: String = "",
-    val errorMessage: String? = null
+    @StringRes val errorMessageRes: Int? = null
 )
 
 class TeacherRequestsViewModel(
@@ -29,7 +31,7 @@ class TeacherRequestsViewModel(
 
     fun loadRequests() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessageRes = null) }
             repository.getRequests()
                 .onSuccess { requests ->
                     _uiState.update { 
@@ -41,7 +43,7 @@ class TeacherRequestsViewModel(
                     }
                 }
                 .onFailure { error ->
-                    _uiState.update { it.copy(isLoading = false, errorMessage = "Erro ao carregar pedidos.") }
+                    _uiState.update { it.copy(isLoading = false, errorMessageRes = R.string.teacher_requests_load_error) }
                 }
         }
     }
@@ -103,7 +105,7 @@ class TeacherRequestsViewModel(
                     onSuccess()
                 }
                 .onFailure {
-                    _uiState.update { it.copy(isUpdating = false, errorMessage = "Erro ao aceitar pedido.") }
+                    _uiState.update { it.copy(isUpdating = false, errorMessageRes = R.string.teacher_accept_request_error) }
                 }
         }
     }
@@ -118,12 +120,12 @@ class TeacherRequestsViewModel(
                     onSuccess()
                 }
                 .onFailure {
-                    _uiState.update { it.copy(isUpdating = false, errorMessage = "Erro ao rejeitar pedido.") }
+                    _uiState.update { it.copy(isUpdating = false, errorMessageRes = R.string.teacher_reject_request_error) }
                 }
         }
     }
 
     fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        _uiState.update { it.copy(errorMessageRes = null) }
     }
 }

@@ -7,8 +7,13 @@ import com.example.nextstep.data.model.AdminCompanyOptionDto
 import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.model.AdminProfileUpdateDto
+import com.example.nextstep.data.model.AdminStudentDto
+import com.example.nextstep.data.model.AdminStudentInstitutionUpdateDto
+import com.example.nextstep.data.model.AdminTeacherDto
+import com.example.nextstep.data.model.AdminTeacherInstitutionUpdateDto
 import com.example.nextstep.data.model.AdminTeacherSyncDto
 import com.example.nextstep.data.model.AdminUserEditRequest
+import com.example.nextstep.data.model.CompanyWithProfileDto
 import com.example.nextstep.data.model.InstitutionOptionDto
 import com.example.nextstep.data.model.UserActiveStatusUpdateDto
 import com.example.nextstep.data.model.UserArchiveUpdateDto
@@ -16,6 +21,7 @@ import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
@@ -69,21 +75,25 @@ class AdminUsersRepository {
      * Carrega instituições activas e não arquivadas da tabela [profiles].
      *
      * A biblioteca Supabase Kotlin não suporta operador `in` de forma directa
-     * nesta versão, por isso fazemos query simples e filtramos no Kotlin.
-     * Filtro: role in ('institution', 'instituicao') && is_active == true && archived_at == null
+     * nesta versão, por isso filtramos role no Kotlin.
+     * Filtros SQL: is_active == true && archived_at IS NULL
+     * Filtro Kotlin: role in ('institution', 'instituicao')
      */
     suspend fun getInstitutions(): Result<List<InstitutionOptionDto>> {
         return try {
             val allProfiles = supabase
                 .from("profiles")
-                .select()
+                .select {
+                    filter {
+                        eq("is_active", true)
+                    }
+                }
                 .decodeList<InstitutionOptionDto>()
 
             val institutions = allProfiles.filter { profile ->
                 val roleMatch = profile.role == "institution" || profile.role == "instituicao"
-                val activeMatch = profile.isActive == true
                 val notArchived = profile.archivedAt == null
-                roleMatch && activeMatch && notArchived
+                roleMatch && notArchived
             }
 
             Log.d("AdminUsersRepo", "Institutions loaded: ${institutions.size}")
@@ -95,17 +105,64 @@ class AdminUsersRepository {
     }
 
     /**
-     * Carrega empresas ativas da tabela companies.
-     * Usa is_active = true como filtro.
+     * Carrega empresas ativas e não arquivadas, filtrando por estado do perfil.
+     *
+     * Usa join com a tabela [profiles] para garantir que empresas com perfil
+     * arquivado/desativado (is_active = false ou archived_at preenchido) não
+     * apareçam no dropdown, mesmo que a tabela [companies] ainda tenha dados
+     * desactualizados.
+     *
+     * Filtros SQL:
+     *  - profiles.role = 'company'
+     *  - profiles.is_active = true
+     *
+     * Filtro Kotlin (porque isNull não está disponível na versão actual):
+     *  - profiles.archived_at == null
+     *  - companies.is_active != false
+     *  - companies.archived_at == null
      */
     suspend fun getActiveCompanies(): Result<List<AdminCompanyOptionDto>> {
         return try {
-            val companies = supabase
+            val joined = supabase
                 .from("companies")
-                .select {
-                    filter { eq("is_active", true) }
+                .select(
+                    columns = Columns.raw(
+                        """
+                        profile_id,
+                        company_name,
+                        is_active,
+                        archived_at,
+                        profiles!companies_profile_id_fkey!inner(
+                            id,
+                            role,
+                            is_active,
+                            archived_at
+                        )
+                        """.trimIndent()
+                    )
+                ) {
+                    filter {
+                        eq("profiles.role", "company")
+                        eq("profiles.is_active", true)
+                    }
                 }
-                .decodeList<AdminCompanyOptionDto>()
+                .decodeList<CompanyWithProfileDto>()
+
+            val companies = joined
+                .filter { it.archivedAt == null }
+                .filter { it.isActive != false }
+                .filter { it.profiles?.archivedAt == null }
+                .map {
+                    AdminCompanyOptionDto(
+                        id = null,
+                        companyProfileId = it.profileId,
+                        companyName = it.companyName,
+                        isActive = it.isActive,
+                        archivedAt = it.archivedAt
+                    )
+                }
+                .distinctBy { it.effectiveId }
+                .sortedBy { it.companyName.lowercase() }
 
             Log.d("AdminUsersRepo", "Active companies loaded: ${companies.size}")
             Result.success(companies)
@@ -196,22 +253,29 @@ class AdminUsersRepository {
         return try {
             if (userId.isBlank()) throw IllegalArgumentException("ID do utilizador está vazio.")
 
-            Log.d("AdminUsersRepo", "Updating user id=$userId role=${request.role}")
+            val sanitizedPhone = request.phone
+                ?.filter { it.isDigit() }
+                ?.take(9)
+                ?.ifBlank { null }
+
+            val sanitizedRequest = request.copy(phone = sanitizedPhone)
+
+            Log.d("AdminUsersRepo", "Updating user id=$userId role=${sanitizedRequest.role}")
 
             // 1) Atualizar profiles
             supabase
                 .from("profiles")
-                .update(request) {
+                .update(sanitizedRequest) {
                     filter { eq("id", userId) }
                 }
 
             // 2) Se for teacher, sincronizar também a tabela teachers
-            val normalizedRole = request.role.trim().lowercase()
+            val normalizedRole = sanitizedRequest.role.trim().lowercase()
             if (normalizedRole == "teacher" || normalizedRole == "docente") {
                 val syncDto = AdminTeacherSyncDto(
-                    firstName = request.firstName,
-                    lastName = request.lastName,
-                    phone = request.phone
+                    firstName = sanitizedRequest.firstName,
+                    lastName = sanitizedRequest.lastName,
+                    phone = sanitizedPhone
                 )
                 Log.d("AdminUsersRepo", "Syncing teacher table for userId=$userId")
                 supabase
@@ -416,6 +480,99 @@ class AdminUsersRepository {
             Result.success(updated)
         } catch (exception: Exception) {
             Log.e("AdminUsersRepo", "Error archiving user id=$userId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    // ===== Teacher-specific methods =====
+
+    /**
+     * Obtém os dados do docente (tabela teachers) pelo profile_id.
+     */
+    suspend fun getTeacherByProfileId(profileId: String): Result<AdminTeacherDto?> {
+        return try {
+            val teachers = supabase
+                .from("teachers")
+                .select {
+                    filter { eq("profile_id", profileId) }
+                }
+                .decodeList<AdminTeacherDto>()
+            Result.success(teachers.firstOrNull())
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error loading teacher for profileId=$profileId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * Atualiza a instituição do docente na tabela teachers, usando profile_id como filtro.
+     */
+    suspend fun updateTeacherInstitution(
+        profileId: String,
+        institutionProfileId: String
+    ): Result<Unit> {
+        return try {
+            val now = Instant.now().toString()
+            val dto = AdminTeacherInstitutionUpdateDto(
+                institutionProfileId = institutionProfileId,
+                updatedAt = now
+            )
+            Log.d("AdminUsersRepo", "Updating teacher institution for profileId=$profileId: $institutionProfileId")
+            supabase
+                .from("teachers")
+                .update(dto) {
+                    filter { eq("profile_id", profileId) }
+                }
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error updating teacher institution for profileId=$profileId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    // ===== Student-specific methods =====
+
+    /**
+     * Obtém os dados do aluno (tabela students) pelo profile_id.
+     * Retorna o primeiro registo encontrado ou null.
+     */
+    suspend fun getStudentByProfileId(profileId: String): Result<AdminStudentDto?> {
+        return try {
+            val students = supabase
+                .from("students")
+                .select {
+                    filter { eq("profile_id", profileId) }
+                }
+                .decodeList<AdminStudentDto>()
+            Result.success(students.firstOrNull())
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error loading student for profileId=$profileId", exception)
+            Result.failure(exception)
+        }
+    }
+
+    /**
+     * Atualiza a instituição de ensino do aluno na tabela students, usando profile_id como filtro.
+     */
+    suspend fun updateStudentInstitution(
+        profileId: String,
+        educationInstitution: String
+    ): Result<Unit> {
+        return try {
+            val now = Instant.now().toString()
+            val dto = AdminStudentInstitutionUpdateDto(
+                educationInstitution = educationInstitution,
+                updatedAt = now
+            )
+            Log.d("AdminUsersRepo", "Updating student institution for profileId=$profileId: $educationInstitution")
+            supabase
+                .from("students")
+                .update(dto) {
+                    filter { eq("profile_id", profileId) }
+                }
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdminUsersRepo", "Error updating student institution for profileId=$profileId", exception)
             Result.failure(exception)
         }
     }

@@ -1,11 +1,23 @@
 package com.example.nextstep.ui.screens.company
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +52,7 @@ fun CompanyOwnProfileScreen(
     onEditProfileClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onOfferClick: (String) -> Unit = {},
+    onAdvisorsClick: () -> Unit = {},
     viewModel: CompanyOwnProfileViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -147,7 +160,8 @@ fun CompanyOwnProfileScreen(
                 onEditProfileClick = onEditProfileClick,
                 onLogoutRequest = {
                     showLogoutDialog = true
-                }
+                },
+                onAdvisorsClick = onAdvisorsClick
             )
         }
     }
@@ -157,7 +171,8 @@ fun CompanyOwnProfileScreen(
 private fun CompanyProfileContent(
     company: CompanyProfileDto,
     onEditProfileClick: () -> Unit,
-    onLogoutRequest: () -> Unit
+    onLogoutRequest: () -> Unit,
+    onAdvisorsClick: () -> Unit
 ) {
     val subtitle = buildString {
         append(stringResource(R.string.company_role))
@@ -173,6 +188,48 @@ private fun CompanyProfileContent(
         subtitle = subtitle,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
+        extraContent = {
+            // Advisors management button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clickable { onAdvisorsClick() }
+                    .border(
+                        width = 1.dp,
+                        color = Color(0xFFD1D5DB),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.People,
+                    contentDescription = null,
+                    tint = Color(0xFF374151),
+                    modifier = Modifier.size(24.dp)
+                )
+
+                Spacer(modifier = Modifier.size(14.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = stringResource(R.string.manage_advisors),
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Text(
+                        text = stringResource(R.string.company_team_placeholder),
+                        color = Color(0xFF8A8A8A),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        },
         accountOptions = {
             LanguageOptionsSection(
                 selectedLanguage = "pt",

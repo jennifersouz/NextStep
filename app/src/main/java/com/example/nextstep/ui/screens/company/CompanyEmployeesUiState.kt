@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.company
 
+import androidx.annotation.StringRes
 import com.example.nextstep.data.model.CompanyEmployeeInviteDisplayDto
 
 data class CompanyEmployeesUiState(
@@ -7,7 +8,7 @@ data class CompanyEmployeesUiState(
     val searchQuery: String = "",
     val sortAscending: Boolean = true,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    @StringRes val errorMessageRes: Int? = null
 ) {
     val filteredEmployees: List<CompanyEmployeeInviteDisplayDto>
         get() {

@@ -1,8 +1,10 @@
 package com.example.nextstep.ui.screens.student
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
+import com.example.nextstep.data.repository.AdminUsersRepository
 import com.example.nextstep.data.repository.StudentProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,13 +13,43 @@ import kotlinx.coroutines.launch
 
 class StudentEditProfileViewModel : ViewModel() {
 
-    private val repository = StudentProfileRepository()
+    private val studentRepository = StudentProfileRepository()
+    private val adminRepository = AdminUsersRepository()
 
     private val _uiState = MutableStateFlow(StudentEditProfileUiState())
     val uiState: StateFlow<StudentEditProfileUiState> = _uiState.asStateFlow()
 
     init {
         loadProfile()
+    }
+
+    fun loadInstitutions() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingInstitutions = true)
+            val result = adminRepository.getInstitutions()
+            result.fold(
+                onSuccess = { institutions ->
+                    Log.d("StudentEditProfileVM", "Institutions loaded: ${institutions.size}")
+                    val currentName = _uiState.value.educationInstitution
+                    val match = if (currentName.isNotBlank()) {
+                        institutions.find { it.displayName.equals(currentName, ignoreCase = true) }
+                    } else null
+                    _uiState.value = _uiState.value.copy(
+                        availableInstitutions = institutions,
+                        isLoadingInstitutions = false,
+                        selectedInstitutionId = match?.id ?: "",
+                        selectedInstitutionName = match?.displayName ?: currentName
+                    )
+                },
+                onFailure = { e ->
+                    Log.e("StudentEditProfileVM", "Error loading institutions", e)
+                    _uiState.value = _uiState.value.copy(
+                        availableInstitutions = emptyList(),
+                        isLoadingInstitutions = false
+                    )
+                }
+            )
+        }
     }
 
     fun loadProfile() {
@@ -28,16 +60,17 @@ class StudentEditProfileViewModel : ViewModel() {
                 successMessageRes = null
             )
 
-            val result = repository.getCurrentStudentProfile()
+            val result = studentRepository.getCurrentStudentProfile()
 
             _uiState.value = if (result.isSuccess) {
                 val profile = result.getOrNull()
+                val institution = profile?.educationInstitution.orEmpty()
 
                 _uiState.value.copy(
                     email = profile?.email.orEmpty(),
                     firstName = profile?.firstName.orEmpty(),
                     lastName = profile?.lastName.orEmpty(),
-                    educationInstitution = profile?.educationInstitution.orEmpty(),
+                    educationInstitution = institution,
                     isLoading = false,
                     errorMessageRes = null
                 )
@@ -47,6 +80,9 @@ class StudentEditProfileViewModel : ViewModel() {
                     errorMessageRes = R.string.student_profile_load_error
                 )
             }
+
+            // Load institutions dropdown
+            loadInstitutions()
         }
     }
 
@@ -66,9 +102,11 @@ class StudentEditProfileViewModel : ViewModel() {
         )
     }
 
-    fun onEducationInstitutionChange(value: String) {
+    fun onInstitutionSelected(id: String, name: String) {
         _uiState.value = _uiState.value.copy(
-            educationInstitution = value,
+            selectedInstitutionId = id,
+            selectedInstitutionName = name,
+            educationInstitution = name,
             educationInstitutionErrorRes = null,
             successMessageRes = null
         )
@@ -88,10 +126,13 @@ class StudentEditProfileViewModel : ViewModel() {
                 successMessageRes = null
             )
 
-            val result = repository.updateCurrentStudentProfile(
+            val institutionName = state.selectedInstitutionName.takeIf { it.isNotBlank() }
+                ?: state.educationInstitution
+
+            val result = studentRepository.updateCurrentStudentProfile(
                 firstName = state.firstName,
                 lastName = state.lastName,
-                educationInstitution = state.educationInstitution
+                educationInstitution = institutionName
             )
 
             _uiState.value = if (result.isSuccess) {
@@ -128,7 +169,7 @@ class StudentEditProfileViewModel : ViewModel() {
         }
 
         val institutionError = when {
-            state.educationInstitution.trim().isBlank() -> R.string.error_required_field
+            state.selectedInstitutionId.isBlank() -> R.string.error_required_field
             else -> null
         }
 

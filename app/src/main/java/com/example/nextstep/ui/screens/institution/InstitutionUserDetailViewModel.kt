@@ -1,8 +1,10 @@
 package com.example.nextstep.ui.screens.institution
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDetailDto
 import com.example.nextstep.data.repository.InstitutionUsersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +15,7 @@ import kotlinx.coroutines.launch
 data class InstitutionUserDetailUiState(
     val userDetail: InstitutionUserDetailDto? = null,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null,
+    @StringRes val errorMessageRes: Int? = null,
     val isPendingInvite: Boolean = false
 )
 
@@ -28,7 +30,7 @@ class InstitutionUserDetailViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessageRes = null
             )
 
             Log.d("InstitutionUserDetailVM", "loadUserDetail profileId=$profileId role=$role inviteId=$inviteId")
@@ -49,14 +51,14 @@ class InstitutionUserDetailViewModel : ViewModel() {
                         userDetail = detail,
                         isLoading = false,
                         isPendingInvite = isPending,
-                        errorMessage = null
+                        errorMessageRes = null
                     )
                 },
                 onFailure = { exception ->
                     Log.e("InstitutionUserDetailVM", "Erro ao carregar detalhe", exception)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = exception.message ?: "Não foi possível carregar o utilizador."
+                        errorMessageRes = R.string.institution_user_load_error
                     )
                 }
             )

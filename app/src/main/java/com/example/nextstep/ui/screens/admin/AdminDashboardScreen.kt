@@ -29,6 +29,7 @@ import com.example.nextstep.ui.screens.auth.SessionViewModel
 fun AdminDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     onAddUserClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     sessionViewModel: SessionViewModel = viewModel()
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AdminTab.HOME) }
@@ -40,6 +41,7 @@ fun AdminDashboardScreen(
     var showEditCompany by rememberSaveable { mutableStateOf(false) }
     var showCreateCompany by rememberSaveable { mutableStateOf(false) }
     var showCompanyOffers by rememberSaveable { mutableStateOf(false) }
+    var showAdminEditProfile by rememberSaveable { mutableStateOf(false) }
 
     val usersViewModel: AdminUsersViewModel = viewModel()
     val companiesViewModel: AdminCompaniesViewModel = viewModel()
@@ -65,8 +67,8 @@ fun AdminDashboardScreen(
         AdminUserDetailScreen(
             profile = displayUser,
             isActionLoading = userDetailState.isActionLoading,
-            successMessage = userDetailState.successMessage,
-            errorMessage = userDetailState.errorMessage,
+            successMessageRes = userDetailState.successMessageRes,
+            errorMessageRes = userDetailState.errorMessageRes,
             onMessageDismiss = { userDetailViewModel.clearMessages() },
             onBackClick = {
                 showUserDetail = false
@@ -128,7 +130,9 @@ fun AdminDashboardScreen(
             company = displayCompany,
             isActionLoading = companyDetailState.isActionLoading,
             successMessage = companyDetailState.successMessage,
+            successMessageRes = companyDetailState.successMessageRes,
             errorMessage = companyDetailState.errorMessage,
+            errorMessageRes = companyDetailState.errorMessageRes,
             onMessageDismiss = { companyDetailViewModel.clearMessages() },
             onBackClick = {
                 showCompanyDetail = false
@@ -218,6 +222,19 @@ fun AdminDashboardScreen(
         return
     }
 
+    // ── Admin Edit Profile ───────────────────────────────────────────────────
+    if (showAdminEditProfile) {
+        AdminEditProfileScreen(
+            onBackClick = {
+                showAdminEditProfile = false
+            },
+            onProfileUpdated = {
+                showAdminEditProfile = false
+            }
+        )
+        return
+    }
+
     // ── Main scaffold ────────────────────────────────────────────────────────
     Scaffold(
         containerColor = Color.White,
@@ -260,6 +277,9 @@ fun AdminDashboardScreen(
 
                 AdminTab.PROFILE -> {
                     AdminProfileScreen(
+                        onEditProfileClick = {
+                            showAdminEditProfile = true
+                        },
                         onLogoutClick = {
                             sessionViewModel.logout(onSuccess = onLogoutSuccess)
                         }

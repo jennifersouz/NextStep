@@ -89,9 +89,9 @@ fun StudentInternshipDetailScreen(
                 uiState.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color.Black)
                 }
-                uiState.errorMessage != null -> {
+                uiState.errorMessageRes != null -> {
                     Text(
-                        text = uiState.errorMessage!!,
+                        text = stringResource(uiState.errorMessageRes!!),
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         color = Color.Red
                     )
@@ -201,6 +201,7 @@ fun InternshipDetailContent(
             chatType = "advisor",
             onChatClick = { name, type -> onChatClick(internship.id, name, type) },
             onProfileClick = onAdvisorProfileClick,
+            isAssigned = isAdvisorAssigned,
             notAssignedText = stringResource(R.string.supervisor_not_assigned)
         )
 
@@ -389,9 +390,9 @@ fun FollowupItem(
         } else {
             Text(
                 notAssignedText,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp,
-                color = Color.Black
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp,
+                color = Color(0xFF777777)
             )
         }
     }

@@ -7,7 +7,9 @@ data class AdminUserDetailUiState(
     val isActionLoading: Boolean = false,
     val profile: AdminProfileDto? = null,
     val errorMessage: String? = null,
+    val errorMessageRes: Int? = null,
     val successMessage: String? = null,
+    val successMessageRes: Int? = null,
     val showDeactivateDialog: Boolean = false,
     val showReactivateDialog: Boolean = false,
     val showArchiveDialog: Boolean = false

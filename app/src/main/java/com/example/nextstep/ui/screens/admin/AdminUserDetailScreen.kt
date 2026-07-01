@@ -32,14 +32,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,12 +62,28 @@ fun AdminUserDetailScreen(
     onReactivate: () -> Unit,
     onArchive: (String?) -> Unit,
     isActionLoading: Boolean = false,
-    successMessage: String? = null,
-    errorMessage: String? = null,
+    successMessageRes: Int? = null,
+    errorMessageRes: Int? = null,
     onMessageDismiss: () -> Unit = {}
 ) {
     val isActive = profile.isActive == true
     val isArchived = profile.isArchived
+
+    val locale = LocalConfiguration.current.locales[0]
+    val formattedArchivedAt = DateFormatUtils.formatDateTimeForDisplay(profile.archivedAt, locale)
+
+    LaunchedEffect(successMessageRes) {
+        if (successMessageRes != null) {
+            delay(3000)
+            onMessageDismiss()
+        }
+    }
+    LaunchedEffect(errorMessageRes) {
+        if (errorMessageRes != null) {
+            delay(3000)
+            onMessageDismiss()
+        }
+    }
 
     var showDeactivateDialog by remember { mutableStateOf(false) }
     var showReactivateDialog by remember { mutableStateOf(false) }
@@ -184,25 +203,25 @@ fun AdminUserDetailScreen(
             }
         }
 
-        // Feedback messages — amigáveis, sem detalhes técnicos
-        if (successMessage != null) {
+        // Feedback message — única fonte de verdade, temporária
+        if (successMessageRes != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFE8F5E9))
                     .padding(horizontal = 24.dp, vertical = 10.dp)
             ) {
-                Text(successMessage, color = Color(0xFF2E7D32), fontSize = 14.sp)
+                Text(stringResource(successMessageRes), color = Color(0xFF2E7D32), fontSize = 14.sp)
             }
         }
-        if (errorMessage != null) {
+        if (errorMessageRes != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFFFEBEE))
                     .padding(horizontal = 24.dp, vertical = 10.dp)
             ) {
-                Text(errorMessage, color = Color(0xFFB00020), fontSize = 14.sp)
+                Text(stringResource(errorMessageRes), color = Color(0xFFB00020), fontSize = 14.sp)
             }
         }
 
@@ -322,23 +341,12 @@ fun AdminUserDetailScreen(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            DetailRow(label = stringResource(R.string.archived_at_label), value = profile.archivedAt)
+                            DetailRow(
+                                label = stringResource(R.string.archived_at_label),
+                                value = formattedArchivedAt ?: stringResource(R.string.not_available)
+                            )
                         }
                     }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFFBE9E7))
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.user_removed_message),
-                        fontSize = 14.sp,
-                        color = Color(0xFF6D4C41)
-                    )
                 }
             }
 

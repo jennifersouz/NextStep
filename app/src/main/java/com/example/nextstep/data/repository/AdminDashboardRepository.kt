@@ -160,6 +160,31 @@ class AdminDashboardRepository {
         }
     }
 
+    suspend fun updateAdminProfileName(name: String): Result<Unit> {
+        return try {
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
+
+            val parts = name.trim().split(" ", limit = 2)
+            val firstName = parts.getOrElse(0) { "" }
+            val lastName = parts.getOrElse(1) { "" }
+
+            supabase
+                .from("profiles")
+                .update({
+                    set("first_name", firstName.trim())
+                    set("last_name", lastName.trim())
+                }) {
+                    filter { eq("id", currentUser.id) }
+                }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Log.e("AdminDashboardRepo", "Erro ao atualizar perfil do admin", exception)
+            Result.failure(exception)
+        }
+    }
+
     suspend fun getRecentProfiles(): Result<List<ProfileDto>> {
         return try {
             val profiles = supabase

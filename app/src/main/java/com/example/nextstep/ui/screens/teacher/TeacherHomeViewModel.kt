@@ -1,8 +1,10 @@
 package com.example.nextstep.ui.screens.teacher
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.TeacherOrientationRequestDto
 import com.example.nextstep.data.repository.TeacherRequestsRepository
 import com.example.nextstep.data.repository.TeacherStudentsRepository
@@ -20,7 +22,7 @@ data class TeacherHomeUiState(
     val pendingEvaluationsCount: Int = 0,
     val recentRequests: List<TeacherOrientationRequestDto> = emptyList(),
     val recentActivities: List<TeacherActivity> = emptyList(),
-    val errorMessage: String? = null
+    @StringRes val errorMessageRes: Int? = null
 )
 
 data class TeacherActivity(
@@ -46,7 +48,7 @@ class TeacherHomeViewModel(
 
     fun loadDashboard() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessageRes = null) }
             try {
                 // 1. Load Requests
                 val requestsResult = requestsRepository.getRequests()
@@ -128,7 +130,7 @@ class TeacherHomeViewModel(
                 }
             } catch (e: Exception) {
                 Log.e("TeacherHomeVM", "Error loading dashboard", e)
-                _uiState.update { it.copy(isLoading = false, errorMessage = "Erro ao carregar dados do dashboard.") }
+                _uiState.update { it.copy(isLoading = false, errorMessageRes = R.string.teacher_dashboard_load_error) }
             }
         }
     }

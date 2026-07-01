@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,6 +48,7 @@ fun AddInstitutionUserScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     val inviteCreatedMessage = stringResource(R.string.invite_created_success)
 
@@ -57,9 +59,9 @@ fun AddInstitutionUserScreen(
         }
     }
 
-    LaunchedEffect(state.errorMessage) {
-        state.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+    LaunchedEffect(state.errorMessageRes) {
+        state.errorMessageRes?.let { res ->
+            snackbarHostState.showSnackbar(context.getString(res))
             viewModel.clearError()
         }
     }

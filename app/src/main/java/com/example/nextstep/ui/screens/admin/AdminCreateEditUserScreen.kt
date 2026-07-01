@@ -68,6 +68,7 @@ fun AdminCreateEditUserScreen(
 
     var firstNameError by remember { mutableStateOf<String?>(null) }
     var lastNameError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
     var roleError by remember { mutableStateOf<String?>(null) }
 
     val roleOptions = listOf(
@@ -129,7 +130,7 @@ fun AdminCreateEditUserScreen(
             OutlinedTextField(
                 value = firstName,
                 onValueChange = {
-                    firstName = it
+                    firstName = it.filter { c -> c.isLetter() || c.isWhitespace() }
                     firstNameError = null
                 },
                 label = { Text(stringResource(R.string.name_required)) },
@@ -151,7 +152,7 @@ fun AdminCreateEditUserScreen(
             OutlinedTextField(
                 value = lastName,
                 onValueChange = {
-                    lastName = it
+                    lastName = it.filter { c -> c.isLetter() || c.isWhitespace() }
                     lastNameError = null
                 },
                 label = { Text(stringResource(R.string.last_name_required)) },
@@ -170,9 +171,9 @@ fun AdminCreateEditUserScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Email (read-only when editing)
-            if (isEditing && existingProfile != null) {
+            if (isEditing) {
                 OutlinedTextField(
-                    value = existingProfile.email ?: "",
+                    value = existingProfile?.email ?: "",
                     onValueChange = {},
                     label = { Text(stringResource(R.string.email_label)) },
                     enabled = false,
@@ -192,7 +193,12 @@ fun AdminCreateEditUserScreen(
             // Phone
             OutlinedTextField(
                 value = phone,
-                onValueChange = { phone = it },
+                onValueChange = {
+                    phone = it.filter { c -> c.isDigit() }.take(9)
+                    phoneError = null
+                },
+                isError = phoneError != null,
+                supportingText = phoneError?.let { { Text(it, color = Color(0xFFB00020)) } },
                 label = { Text(stringResource(R.string.phone)) },
                 placeholder = { Text(stringResource(R.string.phone_placeholder_text)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -276,6 +282,9 @@ fun AdminCreateEditUserScreen(
 
             val nameRequiredError = stringResource(R.string.name_required_error)
             val lastNameRequiredError = stringResource(R.string.last_name_required_error)
+            val onlyLettersError = stringResource(R.string.error_only_letters)
+            val nameTooShortError = stringResource(R.string.error_name_too_short)
+            val phoneLengthError = stringResource(R.string.error_phone_length)
 
             // Save button
             Button(
@@ -284,9 +293,25 @@ fun AdminCreateEditUserScreen(
                     if (firstName.isBlank()) {
                         firstNameError = nameRequiredError
                         hasError = true
+                    } else if (firstName.length < 2) {
+                        firstNameError = nameTooShortError
+                        hasError = true
+                    } else if (!firstName.all { it.isLetter() || it.isWhitespace() }) {
+                        firstNameError = onlyLettersError
+                        hasError = true
                     }
                     if (lastName.isBlank() && selectedRole != "company") {
                         lastNameError = lastNameRequiredError
+                        hasError = true
+                    } else if (selectedRole != "company" && lastName.length < 2) {
+                        lastNameError = nameTooShortError
+                        hasError = true
+                    } else if (selectedRole != "company" && !lastName.all { it.isLetter() || it.isWhitespace() }) {
+                        lastNameError = onlyLettersError
+                        hasError = true
+                    }
+                    if (phone.isNotBlank() && phone.length != 9) {
+                        phoneError = phoneLengthError
                         hasError = true
                     }
                     if (!hasError) {

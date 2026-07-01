@@ -87,37 +87,11 @@ fun AddCompanyAdvisorScreen(
             Spacer(modifier = Modifier.height(26.dp))
 
             AdvisorInviteTextField(
-                label = stringResource(R.string.advisor_name),
-                value = state.name,
-                onValueChange = viewModel::onNameChange,
-                errorText = state.nameErrorRes?.let { stringResource(it) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AdvisorInviteTextField(
                 label = stringResource(R.string.advisor_email),
                 value = state.email,
                 onValueChange = viewModel::onEmailChange,
                 errorText = state.emailErrorRes?.let { stringResource(it) },
                 keyboardType = KeyboardType.Email
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AdvisorInviteTextField(
-                label = stringResource(R.string.advisor_phone),
-                value = state.phone,
-                onValueChange = viewModel::onPhoneChange,
-                keyboardType = KeyboardType.Phone
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AdvisorInviteTextField(
-                label = stringResource(R.string.advisor_department),
-                value = state.department,
-                onValueChange = viewModel::onDepartmentChange
             )
 
             if (state.errorMessageRes != null) {
@@ -130,11 +104,21 @@ fun AddCompanyAdvisorScreen(
                 )
             }
 
+            if (state.successMessageRes != null) {
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = stringResource(state.successMessageRes!!),
+                    color = Color(0xFF2E7D32),
+                    fontSize = 14.sp
+                )
+            }
+
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
                 onClick = {
-                    viewModel.createAdvisor(
+                    viewModel.sendInvite(
                         onSuccess = onAdvisorCreated
                     )
                 },

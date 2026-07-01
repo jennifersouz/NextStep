@@ -1,21 +1,16 @@
 package com.example.nextstep.ui.screens.auth
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.remote.SupabaseClientProvider
 import com.example.nextstep.data.repository.AdvisorRegistrationRepository
 import com.example.nextstep.data.repository.AuthRepository
 import com.example.nextstep.ui.utils.SanitizationUtils
-import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 class AuthViewModel : ViewModel() {
 
@@ -27,7 +22,6 @@ class AuthViewModel : ViewModel() {
 
     private val authRepository = AuthRepository()
     private val advisorRegistrationRepository = AdvisorRegistrationRepository()
-    private val supabase = SupabaseClientProvider.client
 
     private fun mapAuthErrorToMessage(exception: Throwable?): Int {
         val message = exception?.message.orEmpty().lowercase()
@@ -45,12 +39,18 @@ class AuthViewModel : ViewModel() {
             "user_already_exists" in message || "already registered" in message ->
                 R.string.error_user_already_exists
 
+            "orphan_account" in message ->
+                R.string.error_advisor_orphan_account
+
+            "advisor_register_generic" in message ->
+                R.string.error_advisor_register_generic
+
             "invalid login credentials" in message ->
                 R.string.error_invalid_credentials
 
             "email" in message && "invalid" in message ->
                 R.string.error_invalid_email
-                
+
             "incomplete_account" in message ->
                 R.string.incomplete_account
 
@@ -72,8 +72,15 @@ class AuthViewModel : ViewModel() {
 
     fun onEmailChange(value: String) {
         val sanitized = value
-            .filter { c -> c != '\n' && c != '\r' && c != '\t' && c != ' ' && !SanitizationUtils.isInvisibleChar(c) }
+            .filter { c ->
+                c != '\n' &&
+                        c != '\r' &&
+                        c != '\t' &&
+                        c != ' ' &&
+                        !SanitizationUtils.isInvisibleChar(c)
+            }
             .lowercase()
+
         _registerState.value = _registerState.value.copy(
             email = sanitized,
             emailError = validateEmail(sanitized),
@@ -85,11 +92,20 @@ class AuthViewModel : ViewModel() {
 
     fun onPasswordChange(value: String) {
         val sanitized = value
-            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
+            .filter { c ->
+                c != '\n' &&
+                        c != '\r' &&
+                        c != '\t' &&
+                        !SanitizationUtils.isInvisibleChar(c)
+            }
+
         _registerState.value = _registerState.value.copy(
             password = sanitized,
             passwordError = validatePassword(sanitized),
-            confirmPasswordError = validateConfirmPassword(sanitized, _registerState.value.confirmPassword),
+            confirmPasswordError = validateConfirmPassword(
+                sanitized,
+                _registerState.value.confirmPassword
+            ),
             generalError = null,
             generalErrorText = null,
             isRegisterSuccess = false
@@ -98,7 +114,13 @@ class AuthViewModel : ViewModel() {
 
     fun onConfirmPasswordChange(value: String) {
         val sanitized = value
-            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
+            .filter { c ->
+                c != '\n' &&
+                        c != '\r' &&
+                        c != '\t' &&
+                        !SanitizationUtils.isInvisibleChar(c)
+            }
+
         _registerState.value = _registerState.value.copy(
             confirmPassword = sanitized,
             confirmPasswordError = validateConfirmPassword(_registerState.value.password, sanitized),
@@ -110,8 +132,15 @@ class AuthViewModel : ViewModel() {
 
     fun onLoginEmailChange(value: String) {
         val sanitized = value
-            .filter { c -> c != '\n' && c != '\r' && c != '\t' && c != ' ' && !SanitizationUtils.isInvisibleChar(c) }
+            .filter { c ->
+                c != '\n' &&
+                        c != '\r' &&
+                        c != '\t' &&
+                        c != ' ' &&
+                        !SanitizationUtils.isInvisibleChar(c)
+            }
             .lowercase()
+
         _loginState.value = _loginState.value.copy(
             email = sanitized,
             generalError = null
@@ -120,7 +149,13 @@ class AuthViewModel : ViewModel() {
 
     fun onLoginPasswordChange(value: String) {
         val sanitized = value
-            .filter { c -> c != '\n' && c != '\r' && c != '\t' && !SanitizationUtils.isInvisibleChar(c) }
+            .filter { c ->
+                c != '\n' &&
+                        c != '\r' &&
+                        c != '\t' &&
+                        !SanitizationUtils.isInvisibleChar(c)
+            }
+
         _loginState.value = _loginState.value.copy(
             password = sanitized,
             generalError = null
@@ -154,6 +189,46 @@ class AuthViewModel : ViewModel() {
         _registerState.value = _registerState.value.copy(
             lastName = value,
             lastNameError = validatePersonName(value),
+            generalError = null,
+            generalErrorText = null,
+            isRegisterSuccess = false
+        )
+    }
+
+    fun onAdvisorNameChange(value: String) {
+        _registerState.value = _registerState.value.copy(
+            advisorName = value,
+            advisorNameError = validatePersonName(value),
+            generalError = null,
+            generalErrorText = null,
+            isRegisterSuccess = false
+        )
+    }
+
+    fun onAdvisorLastNameChange(value: String) {
+        _registerState.value = _registerState.value.copy(
+            advisorLastName = value,
+            advisorLastNameError = validatePersonName(value),
+            generalError = null,
+            generalErrorText = null,
+            isRegisterSuccess = false
+        )
+    }
+
+    fun onAdvisorPhoneChange(value: String) {
+        _registerState.value = _registerState.value.copy(
+            advisorPhone = value,
+            advisorPhoneError = null,
+            generalError = null,
+            generalErrorText = null,
+            isRegisterSuccess = false
+        )
+    }
+
+    fun onAdvisorDepartmentChange(value: String) {
+        _registerState.value = _registerState.value.copy(
+            advisorDepartment = value,
+            advisorDepartmentError = validateRequiredText(value),
             generalError = null,
             generalErrorText = null,
             isRegisterSuccess = false
@@ -317,15 +392,44 @@ class AuthViewModel : ViewModel() {
         )
 
         val nameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER || state.selectedRole == UserRole.EMPLOYEE) {
+            if (
+                state.selectedRole == UserRole.STUDENT ||
+                state.selectedRole == UserRole.TEACHER ||
+                state.selectedRole == UserRole.EMPLOYEE
+            ) {
                 validatePersonName(state.name)
             } else {
                 null
             }
 
         val lastNameError =
-            if (state.selectedRole == UserRole.STUDENT || state.selectedRole == UserRole.TEACHER || state.selectedRole == UserRole.EMPLOYEE) {
+            if (
+                state.selectedRole == UserRole.STUDENT ||
+                state.selectedRole == UserRole.TEACHER ||
+                state.selectedRole == UserRole.EMPLOYEE
+            ) {
                 validatePersonName(state.lastName)
+            } else {
+                null
+            }
+
+        val advisorNameError =
+            if (state.selectedRole == UserRole.ADVISOR) {
+                validatePersonName(state.advisorName)
+            } else {
+                null
+            }
+
+        val advisorLastNameError =
+            if (state.selectedRole == UserRole.ADVISOR) {
+                validatePersonName(state.advisorLastName)
+            } else {
+                null
+            }
+
+        val advisorDepartmentError =
+            if (state.selectedRole == UserRole.ADVISOR) {
+                validateRequiredText(state.advisorDepartment)
             } else {
                 null
             }
@@ -410,6 +514,9 @@ class AuthViewModel : ViewModel() {
         val hasErrors = listOf(
             nameError,
             lastNameError,
+            advisorNameError,
+            advisorLastNameError,
+            advisorDepartmentError,
             emailError,
             passwordError,
             confirmPasswordError,
@@ -429,6 +536,9 @@ class AuthViewModel : ViewModel() {
         _registerState.value = state.copy(
             nameError = nameError,
             lastNameError = lastNameError,
+            advisorNameError = advisorNameError,
+            advisorLastNameError = advisorLastNameError,
+            advisorDepartmentError = advisorDepartmentError,
             emailError = emailError,
             passwordError = passwordError,
             confirmPasswordError = confirmPasswordError,
@@ -616,11 +726,11 @@ class AuthViewModel : ViewModel() {
                     authRepository.registerInvitedStudent(
                         email = sanitizedEmail,
                         password = sanitizedPassword,
-                        firstName = state.name,
-                        lastName = state.lastName,
+                        firstName = state.name.trim(),
+                        lastName = state.lastName.trim(),
                         phone = state.teacherPhone.ifBlank { null },
-                        studentNumber = state.studentNumber,
-                        course = state.course,
+                        studentNumber = state.studentNumber.trim(),
+                        course = state.course.trim(),
                         academicYear = state.year.toIntOrNull() ?: 0
                     )
                 }
@@ -629,18 +739,18 @@ class AuthViewModel : ViewModel() {
                     authRepository.registerCompany(
                         email = sanitizedEmail,
                         password = sanitizedPassword,
-                        companyName = state.companyName,
-                        nif = state.nif,
-                        businessArea = state.area,
-                        location = state.location
+                        companyName = state.companyName.trim(),
+                        nif = state.nif.trim(),
+                        businessArea = state.area.trim(),
+                        location = state.location.trim()
                     )
                 }
 
                 UserRole.INSTITUTION -> {
                     authRepository.registerInstitution(
-                        name = state.institutionName,
+                        name = state.institutionName.trim(),
                         nif = state.institutionNif.ifBlank { null },
-                        locality = state.institutionLocality,
+                        locality = state.institutionLocality.trim(),
                         address = state.institutionAddress.ifBlank { null },
                         phone = state.institutionPhone.ifBlank { null },
                         email = sanitizedEmail,
@@ -649,9 +759,19 @@ class AuthViewModel : ViewModel() {
                 }
 
                 UserRole.ADVISOR -> {
+                    val fullName = listOf(
+                        state.advisorName.trim(),
+                        state.advisorLastName.trim()
+                    )
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ")
+
                     advisorRegistrationRepository.registerAdvisor(
                         email = sanitizedEmail,
-                        password = sanitizedPassword
+                        password = sanitizedPassword,
+                        name = fullName.ifBlank { null },
+                        phone = state.advisorPhone.ifBlank { null },
+                        department = state.advisorDepartment.ifBlank { null }
                     )
                 }
 
@@ -659,8 +779,8 @@ class AuthViewModel : ViewModel() {
                     authRepository.registerInvitedTeacher(
                         email = sanitizedEmail,
                         password = sanitizedPassword,
-                        firstName = state.name,
-                        lastName = state.lastName,
+                        firstName = state.name.trim(),
+                        lastName = state.lastName.trim(),
                         department = state.teacherDepartment.ifBlank { null },
                         phone = state.teacherPhone.ifBlank { null }
                     )
@@ -670,8 +790,8 @@ class AuthViewModel : ViewModel() {
                     authRepository.registerInvitedEmployee(
                         email = sanitizedEmail,
                         password = sanitizedPassword,
-                        firstName = state.name,
-                        lastName = state.lastName,
+                        firstName = state.name.trim(),
+                        lastName = state.lastName.trim(),
                         phone = state.teacherPhone.ifBlank { null },
                         department = state.teacherDepartment.ifBlank { null }
                     )

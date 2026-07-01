@@ -1,6 +1,7 @@
 package com.example.nextstep.ui.screens.student
 
 import android.util.Log
+import androidx.annotation.StringRes
 import com.example.nextstep.data.model.OfferDto
 import java.util.Locale
 
@@ -10,7 +11,7 @@ data class StudentDashboardUiState(
     val offers: List<OfferDto> = emptyList(),
     val isLoading: Boolean = true,
     val isLoadingName: Boolean = true,
-    val errorMessage: String? = null,
+    @StringRes val errorMessageRes: Int? = null,
     val unreadNotificationsCount: Int = 0,
 
     val selectedArea: String? = null,

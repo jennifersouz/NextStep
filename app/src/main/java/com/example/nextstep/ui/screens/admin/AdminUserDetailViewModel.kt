@@ -3,6 +3,7 @@ package com.example.nextstep.ui.screens.admin
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminProfileDto
 import com.example.nextstep.data.repository.AdminUsersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ class AdminUserDetailViewModel : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Não foi possível carregar o perfil."
+                    errorMessageRes = R.string.error_could_not_load_profile
                 )
             }
         }
@@ -85,7 +86,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     profile = updatedUser,
-                    successMessage = "Acesso do utilizador desativado com sucesso."
+                    successMessageRes = R.string.user_access_deactivated_success
                 )
             } else {
                 Log.e(
@@ -95,7 +96,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 )
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível desativar o acesso."
+                    errorMessageRes = R.string.error_could_not_deactivate_access
                 )
             }
         }
@@ -115,7 +116,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     profile = updatedUser,
-                    successMessage = "Acesso do utilizador reativado com sucesso."
+                    successMessageRes = R.string.user_access_reactivated_success
                 )
             } else {
                 Log.e(
@@ -125,7 +126,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 )
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível reativar o utilizador."
+                    errorMessageRes = R.string.error_could_not_reactivate_user
                 )
             }
         }
@@ -146,7 +147,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
                     profile = updatedUser,
-                    successMessage = "Utilizador removido da plataforma com sucesso."
+                    successMessageRes = R.string.user_archived_success
                 )
             } else {
                 Log.e(
@@ -156,7 +157,7 @@ class AdminUserDetailViewModel : ViewModel() {
                 )
                 _uiState.value = _uiState.value.copy(
                     isActionLoading = false,
-                    errorMessage = "Não foi possível remover o utilizador da plataforma."
+                    errorMessageRes = R.string.error_could_not_archive_user
                 )
             }
         }
@@ -165,7 +166,9 @@ class AdminUserDetailViewModel : ViewModel() {
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(
             successMessage = null,
-            errorMessage = null
+            successMessageRes = null,
+            errorMessage = null,
+            errorMessageRes = null
         )
     }
 }

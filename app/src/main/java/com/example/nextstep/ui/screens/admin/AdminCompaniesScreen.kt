@@ -101,7 +101,8 @@ fun AdminCompaniesScreen(
                 }
             }
 
-            state.errorMessage != null -> {
+            state.errorMessage != null || state.errorMessageRes != null -> {
+                val displayError = state.errorMessage ?: state.errorMessageRes?.let { stringResource(it) }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -109,7 +110,7 @@ fun AdminCompaniesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = state.errorMessage ?: "",
+                        text = displayError ?: "",
                         color = Color(0xFFB00020),
                         fontSize = 15.sp
                     )

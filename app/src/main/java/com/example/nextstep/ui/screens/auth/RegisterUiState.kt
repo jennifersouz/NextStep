@@ -29,6 +29,16 @@ data class RegisterUiState(
     val teacherDepartment: String = "",
     val teacherPhone: String = "",
 
+    val advisorName: String = "",
+    val advisorLastName: String = "",
+    val advisorPhone: String = "",
+    val advisorDepartment: String = "",
+
+    @StringRes val advisorNameError: Int? = null,
+    @StringRes val advisorLastNameError: Int? = null,
+    @StringRes val advisorPhoneError: Int? = null,
+    @StringRes val advisorDepartmentError: Int? = null,
+
     @StringRes val nameError: Int? = null,
     @StringRes val lastNameError: Int? = null,
     @StringRes val emailError: Int? = null,

@@ -91,7 +91,7 @@ fun StudentDashboardScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val filteredOffers = state.filteredOffers
-    val errorMessage = state.errorMessage
+    val errorMessageRes = state.errorMessageRes
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val sessionViewModel: SessionViewModel = viewModel()
@@ -165,7 +165,7 @@ fun StudentDashboardScreen(
                     StudentOffersContent(
                         state = state,
                         filteredOffers = filteredOffers,
-                        errorMessage = errorMessage,
+                        errorMessage = errorMessageRes?.let { stringResource(it) },
                         onSearchChange = viewModel::onSearchChange,
                         onRetryClick = viewModel::loadOffers,
                         onFilterClick = {

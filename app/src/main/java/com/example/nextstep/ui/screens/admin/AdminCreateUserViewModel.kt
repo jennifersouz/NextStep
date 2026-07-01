@@ -4,6 +4,7 @@ import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nextstep.R
 import com.example.nextstep.data.model.AdminCompanyOptionDto
 import com.example.nextstep.data.model.AdminCreateUserRequest
 import com.example.nextstep.data.model.InstitutionOptionDto
@@ -27,7 +28,8 @@ data class AdminCreateUserUiState(
     val studentNumber: String = "",
     val course: String = "",
     val academicYear: String = "",
-    val educationInstitution: String = "",
+    val selectedStudentInstitutionId: String = "",
+    val selectedStudentInstitutionName: String = "",
 
     // Teacher specific
     val department: String = "",
@@ -48,31 +50,35 @@ data class AdminCreateUserUiState(
     val isLoadingCompanies: Boolean = false,
     val selectedCompanyProfileId: String? = null,
     val selectedCompanyName: String? = null,
-    val companyError: String? = null,
+    val companyErrorRes: Int? = null,
 
-    // Field-level errors
-    val roleError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val firstNameError: String? = null,
-    val lastNameError: String? = null,
-    val studentNumberError: String? = null,
-    val courseError: String? = null,
-    val academicYearError: String? = null,
-    val companyNameError: String? = null,
-    val nifError: String? = null,
-    val businessAreaError: String? = null,
-    val locationError: String? = null,
-    val institutionError: String? = null,
-    val institutionNameError: String? = null,
+    // Field-level errors (resource IDs)
+    val roleError: Int? = null,
+    val emailError: Int? = null,
+    val passwordError: Int? = null,
+    val firstNameError: Int? = null,
+    val lastNameError: Int? = null,
+    val studentNumberError: Int? = null,
+    val courseError: Int? = null,
+    val academicYearError: Int? = null,
+    val studentInstitutionError: Int? = null,
+    val companyNameError: Int? = null,
+    val nifError: Int? = null,
+    val businessAreaError: Int? = null,
+    val locationError: Int? = null,
+    val institutionError: Int? = null,
+    val institutionNameError: Int? = null,
     val generalErrorMessage: String? = null,
+    val generalErrorMessageRes: Int? = null,
 
     // Institutions loaded from Supabase
     val availableInstitutions: List<InstitutionOptionDto> = emptyList(),
     val isLoadingInstitutions: Boolean = false,
+    val institutionsLoaded: Boolean = false,
 
     val isLoading: Boolean = false,
     val successMessage: String? = null,
+    val successMessageRes: Int? = null,
     val isCreated: Boolean = false
 )
 
@@ -82,6 +88,14 @@ class AdminCreateUserViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminCreateUserUiState())
     val uiState: StateFlow<AdminCreateUserUiState> = _uiState.asStateFlow()
+
+    init {
+        loadInstitutions()
+        // Se o role inicial for advisor, carregar empresas
+        if (_uiState.value.selectedRole == "advisor") {
+            loadCompanies()
+        }
+    }
 
     // ── Allowed roles (defense-in-depth) ─────────────────────────────────────
 
@@ -96,16 +110,21 @@ class AdminCreateUserViewModel : ViewModel() {
             result.fold(
                 onSuccess = { institutions ->
                     Log.d("AdminCreateUserVM", "Institutions loaded: ${institutions.size}")
+                    val uniqueSorted = institutions
+                        .distinctBy { it.id }
+                        .sortedBy { it.displayName.lowercase() }
                     _uiState.value = _uiState.value.copy(
-                        availableInstitutions = institutions,
-                        isLoadingInstitutions = false
+                        availableInstitutions = uniqueSorted,
+                        isLoadingInstitutions = false,
+                        institutionsLoaded = true
                     )
                 },
                 onFailure = { e ->
                     Log.e("AdminCreateUserVM", "Error loading institutions", e)
                     _uiState.value = _uiState.value.copy(
                         availableInstitutions = emptyList(),
-                        isLoadingInstitutions = false
+                        isLoadingInstitutions = false,
+                        institutionsLoaded = true
                     )
                 }
             )
@@ -117,12 +136,17 @@ class AdminCreateUserViewModel : ViewModel() {
     fun loadCompanies() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingCompanies = true)
+
             val result = repository.getActiveCompanies()
+
             result.fold(
                 onSuccess = { companies ->
                     Log.d("AdminCreateUserVM", "Companies loaded: ${companies.size}")
+                    val processed = companies
+                        .distinctBy { it.effectiveId }
+                        .sortedBy { it.companyName.lowercase() }
                     _uiState.value = _uiState.value.copy(
-                        availableCompanies = companies,
+                        availableCompanies = processed,
                         isLoadingCompanies = false
                     )
                 },
@@ -131,7 +155,7 @@ class AdminCreateUserViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(
                         availableCompanies = emptyList(),
                         isLoadingCompanies = false,
-                        companyError = "Não foi possível carregar as empresas."
+                        companyErrorRes = R.string.error_failed_to_load_companies
                     )
                 }
             )
@@ -147,6 +171,9 @@ class AdminCreateUserViewModel : ViewModel() {
             firstNameError = null,
             lastNameError = null,
             studentNumberError = null,
+            courseError = null,
+            academicYearError = null,
+            studentInstitutionError = null,
             companyNameError = null,
             nifError = null,
             businessAreaError = null,
@@ -154,15 +181,31 @@ class AdminCreateUserViewModel : ViewModel() {
             institutionError = null,
             institutionNameError = null,
             generalErrorMessage = null,
-            companyError = null,
+            generalErrorMessageRes = null,
+            companyErrorRes = null,
             selectedCompanyProfileId = null,
-            selectedCompanyName = null
+            selectedCompanyName = null,
+            selectedStudentInstitutionId = "",
+            selectedStudentInstitutionName = ""
         )
-        if (role == "teacher") {
+        if (role == "student" || role == "teacher") {
             loadInstitutions()
+        } else {
+            _uiState.value = _uiState.value.copy(
+                availableInstitutions = emptyList(),
+                selectedStudentInstitutionId = "",
+                selectedStudentInstitutionName = ""
+            )
         }
         if (role == "advisor") {
             loadCompanies()
+        } else {
+            _uiState.value = _uiState.value.copy(
+                availableCompanies = emptyList(),
+                selectedCompanyProfileId = null,
+                selectedCompanyName = null,
+                isLoadingCompanies = false
+            )
         }
     }
 
@@ -230,8 +273,13 @@ class AdminCreateUserViewModel : ViewModel() {
         )
     }
 
-    fun onEducationInstitutionChange(value: String) {
-        _uiState.value = _uiState.value.copy(educationInstitution = value)
+    fun onStudentInstitutionSelected(id: String, name: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedStudentInstitutionId = id,
+            selectedStudentInstitutionName = name,
+            studentInstitutionError = null,
+            generalErrorMessage = null
+        )
     }
 
     fun onDepartmentChange(value: String) {
@@ -250,7 +298,7 @@ class AdminCreateUserViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             selectedCompanyProfileId = companyProfileId,
             selectedCompanyName = companyName,
-            companyError = null,
+            companyErrorRes = null,
             generalErrorMessage = null
         )
     }
@@ -316,7 +364,7 @@ class AdminCreateUserViewModel : ViewModel() {
             if (state.selectedRole !in allowedRoles) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    generalErrorMessage = "Tipo de utilizador inválido. Atualiza a lista de tipos e tenta novamente."
+                    generalErrorMessageRes = R.string.error_invalid_role_type
                 )
                 return@launch
             }
@@ -326,7 +374,7 @@ class AdminCreateUserViewModel : ViewModel() {
             if (emailAlreadyExists) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    emailError = "Já existe uma conta com este email."
+                    emailError = R.string.error_email_already_exists
                 )
                 return@launch
             }
@@ -342,9 +390,13 @@ class AdminCreateUserViewModel : ViewModel() {
                 studentNumber = state.studentNumber.takeIf { it.isNotBlank() }?.trim(),
                 course = state.course.takeIf { it.isNotBlank() }?.trim(),
                 academicYear = state.academicYear.toIntOrNull(),
-                educationInstitution = state.educationInstitution.takeIf { it.isNotBlank() }?.trim(),
+                educationInstitution = state.selectedStudentInstitutionName.takeIf { it.isNotBlank() }?.trim(),
                 department = state.department.takeIf { it.isNotBlank() }?.trim(),
-                institutionProfileId = state.institutionProfileId.takeIf { it.isNotBlank() },
+                institutionProfileId = if (state.selectedRole == "student") {
+                    state.selectedStudentInstitutionId.takeIf { it.isNotBlank() }
+                } else {
+                    state.institutionProfileId.takeIf { it.isNotBlank() }
+                },
                 companyName = state.companyName.takeIf { it.isNotBlank() }?.trim(),
                 institutionName = state.institutionName.takeIf { it.isNotBlank() }?.trim(),
                 nif = state.nif.takeIf { it.isNotBlank() }?.trim(),
@@ -365,7 +417,7 @@ class AdminCreateUserViewModel : ViewModel() {
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    successMessage = "Utilizador criado com sucesso.",
+                    successMessageRes = R.string.user_created_success,
                     isCreated = true
                 )
             } else {
@@ -373,7 +425,7 @@ class AdminCreateUserViewModel : ViewModel() {
                 Log.e("AdminCreateUserVM", "createUser failed: $rawError")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    generalErrorMessage = mapApiErrorToFriendly(rawError)
+                    generalErrorMessageRes = mapCreateUserError(rawError)
                 )
             }
         }
@@ -387,19 +439,19 @@ class AdminCreateUserViewModel : ViewModel() {
 
         // Email obrigatório
         if (state.email.isBlank()) {
-            _uiState.value = _uiState.value.copy(emailError = "Insere um email.")
+            _uiState.value = _uiState.value.copy(emailError = R.string.error_email_required)
             isValid = false
         } else if (!Patterns.EMAIL_ADDRESS.matcher(state.email.trim()).matches()) {
-            _uiState.value = _uiState.value.copy(emailError = "Insere um email válido.")
+            _uiState.value = _uiState.value.copy(emailError = R.string.error_invalid_email)
             isValid = false
         }
 
         // Password obrigatória
         if (state.password.isBlank()) {
-            _uiState.value = _uiState.value.copy(passwordError = "Insere uma password temporária.")
+            _uiState.value = _uiState.value.copy(passwordError = R.string.error_password_required)
             isValid = false
         } else if (state.password.length < 6) {
-            _uiState.value = _uiState.value.copy(passwordError = "A password deve ter pelo menos 6 caracteres.")
+            _uiState.value = _uiState.value.copy(passwordError = R.string.error_password_too_short)
             isValid = false
         }
 
@@ -407,94 +459,98 @@ class AdminCreateUserViewModel : ViewModel() {
         when (state.selectedRole) {
             "student" -> {
                 if (state.firstName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
+                    _uiState.value = _uiState.value.copy(firstNameError = R.string.error_name_required)
                     isValid = false
                 }
                 if (state.lastName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(lastNameError = "Apelido obrigatório.")
+                    _uiState.value = _uiState.value.copy(lastNameError = R.string.error_last_name_required)
                     isValid = false
                 }
                 if (state.studentNumber.isBlank()) {
-                    _uiState.value = _uiState.value.copy(studentNumberError = "Número de aluno obrigatório.")
+                    _uiState.value = _uiState.value.copy(studentNumberError = R.string.error_student_number_required)
                     isValid = false
                 }
                 if (state.course.isBlank()) {
-                    _uiState.value = _uiState.value.copy(courseError = "Curso obrigatório.")
+                    _uiState.value = _uiState.value.copy(courseError = R.string.error_course_required)
                     isValid = false
                 }
                 if (state.academicYear.isBlank()) {
-                    _uiState.value = _uiState.value.copy(academicYearError = "Ano académico obrigatório.")
+                    _uiState.value = _uiState.value.copy(academicYearError = R.string.error_academic_year_required)
                     isValid = false
                 } else {
                     val year = state.academicYear.toIntOrNull()
                     if (year == null || year < 1 || year > 6) {
-                        _uiState.value = _uiState.value.copy(academicYearError = "Insere um ano académico válido (1-6).")
+                        _uiState.value = _uiState.value.copy(academicYearError = R.string.error_academic_year_invalid)
                         isValid = false
                     }
+                }
+                if (state.selectedStudentInstitutionId.isBlank()) {
+                    _uiState.value = _uiState.value.copy(studentInstitutionError = R.string.error_institution_required)
+                    isValid = false
                 }
             }
             "teacher" -> {
                 if (state.firstName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
+                    _uiState.value = _uiState.value.copy(firstNameError = R.string.error_name_required)
                     isValid = false
                 }
                 if (state.lastName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(lastNameError = "Apelido obrigatório.")
+                    _uiState.value = _uiState.value.copy(lastNameError = R.string.error_last_name_required)
                     isValid = false
                 }
                 if (state.institutionProfileId.isBlank()) {
-                    _uiState.value = _uiState.value.copy(institutionError = "Seleciona uma instituição.")
+                    _uiState.value = _uiState.value.copy(institutionError = R.string.error_institution_required)
                     isValid = false
                 }
             }
             "company" -> {
                 if (state.companyName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(companyNameError = "Nome da empresa obrigatório.")
+                    _uiState.value = _uiState.value.copy(companyNameError = R.string.error_company_name_required)
                     isValid = false
                 }
                 if (state.nif.isBlank()) {
-                    _uiState.value = _uiState.value.copy(nifError = "NIF obrigatório.")
+                    _uiState.value = _uiState.value.copy(nifError = R.string.error_nif_required)
                     isValid = false
                 } else if (state.nif.length != 9) {
-                    _uiState.value = _uiState.value.copy(nifError = "O NIF deve conter 9 dígitos.")
+                    _uiState.value = _uiState.value.copy(nifError = R.string.error_nif_length)
                     isValid = false
                 }
                 if (state.businessArea.isBlank()) {
-                    _uiState.value = _uiState.value.copy(businessAreaError = "Área de negócio obrigatória.")
+                    _uiState.value = _uiState.value.copy(businessAreaError = R.string.error_business_area_required)
                     isValid = false
                 }
                 if (state.location.isBlank()) {
-                    _uiState.value = _uiState.value.copy(locationError = "Localização obrigatória.")
+                    _uiState.value = _uiState.value.copy(locationError = R.string.error_location_required)
                     isValid = false
                 }
             }
             "advisor" -> {
                 if (state.firstName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
+                    _uiState.value = _uiState.value.copy(firstNameError = R.string.error_name_required)
                     isValid = false
                 }
                 if (state.lastName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(lastNameError = "Apelido obrigatório.")
+                    _uiState.value = _uiState.value.copy(lastNameError = R.string.error_last_name_required)
                     isValid = false
                 }
                 if (state.selectedCompanyProfileId.isNullOrBlank()) {
-                    _uiState.value = _uiState.value.copy(companyError = "Seleciona a empresa do orientador.")
+                    _uiState.value = _uiState.value.copy(companyErrorRes = R.string.error_company_select_required)
                     isValid = false
                 }
             }
             "institution" -> {
                 if (state.institutionName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(institutionNameError = "Nome da instituição obrigatório.")
+                    _uiState.value = _uiState.value.copy(institutionNameError = R.string.error_institution_name_required)
                     isValid = false
                 }
             }
             "admin" -> {
                 if (state.firstName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(firstNameError = "Nome obrigatório.")
+                    _uiState.value = _uiState.value.copy(firstNameError = R.string.error_name_required)
                     isValid = false
                 }
                 if (state.lastName.isBlank()) {
-                    _uiState.value = _uiState.value.copy(lastNameError = "Apelido obrigatório.")
+                    _uiState.value = _uiState.value.copy(lastNameError = R.string.error_last_name_required)
                     isValid = false
                 }
             }
@@ -506,35 +562,49 @@ class AdminCreateUserViewModel : ViewModel() {
     // ── Error mapping ────────────────────────────────────────────────────────
 
     /**
-     * Converte erros técnicos da Edge Function em mensagens amigáveis.
+     * Converte erros técnicos da Edge Function em resource IDs amigáveis.
      * O erro técnico completo vai apenas para o Logcat.
      */
-    private fun mapApiErrorToFriendly(raw: String): String {
+    private fun mapCreateUserError(raw: String): Int {
         val lower = raw.lowercase()
         return when {
-            "empresa obrigatória" in lower -> "Seleciona a empresa do orientador."
-            "institution_profile_id" in lower -> "Seleciona uma instituição."
-            "nif" in lower && "companies_nif_check" in lower -> "O NIF deve conter 9 dígitos."
-            "nif" in lower -> "Verifica o NIF informado."
-            "business_area" in lower -> "Área de negócio obrigatória."
-            "location" in lower -> "Localização obrigatória."
-            "companies_nif_check" in lower -> "O NIF deve conter 9 dígitos."
-            "course" in lower -> "Curso obrigatório."
-            "academic_year" in lower -> "Ano académico obrigatório."
-            "student_number" in lower -> "Número de aluno obrigatório."
-            "last_name" in lower -> "Apelido obrigatório."
-            "first_name" in lower -> "Nome obrigatório."
-            "email" in lower -> "Verifica o email informado."
-            "company_name" in lower -> "Nome da empresa obrigatório."
-            "tipo de utilizador inválido" in lower ->
-                "O tipo de utilizador selecionado é inválido. Atualiza a lista de tipos e tenta novamente."
+            "empresa obrigatória" in lower -> R.string.error_company_select_required
+            "institution_profile_id" in lower -> R.string.error_institution_required
+            "nif" in lower && "companies_nif_check" in lower -> R.string.error_nif_length
+            "nif" in lower -> R.string.error_nif_required
+            "business_area" in lower -> R.string.error_business_area_required
+            "location" in lower -> R.string.error_location_required
+            "companies_nif_check" in lower -> R.string.error_nif_length
+            "course" in lower -> R.string.error_course_required
+            "academic_year" in lower -> R.string.error_academic_year_required
+            "student_number" in lower -> R.string.error_student_number_required
+            "last_name" in lower -> R.string.error_last_name_required
+            "first_name" in lower -> R.string.error_name_required
+            "email" in lower -> R.string.error_verify_email
+            "company_name" in lower -> R.string.error_company_name_required
+            "tipo de utilizador inválido" in lower -> R.string.error_invalid_role_type
             "already exists" in lower ||
-            "duplicate" in lower -> "Já existe um utilizador com este email."
-            else -> "Não foi possível criar o utilizador. Verifica os dados e tenta novamente."
+            "duplicate" in lower ||
+            "já existe" in lower ||
+            "conta com este email" in lower -> R.string.error_email_already_exists
+            else -> R.string.error_create_user_failed
         }
     }
 
     fun clearMessages() {
-        _uiState.value = _uiState.value.copy(generalErrorMessage = null, successMessage = null)
+        _uiState.value = _uiState.value.copy(
+            generalErrorMessage = null,
+            generalErrorMessageRes = null,
+            successMessage = null,
+            successMessageRes = null
+        )
+    }
+
+    fun clearCreationState() {
+        _uiState.value = _uiState.value.copy(
+            successMessage = null,
+            successMessageRes = null,
+            isCreated = false
+        )
     }
 }
