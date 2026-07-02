@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.repository.CompanyEmployeesRepository
+import com.example.nextstep.data.repository.CompanyAdvisorsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class AddCompanyEmployeeViewModel : ViewModel() {
 
-    private val repository = CompanyEmployeesRepository()
+    private val repository = CompanyAdvisorsRepository()
 
     private val _uiState = MutableStateFlow(AddCompanyEmployeeUiState())
     val uiState: StateFlow<AddCompanyEmployeeUiState> = _uiState.asStateFlow()
@@ -42,7 +42,7 @@ class AddCompanyEmployeeViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessageRes = null)
 
-            val result = repository.createInvite(email = state.email)
+            val result = repository.inviteAdvisor(email = state.email)
 
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(isLoading = false, isSuccess = true)

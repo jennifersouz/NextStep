@@ -6,6 +6,7 @@ import com.example.nextstep.data.model.InstitutionInsertDto
 import com.example.nextstep.data.model.ProfileDto
 import com.example.nextstep.data.model.StudentDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
+import com.example.nextstep.data.repository.AdvisorRegistrationRepository
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
@@ -181,21 +182,6 @@ class AuthRepository {
         }
     }
 
-    suspend fun hasPendingCompanyEmployeeInvite(email: String): Result<Boolean> {
-        return try {
-            val result = supabase.postgrest.rpc(
-                function = "has_pending_company_employee_invite",
-                parameters = buildJsonObject {
-                    put("invite_email", email.trim().lowercase())
-                }
-            )
-            Result.success(result.data.toString().toBoolean())
-        } catch (exception: Exception) {
-            Log.e("AuthRepository", "Erro ao verificar convite de funcionário pendente", exception)
-            Result.failure(exception)
-        }
-    }
-
     suspend fun registerInvitedEmployee(
         email: String,
         password: String,
@@ -204,38 +190,18 @@ class AuthRepository {
         phone: String?,
         department: String?
     ): Result<Unit> {
-        return try {
-            val normalizedEmail = email.trim().lowercase()
-            Log.d("AuthRepository", "registerInvitedEmployee email=$normalizedEmail")
+        val advisorName = listOf(firstName.trim(), lastName.trim())
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+            .ifBlank { null }
 
-            // 1. Verificar se existe convite pendente
-            val inviteCheck = hasPendingCompanyEmployeeInvite(normalizedEmail)
-            Log.d("AuthRepository", "hasPendingCompanyEmployeeInvite email=$normalizedEmail result=${inviteCheck.getOrNull()}")
-            if (inviteCheck.isFailure || inviteCheck.getOrNull() == false) {
-                return Result.failure(IllegalStateException("INVITE_NOT_FOUND"))
-            }
-
-            // 2. Criar utilizador no Auth
-            val userId = createAuthUserAndGetId(normalizedEmail, password)
-            Log.d("AuthRepository", "Created auth user id=$userId for employee")
-
-            // 3. Chamar RPC para aceitar convite, criar perfil (role=advisor), advisor e company_employee
-            supabase.postgrest.rpc(
-                function = "accept_company_employee_invite",
-                parameters = buildJsonObject {
-                    put("user_first_name", firstName.trim())
-                    put("user_last_name", lastName.trim())
-                    put("user_phone", phone?.trim()?.takeIf { it.isNotBlank() })
-                    put("user_department", department?.trim()?.takeIf { it.isNotBlank() })
-                }
-            )
-            Log.d("AuthRepository", "RPC accept_company_employee_invite succeeded")
-
-            Result.success(Unit)
-        } catch (exception: Exception) {
-            Log.e("AuthRepository", "Erro ao registar funcionário convidado", exception)
-            Result.failure(exception)
-        }
+        return AdvisorRegistrationRepository().registerAdvisor(
+            email = email,
+            password = password,
+            name = advisorName,
+            phone = phone,
+            department = department
+        )
     }
 
     @Deprecated("Use registerInvitedStudent para alunos")
