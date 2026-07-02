@@ -3,7 +3,9 @@ package com.example.nextstep.ui.screens.company
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nextstep.R
-import com.example.nextstep.data.repository.CompanyEmployeesRepository
+import com.example.nextstep.data.model.CompanyAdvisorDto
+import com.example.nextstep.data.model.CompanyEmployeeInviteDisplayDto
+import com.example.nextstep.data.repository.CompanyAdvisorsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class CompanyEmployeesViewModel : ViewModel() {
 
-    private val repository = CompanyEmployeesRepository()
+    private val repository = CompanyAdvisorsRepository()
 
     private val _uiState = MutableStateFlow(CompanyEmployeesUiState())
     val uiState: StateFlow<CompanyEmployeesUiState> = _uiState.asStateFlow()
@@ -20,11 +22,12 @@ class CompanyEmployeesViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessageRes = null)
 
-            val result = repository.getEmployees()
+            val result = repository.getAdvisors()
 
             if (result.isSuccess) {
+                val advisors = result.getOrDefault(emptyList())
                 _uiState.value = _uiState.value.copy(
-                    employees = result.getOrDefault(emptyList()),
+                    employees = advisors.map { it.toDisplayDto() },
                     isLoading = false
                 )
             } else {
@@ -52,10 +55,24 @@ class CompanyEmployeesViewModel : ViewModel() {
 
     fun deleteEmployee(employeeId: String) {
         viewModelScope.launch {
-            val result = repository.deleteEmployee(employeeId)
+            val result = repository.deleteAdvisor(employeeId)
             if (result.isSuccess) {
                 loadEmployees()
             }
         }
     }
+}
+
+private fun CompanyAdvisorDto.toDisplayDto(): CompanyEmployeeInviteDisplayDto {
+    val isEmailOnly = name == email || name.isBlank()
+    return CompanyEmployeeInviteDisplayDto(
+        id = id,
+        profileId = profileId.ifBlank { null },
+        email = email,
+        firstName = if (isEmailOnly) null else name,
+        lastName = null,
+        phone = phone.ifBlank { null },
+        department = department.ifBlank { null },
+        status = status
+    )
 }
