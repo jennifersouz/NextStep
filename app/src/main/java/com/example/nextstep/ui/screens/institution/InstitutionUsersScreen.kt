@@ -13,13 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,17 +44,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDto
+import com.example.nextstep.ui.screens.admin.AdminSearchBar
 import com.example.nextstep.ui.screens.admin.AppFilterDropdown
 import com.example.nextstep.ui.screens.admin.UserStatusFilter
 import com.example.nextstep.ui.screens.admin.UserTypeFilter
 import com.example.nextstep.ui.screens.admin.labelRes
+import com.example.nextstep.ui.utils.isInstitutionArchived
+import com.example.nextstep.ui.utils.isInviteAccepted
 
 @Composable
 fun InstitutionUsersScreen(
@@ -61,7 +68,7 @@ fun InstitutionUsersScreen(
     onBackClick: (() -> Unit)? = null,
     showBackButton: Boolean = false,
     refreshTrigger: Int = 0,
-    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> },
+    onUserClick: (profileId: String?, role: String) -> Unit = { _, _ -> },
     viewModel: InstitutionUsersViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -126,10 +133,10 @@ internal fun InstitutionUsersContent(
     onStatusFilterChange: (UserStatusFilter) -> Unit,
     onSearchChange: (String) -> Unit,
     onDeleteInvite: (InstitutionUserDto) -> Unit = {},
-    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> }
+    onUserClick: (profileId: String?, role: String) -> Unit = { _, _ -> }
 ) {
     val sortedUsers = state.filteredUsers.sortedWith(
-        compareBy<InstitutionUserDto> { isInviteAccepted(it) }
+        compareBy<InstitutionUserDto> { it.isInviteAccepted() }
             .thenByDescending { it.createdAt.orEmpty() }
     )
 
@@ -185,23 +192,13 @@ internal fun InstitutionUsersContent(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            AdminSearchBar(
                 value = state.searchQuery,
                 onValueChange = onSearchChange,
+                placeholder = stringResource(R.string.search_users),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.search),
-                        color = Color(0xFF6B7280)
-                    )
-                },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFFFDFA52),
-                    cursorColor = Color.Black
-                )
+                    .padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -257,22 +254,15 @@ internal fun InstitutionUsersContent(
                             user = user,
                             onDeleteInvite = onDeleteInvite,
                             onClick = {
-                                val accepted = isInviteAccepted(user)
                                 val role = user.targetRole
-                                val inviteId = user.inviteId
                                 val profileId = user.profileId
 
                                 Log.d(
                                     "InstitutionUsers",
-                                    "Open user inviteId=$inviteId profileId=$profileId role=$role acceptedAt=${user.acceptedAt} inviteStatus=${user.inviteStatus} isAccepted=$accepted"
+                                    "Open user profileId=$profileId role=$role inviteStatus=${user.inviteStatus}"
                                 )
 
-                                onUserClick(
-                                    profileId,
-                                    role,
-                                    inviteId,
-                                    accepted
-                                )
+                                onUserClick(profileId, role)
                             }
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -289,84 +279,76 @@ private fun InstitutionUserCard(
     onDeleteInvite: (InstitutionUserDto) -> Unit = {},
     onClick: () -> Unit = {}
 ) {
-    val accepted = isInviteAccepted(user)
-    val archived = isArchived(user)
+    val profileArchived = user.institutionArchivedAt != null
+    val inviteAccepted = !user.acceptedAt.isNullOrBlank() ||
+        user.inviteStatus?.trim()?.lowercase() == "accepted" ||
+        user.profileId != null
+    val isPending = !inviteAccepted && !profileArchived
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF9F9F9)
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
         onClick = onClick
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(
-                            color = Color(0xFFEFEFEF),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                AvatarWithInitials(user = user)
+
+                Spacer(Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = getUserInitials(user),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = cardPrimaryText(user),
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         color = Color.Black
+                    )
+
+                    val subtitle = buildAnnotatedString {
+                        append(userRoleLabel(user))
+                        if (profileArchived && inviteAccepted) {
+                            append(" · ")
+                            append(stringResource(R.string.invite_accepted_before))
+                        }
+                    }
+                    Text(
+                        text = subtitle,
+                        fontSize = 14.sp,
+                        color = Color(0xFF6B7280)
                     )
                 }
 
-                Spacer(modifier = Modifier.size(16.dp))
+                ProfileStateBadge(user = user)
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = displayInstitutionUserName(user),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                }
-
-                InviteStatusBadge(user = user)
-
-                if (!accepted && !archived) {
-                    Spacer(modifier = Modifier.size(8.dp))
+                if (isPending) {
+                    Spacer(Modifier.width(4.dp))
                     IconButton(
                         onClick = { onDeleteInvite(user) }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Outlined.DeleteOutline,
                             contentDescription = stringResource(R.string.delete_invite),
-                            tint = Color(0xFFB00020)
+                            tint = Color(0xFFB3261E)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = institutionUserSubtitle(user),
-                fontSize = 14.sp,
-                color = Color(0xFF6B7280)
-            )
-
-            if (accepted) {
-                Spacer(modifier = Modifier.height(4.dp))
+            if (inviteAccepted || profileArchived) {
                 Text(
                     text = user.email,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
                     fontSize = 14.sp,
-                    color = Color(0xFF6B7280)
+                    color = Color(0xFF6B7280),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -374,39 +356,56 @@ private fun InstitutionUserCard(
 }
 
 @Composable
-private fun InviteStatusBadge(user: InstitutionUserDto) {
-    val accepted = isInviteAccepted(user)
-    val archived = isArchived(user)
+private fun AvatarWithInitials(user: InstitutionUserDto) {
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .background(Color(0xFFEFEFEF), shape = CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = getUserInitials(user),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+private fun ProfileStateBadge(user: InstitutionUserDto) {
+    val profileArchived = user.institutionArchivedAt != null
+    val inviteAccepted = user.isInviteAccepted()
 
     val label = when {
-        archived -> stringResource(R.string.archived_status)
-        accepted -> stringResource(R.string.accepted)
+        profileArchived -> stringResource(R.string.archived_status)
+        !user.isActive -> stringResource(R.string.inactive_status)
+        inviteAccepted -> stringResource(R.string.accepted)
         else -> stringResource(R.string.pending)
     }
 
     val containerColor = when {
-        archived -> Color(0xFFF3F4F6)
-        accepted -> Color(0xFFE7F7EC)
+        profileArchived -> Color(0xFFF3F4F6)
+        !user.isActive -> Color(0xFFFFEBEE)
+        inviteAccepted -> Color(0xFFE7F7EC)
         else -> Color(0xFFFFF8CC)
     }
 
     val textColor = when {
-        archived -> Color(0xFF6B7280)
-        accepted -> Color(0xFF1B7F3A)
+        profileArchived -> Color(0xFF6B7280)
+        !user.isActive -> Color(0xFFC62828)
+        inviteAccepted -> Color(0xFF1B7F3A)
         else -> Color(0xFF7A5D00)
     }
 
     Box(
         modifier = Modifier
-            .background(
-                color = containerColor,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .background(color = containerColor, shape = RoundedCornerShape(6.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = textColor
         )
@@ -448,54 +447,17 @@ private fun InstitutionUsersEmptyState(isFiltered: Boolean) {
     }
 }
 
-private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
-    return !user.acceptedAt.isNullOrBlank() ||
-        user.inviteStatus?.lowercase()?.trim() == "accepted" ||
-        user.profileId != null
-}
-
-private fun isArchived(user: InstitutionUserDto): Boolean {
-    return user.inviteStatus?.trim()?.lowercase() == "archived"
-}
-
-private fun displayInstitutionUserName(user: InstitutionUserDto): String {
+private fun cardPrimaryText(user: InstitutionUserDto): String {
     val fullName = "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".trim()
-    return if (fullName.isNotBlank()) {
-        fullName
-    } else {
-        user.email
-    }
+    return if (fullName.isNotBlank()) fullName else user.email
 }
 
 @Composable
-private fun institutionUserSubtitle(user: InstitutionUserDto): String {
-    val roleLabel = when (user.targetRole.lowercase().trim()) {
+private fun userRoleLabel(user: InstitutionUserDto): String {
+    return when (user.targetRole.lowercase().trim()) {
         "student" -> stringResource(R.string.student)
         "teacher" -> stringResource(R.string.teacher)
         else -> user.targetRole
-    }
-
-    val accepted = isInviteAccepted(user)
-    val archived = isArchived(user)
-
-    if (archived) {
-        return "$roleLabel · ${stringResource(R.string.archived_status)}"
-    }
-
-    if (!accepted) {
-        return "$roleLabel · ${stringResource(R.string.pending_invite)}"
-    }
-
-    val detail = when (user.targetRole.lowercase().trim()) {
-        "student" -> user.course.orEmpty()
-        "teacher" -> user.department.orEmpty()
-        else -> ""
-    }
-
-    return if (detail.isNotBlank()) {
-        "$roleLabel · $detail"
-    } else {
-        roleLabel
     }
 }
 

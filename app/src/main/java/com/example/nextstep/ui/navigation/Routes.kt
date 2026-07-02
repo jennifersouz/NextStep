@@ -98,18 +98,15 @@ object Routes {
     const val COMPANY_EMPLOYEES = "company_employees"
     const val ADD_COMPANY_EMPLOYEE = "add_company_employee"
 
-    const val INSTITUTION_TEACHERS = "institution_teachers"
     const val INSTITUTION_TEACHER_DETAIL = "institution_teacher_detail/{teacherProfileId}"
     const val INSTITUTION_TEACHER_DETAIL_ARG = "teacherProfileId"
 
-    const val INSTITUTION_STUDENTS = "institution_students"
     const val INSTITUTION_STUDENT_DETAIL = "institution_student_detail/{studentProfileId}"
     const val INSTITUTION_STUDENT_DETAIL_ARG = "studentProfileId"
 
-    const val INSTITUTION_USER_DETAIL = "institution_user_detail/{profileId}/{role}/{inviteId}"
+    const val INSTITUTION_USER_DETAIL = "institution_user_detail/{profileId}/{role}"
     const val INSTITUTION_USER_DETAIL_PROFILE_ARG = "profileId"
     const val INSTITUTION_USER_DETAIL_ROLE_ARG = "role"
-    const val INSTITUTION_USER_DETAIL_INVITE_ARG = "inviteId"
 
     const val ADMIN_ACTIVITIES = "admin_activities"
     const val ADMIN_CREATE_USER = "admin_create_user"
@@ -267,25 +264,15 @@ object Routes {
     }
 
     fun institutionUserDetail(
-        profileId: String?,
-        role: String,
-        inviteId: String?
+        profileId: String,
+        role: String
     ): String {
-        val safeProfileId = profileId
-            ?.takeIf { it.isNotBlank() }
-            ?: "no_profile"
-
         val safeRole = role
             .takeIf { it.isNotBlank() }
             ?: "unknown"
 
-        val safeInviteId = inviteId
-            ?.takeIf { it.isNotBlank() }
-            ?: "no_invite"
-
         return "institution_user_detail/" +
-                "${Uri.encode(safeProfileId)}/" +
-                "${Uri.encode(safeRole)}/" +
-                Uri.encode(safeInviteId)
+                Uri.encode(profileId) + "/" +
+                Uri.encode(safeRole)
     }
 }

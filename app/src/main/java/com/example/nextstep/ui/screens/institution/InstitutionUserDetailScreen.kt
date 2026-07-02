@@ -1,5 +1,6 @@
 package com.example.nextstep.ui.screens.institution
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -23,14 +25,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,24 +47,25 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionUserDetailDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 @Composable
 fun InstitutionUserDetailScreen(
     profileId: String,
     role: String,
-    inviteId: String,
     onBackClick: () -> Unit,
     viewModel: InstitutionUserDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(profileId, role, inviteId) {
+    LaunchedEffect(profileId, role) {
         viewModel.loadUserDetail(
-            profileId = if (profileId == "no_profile") null else profileId,
-            role = role,
-            inviteId = if (inviteId == "no_invite") null else inviteId
+            profileId = profileId,
+            role = role
         )
     }
+
+    var showArchiveDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -88,18 +97,58 @@ fun InstitutionUserDetailScreen(
                 state.userDetail != null -> {
                     InstitutionUserDetailContent(
                         detail = state.userDetail!!,
-                        isPendingInvite = state.isPendingInvite
+                        isPendingInvite = state.isPendingInvite,
+                        onArchiveClick = { showArchiveDialog = true },
+                        isArchiving = state.isArchiving,
+                        archiveSuccessRes = state.archiveSuccessRes,
+                        archiveErrorRes = state.archiveErrorRes
                     )
                 }
             }
         }
+    }
+
+    if (showArchiveDialog) {
+        AlertDialog(
+            onDismissRequest = { showArchiveDialog = false },
+            title = {
+                Text(text = stringResource(R.string.archive_profile_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.archive_profile_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.archiveProfile()
+                        showArchiveDialog = false
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.archive),
+                        color = Color(0xFFDC2626)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showArchiveDialog = false }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
 @Composable
 private fun InstitutionUserDetailContent(
     detail: InstitutionUserDetailDto,
-    isPendingInvite: Boolean
+    isPendingInvite: Boolean,
+    onArchiveClick: () -> Unit = {},
+    isArchiving: Boolean = false,
+    archiveSuccessRes: Int? = null,
+    archiveErrorRes: Int? = null
 ) {
     val roleLabel = when (detail.targetRole.lowercase().trim()) {
         "student" -> stringResource(R.string.student)
@@ -147,8 +196,15 @@ private fun InstitutionUserDetailContent(
 
             Spacer(modifier = Modifier.size(12.dp))
 
-            // Status badge
+            // Status badge — archived has priority over everything
             when {
+                detail.institutionArchivedAt != null -> {
+                    DetailBadge(
+                        label = stringResource(R.string.archived_status),
+                        containerColor = Color(0xFFF3F4F6),
+                        textColor = Color(0xFF6B7280)
+                    )
+                }
                 isPendingInvite || detail.inviteStatus?.lowercase()?.trim() == "pending" -> {
                     DetailBadge(
                         label = stringResource(R.string.pending),
@@ -156,23 +212,16 @@ private fun InstitutionUserDetailContent(
                         textColor = Color(0xFF7A5D00)
                     )
                 }
-                detail.institutionArchivedAt != null -> {
-                    DetailBadge(
-                        label = "Arquivado",
-                        containerColor = Color(0xFFF3F4F6),
-                        textColor = Color(0xFF6B7280)
-                    )
-                }
                 detail.isActive -> {
                     DetailBadge(
-                        label = "Ativo",
+                        label = stringResource(R.string.active_status),
                         containerColor = Color(0xFFE7F7EC),
                         textColor = Color(0xFF1B7F3A)
                     )
                 }
                 else -> {
                     DetailBadge(
-                        label = "Inativo",
+                        label = stringResource(R.string.inactive_status),
                         containerColor = Color(0xFFF3F4F6),
                         textColor = Color(0xFF6B7280)
                     )
@@ -232,7 +281,10 @@ private fun InstitutionUserDetailContent(
                         Spacer(modifier = Modifier.height(12.dp))
                         UserDetailRow(
                             label = "Data do convite",
-                            value = detail.createdAt!!
+                            value = DateFormatUtils.formatDateTimeForDisplay(
+                                detail.createdAt,
+                                LocalConfiguration.current.locales[0]
+                            ) ?: stringResource(R.string.not_available)
                         )
                     }
 
@@ -243,21 +295,14 @@ private fun InstitutionUserDetailContent(
                         color = Color(0xFF6B7280)
                     )
                 } else {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    UserDetailRow(
-                        label = stringResource(R.string.account_status),
-                        value = if (detail.isActive) {
-                            stringResource(R.string.active_status)
-                        } else {
-                            stringResource(R.string.inactive_status)
-                        }
-                    )
-
                     if (!detail.createdAt.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         UserDetailRow(
                             label = stringResource(R.string.registration_date),
-                            value = detail.createdAt!!
+                            value = DateFormatUtils.formatDateTimeForDisplay(
+                                detail.createdAt,
+                                LocalConfiguration.current.locales[0]
+                            ) ?: stringResource(R.string.not_available)
                         )
                     }
                 }
@@ -266,6 +311,12 @@ private fun InstitutionUserDetailContent(
 
         // Academic info (for students)
         if (detail.targetRole.lowercase().trim() == "student" && !isPendingInvite) {
+            val hasAcademicInfo =
+                !detail.studentNumber.isNullOrBlank() ||
+                !detail.course.isNullOrBlank() ||
+                detail.academicYear != null ||
+                !detail.educationInstitution.isNullOrBlank()
+
             Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -285,44 +336,53 @@ private fun InstitutionUserDetailContent(
                         color = Color.Black
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    if (hasAcademicInfo) {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    if (!detail.studentNumber.isNullOrBlank()) {
-                        UserDetailRow(
-                            label = stringResource(R.string.student_number),
-                            value = detail.studentNumber!!
-                        )
-                    }
+                        if (!detail.studentNumber.isNullOrBlank()) {
+                            UserDetailRow(
+                                label = stringResource(R.string.student_number),
+                                value = detail.studentNumber!!
+                            )
+                        }
 
-                    if (!detail.course.isNullOrBlank()) {
+                        if (!detail.course.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            UserDetailRow(
+                                label = stringResource(R.string.course),
+                                value = detail.course!!
+                            )
+                        }
+
+                        if (detail.academicYear != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            UserDetailRow(
+                                label = stringResource(R.string.academic_year),
+                                value = "${detail.academicYear}º ano"
+                            )
+                        }
+
+                        if (!detail.educationInstitution.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            UserDetailRow(
+                                label = stringResource(R.string.education_institution),
+                                value = detail.educationInstitution!!
+                            )
+                        }
+                    } else {
                         Spacer(modifier = Modifier.height(12.dp))
-                        UserDetailRow(
-                            label = stringResource(R.string.course),
-                            value = detail.course!!
-                        )
-                    }
-
-                    if (detail.academicYear != null) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        UserDetailRow(
-                            label = stringResource(R.string.academic_year),
-                            value = "${detail.academicYear}º ano"
-                        )
-                    }
-
-                    if (!detail.educationInstitution.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        UserDetailRow(
-                            label = stringResource(R.string.education_institution),
-                            value = detail.educationInstitution!!
+                        Text(
+                            text = stringResource(R.string.no_academic_information),
+                            fontSize = 14.sp,
+                            color = Color(0xFF6B7280)
                         )
                     }
                 }
             }
         }
 
-        // Professional info (for teachers)
-        if (detail.targetRole.lowercase().trim() == "teacher" && !isPendingInvite) {
+        // Department info
+        if (!isPendingInvite && !detail.department.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -335,13 +395,30 @@ private fun InstitutionUserDetailContent(
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
-                    if (!detail.department.isNullOrBlank()) {
-                        UserDetailRow(
-                            label = stringResource(R.string.department),
-                            value = detail.department!!
-                        )
-                    }
+                    UserDetailRow(
+                        label = stringResource(R.string.department),
+                        value = detail.department!!
+                    )
                 }
+            }
+        }
+
+        // Archive button
+        if (detail.institutionArchivedAt == null && !isPendingInvite && detail.profileId != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                onClick = onArchiveClick,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isArchiving,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFDC2626)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFCA5A5))
+            ) {
+                Text(
+                    text = stringResource(R.string.archive_profile),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
@@ -353,6 +430,28 @@ private fun InstitutionUserDetailContent(
                 fontSize = 14.sp,
                 color = Color(0xFF6B7280),
                 modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        // Success message
+        if (archiveSuccessRes != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(archiveSuccessRes),
+                fontSize = 14.sp,
+                color = Color(0xFF166534),
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        // Error message
+        if (archiveErrorRes != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(archiveErrorRes),
+                fontSize = 14.sp,
+                color = Color(0xFFB00020),
+                fontWeight = FontWeight.Medium
             )
         }
 

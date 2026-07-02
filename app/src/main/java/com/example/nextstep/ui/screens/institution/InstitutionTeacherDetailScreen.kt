@@ -38,7 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionTeacherDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 @Composable
 fun InstitutionTeacherDetailScreen(
@@ -54,7 +55,6 @@ fun InstitutionTeacherDetailScreen(
     viewModel: InstitutionTeacherDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showArchiveDialog by remember { mutableStateOf(false) }
 
@@ -64,7 +64,7 @@ fun InstitutionTeacherDetailScreen(
 
     LaunchedEffect(state.successMessageRes) {
         state.successMessageRes?.let { res ->
-            snackbarHostState.showSnackbar(context.getString(res))
+            snackbarHostState.showSnackbar(stringResource(res))
             viewModel.clearMessages()
         }
     }
@@ -72,7 +72,7 @@ fun InstitutionTeacherDetailScreen(
     LaunchedEffect(state.errorMessageRes) {
         state.errorMessageRes?.let { res ->
             if (state.teacher != null) {
-                snackbarHostState.showSnackbar(context.getString(res))
+                snackbarHostState.showSnackbar(stringResource(res))
                 viewModel.clearMessages()
             }
         }
@@ -158,8 +158,10 @@ private fun InstitutionTeacherDetailContent(
 
             if (teacher.institutionArchivedAt != null) {
                 Badge(label = stringResource(R.string.status_archived), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
-            } else {
+            } else if (teacher.isActive) {
                 Badge(label = stringResource(R.string.active_status), containerColor = Color(0xFFE7F7EC), textColor = Color(0xFF1B7F3A))
+            } else {
+                Badge(label = stringResource(R.string.inactive_status), containerColor = Color(0xFFF3F4F6), textColor = Color(0xFF6B7280))
             }
         }
 
@@ -200,10 +202,10 @@ private fun InstitutionTeacherDetailContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 DetailRow(
                     label = stringResource(R.string.account_status),
-                    value = if (teacher.isActive) {
-                        stringResource(R.string.active_status)
-                    } else {
-                        stringResource(R.string.inactive_status)
+                    value = when {
+                        teacher.institutionArchivedAt != null -> stringResource(R.string.archived_status)
+                        teacher.isActive -> stringResource(R.string.active_status)
+                        else -> stringResource(R.string.inactive_status)
                     }
                 )
 
@@ -211,7 +213,10 @@ private fun InstitutionTeacherDetailContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     DetailRow(
                         label = stringResource(R.string.registration_date),
-                        value = teacher.createdAt!!
+                        value = DateFormatUtils.formatDateTimeForDisplay(
+                            teacher.createdAt,
+                            LocalConfiguration.current.locales[0]
+                        ) ?: stringResource(R.string.not_available)
                     )
                 }
             }

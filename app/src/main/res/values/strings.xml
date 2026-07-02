@@ -123,6 +123,7 @@
     <string name="search">Pesquisar</string>
     <string name="search_user">Pesquisar utilizador…</string>
     <string name="search_company">Pesquisar empresa…</string>
+    <string name="search_users">Pesquisar utilizador...</string>
     <string name="clear">Limpar</string>
     <string name="my_offers">As minhas ofertas</string>
     <string name="search_offers_placeholder">Pesquisar por título, área, localização...</string>
@@ -496,6 +497,7 @@
     <string name="view_student_profile">Ver perfil do aluno</string>
     <string name="company_student_profile_load_error">Não foi possível carregar o perfil do aluno.</string>
     <string name="academic_information">Informação académica</string>
+    <string name="no_academic_information">Não existe informação académica disponível.</string>
     <string name="student">Aluno</string>
     <string name="student_number">Número de aluno</string>
     <string name="course">Curso</string>
@@ -628,6 +630,7 @@
     <string name="quick_actions">Ações rápidas</string>
     <string name="view_users">Ver utilizadores</string>
     <string name="latest_invites">Últimos convites</string>
+    <string name="no_invites_yet">Ainda não existem convites.</string>
     <string name="no_institution_users_title">Ainda não existem utilizadores registados.</string>
     <string name="no_institution_users_description">Começa por adicionar alunos ou docentes à tua instituição.</string>
     <string name="institution_home_load_error">Não foi possível carregar o início da instituição.</string>
@@ -689,6 +692,7 @@
     <string name="student_archive_error">Não foi possível arquivar o aluno.</string>
     <string name="student_archive_success">Aluno arquivado com sucesso.</string>
     <string name="institution_user_load_error">Não foi possível carregar o utilizador.</string>
+    <string name="invite_without_profile_error">Este convite foi aceite, mas ainda não existe perfil associado.</string>
     <string name="internship_detail_load_error">Erro ao carregar detalhes do estágio.</string>
     <string name="error_saving_task">Erro ao guardar tarefa.</string>
     <string name="error_reading_file">Não foi possível ler o ficheiro.</string>
@@ -1094,6 +1098,10 @@
     <string name="user_details">Detalhes do utilizador</string>
     <string name="user_removed_message">Utilizador removido com sucesso</string>
     <string name="user_archived_success">Utilizador arquivado com sucesso.</string>
+    <string name="archive_profile">Arquivar perfil</string>
+    <string name="archive_profile_title">Arquivar perfil?</string>
+    <string name="archive_profile_message">Este utilizador deixará de aparecer nas listas ativas da instituição.</string>
+    <string name="invite_accepted_before">Convite aceite anteriormente</string>
     <string name="name">Nome</string>
     <string name="archived">Arquivado</string>
     <string name="role">Função</string>

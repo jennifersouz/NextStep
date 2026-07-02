@@ -73,7 +73,7 @@
     <string name="area_placeholder">Ex: Software Development</string>
     <string name="location_required">Location *</string>
     <string name="location_placeholder">Ex: Porto</string>
-
+    <string name="invite_without_profile_error">This invitation has been accepted, but there is no associated profile yet.</string>
     <string name="teacher_number_required">Teacher number *</string>
     <string name="teacher_number_placeholder">Ex: D1234</string>
     <string name="department_required">Department *</string>
@@ -133,6 +133,7 @@
     <string name="search">Search</string>
     <string name="search_user">Search user…</string>
     <string name="search_company">Search company…</string>
+    <string name="search_users">Search user...</string>
     <string name="clear">Clear</string>
     <string name="my_offers">My offers</string>
     <string name="search_offers_placeholder">Search by title, area, location...</string>
@@ -496,6 +497,7 @@
     <string name="view_student_profile">View student profile</string>
     <string name="company_student_profile_load_error">Could not load the student profile.</string>
     <string name="academic_information">Academic information</string>
+    <string name="no_academic_information">No academic information available.</string>
     <string name="student">Student</string>
     <string name="student_number">Student number</string>
     <string name="course">Course</string>
@@ -663,6 +665,10 @@
     <string name="user_details">User details</string>
     <string name="user_removed_message">User removed successfully</string>
     <string name="user_archived_success">User archived successfully.</string>
+    <string name="archive_profile">Archive profile</string>
+    <string name="archive_profile_title">Archive profile?</string>
+    <string name="archive_profile_message">This user will no longer appear in the institution\'s active lists.</string>
+    <string name="invite_accepted_before">Invitation previously accepted</string>
     <string name="name">Name</string>
     <string name="archived">Archived</string>
     <string name="role">Role</string>
@@ -826,7 +832,8 @@
     <string name="accepted_invites">Accepted</string>
     <string name="quick_actions">Quick actions</string>
     <string name="view_users">View users</string>
-    <string name="latest_invites">Latest invites</string>
+    <string name="latest_invites">Latest invitations</string>
+    <string name="no_invites_yet">There are no invitations yet.</string>
     <string name="no_institution_users_title">There are no registered users yet.</string>
     <string name="no_institution_users_description">Start by adding students or teachers to your institution.</string>
     <string name="institution_home_load_error">Could not load the institution home.</string>

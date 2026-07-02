@@ -39,5 +39,11 @@ data class InstitutionUserDto(
     val department: String? = null,
 
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+
+    @SerialName("institution_archived_at")
+    val institutionArchivedAt: String? = null,
+
+    @SerialName("is_active")
+    val isActive: Boolean = true
 )

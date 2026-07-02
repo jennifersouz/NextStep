@@ -19,6 +19,15 @@ class InstitutionUsersRepository {
 
     private val supabase = SupabaseClientProvider.client
 
+    suspend fun archiveProfile(profileId: String, role: String): Result<Unit> {
+        val repo = InstitutionRepository()
+        return when (role.trim().lowercase()) {
+            "student" -> repo.archiveStudent(profileId, reason = null)
+            "teacher" -> repo.archiveTeacher(profileId, reason = null).map { }
+            else -> Result.failure(Exception("Função desconhecida: $role"))
+        }
+    }
+
     suspend fun createInvite(
         targetRole: String,
         email: String
@@ -56,14 +65,106 @@ class InstitutionUsersRepository {
 
     suspend fun getInstitutionUsers(): Result<List<InstitutionUserDto>> {
         return try {
-            val users = supabase
-                .from("institution_users_view")
-                .select()
-                .decodeList<InstitutionUserDto>()
+            val currentUser = supabase.auth.currentUserOrNull()
+                ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            Log.d("InstitutionUsers", "usersCount=${users.size}")
+            val students = supabase.from("students")
+                .select {
+                    filter { eq("institution_profile_id", currentUser.id) }
+                }
+                .decodeList<InstitutionStudentDto>()
 
-            Result.success(users)
+            val teachers = supabase.from("teachers")
+                .select {
+                    filter { eq("institution_profile_id", currentUser.id) }
+                }
+                .decodeList<InstitutionTeacherDto>()
+
+            val studentProfileIds = students.map { it.profileId }.filter { it.isNotBlank() }
+            val teacherProfileIds = teachers.map { it.profileId }.filter { it.isNotBlank() }
+            val allProfileIds = (studentProfileIds + teacherProfileIds).distinct()
+
+            val profiles = if (allProfileIds.isNotEmpty()) {
+                supabase.from("profiles")
+                    .select {
+                        filter { isIn("id", allProfileIds) }
+                    }
+                    .decodeList<ProfileListDto>()
+                    .associateBy { it.id }
+            } else emptyMap()
+
+            val realUsers = buildList {
+                for (student in students) {
+                    if (student.profileId.isBlank()) continue
+                    val profile = profiles[student.profileId]
+                    add(InstitutionUserDto(
+                        inviteId = "",
+                        profileId = student.profileId,
+                        email = profile?.email ?: "",
+                        firstName = profile?.firstName ?: student.firstName,
+                        lastName = profile?.lastName ?: student.lastName,
+                        targetRole = "student",
+                        acceptedAt = null,
+                        inviteStatus = "accepted",
+                        studentNumber = student.studentNumber,
+                        course = student.course,
+                        academicYear = student.academicYear,
+                        department = null,
+                        createdAt = student.createdAt,
+                        institutionArchivedAt = student.institutionArchivedAt,
+                        isActive = student.isActive
+                    ))
+                }
+                for (teacher in teachers) {
+                    if (teacher.profileId.isBlank()) continue
+                    val profile = profiles[teacher.profileId]
+                    add(InstitutionUserDto(
+                        inviteId = "",
+                        profileId = teacher.profileId,
+                        email = profile?.email ?: "",
+                        firstName = profile?.firstName ?: teacher.firstName,
+                        lastName = profile?.lastName ?: teacher.lastName,
+                        targetRole = "teacher",
+                        acceptedAt = null,
+                        inviteStatus = "accepted",
+                        studentNumber = null,
+                        course = null,
+                        academicYear = null,
+                        department = teacher.department,
+                        createdAt = teacher.createdAt,
+                        institutionArchivedAt = teacher.institutionArchivedAt,
+                        isActive = teacher.isActive
+                    ))
+                }
+            }
+
+            val pendingInvites = supabase.from("institution_invites")
+                .select {
+                    filter { eq("institution_profile_id", currentUser.id) }
+                }
+                .decodeList<InstitutionInviteDto>()
+                .filter { it.acceptedAt == null }
+
+            val pendingUsers = pendingInvites.map { invite ->
+                InstitutionUserDto(
+                    inviteId = invite.id,
+                    profileId = null,
+                    email = invite.email,
+                    firstName = invite.firstName,
+                    lastName = invite.lastName,
+                    targetRole = invite.targetRole,
+                    acceptedAt = null,
+                    inviteStatus = "pending",
+                    createdAt = invite.createdAt
+                )
+            }
+
+            val allUsers = (realUsers + pendingUsers)
+                .sortedByDescending { it.createdAt.orEmpty() }
+
+            Log.d("InstitutionUsers", "usersCount=${allUsers.size} (real=${realUsers.size} pending=${pendingUsers.size})")
+
+            Result.success(allUsers)
         } catch (exception: Exception) {
             Log.e("InstitutionUsersRepository", "Erro ao buscar utilizadores da instituição", exception)
             Result.failure(exception)
@@ -71,131 +172,105 @@ class InstitutionUsersRepository {
     }
 
     suspend fun getInstitutionUserDetail(
-        inviteId: String?,
-        profileId: String?,
+        profileId: String,
         role: String
     ): Result<InstitutionUserDetailDto> {
         return try {
             val currentUser = supabase.auth.currentUserOrNull()
                 ?: return Result.failure(IllegalStateException("Utilizador não autenticado."))
 
-            Log.d("InstitutionUsersRepo", "getInstitutionUserDetail inviteId=$inviteId profileId=$profileId role=$role")
+            Log.d("InstitutionUsersRepo", "getInstitutionUserDetail profileId=$profileId role=$role")
 
-            // Case 1: If we have a profileId, the user has accepted and registered
-            if (!profileId.isNullOrBlank() && profileId != "no_profile") {
-                return when (role.lowercase().trim()) {
-                    "student" -> {
-                        val student = supabase
-                            .from("students")
-                            .select {
-                                filter {
-                                    eq("profile_id", profileId)
-                                    eq("institution_profile_id", currentUser.id)
-                                }
-                                single()
-                            }
-                            .decodeAs<InstitutionStudentDto>()
-
-                        Result.success(InstitutionUserDetailDto(
-                            profileId = student.profileId,
-                            email = student.email,
-                            firstName = student.firstName,
-                            lastName = student.lastName,
-                            phone = student.phone,
-                            targetRole = "student",
-                            inviteStatus = "accepted",
-                            acceptedAt = student.createdAt, 
-                            isActive = student.isActive,
-                            createdAt = student.createdAt,
-                            institutionArchivedAt = student.institutionArchivedAt,
-                            studentNumber = student.studentNumber,
-                            course = student.course,
-                            academicYear = student.academicYear,
-                            educationInstitution = student.educationInstitution
-                        ))
-                    }
-                    "teacher" -> {
-                        val teacher = supabase
-                            .from("teachers")
-                            .select {
-                                filter {
-                                    eq("profile_id", profileId)
-                                    eq("institution_profile_id", currentUser.id)
-                                }
-                                single()
-                            }
-                            .decodeAs<InstitutionTeacherDto>()
-
-                        Result.success(InstitutionUserDetailDto(
-                            profileId = teacher.profileId,
-                            email = teacher.email,
-                            firstName = teacher.firstName,
-                            lastName = teacher.lastName,
-                            phone = teacher.phone,
-                            targetRole = "teacher",
-                            inviteStatus = "accepted",
-                            acceptedAt = teacher.createdAt,
-                            isActive = teacher.isActive,
-                            createdAt = teacher.createdAt,
-                            institutionArchivedAt = teacher.institutionArchivedAt,
-                            department = teacher.department
-                        ))
-                    }
-                    else -> Result.failure(Exception("Função desconhecida: $role"))
-                }
-            }
-
-            // Case 2: No profileId, must check the invite
-            if (!inviteId.isNullOrBlank() && inviteId != "no_invite") {
-                val invite = supabase
-                    .from("institution_invites")
+            val profileFallback = try {
+                supabase.from("profiles")
                     .select {
-                        filter {
-                            eq("id", inviteId)
-                            eq("institution_profile_id", currentUser.id)
-                        }
-                        single()
+                        filter { eq("id", profileId) }
                     }
-                    .decodeAs<InstitutionInviteDetailDto>()
+                    .decodeSingleOrNull<ProfileListDto>()
+            } catch (_: Exception) { null }
 
-                // Fallback: If it was accepted but profileId was not provided, try to find the profile
-                if (invite.acceptedAt != null) {
-                    try {
-                        val tableName = if (invite.targetRole == "student") "students" else "teachers"
-                        val profileIdFound = supabase.from(tableName)
-                            .select {
-                                filter { eq("email", invite.email) }
-                                single()
+            return when (role.lowercase().trim()) {
+                "student" -> {
+                    val student = supabase.from("students")
+                        .select {
+                            filter {
+                                eq("profile_id", profileId)
+                                eq("institution_profile_id", currentUser.id)
                             }
-                            .decodeAs<ProfileIdOnlyDto>()
-                            .profileId
+                        }
+                        .decodeSingleOrNull<InstitutionStudentDto>()
 
-                        return getInstitutionUserDetail(inviteId, profileIdFound, invite.targetRole)
-                    } catch (e: Exception) {
-                        Log.w("InstitutionUsersRepo", "Could not resolve profile for accepted invite ${invite.email}", e)
-                        return Result.success(InstitutionUserDetailDto(
-                            email = invite.email,
-                            firstName = invite.firstName,
-                            lastName = invite.lastName,
-                            targetRole = invite.targetRole,
-                            inviteStatus = "accepted",
-                            acceptedAt = invite.acceptedAt,
-                            createdAt = invite.createdAt
-                        ))
+                    if (student == null) {
+                        throw Exception("Aluno não encontrado ou sem permissão de leitura.")
                     }
+
+                    val email = student.email.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.email.orEmpty()
+
+                    val firstName = student.firstName.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.firstName.orEmpty()
+
+                    val lastName = student.lastName.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.lastName.orEmpty()
+
+                    Result.success(InstitutionUserDetailDto(
+                        profileId = student.profileId,
+                        email = email,
+                        firstName = firstName,
+                        lastName = lastName,
+                        phone = student.phone,
+                        targetRole = "student",
+                        inviteStatus = "accepted",
+                        acceptedAt = student.createdAt,
+                        isActive = student.isActive,
+                        createdAt = student.createdAt,
+                        institutionArchivedAt = student.institutionArchivedAt,
+                        studentNumber = student.studentNumber,
+                        course = student.course,
+                        academicYear = student.academicYear,
+                        educationInstitution = student.educationInstitution
+                    ))
                 }
+                "teacher" -> {
+                    val teacher = supabase.from("teachers")
+                        .select {
+                            filter {
+                                eq("profile_id", profileId)
+                                eq("institution_profile_id", currentUser.id)
+                            }
+                        }
+                        .decodeSingleOrNull<InstitutionTeacherDto>()
 
-                return Result.success(InstitutionUserDetailDto(
-                    email = invite.email,
-                    firstName = invite.firstName,
-                    lastName = invite.lastName,
-                    targetRole = invite.targetRole,
-                    inviteStatus = "pending",
-                    createdAt = invite.createdAt
-                ))
+                    if (teacher == null) {
+                        throw Exception("Docente não encontrado ou sem permissão de leitura.")
+                    }
+
+                    val email = teacher.email.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.email.orEmpty()
+
+                    val firstName = teacher.firstName.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.firstName.orEmpty()
+
+                    val lastName = teacher.lastName.takeIf { it.isNotBlank() }
+                        ?: profileFallback?.lastName.orEmpty()
+
+                    Result.success(InstitutionUserDetailDto(
+                        profileId = teacher.profileId,
+                        email = email,
+                        firstName = firstName,
+                        lastName = lastName,
+                        phone = teacher.phone,
+                        targetRole = "teacher",
+                        inviteStatus = "accepted",
+                        acceptedAt = teacher.createdAt,
+                        isActive = teacher.isActive,
+                        createdAt = teacher.createdAt,
+                        institutionArchivedAt = teacher.institutionArchivedAt,
+                        department = teacher.department
+                    ))
+                }
+                else -> Result.failure(Exception("Função desconhecida: $role"))
             }
-
-            Result.failure(Exception("Dados insuficientes para carregar o detalhe."))
         } catch (exception: Exception) {
             Log.e("InstitutionUsersRepository", "Erro ao carregar detalhe", exception)
             Result.failure(Exception("Não foi possível carregar os dados do utilizador."))
@@ -220,11 +295,18 @@ class InstitutionUsersRepository {
 }
 
 @Serializable
-data class InstitutionInviteDetailDto(
-    @SerialName("id")
+data class ProfileListDto(
+    val id: String,
+    val email: String,
+    @SerialName("first_name")
+    val firstName: String? = null,
+    @SerialName("last_name")
+    val lastName: String? = null
+)
+
+@Serializable
+data class InstitutionInviteDto(
     val id: String = "",
-    @SerialName("institution_profile_id")
-    val institutionProfileId: String = "",
     @SerialName("target_role")
     val targetRole: String = "",
     val email: String = "",
@@ -239,13 +321,9 @@ data class InstitutionInviteDetailDto(
 )
 
 @Serializable
-private data class ProfileIdOnlyDto(
-    @SerialName("profile_id")
-    val profileId: String
-)
-
-@Serializable
 private data class InstitutionIdOnlyDto(
     @SerialName("profile_id")
     val profileId: String
 )
+
+

@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,9 +25,7 @@ import com.example.nextstep.ui.screens.auth.SessionViewModel
 fun InstitutionDashboardScreen(
     onLogoutSuccess: () -> Unit = {},
     onAddUserClick: () -> Unit = {},
-    onTeacherClick: (String) -> Unit = {},
-    onStudentClick: (String) -> Unit = {},
-    onUserClick: (profileId: String?, role: String, inviteId: String?, isAccepted: Boolean) -> Unit = { _, _, _, _ -> },
+    onUserClick: (profileId: String?, role: String) -> Unit = { _, _ -> },
     sessionViewModel: SessionViewModel = viewModel()
 ) {
     var selectedTab by rememberSaveable {
@@ -85,19 +81,9 @@ fun InstitutionDashboardScreen(
                 InstitutionTab.HOME -> {
                     InstitutionHomeScreen(
                         onAddUserClick = onAddUserClick,
-                        onViewUsersClick = { selectedTab = InstitutionTab.USERS }
-                    )
-                }
-
-                InstitutionTab.TEACHERS -> {
-                    InstitutionTeachersScreen(
-                        onTeacherClick = onTeacherClick
-                    )
-                }
-
-                InstitutionTab.STUDENTS -> {
-                    InstitutionStudentsScreen(
-                        onStudentClick = onStudentClick
+                        onViewUsersClick = { selectedTab = InstitutionTab.USERS },
+                        onStudentsClick = { selectedTab = InstitutionTab.USERS },
+                        onTeachersClick = { selectedTab = InstitutionTab.USERS }
                     )
                 }
 
@@ -154,16 +140,6 @@ fun InstitutionBottomBar(
                 label = stringResource(com.example.nextstep.R.string.tab_home)
             ),
             BottomBarItem(
-                route = InstitutionTab.TEACHERS.name,
-                icon = Icons.Filled.School,
-                label = stringResource(com.example.nextstep.R.string.tab_teachers)
-            ),
-            BottomBarItem(
-                route = InstitutionTab.STUDENTS.name,
-                icon = Icons.Filled.People,
-                label = stringResource(com.example.nextstep.R.string.tab_students)
-            ),
-            BottomBarItem(
                 route = InstitutionTab.USERS.name,
                 icon = Icons.Filled.Person,
                 label = stringResource(com.example.nextstep.R.string.tab_users)
@@ -183,8 +159,6 @@ fun InstitutionBottomBar(
 
 enum class InstitutionTab {
     HOME,
-    TEACHERS,
-    STUDENTS,
     USERS,
     PROFILE
 }

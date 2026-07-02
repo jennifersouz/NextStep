@@ -38,7 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nextstep.R
 import com.example.nextstep.data.model.InstitutionStudentDto
+import com.example.nextstep.ui.utils.DateFormatUtils
 
 @Composable
 fun InstitutionStudentDetailScreen(
@@ -55,7 +56,6 @@ fun InstitutionStudentDetailScreen(
     viewModel: InstitutionStudentDetailViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showArchiveDialog by remember { mutableStateOf(false) }
 
@@ -65,7 +65,7 @@ fun InstitutionStudentDetailScreen(
 
     LaunchedEffect(state.successMessageRes) {
         state.successMessageRes?.let { res ->
-            snackbarHostState.showSnackbar(context.getString(res))
+            snackbarHostState.showSnackbar(stringResource(res))
             viewModel.clearMessages()
         }
     }
@@ -73,7 +73,7 @@ fun InstitutionStudentDetailScreen(
     LaunchedEffect(state.errorMessageRes) {
         state.errorMessageRes?.let { res ->
             if (state.student != null) {
-                snackbarHostState.showSnackbar(context.getString(res))
+                snackbarHostState.showSnackbar(stringResource(res))
                 viewModel.clearMessages()
             }
         }
@@ -223,10 +223,10 @@ private fun InstitutionStudentDetailContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 StudentDetailRow(
                     label = stringResource(R.string.account_status),
-                    value = if (student.isActive) {
-                        stringResource(R.string.active_status)
-                    } else {
-                        stringResource(R.string.inactive_status)
+                    value = when {
+                        student.institutionArchivedAt != null -> stringResource(R.string.archived_status)
+                        student.isActive -> stringResource(R.string.active_status)
+                        else -> stringResource(R.string.inactive_status)
                     }
                 )
 
@@ -234,7 +234,10 @@ private fun InstitutionStudentDetailContent(
                     Spacer(modifier = Modifier.height(12.dp))
                     StudentDetailRow(
                         label = stringResource(R.string.registration_date),
-                        value = student.createdAt!!
+                        value = DateFormatUtils.formatDateTimeForDisplay(
+                            student.createdAt,
+                            LocalConfiguration.current.locales[0]
+                        ) ?: stringResource(R.string.not_available)
                     )
                 }
             }

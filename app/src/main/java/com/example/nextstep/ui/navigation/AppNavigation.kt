@@ -2,6 +2,7 @@ package com.example.nextstep.ui.navigation
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.nextstep.R
 import com.example.nextstep.data.local.AppPreferences
 import com.example.nextstep.ui.screens.admin.AdminCreateUserScreen
 import com.example.nextstep.ui.screens.admin.AdminActivitiesScreen
@@ -42,9 +44,7 @@ import com.example.nextstep.ui.screens.company.CompanyStudentProfileScreen
 import com.example.nextstep.ui.screens.institution.AddInstitutionUserScreen
 import com.example.nextstep.ui.screens.institution.InstitutionDashboardScreen
 import com.example.nextstep.ui.screens.institution.InstitutionStudentDetailScreen
-import com.example.nextstep.ui.screens.institution.InstitutionStudentsScreen
 import com.example.nextstep.ui.screens.institution.InstitutionTeacherDetailScreen
-import com.example.nextstep.ui.screens.institution.InstitutionTeachersScreen
 import com.example.nextstep.ui.screens.institution.InstitutionUserDetailScreen
 import com.example.nextstep.ui.screens.intro.IntroScreen
 import com.example.nextstep.ui.screens.splash.SplashScreen
@@ -473,79 +473,21 @@ fun AppNavigation() {
                 onAddUserClick = {
                     navController.navigate(Routes.ADD_INSTITUTION_USER)
                 },
-                onTeacherClick = { teacherProfileId ->
-                    navController.navigate(
-                        Routes.INSTITUTION_TEACHER_DETAIL.replace(
-                            "{teacherProfileId}",
-                            teacherProfileId
-                        )
-                    )
-                },
-                onStudentClick = { studentProfileId ->
-                    navController.navigate(
-                        Routes.INSTITUTION_STUDENT_DETAIL.replace(
-                            "{studentProfileId}",
-                            studentProfileId
-                        )
-                    )
-                },
-                onUserClick = { profileId, role, inviteId, isAccepted ->
-                    val normalizedRole = role.trim().lowercase()
-                    val safeProfileId = profileId.orEmpty()
-                    val safeInviteId = inviteId.orEmpty()
-
-                    if (isAccepted && safeProfileId.isNotBlank()) {
-                        when (normalizedRole) {
-                            "student", "aluno" -> {
-                                navController.navigate(
-                                    Routes.INSTITUTION_STUDENT_DETAIL.replace(
-                                        "{studentProfileId}",
-                                        safeProfileId
-                                    )
-                                )
-                            }
-
-                            "teacher", "docente" -> {
-                                navController.navigate(
-                                    Routes.INSTITUTION_TEACHER_DETAIL.replace(
-                                        "{teacherProfileId}",
-                                        safeProfileId
-                                    )
-                                )
-                            }
-
-                            else -> {
-                                navController.navigate(
-                                    Routes.institutionUserDetail(
-                                        profileId = safeProfileId,
-                                        role = normalizedRole,
-                                        inviteId = safeInviteId
-                                    )
-                                )
-                            }
-                        }
+                onUserClick = { profileId, role ->
+                    if (profileId == null) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.invite_without_profile_error),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
                         navController.navigate(
                             Routes.institutionUserDetail(
-                                profileId = safeProfileId,
-                                role = normalizedRole,
-                                inviteId = safeInviteId
+                                profileId = profileId,
+                                role = role.trim().lowercase()
                             )
                         )
                     }
-                }
-            )
-        }
-
-        composable(Routes.INSTITUTION_TEACHERS) {
-            InstitutionTeachersScreen(
-                onTeacherClick = { teacherProfileId ->
-                    navController.navigate(
-                        Routes.INSTITUTION_TEACHER_DETAIL.replace(
-                            "{teacherProfileId}",
-                            teacherProfileId
-                        )
-                    )
                 }
             )
         }
@@ -566,19 +508,6 @@ fun AppNavigation() {
                 teacherProfileId = teacherProfileId,
                 onBackClick = {
                     navController.popBackStack()
-                }
-            )
-        }
-
-        composable(Routes.INSTITUTION_STUDENTS) {
-            InstitutionStudentsScreen(
-                onStudentClick = { studentProfileId ->
-                    navController.navigate(
-                        Routes.INSTITUTION_STUDENT_DETAIL.replace(
-                            "{studentProfileId}",
-                            studentProfileId
-                        )
-                    )
                 }
             )
         }
@@ -645,9 +574,6 @@ fun AppNavigation() {
                 },
                 navArgument(Routes.INSTITUTION_USER_DETAIL_ROLE_ARG) {
                     type = NavType.StringType
-                },
-                navArgument(Routes.INSTITUTION_USER_DETAIL_INVITE_ARG) {
-                    type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
@@ -659,14 +585,9 @@ fun AppNavigation() {
                 ?.getString(Routes.INSTITUTION_USER_DETAIL_ROLE_ARG)
                 .orEmpty()
 
-            val inviteId = backStackEntry.arguments
-                ?.getString(Routes.INSTITUTION_USER_DETAIL_INVITE_ARG)
-                .orEmpty()
-
             InstitutionUserDetailScreen(
                 profileId = profileId,
                 role = role,
-                inviteId = inviteId,
                 onBackClick = {
                     navController.popBackStack()
                 }

@@ -8,6 +8,8 @@ import com.example.nextstep.data.repository.InstitutionUsersRepository
 import com.example.nextstep.ui.screens.admin.UserStatusFilter
 import com.example.nextstep.ui.screens.admin.UserTypeFilter
 import com.example.nextstep.ui.screens.admin.labelRes
+import com.example.nextstep.ui.utils.isInstitutionArchived
+import com.example.nextstep.ui.utils.isInviteAccepted
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,11 +57,7 @@ class InstitutionUsersViewModel : ViewModel() {
     }
 
     fun deleteInvite(invite: InstitutionUserDto) {
-        val isAccepted = !invite.acceptedAt.isNullOrBlank() ||
-            invite.inviteStatus?.lowercase()?.trim() == "accepted" ||
-            invite.profileId != null
-
-        if (isAccepted) {
+        if (invite.isInviteAccepted()) {
             _uiState.value = _uiState.value.copy(
                 errorMessageRes = R.string.cannot_delete_accepted_invite
             )
@@ -121,8 +119,8 @@ class InstitutionUsersViewModel : ViewModel() {
                 else -> true
             }
 
-            val accepted = isInviteAccepted(user)
-            val archived = isArchived(user)
+            val accepted = user.isInviteAccepted()
+            val archived = user.isInstitutionArchived()
 
             val matchesStatus = when (state.selectedStatusFilter) {
                 UserStatusFilter.ALL -> true
@@ -146,13 +144,3 @@ data class InstitutionUsersUiState(
     val searchQuery: String = "",
     val errorMessageRes: Int? = null
 )
-
-private fun isInviteAccepted(user: InstitutionUserDto): Boolean {
-    return !user.acceptedAt.isNullOrBlank() ||
-        user.inviteStatus?.lowercase()?.trim() == "accepted" ||
-        user.profileId != null
-}
-
-private fun isArchived(user: InstitutionUserDto): Boolean {
-    return user.inviteStatus?.trim()?.lowercase() == "archived"
-}

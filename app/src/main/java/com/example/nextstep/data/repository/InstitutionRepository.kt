@@ -7,6 +7,7 @@ import com.example.nextstep.data.model.InstitutionTeacherDto
 import com.example.nextstep.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.Serializable
 import java.time.Instant
 
 class InstitutionRepository {
@@ -62,7 +63,9 @@ class InstitutionRepository {
                 }
                 .decodeAs<InstitutionTeacherDto>()
 
-            Result.success(teacher)
+            val profileEmail = fetchProfileEmail(teacherProfileId)
+
+            Result.success(teacher.copy(email = profileEmail))
         } catch (exception: Exception) {
             Log.e("InstitutionRepository", "Erro ao carregar detalhe do docente", exception)
             Result.failure(exception)
@@ -114,7 +117,9 @@ class InstitutionRepository {
                 }
                 .decodeAs<InstitutionStudentDto>()
 
-            Result.success(student)
+            val profileEmail = fetchProfileEmail(studentProfileId)
+
+            Result.success(student.copy(email = profileEmail))
         } catch (exception: Exception) {
             Log.e("InstitutionRepository", "Erro ao carregar detalhe do aluno", exception)
             Result.failure(exception)
@@ -242,4 +247,25 @@ class InstitutionRepository {
             Result.failure(exception)
         }
     }
+
+    private suspend fun fetchProfileEmail(profileId: String): String {
+        return try {
+            supabase.from("profiles")
+                .select {
+                    filter { eq("id", profileId) }
+                    single()
+                }
+                .decodeAs<ProfileEmailDto>()
+                .email
+        } catch (e: Exception) {
+            Log.w("InstitutionRepository", "Could not fetch profile email for profileId=$profileId", e)
+            ""
+        }
+    }
 }
+
+@Serializable
+private data class ProfileEmailDto(
+    val id: String,
+    val email: String
+)

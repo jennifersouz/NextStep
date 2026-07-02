@@ -169,33 +169,15 @@ private fun InstitutionProfileContent(
         subtitle = stringResource(R.string.institution_role),
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutRequest,
-        extraContent = {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column(modifier = Modifier.fillMaxWidth()) {
+        extraContent = if (!profile.phone.isNullOrBlank()) {
+            {
                 ProfileFieldItem(
-                    label = stringResource(R.string.email),
-                    value = profile.email.orEmpty()
-                )
-
-                if (!profile.phone.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ProfileFieldItem(
-                        label = stringResource(R.string.phone),
-                        value = profile.phone
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                ProfileFieldItem(
-                    label = stringResource(R.string.status),
-                    value = if (profile.isActive != false) {
-                        stringResource(R.string.active_status)
-                    } else {
-                        stringResource(R.string.inactive_status)
-                    }
+                    label = stringResource(R.string.phone),
+                    value = profile.phone
                 )
             }
+        } else {
+            null
         },
         accountOptions = {
             LanguageOptionsSection(

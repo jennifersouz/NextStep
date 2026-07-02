@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,18 +47,17 @@ fun AddCompanyEmployeeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            snackbarHostState.showSnackbar(context.getString(R.string.employee_invite_created))
+            snackbarHostState.showSnackbar(stringResource(R.string.employee_invite_created))
             onSuccess()
         }
     }
 
     LaunchedEffect(state.errorMessageRes) {
         state.errorMessageRes?.let { res ->
-            snackbarHostState.showSnackbar(context.getString(res))
+            snackbarHostState.showSnackbar(stringResource(res))
             viewModel.clearError()
         }
     }

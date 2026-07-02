@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.example.nextstep.R
+import com.example.nextstep.data.model.InstitutionUserDto
 
 /**
  * Application/Internship status constants used throughout the UI.
@@ -60,6 +61,21 @@ fun applicationStatusToDisplay(status: String?): String {
  * Returns the colour associated with a given application/internship status,
  * suitable for use as text colour or indicator colour in the UI.
  */
+fun InstitutionUserDto.isInstitutionArchived(): Boolean {
+    return institutionArchivedAt != null || inviteStatus?.trim()?.lowercase() == "archived"
+}
+
+fun InstitutionUserDto.isInviteAccepted(): Boolean {
+    if (isInstitutionArchived()) return false
+    return !acceptedAt.isNullOrBlank() ||
+        inviteStatus?.trim()?.lowercase() == "accepted" ||
+        profileId != null
+}
+
+fun InstitutionUserDto.isInvitePending(): Boolean {
+    return !isInstitutionArchived() && !isInviteAccepted()
+}
+
 fun applicationStatusToColor(status: String?): Color {
     return when (status?.trim()?.lowercase()) {
         "accepted", "aceite",
